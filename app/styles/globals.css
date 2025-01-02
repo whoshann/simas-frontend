@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f2f2f2;
+  --main-color: #1f509a;
+  --second-color: #E88D1F;
+  --third-color: #0A97B0;
+  --fourth-color: #BD0000;
+  --text-bold-color: #202224;
+  --text-semi-bold-color: #464255;
+  --text-regular-color: #242426;
+  --text-thin-color: #6F6F6F;
+}
+
+.active {
+  background-color: #1f509a;
+  color: #ffffff;
+}
+
+.active-submenu {
+  color: #1f509a;
+}
+
+.submenu {
+  padding-left: 2rem;
+}
+
+.rotate {
+  transform: rotate(90deg);
+}
