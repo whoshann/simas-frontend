@@ -1,14 +1,14 @@
 export default function guestDashboard() {
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
-            <header className="flex flex-col items-start py-4 px-10 shadow-md bg-gray-200">
+            <header className="flex flex-col items-start py-4 px-10 shadow-md bg-[var(--background)]">
                 <div className="text-lg font-semibold">Beranda</div>
                 <div className="mt-0">
                     <span>Halo, selamat datang di website kami</span>
                 </div>
             </header>
 
-            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 py-4 px-10 mt-0">
+            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[var(--background)] py-4 px-10 mt-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-white p-4 shadow rounded-lg max-h-61">
                         <img src="images/Baksos-Sumbermanjing.webp" alt="Sosialisasi" className="w-full h-[55%] object-cover rounded-lg" />

@@ -15,12 +15,12 @@
 }
 
 .active {
-  background-color: #1f509a;
+  background-color: var(--main-color);
   color: #ffffff;
 }
 
 .active-submenu {
-  color: #1f509a;
+  color: var(--main-color);
 }
 
 .submenu {
