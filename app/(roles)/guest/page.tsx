@@ -1,13 +1,14 @@
+import "@/app/styles/globals.css";
 
 export default function GuestDashboard() {
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
-            <header className="p-6">
-                <h1 className="text-2xl font-bold text-[var(--text-bold-color)]">Beranda</h1>
+            <header className="py-6 px-9">
+                <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
                 <p className="text-sm text-gray-600">Halo, selamat datang di website kami</p>
             </header>
 
-            <main className="flex-1 overflow-x-hidden overflow-y-auto px-6">
+            <main className="flex-1 overflow-x-hidden overflow-y-auto px-9">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="bg-white shadow-md rounded-lg overflow-hidden lg:col-span-2">
                         <img

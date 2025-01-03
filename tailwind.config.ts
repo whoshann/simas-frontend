@@ -13,6 +13,9 @@ export default {
         foreground: "var(--foreground)",
         customBlue: '#1F509A'
       },
+      maxWidth: {
+        '272px': '272px', 
+      },
     },
   },
   plugins: [],
