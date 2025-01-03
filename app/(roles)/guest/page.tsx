@@ -1,3 +1,4 @@
+
 export default function GuestDashboard() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">

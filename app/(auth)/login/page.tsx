@@ -15,7 +15,7 @@ export default function LoginPage() {
                 <img
                     src="/images/IlustrasiLogin.svg"
                     alt="Illustration"
-                    className="w-1/2 md:w-1/2 mx-auto mb-4 md:mb-0"
+                    className="w-3/4 md:w-3/4 mx-auto mb-4 md:mb-0"
                 />
             </div>
 
