@@ -1,9 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [],
   theme: {
-    extend: {},
+    extend: {
+      maxWidth: {
+        '272px': '272px', 
+      },
+    },
   },
   plugins: [],
-}
-
+};

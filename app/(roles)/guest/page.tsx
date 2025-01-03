@@ -1,54 +1,89 @@
-export default function guestDashboard() {
+
+export default function GuestDashboard() {
     return (
-        <div className="flex-1 flex flex-col overflow-hidden">
-            <header className="flex flex-col items-start py-4 px-10 shadow-md bg-[var(--background)]">
-                <div className="text-lg font-semibold">Beranda</div>
-                <div className="mt-0">
-                    <span>Halo, selamat datang di website kami</span>
-                </div>
+        <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+            <header className="p-6">
+                <h1 className="text-2xl font-bold text-[var(--text-bold-color)]">Beranda</h1>
+                <p className="text-sm text-gray-600">Halo, selamat datang di website kami</p>
             </header>
 
-            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[var(--background)] py-4 px-10 mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-white p-4 shadow rounded-lg max-h-61">
-                        <img src="images/Baksos-Sumbermanjing.webp" alt="Sosialisasi" className="w-full h-[55%] object-cover rounded-lg" />
-                        <div className="p-2 flex items-center">
-                            <div className="mr-4 text-center">
-                                <div className="text-4xl font-bold text-blue-600">27</div>
-                                <div className="text-4xl font-bold text-teal-500">01</div>
-                            </div>
-                            <div className="pt-4">
-                                <h4 className="text-xl font-semibold">Sosialisasi Prakerin Orang Tua</h4>
-                                <p className="text-sm text-gray-600">
-                                    Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.
-                                </p>
+            <main className="flex-1 overflow-x-hidden overflow-y-auto px-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="bg-white shadow-md rounded-lg overflow-hidden lg:col-span-2">
+                        <img
+                            src="/images/Berita1.jpg"
+                            alt="Sosialisasi Prakerin Orang Tua"
+                            className="w-full object-cover rounded-lg"
+                        />
+                        <div className="p-6">
+                            <div className="flex items-center space-x-4 mb-4">
+                                <div className="flex flex-col items-center">
+                                    <span className="text-4xl font-bold text-[var(--main-color)]">27</span>
+                                    <span className="text-4xl font-bold text-[var(--third-color)]">01</span>
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-semibold text-gray-800">
+                                        Sosialisasi Prakerin Orang Tua
+                                    </h2>
+                                    <p className="text-sm text-gray-600 mt-2">
+                                        Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa
+                                        yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div className="bg-blue-500 p-4 shadow rounded-lg text-white max-h-60">
-                        <img src="/path/to/image2.jpg" alt="Fitur" className="w-full h-28 object-cover rounded-t-lg" />
-                        <div className="p-2">
-                            <h4 className="text-xl font-semibold">Masuk Untuk Mengakses Semua Fitur</h4>
-                        </div>
+
+                    <div className="bg-[var(--main-color)] text-white shadow-md rounded-lg flex flex-col justify-between p-6">
+                        <img
+                            src="/images/IlustrasiGuest.svg"
+                            alt="Deskripsi Gambar"
+                            className="w-full h-auto mt-7"
+                        />
+                        <h3 className="text-xl font-semibold mb-3 max-w-272px ml-6">Masuk Untuk Mengakses Semua Fitur</h3>
                     </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    <div className="bg-white p-4 shadow rounded-lg">
-                        <div className="p-4">
-                            <h4 className="text-xl font-semibold">Total Jumlah Guru</h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <div className="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
+                        <div className="p-3 bg-blue-100 rounded-full">
+                            <img
+                                src="/images/IconGuru.svg"
+                                alt="Icon Guru"
+                                className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h4 className="text-md font-semibold text-gray-800">Total Jumlah Guru</h4>
                             <p className="text-sm text-gray-600">Terdapat total 200 guru yang mengajar</p>
                         </div>
                     </div>
-                    <div className="bg-white p-4 shadow rounded-lg">
-                        <div className="p-4">
-                            <h4 className="text-xl font-semibold">Total Jumlah Siswa</h4>
-                            <p className="text-sm text-gray-600">Terdapat total 1000 orang yang terdaftar sebagai siswa/siswi</p>
+
+                    <div className="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
+                        <div className="p-3 bg-orange-100 rounded-full">
+                            <img
+                                src="/images/IconSiswa.svg"
+                                alt="Icon Siswa"
+                                className="w-8 h-8"
+                            />
+                        </div>
+                        <div>
+                            <h4 className="text-md font-semibold text-gray-800">Total Jumlah Siswa</h4>
+                            <p className="text-sm text-gray-600">Terdapat total 1000 siswa</p>
                         </div>
                     </div>
-                    <div className="bg-white p-4 shadow rounded-lg">
-                        <div className="p-4">
-                            <h4 className="text-xl font-semibold">Total Jumlah Karyawan</h4>
-                            <p className="text-sm text-gray-600">Terdapat 100 karyawan yang bekerja</p>
+
+                    <div className="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
+                        <div className="p-3 bg-teal-100 rounded-full">
+                            <img
+                                src="/images/IconKaryawan.svg"
+                                alt="IconKaryawan"
+                                className="w-8 h-8"
+                            />
+
+                        </div>
+                        <div>
+                            <h4 className="text-md font-semibold text-gray-800">Total Jumlah Karyawan</h4>
+                            <p className="text-sm text-gray-600">Terdapat total 100 karyawan</p>
                         </div>
                     </div>
                 </div>

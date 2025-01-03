@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import "@/app/styles/globals.css";
 
 export default function ChangePasswordPage() {
     const [showPassword, setShowPassword] = useState(false);
@@ -14,7 +15,7 @@ export default function ChangePasswordPage() {
 
             <div className="md:w-1/2 bg-white flex items-center justify-center">
                 <img
-                    src="/images/IlustrasiChangePassword.jpg"
+                    src="/images/IlustrasiChangePassword.svg"
                     alt="Illustration"
                     className="w-3/4 md:w-3/4 mx-auto mb-4 md:mb-0"
                 />
