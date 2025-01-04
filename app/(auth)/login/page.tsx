@@ -3,6 +3,9 @@
 import "@/app/styles/globals.css";
 import { useState } from 'react';
 import { loginUser } from "../api/api";
+import Cookies from "js-cookie";
+import Image from 'next/image';
+
 
 export default function LoginPage() {
 
@@ -12,18 +15,24 @@ export default function LoginPage() {
     const [error, setError] = useState("");
   
     const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-  
-      try {
-        const result = await loginUser(identifier, password);
-        console.log("Login berhasil:", result);
-        // Simpan token ke localStorage atau Context API
-        localStorage.setItem("token", result.data.access_token);
-        // Arahkan ke halaman dashboard
-        window.location.href = "/dashboard";
-      } catch (err: any) {
-        setError(err);
-      }
+        e.preventDefault();
+
+        try {
+            const result = await loginUser(identifier, password);
+            console.log("Login berhasil:", result);
+
+            // Simpan token ke dalam cookies
+            Cookies.set("token", result.data.access_token, {
+                expires: 1, // Cookie akan kedaluwarsa dalam 1 hari
+                secure: process.env.NODE_ENV === "production", 
+                sameSite: "strict", 
+            });
+
+            // Arahkan ke halaman dashboard
+            window.location.href = "/dashboard";
+        } catch (err: any) {
+            setError(err.message || "Gagal login. Silakan coba lagi.");
+        }
     };
 
     const checkAuth = () => {
@@ -38,10 +47,13 @@ export default function LoginPage() {
             className="flex flex-col md:flex-row h-screen items-center justify-center"
         >
             <div className="md:w-1/2 bg-white flex items-center justify-center">
-                <img
+                <Image
                     src="/images/IlustrasiLogin.svg"
                     alt="Illustration"
                     className="w-3/4 md:w-3/4 mx-auto mb-4 md:mb-0"
+                    width={30}  
+                    height={100} 
+                    layout="responsive"
                 />
             </div>
 
@@ -74,10 +86,13 @@ export default function LoginPage() {
                             className="absolute right-3 top-3 cursor-pointer text-gray-400"
                             onClick={() => setShowPassword(!showPassword)}
                         >
-                            <img
-                                src={showPassword ? "images/eye.png" : "images/hidden.png"}
+                            <Image
+                                src={showPassword ? "/images/eye.png" : "/images/hidden.png"}
                                 alt="Toggle Password Visibility"
                                 className="h-5"
+                                width={20}  
+                                height={10} 
+                                layout="responsive"
                             />
                         </span>
                     </div>
