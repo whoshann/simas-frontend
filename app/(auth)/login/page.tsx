@@ -4,7 +4,7 @@ import "@/app/styles/globals.css";
 import { useState } from 'react';
 import { loginUser } from "../api/api";
 import Cookies from "js-cookie";
-import Image from "next/legacy/image";
+import Image from "next/image";
 
 
 export default function LoginPage() {
@@ -43,7 +43,7 @@ export default function LoginPage() {
       };      
 
     return (
-        <div
+        (<div
             className="flex flex-col md:flex-row h-screen items-center justify-center"
         >
             <div className="md:w-1/2 bg-white flex items-center justify-center">
@@ -51,12 +51,14 @@ export default function LoginPage() {
                     src="/images/IlustrasiLogin.svg"
                     alt="Illustration"
                     className="w-3/4 md:w-3/4 mx-auto mb-4 md:mb-0"
-                    width={30}  
-                    height={100} 
-                    layout="responsive"
-                />
+                    width={30}
+                    height={100}
+                    sizes="100vw"
+                    style={{
+                        width: "100%",
+                        height: "auto"
+                    }} />
             </div>
-
             <div className="flex flex-col justify-center items-center md:items-start md:w-1/2 w-full px-8 md:px-16 mt-4 md:mt-0">
                 <h1 className="text-2xl font-semibold text-gray-800 mb-6 text-center md:text-left">
                     Selamat Datang Kembali!
@@ -90,10 +92,13 @@ export default function LoginPage() {
                                 src={showPassword ? "/images/eye.png" : "/images/hidden.png"}
                                 alt="Toggle Password Visibility"
                                 className="h-5"
-                                width={20}  
-                                height={10} 
-                                layout="responsive"
-                            />
+                                width={20}
+                                height={10}
+                                sizes="100vw"
+                                style={{
+                                    width: "100%",
+                                    height: "auto"
+                                }} />
                         </span>
                     </div>
 
@@ -114,6 +119,6 @@ export default function LoginPage() {
 
 
             </div>
-        </div>
+        </div>)
     );
 }
