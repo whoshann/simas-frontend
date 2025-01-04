@@ -2,9 +2,36 @@
 
 import "@/app/styles/globals.css";
 import { useState } from 'react';
+import { loginUser } from "../api/api";
 
 export default function LoginPage() {
+
+    const [identifier, setIdentifier] = useState("");
+    const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState("");
+  
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+  
+      try {
+        const result = await loginUser(identifier, password);
+        console.log("Login berhasil:", result);
+        // Simpan token ke localStorage atau Context API
+        localStorage.setItem("token", result.data.access_token);
+        // Arahkan ke halaman dashboard
+        window.location.href = "/dashboard";
+      } catch (err: any) {
+        setError(err);
+      }
+    };
+
+    const checkAuth = () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.href = "/login";
+        }
+      };      
 
     return (
         <div
@@ -23,12 +50,14 @@ export default function LoginPage() {
                     Selamat Datang Kembali!
                 </h1>
 
-                <form className="w-full max-w-sm space-y-4">
+                <form className="w-full max-w-sm space-y-4" onSubmit={handleSubmit}>
                     <div>
                         <input
                             type="text"
                             placeholder="Masukkan NIS"
                             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
                         />
                     </div>
 
@@ -37,6 +66,9 @@ export default function LoginPage() {
                             type={showPassword ? "text" : "password"}
                             placeholder="Kata Sandi"
                             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
                         />
                         <span
                             className="absolute right-3 top-3 cursor-pointer text-gray-400"
