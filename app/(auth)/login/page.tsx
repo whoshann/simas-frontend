@@ -8,8 +8,7 @@ export default function LoginPage() {
 
     return (
         <div
-            className="flex flex-col md:flex-row h-screen items-center justify-center"
-        >
+            className="flex flex-col md:flex-row h-screen items-center justify-center">
             <div className="md:w-1/2 bg-white flex items-center justify-center">
                 <img
                     src="/images/IlustrasiLogin.svg"
@@ -64,8 +63,6 @@ export default function LoginPage() {
                         Masuk
                     </button>
                 </form>
-
-
             </div>
         </div>
     );
