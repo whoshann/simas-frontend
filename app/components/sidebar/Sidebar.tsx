@@ -31,11 +31,9 @@ const Sidebar: React.FC = () => {
 
     return (
         // sidebar wrapper
-        <div className="bg-white w-64 space-y-6 py-7 px-4 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out">
-
+        (<div className="bg-white w-64 space-y-6 py-7 px-4 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out">
             {/* Sidebar Title */}
             <h2 className="text-[var(--text-semi-bold-color)] text-3xl font-semibold pl-4">Lorem</h2>
-
             {/* Start Sidebar menu navigation */}
             <nav>
                 <a
@@ -180,7 +178,6 @@ const Sidebar: React.FC = () => {
 
             </nav>
             {/* End Sidebar menu navigation  */}
-
             {/* Login Button */}
             <a href="/login" className="absolute bottom-5 left-2 right-2 px-3">
                 <button className="flex items-center justify-center w-full py-3 rounded-xl border border-[var(--text-semi-bold-color)] bg-white text-[var(--text-semi-bold-color)] hover:opacity-90 transition">
@@ -188,7 +185,7 @@ const Sidebar: React.FC = () => {
                     Login / Masuk
                 </button>
             </a>
-        </div>
+        </div>)
     );
 };
 

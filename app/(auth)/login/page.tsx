@@ -4,7 +4,7 @@ import "@/app/styles/globals.css";
 import { useState } from 'react';
 import { loginUser } from "../api/api";
 import Cookies from "js-cookie";
-import Image from 'next/image';
+import Image from "next/legacy/image";
 
 
 export default function LoginPage() {
