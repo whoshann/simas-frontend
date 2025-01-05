@@ -16,31 +16,79 @@ export default function LoginPage() {
   
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+    
         try {
             const result = await loginUser(identifier, password);
             console.log("Login berhasil:", result);
-
+    
             // Simpan token ke dalam cookies
             Cookies.set("token", result.data.access_token, {
                 expires: 1, // Cookie akan kedaluwarsa dalam 1 hari
-                secure: process.env.NODE_ENV === "production", 
-                sameSite: "strict", 
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
             });
-
-            // Arahkan ke halaman dashboard
-            window.location.href = "/dashboard";
+    
+            // Dapatkan role dari hasil login
+            const role = result.data.role; 
+    
+            // Redirect berdasarkan role
+            switch (role) {
+                case "SuperAdmin":
+                    window.location.href = "/dashboard/superadmin";
+                    break;
+                case "teacher":
+                    window.location.href = "/dashboard/teacher";
+                    break;
+                case "student":
+                    window.location.href = "/dashboard/student";
+                    break;
+                case "StudentAffairs":
+                    window.location.href = "/dashboard/student-affairs";
+                    break;
+                case "PublicRelations":
+                    window.location.href = "/dashboard/public-relations";
+                    break;
+                case "WorkshopHead":
+                    window.location.href = "/dashboard/workshop-head";
+                    break;
+                case "Insdustry":
+                    window.location.href = "/dashboard/industry";
+                    break;
+                case "Finance":
+                    window.location.href = "/dashboard/finance";
+                    break;
+                case "Administration":
+                    window.location.href = "/dashboard/administration";
+                    break;
+                case "Facilities":
+                    window.location.href = "/dashboard/facilities";
+                    break;
+                case "Curriculum":
+                    window.location.href = "/dashboard/curriculum";
+                    break;
+                default:
+                    console.error("Role tidak dikenal:", role);
+                    setError("Role tidak dikenal. Silakan hubungi administrator.");
+                    break;
+            }
         } catch (err: any) {
             setError(err.message || "Gagal login. Silakan coba lagi.");
         }
     };
 
+    // DI SETIAP HALAMAN REDIRECT KASIH IN CODE DIBAWAH, INI BUAT CEK COOKIES NYA ADA APA ENGGA, KALO GA ADA DI DIRECT KE LOGIN LAGI
+    // BUAT CARA PAKE E KALO BINGUNG TANYA GPT AJA
+    
     const checkAuth = () => {
-        const token = localStorage.getItem("token");
+        const token = Cookies.get("token");
+      
+        // Jika token tidak ditemukan, redirect ke halaman login
         if (!token) {
           window.location.href = "/login";
+        } else {
+          console.log("Token ditemukan:", token);
         }
-      };      
+      };   
 
     return (
         (<div
