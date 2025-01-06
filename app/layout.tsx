@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import "@/app/styles/globals.css";
+import { Plus_Jakarta_Sans } from '@next/font/google'
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight:['400','700']
+})
 
 export const metadata: Metadata = {
   title: "Simas",
@@ -12,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={plusJakartaSans.className}>
       <head>
         <link rel='stylesheet' href='https://unpkg.com/boxicons@latest/css/boxicons.min.css'></link>
       </head>

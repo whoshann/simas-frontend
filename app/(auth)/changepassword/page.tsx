@@ -9,7 +9,6 @@ export default function ChangePasswordPage() {
     return (
         <div
             className="flex flex-col md:flex-row h-screen bg-white items-center justify-center"
-            style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
         >
 
 

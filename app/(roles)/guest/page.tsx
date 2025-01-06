@@ -1,3 +1,4 @@
+import "@/app/styles/globals.css";
 
 export default function GuestDashboard() {
   return (
@@ -36,13 +37,8 @@ export default function GuestDashboard() {
             </div>
           </div>
 
-          <div className="bg-[#1f509a] text-white shadow-md rounded-lg flex flex-col justify-between p-6">
-            <img
-              src="/images/IlustrasiGuest.svg"
-              alt="Deskripsi Gambar"
-              className="w-full h-auto mt-4"
-            />
-            <h3 className="text-lg font-semibold mt-4">Masuk Untuk Mengakses Semua Fitur</h3>
+          <div className="bg-[#1f509a] text-white shadow-md rounded-lg flex flex-col justify-center items-start p-6">
+            <h3 className="text-5xl font-semibold mt-4 text-left">Masuk Untuk Mengakses Semua Fitur</h3>
           </div>
         </div>
 

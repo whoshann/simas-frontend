@@ -9,7 +9,6 @@ export default function LoginPage() {
     return (
         <div
             className="flex flex-col md:flex-row h-screen items-center justify-center"
-            style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
         >
             <div className="md:w-1/2 bg-white flex items-center justify-center">
                 <img
