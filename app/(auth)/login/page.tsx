@@ -13,7 +13,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
-  
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
     
@@ -27,20 +27,21 @@ export default function LoginPage() {
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
             });
-    
+            Cookies.set("role", result.data.role, { expires: 1 }); //menyimpan role
+
             // Dapatkan role dari hasil login
-            const role = result.data.role; 
-    
+            const role = result.data.role;
+
             // Redirect berdasarkan role
             switch (role) {
                 case "SuperAdmin":
-                    window.location.href = "/dashboard/superadmin";
+                    window.location.href = "/superadmin";
                     break;
-                case "teacher":
-                    window.location.href = "/dashboard/teacher";
+                case "Teacher":
+                    window.location.href = "/teacher";
                     break;
-                case "student":
-                    window.location.href = "/dashboard/student";
+                case "Student":
+                    window.location.href = "/student";
                     break;
                 case "StudentAffairs":
                     window.location.href = "/dashboard/student-affairs";
@@ -76,36 +77,20 @@ export default function LoginPage() {
         }
     };
 
-    // DI SETIAP HALAMAN REDIRECT KASIH IN CODE DIBAWAH, INI BUAT CEK COOKIES NYA ADA APA ENGGA, KALO GA ADA DI DIRECT KE LOGIN LAGI
-    // BUAT CARA PAKE E KALO BINGUNG TANYA GPT AJA
-    
-    const checkAuth = () => {
-        const token = Cookies.get("token");
-      
-        // Jika token tidak ditemukan, redirect ke halaman login
-        if (!token) {
-          window.location.href = "/login";
-        } else {
-          console.log("Token ditemukan:", token);
-        }
-      };   
-
     return (
-        (<div
+        <div
             className="flex flex-col md:flex-row h-screen items-center justify-center"
         >
             <div className="md:w-1/2 bg-white flex items-center justify-center">
-                <Image
-                    src="/images/IlustrasiLogin.svg"
-                    alt="Illustration"
-                    className="w-3/4 md:w-3/4 mx-auto mb-4 md:mb-0"
-                    width={30}
-                    height={100}
-                    sizes="100vw"
-                    style={{
-                        width: "100%",
-                        height: "auto"
-                    }} />
+            <Image
+            src="/images/IlustrasiLogin.svg"
+            alt="Illustration"
+            className="w-3/4 md:w-3/4 mx-auto mb-4 md:mb-0"
+            layout="intrinsic" 
+            width={700} 
+            height={400} 
+            sizes="100vw" 
+            />
             </div>
             <div className="flex flex-col justify-center items-center md:items-start md:w-1/2 w-full px-8 md:px-16 mt-4 md:mt-0">
                 <h1 className="text-2xl font-semibold text-gray-800 mb-6 text-center md:text-left">
@@ -139,14 +124,12 @@ export default function LoginPage() {
                             <Image
                                 src={showPassword ? "/images/eye.png" : "/images/hidden.png"}
                                 alt="Toggle Password Visibility"
+                                layout="intrinsic" 
                                 className="h-5"
                                 width={20}
-                                height={10}
+                                height={20}
                                 sizes="100vw"
-                                style={{
-                                    width: "100%",
-                                    height: "auto"
-                                }} />
+                                />
                         </span>
                     </div>
 
@@ -164,9 +147,7 @@ export default function LoginPage() {
                         Masuk
                     </button>
                 </form>
-
-
             </div>
-        </div>)
+        </div>
     );
 }

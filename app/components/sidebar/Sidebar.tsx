@@ -3,25 +3,30 @@
 import React, { useState } from 'react';
 
 const Sidebar: React.FC = () => {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isDropdownOpenKesiswaan, setIsDropdownOpenKesiswaan] = useState(false);
+    const [isDropdownOpenFasilitas, setIsDropdownOpenFasilitas] = useState(false);
     const [activeMenu, setActiveMenu] = useState<string>('Beranda');
 
-    const toggleDropdown = () => {
-        setIsDropdownOpen(!isDropdownOpen);
-        if (!isDropdownOpen) {
-            setActiveMenu('Kesiswaan'); // Set active menu to Kesiswaan when dropdown is opened
+    const toggleDropdownKesiswaan = () => {
+        setIsDropdownOpenKesiswaan(!isDropdownOpenKesiswaan);
+        setIsDropdownOpenFasilitas(false); // Tutup dropdown Fasilitas Sekolah
+        if (!isDropdownOpenKesiswaan) {
+            setActiveMenu('Kesiswaan');
         }
     };
-    const toggleDropdownStudentAffairs = () => {
-        setIsDropdownOpen(!isDropdownOpen);
-        if (!isDropdownOpen) {
-            setActiveMenu('Fasilitas Sekolah'); // Set active menu to Fasilitas Sekolah when dropdown is opened
+
+    const toggleDropdownFasilitas = () => {
+        setIsDropdownOpenFasilitas(!isDropdownOpenFasilitas);
+        setIsDropdownOpenKesiswaan(false); // Tutup dropdown Kesiswaan
+        if (!isDropdownOpenFasilitas) {
+            setActiveMenu('Fasilitas Sekolah');
         }
     };
 
     const handleMenuClick = (menu: string) => {
         setActiveMenu(menu);
-        setIsDropdownOpen(false); // Close dropdown when another menu is clicked
+        setIsDropdownOpenKesiswaan(false); // Tutup dropdown Kesiswaan
+        setIsDropdownOpenFasilitas(false); // Tutup dropdown Fasilitas Sekolah
     };
 
     const handleSubMenuClick = (submenu: string) => {
@@ -47,12 +52,12 @@ const Sidebar: React.FC = () => {
                 <div>
                     <button
                         className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Kesiswaan' ? 'active' : ''}`}
-                        onClick={toggleDropdown}
+                        onClick={toggleDropdownKesiswaan}
                     >
                         <i className='bx bxs-book mr-3'></i>
                         <a href="#" className='mr-14 font-medium'> Kesiswaan</a>
                         <svg
-                            className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate' : ''} ${activeMenu === 'Kesiswaan' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
+                            className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenKesiswaan ? 'rotate' : ''} ${activeMenu === 'Kesiswaan' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -60,7 +65,7 @@ const Sidebar: React.FC = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
-                    <div className={` ${isDropdownOpen ? '' : 'hidden'}`}>
+                    <div className={` ${isDropdownOpenKesiswaan ? '' : 'hidden'}`}>
                         <a
                             href="#"
                             className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Absensi' ? 'text-blue-900' : ''}`}
@@ -128,17 +133,17 @@ const Sidebar: React.FC = () => {
                     Sarpras
                 </a>
 
-                {/* Start Role Affairs Sidebar Menu */}
+                {/* Start Role Student Affairs Sidebar Menu */}
 
                 <div>
                     <button
                         className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Fasilitas Sekolah' ? 'active' : ''}`}
-                        onClick={toggleDropdownStudentAffairs}  
+                        onClick={toggleDropdownFasilitas}
                     >
                         <i className='bx bxs-book mr-3'></i>
                         <a href="#" className='font-medium'> Fasilitas Sekolah</a>
                         <svg
-                            className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate' : ''} ${activeMenu === 'Fasilitas Sekolah' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
+                            className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFasilitas ? 'rotate' : ''} ${activeMenu === 'Fasilitas Sekolah' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -146,7 +151,7 @@ const Sidebar: React.FC = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
-                    <div className={` ${isDropdownOpen ? '' : 'hidden'}`}>
+                    <div className={` ${isDropdownOpenFasilitas ? '' : 'hidden'}`}>
                         <a
                             href="#"
                             className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Fasilitas' ? 'text-blue-900' : ''}`}
@@ -174,10 +179,11 @@ const Sidebar: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Enda Role Affairs Sidebar Menu */}
+                {/* End Role Student Affairs Sidebar Menu */}
 
             </nav>
             {/* End Sidebar menu navigation  */}
+
             {/* Login Button */}
             <a href="/login" className="absolute bottom-5 left-2 right-2 px-3">
                 <button className="flex items-center justify-center w-full py-3 rounded-xl border border-[var(--text-semi-bold-color)] bg-white text-[var(--text-semi-bold-color)] hover:opacity-90 transition">

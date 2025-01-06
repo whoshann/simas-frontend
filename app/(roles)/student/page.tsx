@@ -1,11 +1,20 @@
-import "@/app/styles/globals.css";
+"use client"
 
-export default function studentPage() {
-    return (
-        <div>
-            <p>
-                Halaman User
-            </p>
-        </div>
-    )
-}
+import "@/app/styles/globals.css";
+import { useEffect } from "react";
+import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
+
+const StudentPage = () => {
+  useEffect(() => {
+    // Panggil middleware untuk memeriksa role, hanya izinkan 'Student'
+    roleMiddleware(["Student"]);
+  }, []);
+
+  return (
+    <div>
+      <p>Halaman Student</p>
+    </div>
+  );
+};
+
+export default StudentPage;
