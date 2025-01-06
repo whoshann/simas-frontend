@@ -27,18 +27,53 @@ export default function LoginPage() {
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
             });
+            Cookies.set("role", result.data.role, { expires: 1 }); //menyimpan role
 
-            // Arahkan ke halaman dashboard
-            window.location.href = "/student";
+            // Dapatkan role dari hasil login
+            const role = result.data.role;
+
+            // Redirect berdasarkan role
+            switch (role) {
+                case "SuperAdmin":
+                    window.location.href = "/superadmin";
+                    break;
+                case "Teacher":
+                    window.location.href = "/teacher";
+                    break;
+                case "Student":
+                    window.location.href = "/student";
+                    break;
+                case "StudentAffairs":
+                    window.location.href = "/dashboard/student-affairs";
+                    break;
+                case "PublicRelations":
+                    window.location.href = "/dashboard/public-relations";
+                    break;
+                case "WorkshopHead":
+                    window.location.href = "/dashboard/workshop-head";
+                    break;
+                case "Insdustry":
+                    window.location.href = "/dashboard/industry";
+                    break;
+                case "Finance":
+                    window.location.href = "/dashboard/finance";
+                    break;
+                case "Administration":
+                    window.location.href = "/dashboard/administration";
+                    break;
+                case "Facilities":
+                    window.location.href = "/dashboard/facilities";
+                    break;
+                case "Curriculum":
+                    window.location.href = "/dashboard/curriculum";
+                    break;
+                default:
+                    console.error("Role tidak dikenal:", role);
+                    setError("Role tidak dikenal. Silakan hubungi administrator.");
+                    break;
+            }
         } catch (err: any) {
             setError(err.message || "Gagal login. Silakan coba lagi.");
-        }
-    };
-
-    const checkAuth = () => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            window.location.href = "/login";
         }
     };
 
@@ -53,7 +88,7 @@ export default function LoginPage() {
                     className="w-3/4 md:w-3/4 mx-auto mb-4 md:mb-0"
                     width={30}
                     height={100}
-                    sizes="100vw"/>
+                    sizes="100vw" />
             </div>
             <div className="flex flex-col justify-center items-center md:items-start md:w-1/2 w-full px-8 md:px-16 mt-4 md:mt-0">
                 <h1 className="text-2xl font-semibold text-gray-800 mb-6 text-center md:text-left">

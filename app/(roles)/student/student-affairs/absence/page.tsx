@@ -1,3 +1,4 @@
+// app/(roles)/student/student-affairs/absence/page.tsx
 "use client";
 
 import "@/app/styles/globals.css";
@@ -18,28 +19,14 @@ export default function StudentAffairsAbsence() {
     // Data statis
     const data = [
         { no: 1, name: "Ilham Kurniawan", class: "X PH A", status: "Hadir", document: null, date: "21/01/2024" },
-        { no: 2, name: "Budi Santoso", class: "X PH B", status: "Izin", document: "bukti_surat.png", date: "22/01/2024" },
-        { no: 3, name: "Siti Aminah", class: "XI IPA A", status: "Sakit", document: "bukti_surat.png", date: "23/01/2024" },
-        { no: 4, name: "Andi Wijaya", class: "XI IPA B", status: "Alpha", document: null, date: "24/01/2024" },
-        { no: 5, name: "Rina Sari", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 6, name: "Ilham Kurniawan", class: "X PH A", status: "Izin", document: "bukti_surat.png", date: "26/01/2024" },
-        { no: 7, name: "Budi Santoso", class: "X PH B", status: "Sakit", document: "bukti_surat.png", date: "27/01/2024" },
-        { no: 8, name: "Siti Aminah", class: "XI IPA A", status: "Hadir", document: null, date: "28/01/2024" },
-        { no: 9, name: "Andi Wijaya", class: "XI IPA B", status: "Alpha", document: null, date: "29/01/2024" },
-        { no: 10, name: "Rina Sari", class: "XII IPS A", status: "Izin", document: "bukti_surat.png", date: "30/01/2024" },
-        { no: 11, name: "Ilham Kurniawan", class: "X PH A", status: "Hadir", document: null, date: "31/01/2024" },
-        { no: 12, name: "Budi Santoso", class: "X PH B", status: "Izin", document: "bukti_surat.png", date: "01/02/2024" },
-        { no: 13, name: "Siti Aminah", class: "XI IPA A", status: "Sakit", document: "bukti_surat.png", date: "02/02/2024" },
-        { no: 14, name: "Andi Wijaya", class: "XI IPA B", status: "Alpha", document: null, date: "03/02/2024" },
-        { no: 15, name: "Rina Sari", class: "XII IPS A", status: "Hadir", document: null, date: "04/02/2024" },
-        { no: 16, name: "Ilham Kurniawan", class: "X PH A", status: "Izin", document: "bukti_surat.png", date: "05/02/2024" },
-        { no: 17, name: "Budi Santoso", class: "X PH B", status: "Sakit", document: "bukti_surat.png", date: "06/02/2024" },
-        { no: 18, name: "Siti Aminah", class: "XI IPA A", status: "Hadir", document: null, date: "07/02/2024" },
-        { no: 19, name: "Andi Wijaya", class: "XI IPA B", status: "Alpha", document: null, date: "08/02/2024" },
-        { no: 20, name: "Rina Sari", class: "XII IPS A", status: "Izin", document: "bukti_surat.png", date: "09/02/2024" },
+        { no: 2, name: "Ilham Kurniawan", class: "X PH B", status: "Izin", document: "bukti_surat.png", date: "22/01/2024" },
+        { no: 3, name: "Ilham Kurniawan", class: "XI IPA A", status: "Sakit", document: "bukti_surat.png", date: "23/01/2024" },
+        { no: 4, name: "Ilham Kurniawan", class: "XI IPA B", status: "Alpha", document: null, date: "24/01/2024" },
+        { no: 5, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        // ... data lainnya
     ];
 
-    const filteredData = data.filter(item => 
+    const filteredData = data.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.class.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -57,11 +44,15 @@ export default function StudentAffairsAbsence() {
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
-            <header className="py-6 px-9 flex justify-between items-center">
+
+            {/* Start Header */}
+            <header className="pt-6 pb-0 px-9 flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Absensi Anda</h1>
                     <p className="text-sm text-gray-600">Halo James, selamat datang kembali</p>
                 </div>
+
+                {/* Filtering Bulanan */}
                 <div className="relative">
                     <div className="bg-white shadow-md rounded-lg p-4 flex items-center cursor-pointer" onClick={togglePanel}>
                         <span className="text-lg font-semibold">{selectedMonth}</span>
@@ -87,23 +78,73 @@ export default function StudentAffairsAbsence() {
                     )}
                 </div>
             </header>
+            {/* End Header */}
 
             <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 mt-6">
-                {/* Card for Show Entries, Search, and Table */}
-                <div className="bg-white shadow-md rounded-lg p-4 mb-6">
-                    <div className="mb-4 flex justify-between">
+
+                {/* Start Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center">
+                        <div className="bg-blue-100 rounded-full p-3 mr-4">
+                            <div className="bg-blue-700 rounded-full p-1">
+                                <i className='bx bx-check text-black'></i>
+                            </div>
+                        </div>
                         <div>
-                            <label className="mr-2">Show entries:</label>
+                            <p className="text-2xl font-bold">27</p>
+                            <p className="text-sm text-gray-600">Hadir</p>
+                        </div>
+                    </div>
+                    <div className="bg-white shadow-md rounded-lg p-4 flex items-center">
+                        <div className="bg-yellow-100 rounded-full p-3 mr-4">
+                            <i className='bx bx-envelope text-black'></i>
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold">2</p>
+                            <p className="text-sm text-gray-600">Izin</p>
+                        </div>
+                    </div>
+                    <div className="bg-white shadow-md rounded-lg p-4 flex items-center">
+                        <div className="bg-red-100 rounded-full p-3 mr-4">
+                            <i className='bx bx-sick text-black'></i>
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold">0</p>
+                            <p className="text-sm text-gray-600">Sakit</p>
+                        </div>
+                    </div>
+                    <div className="bg-white shadow-md rounded-lg p-4 flex items-center">
+                        <div className="bg-gray-100 rounded-full p-3 mr-4">
+                            <i className='bx bx-x text-black'></i>
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold">0</p>
+                            <p className="text-sm text-gray-600">Alpha</p>
+                        </div>
+                    </div>
+                </div>
+                {/* End Cards */}
+
+                {/* Card for Show Entries, Search, and Table */}
+                <div className="bg-white shadow-md rounded-lg p-8 mb-6">
+                    <div className="mb-4 flex justify-between">
+
+                        {/* Showing entries */}
+                        <div>
+                            <label className="mr-2">Tampilkan</label>
                             <select
                                 value={entriesPerPage}
                                 onChange={(e) => setEntriesPerPage(Number(e.target.value))}
-                                className="border border-gray-300 rounded-md p-2"
+                                className="border border-gray-300 rounded-lg p-1"
                             >
                                 <option value={5}>5</option>
                                 <option value={10}>10</option>
                                 <option value={15}>15</option>
                             </select>
+                            <label className="ml-2">Entri</label>
                         </div>
+
+                        {/* Search */}
                         <div>
                             <input
                                 type="text"
@@ -115,8 +156,9 @@ export default function StudentAffairsAbsence() {
                         </div>
                     </div>
 
+                    {/* Table */}
                     <table className="min-w-full bg-white border border-gray-300 rounded-lg overflow-hidden">
-                        <thead className="bg-gray-200">
+                        <thead className="">
                             <tr>
                                 <th className="py-2 px-4 border-b text-left">No</th>
                                 <th className="py-2 px-4 border-b text-left">Nama</th>
@@ -142,6 +184,7 @@ export default function StudentAffairsAbsence() {
                         </tbody>
                     </table>
 
+                    {/* Pagination */}
                     <div className="flex justify-between items-center mt-4">
                         <span>Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, totalEntries)} of {totalEntries} entries</span>
                         <div className="flex items-center">
