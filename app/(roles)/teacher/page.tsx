@@ -15,7 +15,7 @@ const checkAuth = () => {
     }
 };
 
-export default function studentPage() {
+export default function teacherPage() {
     useEffect(() => {
         checkAuth(); 
     }, []);
