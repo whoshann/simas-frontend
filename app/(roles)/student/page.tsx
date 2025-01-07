@@ -27,7 +27,7 @@ export default function StudentDashboard() {
               </div>
               <div className="flex justify-end">
                 <img
-                  src="/images/siswa-HomePage.png"
+                  src="/images/siswa-HomePage.svg"
                   alt="Ilustrasi Siswa"
                   className="w-1/3 object-cover rounded-lg"
                 />

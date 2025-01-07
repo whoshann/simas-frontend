@@ -4,24 +4,21 @@ import React, { useState } from 'react';
 
 const Sidebar: React.FC = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isDropdownOpenKesiswaan, setIsDropdownOpenKesiswaan] = useState(false);
+    const [isDropdownOpenFasilitas, setIsDropdownOpenFasilitas] = useState(false);
     const [activeMenu, setActiveMenu] = useState<string>('Beranda');
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
         if (!isDropdownOpen) {
-            setActiveMenu('Kesiswaan'); // Set active menu to Kesiswaan when dropdown is opened
-        }
-    };
-    const toggleDropdownStudentAffairs = () => {
-        setIsDropdownOpen(!isDropdownOpen);
-        if (!isDropdownOpen) {
-            setActiveMenu('Fasilitas Sekolah'); // Set active menu to Fasilitas Sekolah when dropdown is opened
+            setActiveMenu('Kurikulum'); // Set active menu to Kurikulum when dropdown is opened
         }
     };
 
     const handleMenuClick = (menu: string) => {
         setActiveMenu(menu);
-        setIsDropdownOpen(false); // Close dropdown when another menu is clicked
+        setIsDropdownOpenKesiswaan(false); // Tutup dropdown Kesiswaan
+        setIsDropdownOpenFasilitas(false); // Tutup dropdown Fasilitas Sekolah
     };
 
     const handleSubMenuClick = (submenu: string) => {
@@ -30,13 +27,8 @@ const Sidebar: React.FC = () => {
     };
 
     return (
-        // sidebar wrapper
         <div className="bg-white w-64 space-y-6 py-7 px-4 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-300 ease-in-out">
-
-            {/* Sidebar Title */}
-            <h2 className="text-[var(--text-semi-bold-color)] text-3xl font-semibold pl-4">Lorem</h2>
-
-            {/* Start Sidebar menu navigation */}
+            <h2 className="text-[var(--text-bold-color)] text-3xl font-semibold pl-10">Lorem</h2>
             <nav>
                 <a
                     href="#"
@@ -48,21 +40,16 @@ const Sidebar: React.FC = () => {
                 </a>
                 <div>
                     <button
-                        className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Kesiswaan' ? 'active' : ''}`}
+                        className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-md transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Kurikulum' ? 'active' : ''}`}
                         onClick={toggleDropdown}
                     >
                         <i className='bx bxs-book mr-3'></i>
-                        <a href="#" className='mr-14 font-medium'> Kesiswaan</a>
-                        <svg
-                            className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate' : ''} ${activeMenu === 'Kesiswaan' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
+                        <a href="#" className='mr-14'> Kurikulum</a>
+                        <svg className={`h-4 w-4 ml-5 text-[var(--text-thin-color)] transition-transform duration-200 ${isDropdownOpen ? 'rotate' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
-                    <div className={` ${isDropdownOpen ? '' : 'hidden'}`}>
+                    <div className={` ${isDropdownOpenKesiswaan ? '' : 'hidden'}`}>
                         <a
                             href="#"
                             className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Absensi' ? 'text-blue-900' : ''}`}
@@ -73,11 +60,10 @@ const Sidebar: React.FC = () => {
                         </a>
                         <a
                             href="#"
-                            className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Pelanggaran' ? 'text-blue-900' : ''}`}
-                            onClick={() => handleSubMenuClick('Pelanggaran')}
+                            className={`block py-3 px-4 rounded-md transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Submenu 1' ? 'active' : ''}`}
+                            onClick={() => handleSubMenuClick('Submenu 1')}
                         >
-                            <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Pelanggaran' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                            Pelanggaran
+                            <span className="inline-block w-2 h-2 bg-[var(--text-thin-color)] rounded-full mr-2"></span>Submenu 1
                         </a>
                         <a
                             href="#"
@@ -130,54 +116,6 @@ const Sidebar: React.FC = () => {
                     Sarpras
                 </a>
 
-                {/* Start Role Affairs Sidebar Menu */}
-
-                <div>
-                    <button
-                        className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Fasilitas Sekolah' ? 'active' : ''}`}
-                        onClick={toggleDropdownStudentAffairs}  
-                    >
-                        <i className='bx bxs-book mr-3'></i>
-                        <a href="#" className='font-medium'> Fasilitas Sekolah</a>
-                        <svg
-                            className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate' : ''} ${activeMenu === 'Fasilitas Sekolah' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
-                    <div className={` ${isDropdownOpen ? '' : 'hidden'}`}>
-                        <a
-                            href="#"
-                            className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Fasilitas' ? 'text-blue-900' : ''}`}
-                            onClick={() => handleSubMenuClick('Data Fasilitas')}
-                        >
-                            <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Fasilitas' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                            Data Fasilitas
-                        </a>
-                        <a
-                            href="#"
-                            className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Ruang' ? 'text-blue-900' : ''}`}
-                            onClick={() => handleSubMenuClick('Data Ruang')}
-                        >
-                            <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Ruang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                            Data Ruang
-                        </a>
-                        <a
-                            href="#"
-                            className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Barang' ? 'text-blue-900' : ''}`}
-                            onClick={() => handleSubMenuClick('Data Barang')}
-                        >
-                            <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Barang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                            Data Barang
-                        </a>
-                    </div>
-                </div>
-
-                {/* Enda Role Affairs Sidebar Menu */}
-
             </nav>
             {/* End Sidebar menu navigation  */}
 
@@ -188,8 +126,8 @@ const Sidebar: React.FC = () => {
                     Login / Masuk
                 </button>
             </a>
-        </div>
-    );
+        </div>)
+    
 };
 
 export default Sidebar;

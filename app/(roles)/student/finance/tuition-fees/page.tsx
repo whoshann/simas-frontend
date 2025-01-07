@@ -9,8 +9,8 @@ export default function TuitionFeesPage() {
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
       {/* Header */}
       <header className="py-6 px-9">
-        <h1 className="text-2xl font-bold text-gray-800">Pembayaran SPP</h1>
-        <p className="text-sm text-gray-600">
+        <h1 className="text-2xl font-bold text-[var(--text-bold-color)]">Pembayaran SPP</h1>
+        <p className="text-sm text-[var(--text-thin-color)]">
           Halo James, selamat datang kembali
         </p>
       </header>
@@ -20,7 +20,7 @@ export default function TuitionFeesPage() {
         <div className="max-w-full mx-auto">
           {/* Form Section */}
           <div className="bg-white rounded-lg shadow p-6 w-full mx-auto">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+            <h2 className="text-xl font-semibold text-[var(--text-semi-bold-color)] mb-4 flex items-center">
               <Image 
                 src="/images/icon-lending.png" 
                 alt="Ikon" 
@@ -32,7 +32,7 @@ export default function TuitionFeesPage() {
             </h2>
             <form className="space-y-6">
               <div>
-                <label htmlFor="nis" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="nis" className="block text-sm font-medium text-[var(--text-regular-color)]">
                   Masukkan NIS
                 </label>
                 <input
@@ -44,7 +44,7 @@ export default function TuitionFeesPage() {
               </div>
 
               <div>
-                <label htmlFor="kelas" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="kelas" className="block text-sm font-medium text-[var(--text-regular-color)]">
                   Masukkan Kelas
                 </label>
                 <select
@@ -58,7 +58,7 @@ export default function TuitionFeesPage() {
               </div>
 
               <div>
-                <label htmlFor="jumlah" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="jumlah" className="block text-sm font-medium text-[var(--text-regular-color)]">
                   Masukkan Jumlah Pembayaran
                 </label>
                 <input
@@ -70,7 +70,7 @@ export default function TuitionFeesPage() {
               </div>
 
               <div>
-                <label htmlFor="semester" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="semester" className="block text-sm font-medium text-[var(--text-regular-color)]">
                   Semester
                 </label>
                 <select
@@ -84,7 +84,7 @@ export default function TuitionFeesPage() {
               </div>
 
               <div>
-                <label htmlFor="tanggal" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="tanggal" className="block text-sm font-medium text-[var(--text-regular-color)]">
                   Masukkan Tanggal Pembayaran
                 </label>
                 <input
@@ -96,7 +96,7 @@ export default function TuitionFeesPage() {
 
               <button
                 type="submit"
-                className="w-full bg-[#1f509a] text-white font-semibold py-2 px-4 rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="w-full bg-[var(--main-color)] text-white font-semibold py-2 px-4 rounded-md shadow hover:bg-[var(--main-color)] focus:outline-none focus:ring-2 focus:ring-[var(--main-color)] focus:ring-offset-2"
               >
                 Kirim
               </button>

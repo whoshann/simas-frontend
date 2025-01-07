@@ -11,15 +11,15 @@ export default function PaymentStatusPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const data = [
-    { no: 1, nis: "009919828231", kelas: "XI RPL A", jumlah: "600.000", smt: 5, status: "Gagal", tanggal: "21/01/2024" },
-    { no: 2, nis: "001256298231", kelas: "XI RPL B", jumlah: "600.000", smt: 4, status: "Lunas", tanggal: "21/01/2024" },
-    { no: 3, nis: "009919828231", kelas: "XI RPL C", jumlah: "600.000", smt: 3, status: "Lunas", tanggal: "21/01/2024" },
-    { no: 4, nis: "009919828231", kelas: "XI RPL B", jumlah: "600.000", smt: 2, status: "Lunas", tanggal: "21/01/2024" },
-    { no: 5, nis: "009919828231", kelas: "XI RPL A", jumlah: "600.000", smt: 1, status: "Lunas", tanggal: "21/01/2024" },
+    { no: 1, nama: "Gelar Karya Pembelajaran", jumlah: "1.000.000", doc: "Proyek Kegiatan Sekolah.pdf", status: "Belum Disetujui", tanggal: "21/01/2024" },
+    { no: 2, nama: "Perbaikan Ruang Kelas Rusak", jumlah: "1.000.000", doc: "Perawatan Fasilitas.pdf", status: "Di Setujui", tanggal: "21/01/2024" },
+    { no: 3, nama: "Pembelian Alat Musik untuk Ekstrakurikuler", jumlah: "1.000.000", doc: "Perawatan dan Renovasi Infrastruktur.pdf", status: "Di Setujui", tanggal: "21/01/2024" },
+    { no: 4, nama: "Pemasangan AC di Ruang Guru", jumlah: "1.000.000", doc: "Pembangunan Baru.pdf", status: "Di Setujui", tanggal: "21/01/2024" },
+    { no: 5, nama: "Penyediaan Dana Darurat Sekolah", jumlah: "1.000.000", doc: "Operasional Sekolah.pdf", status: "Di Setujui", tanggal: "21/01/2024" },
   ];
 
   const filteredData = data.filter(item =>
-    item.nis.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.tanggal.includes(searchTerm)
   );
@@ -36,7 +36,7 @@ export default function PaymentStatusPage() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
       <header className="py-6 px-9">
-        <h1 className="text-2xl font-bold text-gray-800">Pembayaran SPP</h1>
+        <h1 className="text-2xl font-bold text-gray-800">Status RAB</h1>
         <p className="text-sm text-gray-600">Halo James, selamat datang kembali</p>
       </header>
       <main className="px-6 pb-6">
@@ -74,10 +74,9 @@ export default function PaymentStatusPage() {
               <thead className="text-[var(--text-semi-bold-color)]">
                 <tr>
                   <th className="py-2 px-4 border-b text-left">No</th>
-                  <th className="py-2 px-4 border-b text-left">NIS</th>
-                  <th className="py-2 px-4 border-b text-left">Kelas</th>
-                  <th className="py-2 px-4 border-b text-left">Jumlah</th>
-                  <th className="py-2 px-4 border-b text-left">Smt</th>
+                  <th className="py-2 px-4 border-b text-left">Nama</th>
+                  <th className="py-2 px-4 border-b text-left">Jumlah Dana</th>
+                  <th className="py-2 px-4 border-b text-left">Doc Pengajuan RAB</th>
                   <th className="py-2 px-4 border-b text-left">Status</th>
                   <th className="py-2 px-4 border-b text-left">Tanggal</th>
                 </tr>
@@ -86,14 +85,13 @@ export default function PaymentStatusPage() {
                 {currentEntries.map((item) => (
                   <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
                     <td className="py-2 px-4 border-b">{item.no}</td>
-                    <td className="py-2 px-4 border-b">{item.nis}</td>
-                    <td className="py-2 px-4 border-b">{item.kelas}</td>
+                    <td className="py-2 px-4 border-b">{item.nama}</td>
                     <td className="py-2 px-4 border-b">{item.jumlah}</td>
-                    <td className="py-2 px-4 border-b">{item.smt}</td>
+                    <td className="py-2 px-4 border-b">{item.doc}</td>
                     <td className="py-2 px-4 border-b">
                       <span
                         className={`px-6 py-1 rounded-full text-sm font-medium whitespace-nowrap ${
-                          item.status === "Lunas"
+                          item.status === "Di Setujui"
                             ? "bg-green-100 text-green-600"
                             : "bg-red-100 text-red-600"
                         }`}
