@@ -8,7 +8,7 @@ export default function GuestDashboard() {
                 <p className="text-sm text-gray-600">Halo, selamat datang di website kami</p>
             </header>
 
-            <main className="flex-1 overflow-x-hidden overflow-y-auto px-9">
+            <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 pb-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="bg-white shadow-md rounded-lg overflow-hidden lg:col-span-2">
                         <img

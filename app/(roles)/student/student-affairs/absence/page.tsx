@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 export default function StudentAffairsAbsence() {
     const [selectedMonth, setSelectedMonth] = useState('Januari');
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [entriesPerPage, setEntriesPerPage] = useState(5);
@@ -16,16 +17,32 @@ export default function StudentAffairsAbsence() {
         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
     ];
 
-    // Data statis
+    // Data statis tabel absensi
     const data = [
         { no: 1, name: "Ilham Kurniawan", class: "X PH A", status: "Hadir", document: null, date: "21/01/2024" },
-        { no: 2, name: "Ilham Kurniawan", class: "X PH B", status: "Izin", document: "bukti_surat.png", date: "22/01/2024" },
-        { no: 3, name: "Ilham Kurniawan", class: "XI IPA A", status: "Sakit", document: "bukti_surat.png", date: "23/01/2024" },
+        { no: 2, name: "Ilham Kurniawan", class: "X PH B", status: "Izin", document: "/images/Berita1.jpg", date: "22/01/2024" },
+        { no: 3, name: "Ilham Kurniawan", class: "XI IPA A", status: "Sakit", document: "/images/Berita1.jpg", date: "23/01/2024" },
         { no: 4, name: "Ilham Kurniawan", class: "XI IPA B", status: "Alpha", document: null, date: "24/01/2024" },
         { no: 5, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        // ... data lainnya
+        { no: 6, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 7, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 8, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 9, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 10, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 11, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 12, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 13, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 14, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 15, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 16, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 17, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 18, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 19, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 20, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+
     ];
 
+    // Search item tabel
     const filteredData = data.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.class.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -45,18 +62,26 @@ export default function StudentAffairsAbsence() {
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
 
+
             {/* Start Header */}
-            <header className="pt-6 pb-0 px-9 flex justify-between items-center">
+            <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Absensi Anda</h1>
                     <p className="text-sm text-gray-600">Halo James, selamat datang kembali</p>
                 </div>
 
+
                 {/* Filtering Bulanan */}
-                <div className="relative">
-                    <div className="bg-white shadow-md rounded-lg p-4 flex items-center cursor-pointer" onClick={togglePanel}>
-                        <span className="text-lg font-semibold">{selectedMonth}</span>
-                        <svg className={`ml-2 h-4 w-4 transform transition-transform ${isPanelOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="relative mt-4 sm:mt-0 w-full sm:w-72 ">
+                    <div className="bg-white shadow-md rounded-lg py-4 px-7 flex items-center justify-center cursor-pointer" onClick={togglePanel}>
+                        <div className="bg-[#1f509a27] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center">
+                            <i className='bx bxs-calendar text-[#1f509a] text-3xl'></i>
+                        </div>
+                        <div className="flex-1" >
+                            <span className="text-lg font-semibold text-[var(--text-semi-bold-color)] ">Filter Bulan</span>
+                            <p className="text-sm text-gray-600">{selectedMonth} {selectedYear}</p>
+                        </div>
+                        <svg className={`ml-7 h-4 w-4 transform transition-transform ${isPanelOpen ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
@@ -71,7 +96,7 @@ export default function StudentAffairsAbsence() {
                                         setIsPanelOpen(false);
                                     }}
                                 >
-                                    {month}
+                                    {month} {selectedYear}
                                 </div>
                             ))}
                         </div>
@@ -80,85 +105,95 @@ export default function StudentAffairsAbsence() {
             </header>
             {/* End Header */}
 
+
+
             <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 mt-6">
 
-                {/* Start Cards */}
+
+
+                {/* Start 4 Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center">
-                        <div className="bg-blue-100 rounded-full p-3 mr-4">
-                            <div className="bg-blue-700 rounded-full p-1">
-                                <i className='bx bx-check text-black'></i>
-                            </div>
+                    <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center justify-center">
+                        <div className="bg-[#1f509a27] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center  ">
+                            <i className='bx bxs-check-circle text-[#1f509a] text-3xl'></i>
                         </div>
                         <div>
-                            <p className="text-2xl font-bold">27</p>
-                            <p className="text-sm text-gray-600">Hadir</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">27</p>
+                            <p className="text-sm text-[var(--text-regular-color)]">Hadir</p>
                         </div>
                     </div>
-                    <div className="bg-white shadow-md rounded-lg p-4 flex items-center">
-                        <div className="bg-yellow-100 rounded-full p-3 mr-4">
-                            <i className='bx bx-envelope text-black'></i>
+                    <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center justify-center">
+                        <div className="bg-[#e88e1f29] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center ">
+                            <i className='bx bxs-envelope text-[#e88d1f]  text-3xl'></i>
                         </div>
                         <div>
-                            <p className="text-2xl font-bold">2</p>
-                            <p className="text-sm text-gray-600">Izin</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">2</p>
+                            <p className="text-sm text-[var(--text-regular-color)]">Izin</p>
                         </div>
                     </div>
-                    <div className="bg-white shadow-md rounded-lg p-4 flex items-center">
-                        <div className="bg-red-100 rounded-full p-3 mr-4">
-                            <i className='bx bx-sick text-black'></i>
+                    <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center justify-center">
+                        <div className="bg-[#0a97b02a] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center ">
+                            <i className='bx bxs-clinic text-[#0a97b0]  text-3xl'></i>
                         </div>
                         <div>
-                            <p className="text-2xl font-bold">0</p>
-                            <p className="text-sm text-gray-600">Sakit</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">0</p>
+                            <p className="text-sm text-[var(--text-regular-color)]">Sakit</p>
                         </div>
                     </div>
-                    <div className="bg-white shadow-md rounded-lg p-4 flex items-center">
-                        <div className="bg-gray-100 rounded-full p-3 mr-4">
-                            <i className='bx bx-x text-black'></i>
+                    <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center justify-center">
+                        <div className="bg-[#bd000025] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center ">
+                            <i className='bx bxs-x-circle text-[#bd0000]  text-3xl'></i>
                         </div>
                         <div>
-                            <p className="text-2xl font-bold">0</p>
-                            <p className="text-sm text-gray-600">Alpha</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">0</p>
+                            <p className="text-sm text-[var(--text-regular-color)]">Alpha</p>
                         </div>
                     </div>
                 </div>
                 {/* End Cards */}
 
-                {/* Card for Show Entries, Search, and Table */}
-                <div className="bg-white shadow-md rounded-lg p-8 mb-6">
+
+
+                {/* Card for Table */}
+                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
                     <div className="mb-4 flex justify-between">
 
-                        {/* Showing entries */}
+                        {/* Start Showing entries */}
                         <div>
                             <label className="mr-2">Tampilkan</label>
                             <select
                                 value={entriesPerPage}
                                 onChange={(e) => setEntriesPerPage(Number(e.target.value))}
-                                className="border border-gray-300 rounded-lg p-1"
+                                className="border border-gray-300 rounded-lg p-1 text-sm"
                             >
                                 <option value={5}>5</option>
                                 <option value={10}>10</option>
                                 <option value={15}>15</option>
+                                <option value={20}>20</option>
                             </select>
                             <label className="ml-2">Entri</label>
                         </div>
+                        {/* End Showing entries */}
 
-                        {/* Search */}
-                        <div>
+
+                        {/*Start Search */}
+                        <div className="border border-gray-300 rounded-lg py-2 px-4 flex justify-between items-center" >
+                            <i className='bx bx-search text-[var(--text-semi-bold-color)] text-2xl mr-2'></i>
                             <input
                                 type="text"
-                                placeholder="Search..."
+                                placeholder="Cari data..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="border border-gray-300 rounded-md p-2"
+                                className="border-0 focus:outline-none"
                             />
                         </div>
+                        {/*End Search */}
                     </div>
 
-                    {/* Table */}
+
+                    {/* Start Table */}
                     <table className="min-w-full bg-white border border-gray-300 rounded-lg overflow-hidden">
-                        <thead className="">
+                        <thead className="text-[var(--text-semi-bold-color)]">
                             <tr>
                                 <th className="py-2 px-4 border-b text-left">No</th>
                                 <th className="py-2 px-4 border-b text-left">Nama</th>
@@ -170,7 +205,7 @@ export default function StudentAffairsAbsence() {
                         </thead>
                         <tbody>
                             {currentEntries.map((item) => (
-                                <tr key={item.no} className="hover:bg-gray-100">
+                                <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
                                     <td className="py-2 px-4 border-b">{item.no}</td>
                                     <td className="py-2 px-4 border-b">{item.name}</td>
                                     <td className="py-2 px-4 border-b">{item.class}</td>
@@ -183,28 +218,52 @@ export default function StudentAffairsAbsence() {
                             ))}
                         </tbody>
                     </table>
+                    {/* End Table */}
 
-                    {/* Pagination */}
-                    <div className="flex justify-between items-center mt-4">
-                        <span>Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, totalEntries)} of {totalEntries} entries</span>
+
+
+                    {/*Start Pagination and showing entries */}
+                    <div className="flex justify-between items-center mt-5">
+                        <span>Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri</span>
+
+                        {/* Pagination */}
                         <div className="flex items-center">
                             <button
                                 onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                                 disabled={currentPage === 1}
-                                className="px-4 py-2 border border-gray-300 rounded-md mr-2"
+                                className="px-4 py-2 mr-2 text-[var(--main-color)]"
                             >
                                 &lt;
                             </button>
-                            <span>{currentPage} of {totalPages}</span>
+                            {/* Pagination Numbers */}
+                            <div className="flex space-x-1">
+                                {Array.from({ length: Math.min(totalPages - (currentPage - 1), 4) }, (_, index) => {
+                                    const pageNumber = currentPage + index;
+                                    return (
+                                        <button
+                                            key={pageNumber}
+                                            onClick={() => setCurrentPage(pageNumber)}
+                                            className={` rounded-md px-3 py-1 ${currentPage === pageNumber ? ' bg-[var(--main-color)] text-white ' : 'text-[var(--main-color)]'}`}>
+                                            {pageNumber}
+                                        </button>
+                                    );
+                                })}
+                                {totalPages > 4 && currentPage <= totalPages - 4 && (
+                                    <span className=" text-[var(--main-color)] px-3 py-1">...</span>
+                                )}
+                            </div>
                             <button
                                 onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className="px-4 py-2 border border-gray-300 rounded-md ml-2"
+                                className="px-4 py-2 ml-2 text-[var(--main-color)]"
                             >
                                 &gt;
                             </button>
                         </div>
                     </div>
+                    {/*End Pagination and showing entries */}
+
+
                 </div>
             </main>
         </div>
