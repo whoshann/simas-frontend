@@ -120,7 +120,7 @@ export default function StudentAbsencePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center justify-center">
                         <div className="bg-[#1f509a27] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center  ">
-                            <i className='bx bxs-check-circle text-[#1f509a] text-3xl'></i>
+                            <i className='bx bxs-check-circle text-[#1f509a] text-4xl'></i>
                         </div>
                         <div>
                             <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">27</p>
@@ -147,7 +147,7 @@ export default function StudentAbsencePage() {
                     </div>
                     <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center justify-center">
                         <div className="bg-[#bd000025] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center ">
-                            <i className='bx bxs-x-circle text-[#bd0000]  text-3xl'></i>
+                            <i className='bx bxs-x-circle text-[#bd0000]  text-4xl'></i>
                         </div>
                         <div>
                             <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">0</p>
@@ -215,10 +215,19 @@ export default function StudentAbsencePage() {
                                         <td className="py-2 px-4 border-b">{item.no}</td>
                                         <td className="py-2 px-4 border-b">{item.name}</td>
                                         <td className="py-2 px-4 border-b">{item.class}</td>
-                                        <td className="py-2 px-4 border-b">{item.status}</td>
                                         <td className="py-2 px-4 border-b">
-                                            {item.document ? <img src={item.document} alt="Bukti Surat" className="w-16 h-16" /> : '-'}
+                                            <span className={`inline-block px-3 py-1 rounded-full ${item.status === 'Hadir' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.status === 'Sakit' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.status === 'Alpha' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : item.status === 'Izin' ? 'bg-[#1f509a26] text-[var(--main-color)] ' :''}`}>
+                                                {item.status}
+                                            </span>
                                         </td>
+
+                                        <td className="py-2 px-4 border-b">
+                                            
+                                        <div className="w-16 h-16 overflow-hidden rounded">
+                                                {item.document ? <img src={item.document} alt="Bukti Surat" className="w-full h-full object-cover" /> : '-'}
+                                                </div>
+                                        </td>
+
                                         <td className="py-2 px-4 border-b">{item.date}</td>
                                     </tr>
                                 ))}

@@ -1,8 +1,18 @@
 "use client"
 
 import React, { useState } from 'react';
+import Cookies from "js-cookie";
+import { useEffect } from "react";
 
 const Sidebar: React.FC = () => {
+
+    useEffect(() => {
+        // Cek keberadaan token saat komponen di-render
+        const token = Cookies.get("token");
+        setIsLoggedIn(!!token); // Set isLoggedIn berdasarkan keberadaan token
+    }, []);
+
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isDropdownOpenKesiswaan, setIsDropdownOpenKesiswaan] = useState(false);
     const [isDropdownOpenFasilitas, setIsDropdownOpenFasilitas] = useState(false);
@@ -43,9 +53,9 @@ const Sidebar: React.FC = () => {
         (<div>
             {/* Tombol Hamburger di luar sidebar */}
             <button onClick={toggleSidebar} className="fixed top-4 left-4 z-50 text-gray-600 focus:outline-none">
-                <i className={`bx ${isSidebarOpen ? 'bx-x' : 'bx-menu'}`}></i> 
+                <i className={`bx ${isSidebarOpen ? 'bx-x' : 'bx-menu'}`}></i>
             </button>
-            <aside className={`bg-white w-64 space-y-6 py-7 px-4 sticky inset-y-0 left-0 transition duration-300 ease-in-out ${isSidebarOpen ? 'block' : 'hidden'}`}>
+            <aside className={`bg-white w-64 h-screen space-y-6 py-7 px-4 sticky inset-y-0 left-0 transition duration-300 ease-in-out ${isSidebarOpen ? 'block' : 'hidden'}`}>
                 {/* Sidebar Title */}
                 <h2 className="text-[var(--text-semi-bold-color)] text-3xl font-semibold pl-4">Lorem</h2>
                 {/* Start Sidebar menu navigation */}
@@ -196,10 +206,10 @@ const Sidebar: React.FC = () => {
                 {/* End Sidebar menu navigation  */}
 
                 {/* Login Button */}
-                <a href="/login" className="absolute bottom-5 left-2 right-2 px-3">
+                <a href={isLoggedIn ? "/profile" : "/login"} className="absolute bottom-5 left-2 right-2 px-3">
                     <button className="flex items-center justify-center w-full py-3 rounded-xl border border-[var(--text-semi-bold-color)] bg-white text-[var(--text-semi-bold-color)] hover:opacity-90 transition">
-                        <i className='bx bx-power-off mr-2 font-medium'></i>
-                        Login / Masuk
+                        <i className={`bx ${isLoggedIn ? 'bx-user' : 'bx-power-off'} mr-2 font-medium`}></i>
+                        {isLoggedIn ? "Profile Anda" : "Login / Masuk"}
                     </button>
                 </a>
             </aside>

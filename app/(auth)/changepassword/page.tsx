@@ -84,6 +84,6 @@ export default function ChangePasswordPage() {
 
 
             </div>
-        </div>
-    );
+        </div>
+    );
 }
