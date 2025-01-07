@@ -86,27 +86,33 @@ export default function LoginPage() {
                     src="/images/IlustrasiLogin.svg"
                     alt="Illustration"
                     className="w-3/4 md:w-3/4 mx-auto mb-4 md:mb-0"
-                    width={30}
-                    height={100}
-                    sizes="100vw" />
+                    layout="intrinsic"
+                    width={700}
+                    height={400}
+                    sizes="100vw"
+
+                />
             </div>
             <div className="flex flex-col justify-center items-center md:items-start md:w-1/2 w-full px-8 md:px-16 mt-4 md:mt-0">
                 <h1 className="text-2xl font-semibold text-gray-800 mb-6 text-center md:text-left">
                     Selamat Datang Kembali!
                 </h1>
+                <p className="text-xs font-medium text-gray-800 mb-6 text-center md:text-left">
+                    Masukkan NIS sebagai siswa dan NIP sebagai guru!
+                </p>
 
                 <form className="w-full max-w-sm space-y-4" onSubmit={handleSubmit}>
                     <div>
                         <input
                             type="text"
-                            placeholder="Masukkan NIS"
+                            placeholder="Masukkan NIS / NIP"
                             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                             value={identifier}
                             onChange={(e) => setIdentifier(e.target.value)}
                         />
                     </div>
 
-                    <div className="relative">
+                    <div className="relative flex items-center justify-center">
                         <input
                             type={showPassword ? "text" : "password"}
                             placeholder="Kata Sandi"
@@ -116,28 +122,22 @@ export default function LoginPage() {
                             required
                         />
                         <span
-                            className="absolute right-3 top-3 cursor-pointer text-gray-400"
+                            className="absolute right-3 top-3.5 cursor-pointer text-[var(--text-semi-bold-color)]"
                             onClick={() => setShowPassword(!showPassword)}
                         >
-                            <Image
-                                src={showPassword ? "/images/eye.png" : "/images/hidden.png"}
-                                alt="Toggle Password Visibility"
-                                className="h-5"
-                                width={20}
-                                height={10}
-                                sizes="100vw"
-                                style={{
-                                    width: "100%",
-                                    height: "auto"
-                                }} />
+                            {showPassword ? (
+                                <i className='bx bxs-show h-7' /> 
+                            ) : (
+                                <i className='bx bxs-hide h-7' /> 
+                            )}
                         </span>
                     </div>
 
-                    <div className="text-right">
+                    {/* <div className="text-right">
                         <a href="/changepassword" className="text-sm text-gray-500 hover:underline">
                             Ubah Kata Sandi?
                         </a>
-                    </div>
+                    </div> */}
 
                     <button
                         type="submit"

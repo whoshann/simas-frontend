@@ -1,10 +1,18 @@
-import "@/app/styles/globals.css";
+"use client"
 
-export default function studentPageClaimAsurance() {
+import "@/app/styles/globals.css";
+import { useEffect } from "react";
+import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
+
+export default function StudentClaimAsurancePage() {
+    useEffect(() => {
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student'
+        roleMiddleware(["Student"]);
+    }, []);
     return (
         <div>
             <p>
-                Halaman user kesiswaan klaim asuransi
+                Halaman klaim asuransi siswa
             </p>
         </div>
     )

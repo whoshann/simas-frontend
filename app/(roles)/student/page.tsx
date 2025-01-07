@@ -1,30 +1,18 @@
 "use client"
 
 import "@/app/styles/globals.css";
-import Cookies from "js-cookie";
 import { useEffect } from "react";
+import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 
-const checkAuth = () => {
-    const token = Cookies.get("token");
+export default function StudentPage() {
+  useEffect(() => {
+    // Panggil middleware untuk memeriksa role, hanya izinkan 'Student'
+    roleMiddleware(["Student"]);
+  }, []);
 
-    // Jika token tidak ditemukan, redirect ke halaman login
-    if (!token) {
-        window.location.href = "/login";
-    } else {
-        console.log("Token ditemukan:", token);
-    }
+  return (
+    <div>
+      <p>Halaman dashboard Siswa</p>
+    </div>
+  );
 };
-
-export default function studentPage() {
-    useEffect(() => {
-        checkAuth(); // Panggil checkAuth saat komponen dimuat
-    }, []);
-
-    return (
-        <div>
-            <p>
-                Halaman User
-            </p>
-        </div>
-    );
-}

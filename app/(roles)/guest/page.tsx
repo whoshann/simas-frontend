@@ -10,6 +10,8 @@ export default function GuestDashboard() {
 
             <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 pb-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    {/* News Card */}
                     <div className="bg-white shadow-md rounded-lg overflow-hidden lg:col-span-2">
                         <img
                             src="/images/Berita1.jpg"
@@ -35,6 +37,7 @@ export default function GuestDashboard() {
                         </div>
                     </div>
 
+                    {/* Card feture acces*/}
                     <div className="bg-[var(--main-color)] text-white shadow-md rounded-lg flex flex-col justify-between p-6">
                         <img
                             src="/images/IlustrasiGuest.svg"
@@ -45,13 +48,12 @@ export default function GuestDashboard() {
                     </div>
                 </div>
 
+
+                {/* Start 4 Card */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                     <div className="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
                         <div className="p-3 bg-blue-100 rounded-full">
-                            <img
-                                src="/images/IconGuru.svg"
-                                alt="Icon Guru"
-                                className="w-8 h-8" />
+                            <i className='bx bxs-user w-8 h-8' /> {/* Ikon untuk Guru */}
                         </div>
                         <div>
                             <h4 className="text-md font-semibold text-gray-800">Total Jumlah Guru</h4>
@@ -61,11 +63,7 @@ export default function GuestDashboard() {
 
                     <div className="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
                         <div className="p-3 bg-orange-100 rounded-full">
-                            <img
-                                src="/images/IconSiswa.svg"
-                                alt="Icon Siswa"
-                                className="w-8 h-8"
-                            />
+                            <i className='bx bxs-graduation w-8 h-8' /> {/* Ikon untuk Siswa */}
                         </div>
                         <div>
                             <h4 className="text-md font-semibold text-gray-800">Total Jumlah Siswa</h4>
@@ -75,12 +73,7 @@ export default function GuestDashboard() {
 
                     <div className="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
                         <div className="p-3 bg-teal-100 rounded-full">
-                            <img
-                                src="/images/IconKaryawan.svg"
-                                alt="IconKaryawan"
-                                className="w-8 h-8"
-                            />
-
+                            <i className='bx bxs-briefcase w-8 h-8' /> {/* Ikon untuk Karyawan */}
                         </div>
                         <div>
                             <h4 className="text-md font-semibold text-gray-800">Total Jumlah Karyawan</h4>
@@ -88,6 +81,9 @@ export default function GuestDashboard() {
                         </div>
                     </div>
                 </div>
+                {/* End 4 Card */}
+
+
             </main>
         </div>
     );

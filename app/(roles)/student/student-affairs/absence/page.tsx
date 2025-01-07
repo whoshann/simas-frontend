@@ -1,10 +1,15 @@
-// app/(roles)/student/student-affairs/absence/page.tsx
 "use client";
 
 import "@/app/styles/globals.css";
 import { useState } from 'react';
+import { useEffect } from "react";
+import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 
-export default function StudentAffairsAbsence() {
+export default function StudentAbsencePage() {
+    useEffect(() => {
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student'
+        roleMiddleware(["Student"]);
+    }, []);
     const [selectedMonth, setSelectedMonth] = useState('Januari');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -159,12 +164,12 @@ export default function StudentAffairsAbsence() {
                     <div className="mb-4 flex justify-between">
 
                         {/* Start Showing entries */}
-                        <div>
+                        <div className="text-xs sm:text-base">
                             <label className="mr-2">Tampilkan</label>
                             <select
                                 value={entriesPerPage}
                                 onChange={(e) => setEntriesPerPage(Number(e.target.value))}
-                                className="border border-gray-300 rounded-lg p-1 text-sm"
+                                className="border border-gray-300 rounded-lg p-1 text-xs sm:text-sm w-12 sm:w-16"
                             >
                                 <option value={5}>5</option>
                                 <option value={10}>10</option>
@@ -177,14 +182,14 @@ export default function StudentAffairsAbsence() {
 
 
                         {/*Start Search */}
-                        <div className="border border-gray-300 rounded-lg py-2 px-4 flex justify-between items-center" >
-                            <i className='bx bx-search text-[var(--text-semi-bold-color)] text-2xl mr-2'></i>
+                        <div className="border border-gray-300 rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-24 sm:w-56" >
+                            <i className='bx bx-search text-[var(--text-semi-bold-color)] text-xs sm:text-lg mr-2'></i>
                             <input
                                 type="text"
                                 placeholder="Cari data..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="border-0 focus:outline-none"
+                                className="border-0 focus:outline-none text-xs sm:text-base w-16 sm:w-40"
                             />
                         </div>
                         {/*End Search */}
@@ -192,52 +197,54 @@ export default function StudentAffairsAbsence() {
 
 
                     {/* Start Table */}
-                    <table className="min-w-full bg-white border border-gray-300 rounded-lg overflow-hidden">
-                        <thead className="text-[var(--text-semi-bold-color)]">
-                            <tr>
-                                <th className="py-2 px-4 border-b text-left">No</th>
-                                <th className="py-2 px-4 border-b text-left">Nama</th>
-                                <th className="py-2 px-4 border-b text-left">Kelas</th>
-                                <th className="py-2 px-4 border-b text-left">Keterangan</th>
-                                <th className="py-2 px-4 border-b text-left">Bukti Surat</th>
-                                <th className="py-2 px-4 border-b text-left">Tanggal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentEntries.map((item) => (
-                                <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                    <td className="py-2 px-4 border-b">{item.no}</td>
-                                    <td className="py-2 px-4 border-b">{item.name}</td>
-                                    <td className="py-2 px-4 border-b">{item.class}</td>
-                                    <td className="py-2 px-4 border-b">{item.status}</td>
-                                    <td className="py-2 px-4 border-b">
-                                        {item.document ? <img src={item.document} alt="Bukti Surat" className="w-16 h-16" /> : '-'}
-                                    </td>
-                                    <td className="py-2 px-4 border-b">{item.date}</td>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full rounded-lg overflow-hidden">
+                            <thead className="text-[var(--text-semi-bold-color)]">
+                                <tr>
+                                    <th className="py-2 px-4 border-b text-left">No</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama</th>
+                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
+                                    <th className="py-2 px-4 border-b text-left">Keterangan</th>
+                                    <th className="py-2 px-4 border-b text-left">Bukti Surat</th>
+                                    <th className="py-2 px-4 border-b text-left">Tanggal</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {currentEntries.map((item) => (
+                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
+                                        <td className="py-2 px-4 border-b">{item.no}</td>
+                                        <td className="py-2 px-4 border-b">{item.name}</td>
+                                        <td className="py-2 px-4 border-b">{item.class}</td>
+                                        <td className="py-2 px-4 border-b">{item.status}</td>
+                                        <td className="py-2 px-4 border-b">
+                                            {item.document ? <img src={item.document} alt="Bukti Surat" className="w-16 h-16" /> : '-'}
+                                        </td>
+                                        <td className="py-2 px-4 border-b">{item.date}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                     {/* End Table */}
 
 
 
                     {/*Start Pagination and showing entries */}
                     <div className="flex justify-between items-center mt-5">
-                        <span>Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri</span>
+                        <span className="text-xs sm:text-base" >Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri</span>
 
                         {/* Pagination */}
                         <div className="flex items-center">
                             <button
                                 onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                                 disabled={currentPage === 1}
-                                className="px-4 py-2 mr-2 text-[var(--main-color)]"
+                                className="px-4 py-2 text-[var(--main-color)]"
                             >
                                 &lt;
                             </button>
                             {/* Pagination Numbers */}
                             <div className="flex space-x-1">
-                                {Array.from({ length: Math.min(totalPages - (currentPage - 1), 4) }, (_, index) => {
+                                {Array.from({ length: Math.min(totalPages - (currentPage - 1), 2) }, (_, index) => {
                                     const pageNumber = currentPage + index;
                                     return (
                                         <button
@@ -248,14 +255,11 @@ export default function StudentAffairsAbsence() {
                                         </button>
                                     );
                                 })}
-                                {totalPages > 4 && currentPage <= totalPages - 4 && (
-                                    <span className=" text-[var(--main-color)] px-3 py-1">...</span>
-                                )}
                             </div>
                             <button
                                 onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className="px-4 py-2 ml-2 text-[var(--main-color)]"
+                                className="px-4 py-2 text-[var(--main-color)]"
                             >
                                 &gt;
                             </button>
