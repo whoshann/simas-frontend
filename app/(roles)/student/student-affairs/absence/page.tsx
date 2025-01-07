@@ -216,16 +216,16 @@ export default function StudentAbsencePage() {
                                         <td className="py-2 px-4 border-b">{item.name}</td>
                                         <td className="py-2 px-4 border-b">{item.class}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${item.status === 'Hadir' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.status === 'Sakit' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.status === 'Alpha' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : item.status === 'Izin' ? 'bg-[#1f509a26] text-[var(--main-color)] ' :''}`}>
+                                            <span className={`inline-block px-3 py-1 rounded-full ${item.status === 'Hadir' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.status === 'Sakit' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.status === 'Alpha' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : item.status === 'Izin' ? 'bg-[#1f509a26] text-[var(--main-color)] ' : ''}`}>
                                                 {item.status}
                                             </span>
                                         </td>
 
                                         <td className="py-2 px-4 border-b">
-                                            
-                                        <div className="w-16 h-16 overflow-hidden rounded">
+
+                                            <div className="w-16 h-16 overflow-hidden rounded">
                                                 {item.document ? <img src={item.document} alt="Bukti Surat" className="w-full h-full object-cover" /> : '-'}
-                                                </div>
+                                            </div>
                                         </td>
 
                                         <td className="py-2 px-4 border-b">{item.date}</td>

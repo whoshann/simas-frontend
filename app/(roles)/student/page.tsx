@@ -15,7 +15,8 @@ export default function StudentDashboard() {
   useEffect(() => {
     // Panggil middleware untuk memeriksa role, hanya izinkan 'Student'
     roleMiddleware(["Student"]);
-  }, []); const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  }, []);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
