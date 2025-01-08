@@ -54,6 +54,7 @@ export default function StudentAffairsAbsencePage() {
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const togglePanel = () => {
         setIsPanelOpen(!isPanelOpen);
@@ -61,7 +62,7 @@ export default function StudentAffairsAbsencePage() {
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-            <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-center">
+            <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Absensi Siswa</h1>
                     <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
@@ -69,23 +70,23 @@ export default function StudentAffairsAbsencePage() {
 
 
                 {/* Filtering Bulanan */}
-                <div className="relative mt-4 sm:mt-0 w-full sm:w-72 ">
-                    <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-24 sm:w-56">
-                        <i className='bx bx-search text-[var(--text-semi-bold-color)] text-xs sm:text-lg mr-2'></i>
+                <div className="mt-4 sm:mt-0">
+                    <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
+                        <i className='bx bx-search text-[var(--text-semi-bold-color)] text-lg mr-0 sm:mr-2 ml-2 sm:ml-0'></i>
                         <input
                             type="text"
                             placeholder="Cari data..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="border-0 focus:outline-none text-xs sm:text-base w-16 sm:w-40"
+                            className="border-0 focus:outline-none text-base w-40"
                         />
                     </div>
                 </div>
             </header>
 
-            <main className="px-6 pb-6">
+            <main className="px-9 pb-6">
                 <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-                    <div className="mb-4 flex justify-between">
+                    <div className="mb-4 flex justify-between flex-wrap sm:flex-nowrap">
                         <div className="text-xs sm:text-base">
                             <label className="mr-2">Tampilkan</label>
                             <select
@@ -101,16 +102,64 @@ export default function StudentAffairsAbsencePage() {
                             <label className="ml-2">Entri</label>
                         </div>
 
-                        {/* <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-24 sm:w-56">
-                            <i className='bx bx-search text-[var(--text-semi-bold-color)] text-xs sm:text-lg mr-2'></i>
-                            <input
-                                type="text"
-                                placeholder="Cari data..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="border-0 focus:outline-none text-xs sm:text-base w-16 sm:w-40"
-                            />
-                        </div> */}
+                        {/* 3 button*/}
+
+                        <div className="flex space-x-2 mt-5 sm:mt-0">
+                            {/* Button Tambah Data */}
+                            <button
+                                onClick={() => console.log("Tambah Data")}
+                                className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
+                            >
+                                Tambah Data
+                            </button>
+
+                            {/* Button Import CSV */}
+                            <button
+                                onClick={() => console.log("Import CSV")}
+                                className="bg-[var(--second-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#de881f]"
+                            >
+                                Import Dari Excel
+                            </button>
+
+                            {/* Dropdown Export */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                                    className="bg-[var(--third-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#09859a] flex items-center"
+                                >
+                                    Export Data
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth={2}
+                                        stroke="currentColor"
+                                        className={`w-4 h-4 ml-2 transform transition-transform ${dropdownOpen ? 'rotate-90' : 'rotate-0'
+                                            }`}
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                {dropdownOpen && (
+                                    <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                                        <button
+                                            onClick={() => console.log("Export PDF")}
+                                            className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
+                                        >
+                                            Export PDF
+                                        </button>
+                                        <button
+                                            onClick={() => console.log("Export Excel")}
+                                            className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
+                                        >
+                                            Export Excel
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                        </div>
+
 
                     </div>
 
@@ -154,6 +203,25 @@ export default function StudentAffairsAbsencePage() {
                                             </div>
                                         </td>
                                         <td className="py-2 px-4 border-b">{item.date}</td>
+                                        <td className="py-2 px-4 border-b">
+                                            <div className="flex space-x-2">
+                                                {/* Edit Button */}
+                                                <button
+                                                    className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+                                                    
+                                                >
+                                                    <i className="bx bxs-edit text-lg"></i>
+                                                </button>
+
+                                                {/* Delete Button */}
+                                                <button
+                                                    className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
+                                                    
+                                                >
+                                                    <i className="bx bxs-trash-alt text-lg"></i>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

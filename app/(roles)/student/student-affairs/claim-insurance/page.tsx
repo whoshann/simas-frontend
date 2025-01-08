@@ -109,7 +109,7 @@ export default function StudentClaimInsurancePage() {
                             <div className="flex justify-between items-center border border-gray-300 rounded-lg p-4">
                                 <div className="flex items-center">
                                     <div className="bg-[#bd00002a] rounded-full h-10 w-10 p-2 mr-4">
-                                        <i className='bx bxs-x-circle text-[var(--fourth-color)] text-2xl '></i> {/* Ikon Gagal */}
+                                        <i className='bx bxs-x-circle text-[var(--fourth-color)] text-2xl '></i> {/* Ikon Ditolak */}
                                     </div>
                                     <div>
                                         <p className="font-medium text-sm ">Kecelakaan</p>
@@ -117,7 +117,7 @@ export default function StudentClaimInsurancePage() {
                                     </div>
                                 </div>
                                 <div className=" px-4 flex justify-center items-center py-1 rounded-full bg-[#bd000026]">
-                                    <span className="text-xs text-[var(--fourth-color)]">Gagal</span>
+                                    <span className="text-xs text-[var(--fourth-color)]">Ditolak</span>
                                 </div>
                             </div>
 
