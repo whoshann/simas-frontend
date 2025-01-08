@@ -143,7 +143,7 @@ export default function StudentAffairsDashboardPage() {
 
 
                 {/* Filtering Bulanan */}
-                <div className="relative mt-4 sm:mt-0 w-full sm:w-72 ">
+                <div className="mt-4 sm:mt-0 w-full sm:w-72 ">
                     <div className="bg-white shadow-md rounded-lg py-4 px-7 flex items-center justify-center cursor-pointer" onClick={togglePanel}>
                         <div className="bg-[#1f509a27] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center">
                             <i className='bx bxs-calendar text-[#1f509a] text-3xl'></i>
