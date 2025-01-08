@@ -1,16 +1,9 @@
 "use client";
 
 import React from "react";
-import { useEffect } from "react";
-import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
+import Image from "next/legacy/image";
 
-export default function TeacherBugdetProposalPage() {
-
-  useEffect(() => {
-    // Panggil middleware untuk memeriksa role, hanya izinkan 'Teacher'
-    roleMiddleware(["Teacher"]);
-}, []);
-  
+export default function SarprasPengajuanPage() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
       <header className="py-6 px-9">
@@ -132,6 +125,6 @@ export default function TeacherBugdetProposalPage() {
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>
+  );
 }
