@@ -1,4 +1,5 @@
 import "@/app/styles/globals.css";
+import Image from 'next/image';
 
 export default function GuestDashboard() {
     return (
@@ -13,10 +14,12 @@ export default function GuestDashboard() {
 
                     {/* News Card */}
                     <div className="bg-white shadow-md rounded-lg overflow-hidden lg:col-span-2">
-                        <img
+                        <Image
                             src="/images/Berita1.jpg"
                             alt="Sosialisasi Prakerin Orang Tua"
                             className="w-full object-cover rounded-lg"
+                            width={640} 
+                            height={360} 
                         />
                         <div className="p-6">
                             <div className="flex items-center space-x-4 mb-4">
@@ -40,7 +43,7 @@ export default function GuestDashboard() {
                     {/* Card feture acces*/}
                     <div className="bg-[var(--main-color)] text-white shadow-md rounded-lg flex flex-col justify-between p-6">
 
-                        <h3 className="text-xl font-semibold mb-3 max-w-272px ml-6">Silahkan masuk atau login untuk mengakses keseluruhan fitur fitur</h3>
+                        <h3 className="text-3xl font-semibold mt-8 max-w-272px ml-6">Silahkan masuk atau login untuk mengakses keseluruhan fitur fitur</h3>
                     </div>
                 </div>
 
@@ -48,7 +51,7 @@ export default function GuestDashboard() {
                 {/* Start 4 Card */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                     <div className="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
-                        <div className="p-3 bg-[#1f509a2b] rounded-full w-16 h-16 flex items-center justify-center"> 
+                        <div className="p-3 bg-[#1f509a2b] rounded-full w-16 h-16 flex items-center justify-center">
                             <div className="rounded-full bg-[var(--main-color)] w-10 h-10 flex items-center justify-center">
                                 <i className='text-white bx bxs-user-badge text-2xl' /> {/* Ikon untuk Guru */}
                             </div>
@@ -60,7 +63,7 @@ export default function GuestDashboard() {
                     </div>
 
                     <div className="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
-                        <div className="p-3 bg-[#e88e1f29] rounded-full w-16 h-16 flex items-center justify-center"> 
+                        <div className="p-3 bg-[#e88e1f29] rounded-full w-16 h-16 flex items-center justify-center">
                             <div className="rounded-full bg-[var(--second-color)] w-10 h-10 flex items-center justify-center">
                                 <i className='text-white bx bxs-graduation text-2xl' /> {/* Ikon untuk Siswa */}
                             </div>
@@ -72,7 +75,7 @@ export default function GuestDashboard() {
                     </div>
 
                     <div className="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
-                        <div className="p-3 bg-[#0a97b029] rounded-full w-16 h-16 flex items-center justify-center"> 
+                        <div className="p-3 bg-[#0a97b029] rounded-full w-16 h-16 flex items-center justify-center">
                             <div className="rounded-full bg-[var(--third-color)] w-10 h-10 flex items-center justify-center">
                                 <i className='text-white bx bxs-briefcase text-2xl' /> {/* Ikon untuk Karyawan */}
                             </div>

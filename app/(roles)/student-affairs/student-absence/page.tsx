@@ -1,35 +1,29 @@
 "use client";
 
+import React, { useState } from "react";
 import "@/app/styles/globals.css";
-import { useState } from 'react';
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
 
-export default function StudentAbsencePage() {
+
+export default function StudentAffairsAbsencePage() {
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student'
-        roleMiddleware(["Student"]);
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
+        roleMiddleware(["StudentAffairs"]);
     }, []);
-    const [selectedMonth, setSelectedMonth] = useState('Januari');
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
     const [isPanelOpen, setIsPanelOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
 
-    const months = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
-
-    // Data statis tabel absensi
     const data = [
         { no: 1, name: "Ilham Kurniawan", class: "X PH A", status: "Hadir", document: null, date: "21/01/2024" },
-        { no: 2, name: "Ilham Kurniawan", class: "X PH B", status: "Izin", document: "/images/Berita1.jpg", date: "22/01/2024" },
-        { no: 3, name: "Ilham Kurniawan", class: "XI IPA A", status: "Sakit", document: "/images/Berita1.jpg", date: "23/01/2024" },
-        { no: 4, name: "Ilham Kurniawan", class: "XI IPA B", status: "Alpha", document: null, date: "24/01/2024" },
-        { no: 5, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        { no: 2, name: "Adi Kurniawan", class: "X PH B", status: "Izin", document: "/images/Berita1.jpg", date: "22/01/2024" },
+        { no: 3, name: "Imam Kurniawan", class: "XI IPA A", status: "Sakit", document: "/images/Berita1.jpg", date: "23/01/2024" },
+        { no: 4, name: "Fawas Kurniawan", class: "XI IPA B", status: "Alpha", document: null, date: "24/01/2024" },
+        { no: 5, name: "Obing Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
         { no: 6, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
         { no: 7, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
         { no: 8, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
@@ -66,105 +60,32 @@ export default function StudentAbsencePage() {
     };
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
-
-
-            {/* Start Header */}
-            <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row justify-between items-center">
+        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+            <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Absensi Anda</h1>
-                    <p className="text-sm text-gray-600">Halo James, selamat datang kembali</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Absensi Siswa</h1>
+                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
                 </div>
 
 
                 {/* Filtering Bulanan */}
                 <div className="relative mt-4 sm:mt-0 w-full sm:w-72 ">
-                    <div className="bg-white shadow-md rounded-lg py-4 px-7 flex items-center justify-center cursor-pointer" onClick={togglePanel}>
-                        <div className="bg-[#1f509a27] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center">
-                            <i className='bx bxs-calendar text-[#1f509a] text-3xl'></i>
-                        </div>
-                        <div className="flex-1" >
-                            <span className="text-lg font-semibold text-[var(--text-semi-bold-color)] ">Filter Bulan</span>
-                            <p className="text-sm text-gray-600">{selectedMonth} {selectedYear}</p>
-                        </div>
-                        <svg className={`ml-7 h-4 w-4 transform transition-transform ${isPanelOpen ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
+                    <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-24 sm:w-56">
+                        <i className='bx bx-search text-[var(--text-semi-bold-color)] text-xs sm:text-lg mr-2'></i>
+                        <input
+                            type="text"
+                            placeholder="Cari data..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="border-0 focus:outline-none text-xs sm:text-base w-16 sm:w-40"
+                        />
                     </div>
-                    {isPanelOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-10">
-                            {months.map((month) => (
-                                <div
-                                    key={month}
-                                    className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                                    onClick={() => {
-                                        setSelectedMonth(month);
-                                        setIsPanelOpen(false);
-                                    }}
-                                >
-                                    {month} {selectedYear}
-                                </div>
-                            ))}
-                        </div>
-                    )}
                 </div>
             </header>
-            {/* End Header */}
 
-
-
-            <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 mt-6">
-
-
-
-                {/* Start 4 Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center justify-center">
-                        <div className="bg-[#1f509a27] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center  ">
-                            <i className='bx bxs-check-circle text-[#1f509a] text-4xl'></i>
-                        </div>
-                        <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">27</p>
-                            <p className="text-sm text-[var(--text-regular-color)]">Hadir</p>
-                        </div>
-                    </div>
-                    <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center justify-center">
-                        <div className="bg-[#e88e1f29] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center ">
-                            <i className='bx bxs-envelope text-[#e88d1f]  text-3xl'></i>
-                        </div>
-                        <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">2</p>
-                            <p className="text-sm text-[var(--text-regular-color)]">Izin</p>
-                        </div>
-                    </div>
-                    <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center justify-center">
-                        <div className="bg-[#0a97b02a] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center ">
-                            <i className='bx bxs-clinic text-[#0a97b0]  text-3xl'></i>
-                        </div>
-                        <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">0</p>
-                            <p className="text-sm text-[var(--text-regular-color)]">Sakit</p>
-                        </div>
-                    </div>
-                    <div className="bg-white shadow-md rounded-lg px-4 py-7 flex items-center justify-center">
-                        <div className="bg-[#bd000025] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center ">
-                            <i className='bx bxs-x-circle text-[#bd0000]  text-4xl'></i>
-                        </div>
-                        <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">0</p>
-                            <p className="text-sm text-[var(--text-regular-color)]">Alpha</p>
-                        </div>
-                    </div>
-                </div>
-                {/* End Cards */}
-
-
-
-                {/* Card for Table */}
+            <main className="px-6 pb-6">
                 <div className="bg-white shadow-md rounded-lg p-6 mb-6">
                     <div className="mb-4 flex justify-between">
-
-                        {/* Start Showing entries */}
                         <div className="text-xs sm:text-base">
                             <label className="mr-2">Tampilkan</label>
                             <select
@@ -179,11 +100,8 @@ export default function StudentAbsencePage() {
                             </select>
                             <label className="ml-2">Entri</label>
                         </div>
-                        {/* End Showing entries */}
 
-
-                        {/*Start Search */}
-                        <div className="border border-gray-300 rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-24 sm:w-56" >
+                        {/* <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-24 sm:w-56">
                             <i className='bx bx-search text-[var(--text-semi-bold-color)] text-xs sm:text-lg mr-2'></i>
                             <input
                                 type="text"
@@ -192,12 +110,10 @@ export default function StudentAbsencePage() {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="border-0 focus:outline-none text-xs sm:text-base w-16 sm:w-40"
                             />
-                        </div>
-                        {/*End Search */}
+                        </div> */}
+
                     </div>
 
-
-                    {/* Start Table */}
                     <div className="overflow-x-auto">
                         <table className="min-w-full rounded-lg overflow-hidden">
                             <thead className="text-[var(--text-semi-bold-color)]">
@@ -208,6 +124,7 @@ export default function StudentAbsencePage() {
                                     <th className="py-2 px-4 border-b text-left">Keterangan</th>
                                     <th className="py-2 px-4 border-b text-left">Bukti Surat</th>
                                     <th className="py-2 px-4 border-b text-left">Tanggal</th>
+                                    <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -242,15 +159,10 @@ export default function StudentAbsencePage() {
                             </tbody>
                         </table>
                     </div>
-                    {/* End Table */}
 
-
-
-                    {/*Start Pagination and showing entries */}
                     <div className="flex justify-between items-center mt-5">
-                        <span className="text-xs sm:text-base" >Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri</span>
+                        <span className="text-xs sm:text-base">Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri</span>
 
-                        {/* Pagination */}
                         <div className="flex items-center">
                             <button
                                 onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
@@ -259,7 +171,6 @@ export default function StudentAbsencePage() {
                             >
                                 &lt;
                             </button>
-                            {/* Pagination Numbers */}
                             <div className="flex space-x-1">
                                 {Array.from({ length: Math.min(totalPages - (currentPage - 1), 2) }, (_, index) => {
                                     const pageNumber = currentPage + index;
@@ -267,7 +178,8 @@ export default function StudentAbsencePage() {
                                         <button
                                             key={pageNumber}
                                             onClick={() => setCurrentPage(pageNumber)}
-                                            className={` rounded-md px-3 py-1 ${currentPage === pageNumber ? ' bg-[var(--main-color)] text-white ' : 'text-[var(--main-color)]'}`}>
+                                            className={`rounded-md px-3 py-1 ${currentPage === pageNumber ? 'bg-[var(--main-color)] text-white' : 'text-[var(--main-color)]'}`}
+                                        >
                                             {pageNumber}
                                         </button>
                                     );
@@ -282,9 +194,6 @@ export default function StudentAbsencePage() {
                             </button>
                         </div>
                     </div>
-                    {/*End Pagination and showing entries */}
-
-
                 </div>
             </main>
         </div>

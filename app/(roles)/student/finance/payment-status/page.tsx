@@ -17,16 +17,17 @@ export default function StudentPaymentStatusPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const data = [
-    { no: 1, nis: "009919828231", kelas: "XI RPL A", jumlah: "600.000", smt: 5, status: "Gagal", tanggal: "21/01/2024" },
-    { no: 2, nis: "001256298231", kelas: "XI RPL B", jumlah: "600.000", smt: 4, status: "Lunas", tanggal: "21/01/2024" },
-    { no: 3, nis: "009919828231", kelas: "XI RPL C", jumlah: "600.000", smt: 3, status: "Lunas", tanggal: "21/01/2024" },
-    { no: 4, nis: "009919828231", kelas: "XI RPL B", jumlah: "600.000", smt: 2, status: "Lunas", tanggal: "21/01/2024" },
-    { no: 5, nis: "009919828231", kelas: "XI RPL A", jumlah: "600.000", smt: 1, status: "Lunas", tanggal: "21/01/2024" },
+    { no: 1, nis: "009919828231", kelas: "XI RPL A", jumlah: "100.000", month: 1, status: "Lunas", tanggal: "21/01/2024" },
+    { no: 2, nis: "009919828231", kelas: "XI RPL A", jumlah: "100.000", month: 2, status: "Gagal", tanggal: "21/01/2024" },
+    { no: 3, nis: "009919828231", kelas: "XI RPL A", jumlah: "100.000", month: 3, status: "Gagal", tanggal: "21/01/2024" },
+    { no: 4, nis: "009919828231", kelas: "XI RPL A", jumlah: "100.000", month: 4, status: "Gagal", tanggal: "21/01/2024" },
+    { no: 5, nis: "009919828231", kelas: "XI RPL A", jumlah: "100.000", month: 5, status: "Gagal", tanggal: "21/01/2024" },
   ];
 
   const filteredData = data.filter(item =>
     item.nis.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.kelas.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.tanggal.includes(searchTerm)
   );
 
@@ -83,7 +84,7 @@ export default function StudentPaymentStatusPage() {
                   <th className="py-2 px-4 border-b text-left">NIS</th>
                   <th className="py-2 px-4 border-b text-left">Kelas</th>
                   <th className="py-2 px-4 border-b text-left">Jumlah</th>
-                  <th className="py-2 px-4 border-b text-left">Smt</th>
+                  <th className="py-2 px-4 border-b text-left">Bulan</th>
                   <th className="py-2 px-4 border-b text-left">Status</th>
                   <th className="py-2 px-4 border-b text-left">Tanggal</th>
                 </tr>
@@ -95,7 +96,7 @@ export default function StudentPaymentStatusPage() {
                     <td className="py-2 px-4 border-b">{item.nis}</td>
                     <td className="py-2 px-4 border-b">{item.kelas}</td>
                     <td className="py-2 px-4 border-b">{item.jumlah}</td>
-                    <td className="py-2 px-4 border-b">{item.smt}</td>
+                    <td className="py-2 px-4 border-b">{item.month}</td>
                     <td className="py-2 px-4 border-b">
                       <span
                         className={`px-6 py-1 rounded-full text-sm font-medium whitespace-nowrap ${item.status === "Lunas"

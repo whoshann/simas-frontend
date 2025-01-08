@@ -32,10 +32,12 @@ export default function StudentDashboard() {
               <h2 className="text-xl font-semibold">Semoga Harimu Sangat Menyenangkan!</h2>
             </div>
             <div className="flex justify-end">
-              <img
+              <Image
                 src="/images/siswa-HomePage.png"
                 alt="Ilustrasi Siswa"
                 className="w-1/3 object-cover rounded-lg"
+                width={640}
+                height={360}
               />
             </div>
           </div>
@@ -48,7 +50,7 @@ export default function StudentDashboard() {
             <ul className="space-y-2">
               <li className="text-sm flex items-center">
                 <div className="p-2 bg-orange-100 rounded-full mr-2 w-10 h-10 flex items-center justify-center">
-                  <img src="/images/IconSiswa.svg" alt="Icon Siswa" className="w-6 h-6" />
+                  {/* <img src="/images/IconSiswa.svg" alt="Icon Siswa" className="w-6 h-6" /> */}
                 </div>
                 <div>
                   <div>Kamu belum membayar SPP bulan Januari</div>
@@ -57,7 +59,7 @@ export default function StudentDashboard() {
               </li>
               <li className="text-sm flex items-center">
                 <div className="p-2 bg-orange-100 rounded-full mr-2 w-10 h-10 flex items-center justify-center">
-                  <img src="/images/IconSiswa.svg" alt="Icon Siswa" className="w-6 h-6" />
+                  {/* <img src="/images/IconSiswa.svg" alt="Icon Siswa" className="w-6 h-6" /> */}
                 </div>
                 <div>
                   <div>Kamu belum membayar iuran komite bulan Januari</div>
@@ -153,8 +155,8 @@ export default function StudentDashboard() {
             </div>
             <div className="p-4 flex">
               <div className="flex flex-col items-center justify-center pr-4">
-                <span className="text-2xl font-bold text-blue-700">27</span>
-                <span className="text-2xl font-semibold text-teal-600">01</span>
+                <span className="text-2xl font-bold text-[var(--main-color)]">27</span>
+                <span className="text-2xl font-semibold text-[var(--third-color)]">01</span>
               </div>
               <div>
                 <h4 className="text-sm font-semibold">Sosialisasi Prakerin Orang Tua</h4>
@@ -177,8 +179,8 @@ export default function StudentDashboard() {
             </div>
             <div className="p-4 flex">
               <div className="flex flex-col items-center justify-center pr-4">
-                <span className="text-2xl font-bold text-blue-700">27</span>
-                <span className="text-2xl font-semibold text-teal-600">01</span>
+                <span className="text-2xl font-bold text-[var(--main-color)]">27</span>
+                <span className="text-2xl font-semibold text-[var(--third-color)]">01</span>
               </div>
               <div>
                 <h4 className="text-sm font-semibold">Sosialisasi Prakerin Orang Tua</h4>
@@ -201,8 +203,8 @@ export default function StudentDashboard() {
             </div>
             <div className="p-4 flex">
               <div className="flex flex-col items-center justify-center pr-4">
-                <span className="text-2xl font-bold text-blue-700">27</span>
-                <span className="text-2xl font-semibold text-teal-600">01</span>
+                <span className="text-2xl font-bold text-[var(--main-color)]">27</span>
+                <span className="text-2xl font-semibold text-[var(--third-color)]">01</span>
               </div>
               <div>
                 <h4 className="text-sm font-semibold">Sosialisasi Prakerin Orang Tua</h4>
