@@ -16,11 +16,11 @@ export default function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+    
         try {
             const result = await loginUser(identifier, password);
             console.log("Login berhasil:", result);
-
+    
             // Simpan token ke dalam cookies
             Cookies.set("token", result.data.access_token, {
                 expires: 1, // Cookie akan kedaluwarsa dalam 1 hari
@@ -82,13 +82,15 @@ export default function LoginPage() {
             className="flex flex-col md:flex-row h-screen items-center justify-center"
         >
             <div className="md:w-1/2 bg-white flex items-center justify-center">
-                <Image
-                    src="/images/IlustrasiLogin.svg"
-                    alt="Illustration"
-                    className="w-3/4 md:w-3/4 mx-auto mb-4 md:mb-0"
-                    width={30}
-                    height={100}
-                    sizes="100vw" />
+            <Image
+            src="/images/IlustrasiLogin.svg"
+            alt="Illustration"
+            className="w-3/4 md:w-3/4 mx-auto mb-4 md:mb-0"
+            layout="intrinsic" 
+            width={700} 
+            height={400} 
+            sizes="100vw" 
+            />
             </div>
             <div className="flex flex-col justify-center items-center md:items-start md:w-1/2 w-full px-8 md:px-16 mt-4 md:mt-0">
                 <h1 className="text-2xl font-semibold text-gray-800 mb-6 text-center md:text-left">
@@ -122,14 +124,12 @@ export default function LoginPage() {
                             <Image
                                 src={showPassword ? "/images/eye.png" : "/images/hidden.png"}
                                 alt="Toggle Password Visibility"
+                                layout="intrinsic" 
                                 className="h-5"
                                 width={20}
-                                height={10}
+                                height={20}
                                 sizes="100vw"
-                                style={{
-                                    width: "100%",
-                                    height: "auto"
-                                }} />
+                                />
                         </span>
                     </div>
 
