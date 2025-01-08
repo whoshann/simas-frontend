@@ -1,7 +1,6 @@
 "use client";
 
 import "@/app/styles/globals.css";
-import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from "next/image";

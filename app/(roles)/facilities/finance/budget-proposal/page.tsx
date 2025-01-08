@@ -1,9 +1,16 @@
 "use client";
-
+import "@/app/styles/globals.css";
 import React from "react";
 import Image from "next/legacy/image";
+import { useEffect } from "react";
+import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 
-export default function SarprasPengajuanPage() {
+export default function FacilitiesBudgetProposalPage() {
+
+  useEffect(() => {
+    roleMiddleware(["Facilities"]);
+  }, []);
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
       <header className="py-6 px-9">
@@ -12,7 +19,7 @@ export default function SarprasPengajuanPage() {
       </header>
 
       {/* Breadcrumb Section */}
-      <div className="px-6 mb-6">
+      <div className="px-9 mb-6">
         <nav className="flex text-sm font-medium text-gray-600">
           <a href="/" className="text-gray-400 hover:text-blue-600">Home</a>
           <span className="mx-2">/</span>
@@ -21,7 +28,7 @@ export default function SarprasPengajuanPage() {
       </div>
 
       {/* Alert Section */}
-      <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-6 py-4 mx-6 flex items-start mb-6">
+      <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-6 py-4 mx-9 flex items-start mb-6">
         <i className="bx bx-info-circle text-2xl mr-3"></i>
         <div>
           <p className="text-sm font-medium">
@@ -36,7 +43,7 @@ export default function SarprasPengajuanPage() {
         </div>
       </div>
 
-      <main className="px-6 pb-6">
+      <main className="px-9 pb-6">
         <div className="grid grid-cols-1 gap-6">
           {/* Form Section */}
           <div className="bg-white rounded-lg shadow p-6">
@@ -125,6 +132,6 @@ export default function SarprasPengajuanPage() {
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>
+  );
 }

@@ -25,7 +25,7 @@ export default function StudentDashboard() {
         <p className="text-sm text-gray-600">Halo James, selamat datang kembali</p>
       </header>
 
-      <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 hide-scrollbar">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 hide-scrollbar pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Rekap Nilai */}
           <div className="bg-white shadow rounded-lg p-6 col-span-2 w-full flex flex-col">
@@ -102,22 +102,24 @@ export default function StudentDashboard() {
               <ul className="space-y-2">
                 <li className="text-sm flex items-center">
                   <div className="p-2 bg-orange-100 rounded-full mr-2 w-10 h-10 flex items-center justify-center">
-                    <i className="bx bx-money w-4 h-4" style={{ color: "#EC8306" }}></i>
+                    <i className="bx bx-money text-xl" style={{ color: "#EC8306" }}></i>
                   </div>
                   <div>
                     <div>Kamu belum membayar SPP bulan Januari</div>
                     <span className="text-gray-500">19/01/2024</span>
                   </div>
                 </li>
+
                 <li className="text-sm flex items-center">
                   <div className="p-2 bg-orange-100 rounded-full mr-2 w-10 h-10 flex items-center justify-center">
-                    <i className="bx bx-money w-4 h-4" style={{ color: "#EC8306" }}></i>
+                    <i className="bx bx-money text-xl" style={{ color: "#EC8306" }}></i>
                   </div>
                   <div>
-                    <div>Kamu belum membayar iuran komite bulan Januari</div>
-                    <span className="text-gray-500">07/01/2024</span>
+                    <div>Kamu belum membayar SPP bulan Januari</div>
+                    <span className="text-gray-500">19/01/2024</span>
                   </div>
                 </li>
+                
               </ul>
             </div>
 
