@@ -4,8 +4,9 @@ import "@/app/styles/globals.css";
 import { useState } from 'react';
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
+import Image from 'next/image';
 
-export default function StudentViolationPage() {
+export default function StudentViolationsPage() {
     useEffect(() => {
         // Panggil middleware untuk memeriksa role, hanya izinkan 'Student'
         roleMiddleware(["Student"]);
@@ -167,8 +168,19 @@ export default function StudentViolationPage() {
                                         <td className="py-2 px-4 border-b">{item.no}</td>
                                         <td className="py-2 px-4 border-b">{item.violation}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <div className="w-16 h-16 overflow-hidden rounded">
-                                                <img src={item.document} alt="Bukti Foto" className="w-full h-full object-cover" /></div></td>
+                                            <div className=" w-16 h-16 overflow-hidden rounded">
+                                                {item.document ? (
+                                                    <Image
+                                                        src={item.document}
+                                                        alt="Bukti Foto"
+                                                        className="w-full h-full object-cover"
+                                                        width={256} 
+                                                        height={256} 
+                                                    />
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </div></td>
                                         <td className="py-2 px-4 border-b">
                                             <span className={`inline-block px-3 py-1 rounded-full ${item.category === 'Ringan' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.category === 'Sedang' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.category === 'Berat' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : ''}`}>
                                                 {item.category}
