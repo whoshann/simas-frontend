@@ -267,51 +267,61 @@ const Sidebar: React.FC = () => {
                     {/* Start Role Facilities Sidebar Menu */}
                     {role === "Facilities" && (
                         <div>
-                            <button
-                                className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Fasilitas Sekolah' ? 'active' : ''}`}
-                                onClick={toggleDropdownFasilitas}
-                            >
-                                <i className='bx bxs-book mr-3'></i>
-                                <a href="#" className='font-medium'> Fasilitas Sekolah</a>
-                                <svg
-                                    className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFasilitas ? 'rotate' : ''} ${activeMenu === 'Fasilitas Sekolah' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                            <div>
+                                <button
+                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Fasilitas Sekolah' ? 'active' : ''}`}
+                                    onClick={toggleDropdownFasilitas}
                                 >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-                            <div className={` ${isDropdownOpenFasilitas ? '' : 'hidden'}`}>
-                                <a
-                                    href="#"
-                                    className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Fasilitas' ? 'text-blue-900' : ''}`}
-                                    onClick={() => handleSubMenuClick('Data Fasilitas')}
-                                >
-                                    <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Fasilitas' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                    Data Fasilitas
-                                </a>
-                                <a
-                                    href="#"
-                                    className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Ruang' ? 'text-blue-900' : ''}`}
-                                    onClick={() => handleSubMenuClick('Data Ruang')}
-                                >
-                                    <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Ruang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                    Data Ruang
-                                </a>
-                                <a
-                                    href="#"
-                                    className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Barang' ? 'text-blue-900' : ''}`}
-                                    onClick={() => handleSubMenuClick('Data Barang')}
-                                >
-                                    <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Barang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                    Data Barang
-                                </a>
+                                    <i className='bx bxs-book mr-3'></i>
+                                    <a href="#" className='font-medium'> Fasilitas Sekolah</a>
+                                    <svg
+                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFasilitas ? 'rotate' : ''} ${activeMenu === 'Fasilitas Sekolah' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                <div className={` ${isDropdownOpenFasilitas ? '' : 'hidden'}`}>
+                                    <a
+                                        href="#"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Fasilitas' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Data Fasilitas')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Fasilitas' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Data Fasilitas
+                                    </a>
+                                    <a
+                                        href="#"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Ruang' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Data Ruang')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Ruang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Data Ruang
+                                    </a>
+                                    <a
+                                        href="#"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Barang' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Data Barang')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Barang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Data Barang
+                                    </a>
+                                </div>
                             </div>
+                            <a
+                                href="/facilities/finance/budget-proposal"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Keuangan' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Keuangan')}
+                            >
+                                <i className='bx bxs-report mr-2 font-medium'></i> {/* Ikon untuk Keuangan */}
+                                Keuangan
+                            </a>
                         </div>
                     )}
 
-                    {/* End Role Student Affairs Sidebar Menu */}
+                    {/* End Role Facilities  Sidebar Menu */}
 
                 </nav>
                 {/* End Sidebar menu navigation  */}

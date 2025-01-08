@@ -62,7 +62,7 @@ export default function LoginPage() {
                     window.location.href = "/dashboard/administration";
                     break;
                 case "Facilities":
-                    window.location.href = "/dashboard/facilities";
+                    window.location.href = "/facilities";
                     break;
                 case "Curriculum":
                     window.location.href = "/dashboard/curriculum";

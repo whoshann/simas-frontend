@@ -33,3 +33,57 @@
   transform: rotate(90deg);
 }
 /* End Style for Sidebar */
+
+/* Kalender Custom */
+.custom-calendar {
+  border: none;
+  width: 100%; /* Responsive ukuran kalender */
+}
+
+.react-calendar__navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.react-calendar__navigation button {
+  background: none;
+  color: black;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 50%;
+  font-weight: bold;
+  margin: 0 0.25rem;
+}
+
+.react-calendar__tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  padding: 0.25rem;
+  border-radius: 50%;
+}
+
+.react-calendar__tile--now {
+  background-color: #1f509a;
+  color: white;
+}
+
+.react-calendar__tile--active {
+  background-color: #1f509a;
+  color: white;
+}
+
+.react-calendar__tile:hover {
+  background-color: #dbeafe;
+  color: #1f509a;
+  border-radius: 50%;
+}
+
+.react-calendar__month-view__days__day {
+  padding: 0.25rem;
+}
+
