@@ -19,15 +19,15 @@ export default function LoginPage() {
 
         try {
             const result = await loginUser(identifier, password);
-            console.log("Login berhasil:", result);
-
+            // console.log("Login berhasil:", result);
+    
             // Simpan token ke dalam cookies
             Cookies.set("token", result.data.access_token, {
                 expires: 1, // Cookie akan kedaluwarsa dalam 1 hari
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
             });
-            Cookies.set("role", result.data.role, { expires: 1 }); //menyimpan role
+            // Cookies.set("role", result.data.role, { expires: 1 }); //menyimpan role
 
             // Dapatkan role dari hasil login
             const role = result.data.role;
@@ -148,6 +148,6 @@ export default function LoginPage() {
                     </button>
                 </form>
             </div>
-        </div>
-    );
+    </div>
+);
 }
