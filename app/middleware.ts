@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
     // Daftar halaman yang dilindungi berdasarkan role
     const protectedRoutes: { [key: string]: string } = {
         '/student': 'Student',
-        '/teacher': 'Teacher',
+        '/teacher': 'teacher',
         '/superadmin': 'SuperAdmin',
         // Tambahkan halaman lain sesuai kebutuhan
     };
