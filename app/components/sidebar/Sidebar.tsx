@@ -229,7 +229,7 @@ const Sidebar: React.FC = () => {
                                 Absensi Siswa
                             </a>
                             <a
-                                href="#"
+                                href="/student-affairs/student-achievement"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Prestasi Siswa' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Prestasi Siswa')}
                             >
@@ -237,7 +237,7 @@ const Sidebar: React.FC = () => {
                                 Prestasi Siswa
                             </a>
                             <a
-                                href="#"
+                                href="/student-affairs/student-violations"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Pelanggaran Siswa' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Pelanggaran Siswa')}
                             >
@@ -245,7 +245,7 @@ const Sidebar: React.FC = () => {
                                 Pelanggaran Siswa
                             </a>
                             <a
-                                href="#"
+                                href="/student-affairs/student-claim-insurance"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Klaim Asuransi' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Klaim Asuransi')}
                             >
@@ -253,7 +253,7 @@ const Sidebar: React.FC = () => {
                                 Klaim Asuransi
                             </a>
                             <a
-                                href="#"
+                                href="/student-affairs/news-information"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Informasi Berita' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Informasi Berita')}
                             >
