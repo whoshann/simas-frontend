@@ -6,6 +6,11 @@ import { useEffect } from "react";
 
 const Sidebar: React.FC = () => {
     const [role, setRole] = useState<string | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isDropdownOpenKesiswaan, setIsDropdownOpenKesiswaan] = useState(false);
+    const [isDropdownOpenFasilitas, setIsDropdownOpenFasilitas] = useState(false);
+    const [activeMenu, setActiveMenu] = useState<string>('Beranda');
 
     useEffect(() => {
         // Ambil role dari cookies
@@ -22,11 +27,6 @@ const Sidebar: React.FC = () => {
         };
     }, []);
 
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [isDropdownOpenKesiswaan, setIsDropdownOpenKesiswaan] = useState(false);
-    const [isDropdownOpenFasilitas, setIsDropdownOpenFasilitas] = useState(false);
-    const [activeMenu, setActiveMenu] = useState<string>('Beranda');
 
     // Fungsi untuk mengatur sidebar berdasarkan ukuran jendela
     const handleResize = () => {
@@ -327,7 +327,7 @@ const Sidebar: React.FC = () => {
                 {/* End Sidebar menu navigation  */}
 
                 {/* Login Button */}
-                <a href={isLoggedIn ? "/profile" : "/login"} className="absolute bottom-5 left-2 right-2 px-3">
+                <a href={isLoggedIn ? "/user-profile" : "/login"} className="absolute bottom-5 left-2 right-2 px-3">
                     <button className="flex items-center justify-center w-full py-3 rounded-xl border border-[var(--text-semi-bold-color)] bg-white text-[var(--text-semi-bold-color)] hover:opacity-90 transition">
                         <i className={`bx ${isLoggedIn ? 'bx-user' : 'bx-power-off'} mr-2 font-medium`}></i>
                         {isLoggedIn ? "Profile Anda" : "Login / Masuk"}

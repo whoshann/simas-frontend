@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect, useRef } from "react";
 import "@/app/styles/globals.css";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Script from 'next/script';
@@ -7,18 +8,28 @@ import { Chart, registerables } from 'chart.js';
 import Cookies from "js-cookie";
 import Image from 'next/image';
 import axios from "axios";
-import { useEffect, useState, useRef } from "react";
 
 // Daftarkan semua komponen yang diperlukan
 Chart.register(...registerables);
 
 export default function StudentDashboard() {
-  const [user, setUser] = useState({});
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  // Panggil middleware dan hooks di awal komponen
+  useEffect(() => {
+    // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
+    roleMiddleware(["Student", "SuperAdmin"]);
+
+    // Panggil fungsi fetch data
+    fetchData();
+  }, []);
+
+  const [user, setUser] = useState<any>({});
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
   const token = Cookies.get("token");
   // console.log("Token:", token);
+
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const fetchData = async () => {
     try {
@@ -36,14 +47,6 @@ export default function StudentDashboard() {
     }
   };
 
-  useEffect(() => {
-    // Panggil middleware untuk memeriksa role, hanya izinkan 'Student'
-    roleMiddleware(["Student", "SuperAdmin"]);
-
-    // Panggil fungsi fetch data
-    fetchData();
-  }, []);
-
   if (loading) {
     return <p>Memuat data...</p>;
   }
@@ -51,8 +54,6 @@ export default function StudentDashboard() {
   if (error) {
     return <p className="text-red-500">{error}</p>;
   }
-
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
