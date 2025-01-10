@@ -58,8 +58,8 @@ export default function StudentDashboard() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
       <header className="py-6 px-9">
-        <h1 className="text-2xl font-bold text-gray-800">Beranda</h1>
-        <p className="text-sm text-gray-600">Halo James, selamat datang kembali</p>
+        <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
+        <p className="text-sm text-[var(--text-thin-color)]">Halo James, selamat datang kembali</p>
       </header>
 
       <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 hide-scrollbar pb-8">
@@ -67,7 +67,7 @@ export default function StudentDashboard() {
           {/* Rekap Nilai */}
           <div className="bg-white shadow rounded-lg p-6 col-span-2 w-full flex flex-col">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Rekap Nilai</h3>
+              <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">Rekap Nilai</h3>
               <select className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option>Semester 1</option>
                 <option>Semester 2</option>
@@ -131,7 +131,7 @@ export default function StudentDashboard() {
           <div className="flex flex-col gap-6 col-span-1">
             <div className="bg-white shadow rounded-lg p-6 flex-grow">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">Keuangan</h3>
+                <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">Keuangan</h3>
                 <button className="bg-[#1F509A] text-white text-xs px-3 py-1 rounded-full">
                   Lihat Detail
                 </button>
@@ -169,7 +169,7 @@ export default function StudentDashboard() {
                       <span className="text-2xl font-bold text-white">5</span>
                     </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-left text-gray-800">
+                  <h3 className="text-lg font-semibold text-left text-[var(--text-semi-bold-color)]">
                     Total Point Pelanggaran
                   </h3>
                 </div>
@@ -200,7 +200,7 @@ export default function StudentDashboard() {
                 <span className="text-2xl font-semibold text-teal-600">01</span>
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-gray-800">
+                <h4 className="text-sm font-semibold text-[var(--text-semi-bold-color)]">
                   Sosialisasi Prakerin Orang Tua
                 </h4>
                 <p className="text-sm text-gray-600">
@@ -229,7 +229,7 @@ export default function StudentDashboard() {
                 <span className="text-2xl font-semibold text-teal-600">02</span>
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-gray-800">
+                <h4 className="text-sm font-semibold text-[var(--text-semi-bold-color)]">
                   Kegiatan Ekstrakurikuler
                 </h4>
                 <p className="text-sm text-gray-600">
@@ -256,7 +256,7 @@ export default function StudentDashboard() {
                 <span className="text-2xl font-semibold text-teal-600">03</span>
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-gray-800">
+                <h4 className="text-sm font-semibold text-[var(--text-semi-bold-color)]">
                   Pendaftaran Siswa Baru
                 </h4>
                 <p className="text-sm text-gray-600">
