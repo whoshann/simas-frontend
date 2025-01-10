@@ -19,7 +19,7 @@ export default function LoginPage() {
 
         try {
             const result = await loginUser(identifier, password);
-            // console.log("Login berhasil:", result);
+            console.log("Login berhasil:", result);
     
             // Simpan token ke dalam cookies
             Cookies.set("token", result.data.access_token, {
