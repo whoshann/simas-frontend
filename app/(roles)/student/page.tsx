@@ -200,7 +200,7 @@ export default function StudentDashboard() {
                 <span className="text-2xl font-semibold text-teal-600">01</span>
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-[var(--text-semi-bold-color)]">
+                <h4 className="text-sm font-semibold text-[var(--text-Z)]">
                   Sosialisasi Prakerin Orang Tua
                 </h4>
                 <p className="text-sm text-gray-600">
@@ -229,7 +229,7 @@ export default function StudentDashboard() {
                 <span className="text-2xl font-semibold text-teal-600">02</span>
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-[var(--text-semi-bold-color)]">
+                <h4 className="text-sm font-semibold text-[var(--text-Z)]">
                   Kegiatan Ekstrakurikuler
                 </h4>
                 <p className="text-sm text-gray-600">
@@ -256,7 +256,7 @@ export default function StudentDashboard() {
                 <span className="text-2xl font-semibold text-teal-600">03</span>
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-[var(--text-semi-bold-color)]">
+                <h4 className="text-sm font-semibold text-[var(--text-Z)]">
                   Pendaftaran Siswa Baru
                 </h4>
                 <p className="text-sm text-gray-600">

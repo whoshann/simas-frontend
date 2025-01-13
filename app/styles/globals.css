@@ -37,7 +37,7 @@
 /* Kalender Custom */
 .custom-calendar {
   border: none;
-  width: 100%; /* Responsive ukuran kalender */
+  width: 100%;
 }
 
 .react-calendar__navigation {
