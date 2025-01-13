@@ -87,3 +87,12 @@
   padding: 0.25rem;
 }
 
+.custom-scroll::-webkit-scrollbar {
+  width: 0; /* Sembunyikan scrollbar */
+  background: transparent; /* Latar belakang transparan */
+}
+
+.custom-scroll {
+  scrollbar-width: thin; /* Untuk Firefox */
+  scrollbar-color: transparent transparent; /* Untuk Firefox */
+}
