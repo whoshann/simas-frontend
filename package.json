@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@next/font": "^14.2.15",
     "axios": "^1.7.9",
     "chart.js": "^4.4.7",
     "glob-to-regexp": "^0.4.1",

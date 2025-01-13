@@ -32,7 +32,7 @@ export default function RoomData({ isOpen, onClose, onSubmit, roomData }) {
                         <i className="bx bx-x text-2xl"></i>
                     </button>
                     <h2 className="text-xl mb-2 font-semibold text-[var(--text-semi-bold-color)]">
-                        {roomData ? 'Edit Data Barang Sekolah' : 'Tambah Data Barang Sekolah'}
+                        {roomData ? 'Edit Data Ruang Sekolah' : 'Tambah Data Ruang Sekolah'}
                     </h2>
                 </div>
                 <div className="overflow-y-auto max-h-[70vh] p-4">

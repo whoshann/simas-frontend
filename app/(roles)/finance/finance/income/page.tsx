@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from "react";
 import "@/app/styles/globals.css";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import FacilityModal from "@/app/components/FacilityModal.js";
+import IncomeModal from "@/app/components/IncomeModal.js";
 
-type Facility = {
+type Income = {
     no: number;
     name: string;
     quantity: number;
@@ -23,7 +23,7 @@ export default function IncomePage() {
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+    const [selectedIncome, setSelectedIncome] = useState<Income | null>(null);
 
     const data = [
         { no: 1, name: "Dana BOS", quantity: 50000000, date: "15/12/2024" },
@@ -48,17 +48,17 @@ export default function IncomePage() {
     };
 
     const handleAddClick = () => {
-        setSelectedFacility(null);
+        setSelectedIncome(null);
         setIsModalOpen(true);
     };
 
-    const handleEditClick = (facility: Facility) => {
-        setSelectedFacility(facility);
+    const handleEditClick = (income: Income) => {
+        setSelectedIncome(income);
         setIsModalOpen(true);
     };
 
-    const handleModalSubmit = (data: Facility) => {
-        if (selectedFacility) {
+    const handleModalSubmit = (data: Income) => {
+        if (selectedIncome) {
             // Update data
             console.log("Edit Data", data);
         } else {
@@ -242,11 +242,11 @@ export default function IncomePage() {
                     </div>
                 </div>
             </main>
-            <FacilityModal
+            <IncomeModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
-                facilityData={selectedFacility}
+                incomeData={selectedIncome}
             />
         </div>
     );
