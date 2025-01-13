@@ -1,5 +1,5 @@
 "use client";
-
+import "@/app/styles/globals.css";
 import React from "react";
 import Image from "next/legacy/image";
 import { useEffect } from "react";
