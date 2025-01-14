@@ -9,8 +9,7 @@ export default function FacilityData({ isOpen, onClose, onSubmit, facilityData }
         quantity: 1,
         description: '',
         notes: '',
-        condition: '',
-        location: ''
+        
 
     });
 
@@ -58,28 +57,6 @@ export default function FacilityData({ isOpen, onClose, onSubmit, facilityData }
                                 type="number"
                                 name="quantity"
                                 value={formData.quantity}
-                                onChange={handleChange}
-                                className="border p-2 w-full rounded-lg"
-                                required
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Kondisi</label>
-                            <input
-                                type="text"
-                                name="condition"
-                                value={formData.condition}
-                                onChange={handleChange}
-                                className="border p-2 w-full rounded-lg"
-                                required
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Lokasi</label>
-                            <input
-                                type="text"
-                                name="location"
-                                value={formData.location}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required

@@ -13,8 +13,7 @@ type Facility = {
     quantity: number;
     description: string;
     notes?: string;
-    condition: string;
-    location: string;
+
 };
 
 export default function FacilityDataPage() {
@@ -31,26 +30,28 @@ export default function FacilityDataPage() {
     const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
 
     const data = [
-        { no: 1, name: "Ruang Kelas", quantity: 38, description: "Ruang untuk belajar", notes: "Catatan 1", condition: "Baik", location: "Lantai 1" },
-        { no: 2, name: "Lab Bahasa", quantity: 2, description: "Ruang untuk belajar bahasa", notes: "Catatan 2", condition: "Baik", location: "Lantai 2" },
-        { no: 3, name: "Lab Simulasi Digital", quantity: 2, description: "Ruang untuk simulasi digital", notes: "Catatan 3", condition: "Baik", location: "Lantai 3" },
-        { no: 4, name: "Lab Produksi Grafika", quantity: 7, description: "Ruang untuk produksi grafika", notes: "Catatan 4", condition: "Baik", location: "Lantai 4" },
-        { no: 5, name: "Lab Animasi", quantity: 4, description: "Ruang untuk belajar animasi", notes: "Catatan 5", condition: "Baik", location: "Lantai 5" },
-        { no: 6, name: "Ruang Perpustakaan", quantity: 10, description: "Ruang untuk perpustakaan", notes: "Catatan 6", condition: "Baik", location: "Lantai 6" },
-        { no: 7, name: "Ruang Olahraga", quantity: 1, description: "Ruang untuk olahraga", notes: "Catatan 7", condition: "Baik", location: "Lantai 7" },
-        { no: 8, name: "Ruang Musik", quantity: 3, description: "Ruang untuk musik", notes: "Catatan 8", condition: "Baik", location: "Lantai 8" },
-        { no: 9, name: "Ruang Seni", quantity: 2, description: "Ruang untuk seni", notes: "Catatan 9", condition: "Baik", location: "Lantai 9" },
-        { no: 10, name: "Ruang Komputer", quantity: 15, description: "Ruang untuk komputer", notes: "Catatan 10", condition: "Baik", location: "Lantai 10" },
-        { no: 11, name: "Ruang Diskusi", quantity: 5, description: "Ruang untuk diskusi", notes: "Catatan 11", condition: "Baik", location: "Lantai 11" },
-        { no: 12, name: "Ruang Kesehatan", quantity: 1, description: "Ruang untuk kesehatan", notes: "Catatan 12", condition: "Baik", location: "Lantai 12" },
-        { no: 13, name: "Ruang Multimedia", quantity: 4, description: "Ruang untuk multimedia", notes: "Catatan 13", condition: "Baik", location: "Lantai 13" },
-        { no: 14, name: "Ruang Rapat", quantity: 1, description: "Ruang untuk rapat", notes: "Catatan 14", condition: "Baik", location: "Lantai 14" },
-        { no: 15, name: "Ruang Baca", quantity: 6, description: "Ruang untuk baca", notes: "Catatan 15", condition: "Baik", location: "Lantai 15" },
-        { no: 16, name: "Ruang Kegiatan", quantity: 2, description: "Ruang untuk kegiatan", notes: "Catatan 16", condition: "Baik", location: "Lantai 16" },
-        { no: 17, name: "Ruang Teknologi", quantity: 3, description: "Ruang untuk teknologi", notes: "Catatan 17", condition: "Baik", location: "Lantai 17" },
-        { no: 18, name: "Ruang Kelas 2", quantity: 30, description: "Ruang untuk kelas 2", notes: "Catatan 18", condition: "Baik", location: "Lantai 18" },
-        { no: 19, name: "Ruang Kelas 3", quantity: 25, description: "Ruang untuk kelas 3", notes: "Catatan 19", condition: "Baik", location: "Lantai 19" },
-        { no: 20, name: "Ruang Kelas 4", quantity: 20, description: "Ruang untuk kelas 4", notes: "Catatan 20", condition: "Baik", location: "Lantai 20" },
+        { no: 1, name: "Ruang Kelas", quantity: 38, description: "Ruang untuk belajar", notes: "Catatan 1",  },
+        { no: 2, name: "Lab Bahasa", quantity: 2, description: "Ruang untuk belajar bahasa", notes: "Catatan 2", },
+        { "no": 3, "name": "Lab Simulasi Digital", "quantity": 2, "description": "Ruang untuk simulasi digital", "notes": "Catatan 3" },
+        { "no": 4, "name": "Lab Produksi Grafika", "quantity": 7, "description": "Ruang untuk produksi grafika", "notes": "Catatan 4" },
+        { "no": 5, "name": "Lab Animasi", "quantity": 4, "description": "Ruang untuk belajar animasi", "notes": "Catatan 5" },
+        { "no": 6, "name": "Ruang Perpustakaan", "quantity": 10, "description": "Ruang untuk perpustakaan", "notes": "Catatan 6" },
+        { "no": 7, "name": "Ruang Olahraga", "quantity": 1, "description": "Ruang untuk olahraga", "notes": "Catatan 7" },
+        { "no": 8, "name": "Ruang Musik", "quantity": 3, "description": "Ruang untuk musik", "notes": "Catatan 8" },
+        { "no": 9, "name": "Ruang Seni", "quantity": 2, "description": "Ruang untuk seni", "notes": "Catatan 9" },
+        { "no": 10, "name": "Ruang Komputer", "quantity": 15, "description": "Ruang untuk komputer", "notes": "Catatan 10" },
+        { "no": 11, "name": "Ruang Diskusi", "quantity": 5, "description": "Ruang untuk diskusi", "notes": "Catatan 11" },
+        { "no": 12, "name": "Ruang Kesehatan", "quantity": 1, "description": "Ruang untuk kesehatan", "notes": "Catatan 12" },
+        { "no": 13, "name": "Ruang Multimedia", "quantity": 4, "description": "Ruang untuk multimedia", "notes": "Catatan 13" },
+        { "no": 14, "name": "Ruang Rapat", "quantity": 1, "description": "Ruang untuk rapat", "notes": "Catatan 14" },
+        { "no": 15, "name": "Ruang Baca", "quantity": 6, "description": "Ruang untuk baca", "notes": "Catatan 15" },
+        { "no": 16, "name": "Ruang Kegiatan", "quantity": 2, "description": "Ruang untuk kegiatan", "notes": "Catatan 16" },
+        { "no": 17, "name": "Ruang Teknologi", "quantity": 3, "description": "Ruang untuk teknologi", "notes": "Catatan 17" },
+        { "no": 18, "name": "Ruang Kelas 2", "quantity": 30, "description": "Ruang untuk kelas 2", "notes": "Catatan 18" },
+        { "no": 19, "name": "Ruang Kelas 3", "quantity": 25, "description": "Ruang untuk kelas 3", "notes": "Catatan 19" },
+        { "no": 20, "name": "Ruang Kelas 4", "quantity": 20, "description": "Ruang untuk kelas 4", "notes": "Catatan 20" }
+    
+        
     ];
 
     // Search item tabel
@@ -200,8 +201,6 @@ export default function FacilityDataPage() {
                                     <th className="py-2 px-4 border-b text-left">No</th>
                                     <th className="py-2 px-4 border-b text-left">Nama Fasilitas</th>
                                     <th className="py-2 px-4 border-b text-left">Jumlah</th>
-                                    <th className="py-2 px-4 border-b text-left">Kondisi</th>
-                                    <th className="py-2 px-4 border-b text-left">Lokasi</th>
                                     <th className="py-2 px-4 border-b text-left">Deskripsi</th>
                                     <th className="py-2 px-4 border-b text-left">Catatan</th>
                                     <th className="py-2 px-4 border-b text-left">Aksi</th>
@@ -213,8 +212,6 @@ export default function FacilityDataPage() {
                                         <td className="py-2 px-4 border-b">{item.no}</td>
                                         <td className="py-2 px-4 border-b">{item.name}</td>
                                         <td className="py-2 px-4 border-b">{item.quantity}</td>
-                                        <td className="py-2 px-4 border-b">{item.condition}</td>
-                                        <td className="py-2 px-4 border-b">{item.location}</td>
                                         <td className="py-2 px-4 border-b">{item.description}</td>
                                         <td className="py-2 px-4 border-b">{item.notes}</td>
                                         <td className="py-2 px-4 border-b">
