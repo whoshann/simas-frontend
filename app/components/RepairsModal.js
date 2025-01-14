@@ -8,7 +8,7 @@ export default function RepairsData({ isOpen, onClose, onSubmit, repairsData }) 
         category: '',
         name: '',
         date: '',
-        cost: 0,
+        cost: '',
         status: ''    
     });
 
@@ -51,7 +51,7 @@ export default function RepairsData({ isOpen, onClose, onSubmit, repairsData }) 
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Nama Barang</label>
+                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Nama </label>
                         <input
                             type="text"
                             name="name"

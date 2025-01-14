@@ -4,12 +4,13 @@ export default function RoomData({ isOpen, onClose, onSubmit, roomData }) {
     if (!isOpen) return null;
 
     const [formData, setFormData] = React.useState(roomData || {
+        no: 0,
         name: '',
-        code: '',
-        quantity: 1,
-        date: ''
+        type: '',
+        capacity: 1,
+        status: '',
     });
-
+        
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -38,7 +39,7 @@ export default function RoomData({ isOpen, onClose, onSubmit, roomData }) {
                 <div className="overflow-y-auto max-h-[70vh] p-4">
                     <form onSubmit={handleSubmit}>
                         <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Nama Barang</label>
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Nama Ruang</label>
                             <input
                                 type="text"
                                 name="name"
@@ -49,40 +50,45 @@ export default function RoomData({ isOpen, onClose, onSubmit, roomData }) {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Kode Barang</label>
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Tipe Ruang</label>
                             <select
                                 name="code"
-                                value={formData.code}
+                                value={formData.type}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required
                             >
                                 <option value="">Pilih Kategori</option>
-                                <option value="Elektronik">Elektronik</option>
-                                <option value="Perabotan">Perabotan</option>
+                                <option value="Elektronik">Ruang Teori</option>
+                                <option value="Perabotan">Lab</option>
                             </select>
                         </div>
                         <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Jumlah</label>
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Kapasitas</label>
                             <input
                                 type="number"
-                                name="quantity"
-                                value={formData.quantity}
+                                name="capacity"
+                                value={formData.capacity}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Tanggal</label>
-                            <input
-                                type="date"
-                                name="date"
-                                value={formData.date}
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Status</label>
+                            <select
+                                name="code"
+                                value={formData.status}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required
-                            />
+                            >
+                                <option value="">Pilih Status</option>
+                                <option value="available">Tersedia</option>
+                                <option value="in_use">Sedang Digunakan</option>
+                                <option value="under_repair">Sedang Diperbaiki</option>
+
+                            </select>
                         </div>
                         <div className="flex justify-end">
                             <button

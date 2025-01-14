@@ -128,7 +128,7 @@ export default function BudgetManagementPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Pengajuan RAB</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Sarpras, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo role Keuangan, selamat datang kembali</p>
                 </div>
 
 
@@ -268,8 +268,9 @@ export default function BudgetManagementPage() {
                                             <button
                                                 className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
                                             >
-                                                <i className="bx bxs-trash-alt text-lg"></i>
+                                                <i className="bx bx-x text-lg"></i> {/* Ganti ikon menjadi silang */}
                                             </button>
+
 
                                             {/* Acc Button */}
                                             <button

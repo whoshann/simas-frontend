@@ -42,7 +42,7 @@ export default function FacilityData({ isOpen, onClose, onSubmit, facilityData }
                 <div className="overflow-y-auto max-h-[70vh] p-4">
                 <form onSubmit={handleSubmit}>
                         <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Nama Barang</label>
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Nama Fasilitas</label>
                             <input
                                 type="text"
                                 name="name"
@@ -58,6 +58,28 @@ export default function FacilityData({ isOpen, onClose, onSubmit, facilityData }
                                 type="number"
                                 name="quantity"
                                 value={formData.quantity}
+                                onChange={handleChange}
+                                className="border p-2 w-full rounded-lg"
+                                required
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Kondisi</label>
+                            <input
+                                type="text"
+                                name="condition"
+                                value={formData.condition}
+                                onChange={handleChange}
+                                className="border p-2 w-full rounded-lg"
+                                required
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Lokasi</label>
+                            <input
+                                type="text"
+                                name="location"
+                                value={formData.location}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required
@@ -84,28 +106,8 @@ export default function FacilityData({ isOpen, onClose, onSubmit, facilityData }
                                 className="border p-2 w-full rounded-lg"
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Kondisi</label>
-                            <input
-                                type="text"
-                                name="condition"
-                                value={formData.condition}
-                                onChange={handleChange}
-                                className="border p-2 w-full rounded-lg"
-                                required
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Lokasi</label>
-                            <input
-                                type="text"
-                                name="location"
-                                value={formData.location}
-                                onChange={handleChange}
-                                className="border p-2 w-full rounded-lg"
-                                required
-                            />
-                        </div>
+                        
+                        
                         <div className="flex justify-end">
                             <button
                                 type="submit"

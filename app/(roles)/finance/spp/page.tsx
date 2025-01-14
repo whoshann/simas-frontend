@@ -75,7 +75,7 @@ export default function SppPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pembayaran SPP</h1>
-                    <p className="text-sm text-gray-600">Halo role sarpras, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo role Keuangan, selamat datang kembali</p>
                 </div>
 
                 <div className="mt-4 sm:mt-0">

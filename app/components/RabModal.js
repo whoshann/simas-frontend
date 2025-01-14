@@ -43,7 +43,7 @@ export default function RabData({ isOpen, onClose, onSubmit, rabData }) {
                 <form onSubmit={handleSubmit}>
                     
                     <div className="mb-4">
-                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Title</label>
+                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Judul</label>
                         <input
                             type="text"
                             name="title"
@@ -54,7 +54,7 @@ export default function RabData({ isOpen, onClose, onSubmit, rabData }) {
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Description</label>
+                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Keterangan</label>
                         <input
                             type="text"
                             name="description"
@@ -65,7 +65,7 @@ export default function RabData({ isOpen, onClose, onSubmit, rabData }) {
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Amount</label>
+                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Total</label>
                         <input
                             type="number"
                             name="amount"

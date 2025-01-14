@@ -42,8 +42,8 @@ export default function ExpensesData({ isOpen, onClose, onSubmit, expensesData }
                         <label className="block mb-1 text-[var(--text-semi-bold-color)]">Keterangan</label>
                         <input
                             type="text"
-                            name="description"
-                            value={formData.description}
+                            name="name"
+                            value={formData.name}
                             onChange={handleChange}
                             className="border p-2 w-full rounded-lg"
                             required

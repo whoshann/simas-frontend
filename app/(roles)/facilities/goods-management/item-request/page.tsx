@@ -5,16 +5,16 @@ import "@/app/styles/globals.css";
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
-import FacilityModal from "@/app/components/FacilityModal.js";
+import ItemModal from "@/app/components/ItemModal.js";
 
-type Facility = {
+type Item = {
     no: number;
-    name: string;
-    quantity: number;
-    description: string;
-    notes?: string;
-    condition: string;
-    location: string;
+    itemName: string;
+    unitPrice: number;
+    amountPrice: number;
+    supplier?: string;
+    requestDate: string;
+    requester: string;
 };
 
 export default function ItemRequestPage() {
@@ -28,7 +28,7 @@ export default function ItemRequestPage() {
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+    const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
     const data = [
 
@@ -36,7 +36,7 @@ export default function ItemRequestPage() {
             no: 1,
             itemName: "Papan Tulis",
             unitPrice: 54000,
-            totalPrice: 108000,
+            amountPrice: 108000,
             supplier: "Sinar Jaya",
             requestDate: "13/01/2025",
             requester: "John Doe", // Added requester field
@@ -45,7 +45,7 @@ export default function ItemRequestPage() {
             no: 2,
             itemName: "Meja Guru",
             unitPrice: 150000,
-            totalPrice: 300000,
+            amountPrice: 300000,
             supplier: "Mebel Sejahtera",
             requestDate: "13/01/2025",
             requester: "Jane Smith", // Added requester field
@@ -54,7 +54,7 @@ export default function ItemRequestPage() {
             no: 3,
             itemName: "Kursi Siswa",
             unitPrice: 75000,
-            totalPrice: 1500000,
+            amountPrice: 1500000,
             supplier: "Perabotan Cerdas",
             requestDate: "13/01/2025",
             requester: "Mark Lee", // Added requester field
@@ -80,17 +80,17 @@ export default function ItemRequestPage() {
     };
 
     const handleAddClick = () => {
-        setSelectedFacility(null);
+        setSelectedItem(null);
         setIsModalOpen(true);
     };
 
-    const handleEditClick = (facility: Facility) => {
-        setSelectedFacility(facility);
+    const handleEditClick = (item: Item) => {
+        setSelectedItem(item);
         setIsModalOpen(true);
     };
 
-    const handleModalSubmit = (data: Facility) => {
-        if (selectedFacility) {
+    const handleModalSubmit = (data: Item) => {
+        if (selectedItem) {
             // Update data
             console.log("Edit Data", data);
         } else {
@@ -98,13 +98,14 @@ export default function ItemRequestPage() {
             console.log("Tambah Data", data);
         }
     };
-    const handleCheckClick = (item) => {
+    const handleCheckClick = (item: Item) => {
         console.log("Centang clicked for item: ", item);
     };
     
-    const handleCancelClick = (item) => {
+    const handleCancelClick = (item: Item) => {
         console.log("Cancel clicked for item: ", item);
     };
+    
     
 
     return (
@@ -230,7 +231,7 @@ export default function ItemRequestPage() {
                                         <td className="py-2 px-4 border-b">{item.no}</td>
                                         <td className="py-2 px-4 border-b">{item.itemName}</td>
                                         <td className="py-2 px-4 border-b">{item.unitPrice}</td>
-                                        <td className="py-2 px-4 border-b">{item.totalPrice}</td>
+                                        <td className="py-2 px-4 border-b">{item.amountPrice}</td>
                                         <td className="py-2 px-4 border-b">{item.supplier}</td>
                                         <td className="py-2 px-4 border-b">{item.requestDate}</td>
                                         <td className="py-2 px-4 border-b">{item.requester}</td>
@@ -299,11 +300,11 @@ export default function ItemRequestPage() {
                     </div>
                 </div>
             </main>
-            <FacilityModal
+            <ItemModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
-                facilityData={selectedFacility}
+                itemData={selectedItem}
             />
         </div>
     );

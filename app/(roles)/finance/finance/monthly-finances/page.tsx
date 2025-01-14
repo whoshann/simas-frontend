@@ -88,7 +88,7 @@ export default function MonthlyFinancesPage() {
             Keuangan Bulanan
           </h1>
           <p className="text-sm text-gray-600">
-            Halo Admin Keuangan, selamat datang kembali
+            Halo role Keuangan, selamat datang kembali
           </p>
         </div>
       </header>
