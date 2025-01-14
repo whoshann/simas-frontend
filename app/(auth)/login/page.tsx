@@ -128,9 +128,9 @@ export default function LoginPage() {
                             onClick={() => setShowPassword(!showPassword)}
                         >
                             {showPassword ? (
-                                <i className='bx bxs-show h-7' /> 
+                                <i className='bx bxs-show h-7' />
                             ) : (
-                                <i className='bx bxs-hide h-7' /> 
+                                <i className='bx bxs-hide h-7' />
                             )}
                         </span>
                     </div>
@@ -150,6 +150,6 @@ export default function LoginPage() {
                     </button>
                 </form>
             </div>
-    </div>
-);
+        </div>
+    );
 }

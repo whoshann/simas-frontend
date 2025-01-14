@@ -6,6 +6,7 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import PaymentSppModal from "@/app/components/PaymentSppModal.js";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 interface CustomJwtPayload {
   sub: number;
@@ -37,16 +38,10 @@ export default function StudentPaymentStatusPage() {
         const BASE_URL = "http://localhost:3333";
 
         // Fetch data dari backend
-        fetch(`${BASE_URL}/school-payment/${studentId}`)
+        axios.get(`${BASE_URL}/school-payment/${studentId}`)
           .then((response) => {
-            if (!response.ok) {
-              throw new Error('Gagal mengambil data pembayaran sekolah');
-            }
-            return response.json();
-          })
-          .then((data) => {
-            if (Array.isArray(data.data)) {
-              setPayments(data.data);
+            if (Array.isArray(response.data.data)) {
+              setPayments(response.data.data);
             } else {
               console.error('Data pembayaran bukan array');
             }

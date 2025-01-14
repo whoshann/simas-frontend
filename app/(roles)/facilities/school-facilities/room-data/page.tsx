@@ -4,23 +4,52 @@ import React, { useState } from "react";
 import "@/app/styles/globals.css";
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import Image from 'next/image';
+import Cookies from "js-cookie";
 import RoomModal from "@/app/components/RoomModal.js";
+import axios from "axios";
 
 type Room = {
-    no: number;
+    id: number;
     name: string;
     type: string;
     capacity: number;
     status: string;
 };
 
-
 export default function RoomDataPage() {
     useEffect(() => {
         // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
         roleMiddleware(["Facilities"]);
+
+        fetchData()
     }, []);
+
+    const [rooms, setRoom] = useState<Room[]>([]);
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
+    const token = Cookies.get("token");
+
+    const fetchData = async () => {
+        try {
+            const response = await axios.get("http://localhost:3333/room", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (response.data.success) {
+                setRoom(response.data.data);
+            } else {
+                console.error("Fetch tidak berhasil:", response.data.message);
+                setError(response.data.message);
+            }
+        } catch (err: any) {
+            console.error("Error saat fetching data:", err);
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
@@ -29,25 +58,8 @@ export default function RoomDataPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
-    const data = [
-        { no: 1, name: "Lab RPL 1", type: "Lab", capacity: 32, status: "Tersedia", },
-        { no: 2, name: "Lab TK 1", type: "Lab", capacity: 28, status: "Tersedia", },
-        { no: 3, name: "Ruang Teori 27J", type: "Ruang Teori", capacity: 40, status: "Tersedia",  },
-        { no: 4, name: "Ruang Teori 14K", type: "Ruang Teori", capacity: 35, status: "Tersedia", },
-        { no: 5, name: "Lab Jaringan 1", type: "Lab", capacity: 30, status: "Tersedia",  },
-        { no: 6, name: "Ruang Multimedia 2", type: "Ruang Teori", capacity: 25, status: "Tersedia", },
-        { no: 7, name: "Lab Pemrograman 1", type: "Lab", capacity: 32, status: "Tersedia", },
-        { no: 8, name: "Ruang Diskusi A", type: "Ruang Teori", capacity: 20, status: "Tersedia",  },
-        { no: 9, name: "Lab Komputer Grafis", type: "Lab", capacity: 18, status: "Tersedia",  },
-        { no: 10, name: "Ruang Olahraga", type: "Ruang Teori", capacity: 50, status: "Tersedia",  },
-        { no: 11, name: "Ruang Seni 1", type: "Ruang Teori", capacity: 15, status: "Tersedia", },
-        { no: 12, name: "Ruang Musik B", type: "Ruang Teori", capacity: 25, status: "Tersedia",  },
-        
-    ];
-    
-
     // Search item tabel
-    const filteredData = data.filter(item =>
+    const filteredData = rooms.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.status.toLowerCase().includes(searchTerm.toLowerCase())
@@ -74,13 +86,72 @@ export default function RoomDataPage() {
         setIsModalOpen(true);
     };
 
-    const handleModalSubmit = (data: Room) => {
+    const handleDelete = async (id: number) => {
+        const token = Cookies.get("token"); // Ambil token dari cookies
+
+        try {
+            const response = await axios.delete(`http://localhost:3333/room/${id}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+            console.log("Delete Response:", response.data);
+            fetchData(); // Memanggil kembali data setelah penghapusan
+        } catch (error) {
+            console.error("Error deleting room:", error.response ? error.response.data : error.message);
+        }
+    };
+
+    const handleModalSubmit = async (data: Room) => {
+        const token = Cookies.get("token"); // Ambil token dari cookies
+
+        // Hapus properti yang tidak diperlukan
+        const { id, createdAt, updatedAt, ...roomData } = data; // Menggunakan destructuring untuk menghapus properti yang tidak diinginkan
+
+        console.log("Data yang akan dikirim:", roomData); // Log data yang akan dikirim
+
         if (selectedRoom) {
             // Update data
-            console.log("Edit Data", data);
+            try {
+                const response = await axios.patch(`http://localhost:3333/room/${selectedRoom.id}`, roomData, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+                console.log("Update Response:", response.data);
+                fetchData(); // Memanggil kembali data setelah update
+            } catch (error) {
+                console.error("Error updating room:", error.response ? error.response.data : error.message);
+            }
         } else {
-            // Tambah data baru
-            console.log("Tambah Data", data);
+            // Add new data
+            try {
+                const response = await axios.post("http://localhost:3333/room", roomData, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+                console.log("Create Response:", response.data);
+                fetchData(); // Memanggil kembali data setelah penambahan
+            } catch (error) {
+                console.error("Error creating room:", error.response ? error.response.data : error.message);
+            }
+        }
+    };
+
+    const getStatusInIndonesian = (status: string) => {
+        switch (status) {
+            case "Available":
+                return "Tersedia";
+            case "InUse":
+                return "Sedang Digunakan";
+            case "UnderRepair":
+                return "Sedang Diperbaiki";
+            default:
+                return status;
         }
     };
 
@@ -200,13 +271,13 @@ export default function RoomDataPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
+                                {rooms.map((item, index) => (
+                                    <tr key={item.id}>
+                                        <td className="py-2 px-4 border-b">{index + 1}</td> {/* Menampilkan nomor urut */}
                                         <td className="py-2 px-4 border-b">{item.name}</td>
                                         <td className="py-2 px-4 border-b">{item.type}</td>
                                         <td className="py-2 px-4 border-b">{item.capacity}</td>
-                                        <td className="py-2 px-4 border-b">{item.status}</td>
+                                        <td className="py-2 px-4 border-b">{getStatusInIndonesian(item.status)}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 {/* Edit Button */}
@@ -219,6 +290,7 @@ export default function RoomDataPage() {
 
                                                 {/* Delete Button */}
                                                 <button
+                                                    onClick={() => handleDelete(item.id)}
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
                                                 >
                                                     <i className="bx bxs-trash-alt text-lg"></i>
