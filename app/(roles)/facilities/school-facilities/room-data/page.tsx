@@ -30,26 +30,19 @@ export default function RoomDataPage() {
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
     const data = [
-        { no: 1, name: "Lab RPL 1", type: "Lab", capacity: 32, status: "Tersedia", location: "Lantai 1" },
-        { no: 2, name: "Lab TK 1", type: "Lab", capacity: 28, status: "Tersedia", location: "Lantai 2" },
-        { no: 3, name: "Ruang Teori 27J", type: "Ruang Teori", capacity: 40, status: "Tersedia", location: "Lantai 3" },
-        { no: 4, name: "Ruang Teori 14K", type: "Ruang Teori", capacity: 35, status: "Tersedia", location: "Lantai 4" },
-        { no: 5, name: "Lab Jaringan 1", type: "Lab", capacity: 30, status: "Tersedia", location: "Lantai 5" },
-        { no: 6, name: "Ruang Multimedia 2", type: "Ruang Teori", capacity: 25, status: "Tersedia", location: "Lantai 6" },
-        { no: 7, name: "Lab Pemrograman 1", type: "Lab", capacity: 32, status: "Tersedia", location: "Lantai 7" },
-        { no: 8, name: "Ruang Diskusi A", type: "Ruang Teori", capacity: 20, status: "Tersedia", location: "Lantai 8" },
-        { no: 9, name: "Lab Komputer Grafis", type: "Lab", capacity: 18, status: "Tersedia", location: "Lantai 9" },
-        { no: 10, name: "Ruang Olahraga", type: "Ruang Teori", capacity: 50, status: "Tersedia", location: "Lantai 10" },
-        { no: 11, name: "Ruang Seni 1", type: "Ruang Teori", capacity: 15, status: "Tersedia", location: "Lantai 11" },
-        { no: 12, name: "Ruang Musik B", type: "Ruang Teori", capacity: 25, status: "Tersedia", location: "Lantai 12" },
-        { no: 13, name: "Lab Elektronika", type: "Lab", capacity: 24, status: "Tersedia", location: "Lantai 13" },
-        { no: 14, name: "Lab RPL 2", type: "Lab", capacity: 32, status: "Tersedia", location: "Lantai 14" },
-        { no: 15, name: "Ruang Teori 12B", type: "Ruang Teori", capacity: 40, status: "Tersedia", location: "Lantai 15" },
-        { no: 16, name: "Ruang Teknologi A", type: "Ruang Teori", capacity: 35, status: "Tersedia", location: "Lantai 16" },
-        { no: 17, name: "Lab TK 2", type: "Lab", capacity: 28, status: "Tersedia", location: "Lantai 17" },
-        { no: 18, name: "Ruang Kelas 18", type: "Ruang Teori", capacity: 32, status: "Tersedia", location: "Lantai 18" },
-        { no: 19, name: "Lab Produksi Grafika", type: "Lab", capacity: 20, status: "Tersedia", location: "Lantai 19" },
-        { no: 20, name: "Ruang Teori 27K", type: "Ruang Teori", capacity: 45, status: "Tersedia", location: "Lantai 20" },
+        { no: 1, name: "Lab RPL 1", type: "Lab", capacity: 32, status: "Tersedia", },
+        { no: 2, name: "Lab TK 1", type: "Lab", capacity: 28, status: "Tersedia", },
+        { no: 3, name: "Ruang Teori 27J", type: "Ruang Teori", capacity: 40, status: "Tersedia",  },
+        { no: 4, name: "Ruang Teori 14K", type: "Ruang Teori", capacity: 35, status: "Tersedia", },
+        { no: 5, name: "Lab Jaringan 1", type: "Lab", capacity: 30, status: "Tersedia",  },
+        { no: 6, name: "Ruang Multimedia 2", type: "Ruang Teori", capacity: 25, status: "Tersedia", },
+        { no: 7, name: "Lab Pemrograman 1", type: "Lab", capacity: 32, status: "Tersedia", },
+        { no: 8, name: "Ruang Diskusi A", type: "Ruang Teori", capacity: 20, status: "Tersedia",  },
+        { no: 9, name: "Lab Komputer Grafis", type: "Lab", capacity: 18, status: "Tersedia",  },
+        { no: 10, name: "Ruang Olahraga", type: "Ruang Teori", capacity: 50, status: "Tersedia",  },
+        { no: 11, name: "Ruang Seni 1", type: "Ruang Teori", capacity: 15, status: "Tersedia", },
+        { no: 12, name: "Ruang Musik B", type: "Ruang Teori", capacity: 25, status: "Tersedia",  },
+        
     ];
     
 
@@ -95,7 +88,7 @@ export default function RoomDataPage() {
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Fasilitas</h1>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Ruang</h1>
                     <p className="text-sm text-gray-600">Halo Admin Sarpras, selamat datang kembali</p>
                 </div>
 

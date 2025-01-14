@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import "@/app/styles/globals.css";
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import FacilityModal from "@/app/components/FacilityModal.js";
+import SppModal from "@/app/components/SppModal.js";
 
-type Facility = {
+type Spp = {
     no: number;
     name: string;
     quantity: number;
@@ -15,7 +15,7 @@ type Facility = {
     date: string;
 };
 
-export default function ExpensesPage() {
+export default function SppPage() {
     useEffect(() => {
         // Panggil middleware untuk memeriksa role, hanya izinkan 'Finance'
         roleMiddleware(["Finance"]);
@@ -26,7 +26,7 @@ export default function ExpensesPage() {
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+    const [selectedSpp, setSelectedSpp] = useState<Spp | null>(null);
 
     const data = [
         { no: 1, name: "Revina Okta Safitri", quantity: 100000, month: 1, status: "Belum Dibayar", transactionId: "TXN-12345", date: "15/12/2024" },
@@ -51,17 +51,17 @@ export default function ExpensesPage() {
     };
 
     const handleAddClick = () => {
-        setSelectedFacility(null);
+        setSelectedSpp(null);
         setIsModalOpen(true);
     };
 
-    const handleEditClick = (facility: Facility) => {
-        setSelectedFacility(facility);
+    const handleEditClick = (spp: Spp) => {
+        setSelectedSpp(spp);
         setIsModalOpen(true);
     };
 
-    const handleModalSubmit = (data: Facility) => {
-        if (selectedFacility) {
+    const handleModalSubmit = (data: Spp) => {
+        if (selectedSpp) {
             // Update data
             console.log("Edit Data", data);
         } else {
@@ -75,7 +75,7 @@ export default function ExpensesPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pembayaran SPP</h1>
-                    <p className="text-sm text-gray-600">Halo role sarpras, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo role Keuangan, selamat datang kembali</p>
                 </div>
 
                 <div className="mt-4 sm:mt-0">
@@ -219,11 +219,11 @@ export default function ExpensesPage() {
                     </div>
                 </div>
             </main>
-            <FacilityModal
+            <SppModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
-                facilityData={selectedFacility}
+                sppData={selectedSpp}
             />
         </div>
     );

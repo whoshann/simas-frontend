@@ -1,15 +1,17 @@
 import React from 'react';
 
-export default function RepairsData({ isOpen, onClose, onSubmit, repairsData }) {
+export default function RabData({ isOpen, onClose, onSubmit, rabData }) {
     if (!isOpen) return null;
 
-    const [formData, setFormData] = React.useState(repairsData || {
+    const [formData, setFormData] = React.useState(rabData || {
         no: 0,
-        category: '',
-        name: '',
+        title: '',
+        description: '',
+        amount: '',
+        status: '',
         date: '',
-        cost: '',
-        status: ''    
+        document: '',
+
     });
 
     const handleChange = (e) => {
@@ -34,50 +36,40 @@ export default function RepairsData({ isOpen, onClose, onSubmit, repairsData }) 
                         <i className="bx bx-x text-2xl"></i>
                     </button>
                     <h2 className="text-xl mb-2 font-semibold text-[var(--text-semi-bold-color)]">
-                        {repairsData ? 'Edit Data Perbaikan Sekolah' : 'Tambah Data Perbaikan Sekolah'}
+                        {rabData ? 'Edit Data Rab Sekolah' : 'Tambah Data Rab Sekolah'}
                     </h2>
                 </div>
                 <div className="overflow-y-auto max-h-[70vh] p-4">
                 <form onSubmit={handleSubmit}>
+                    
                     <div className="mb-4">
-                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Kategori</label>
+                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Judul</label>
                         <input
                             type="text"
-                            name="category"
-                            value={formData.category}
+                            name="title"
+                            value={formData.title}
                             onChange={handleChange}
                             className="border p-2 w-full rounded-lg"
                             required
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Nama </label>
+                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Keterangan</label>
                         <input
                             type="text"
-                            name="name"
-                            value={formData.name}
+                            name="description"
+                            value={formData.description}
                             onChange={handleChange}
                             className="border p-2 w-full rounded-lg"
                             required
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Tanggal</label>
-                        <input
-                            type="date"
-                            name="date"
-                            value={formData.date}
-                            onChange={handleChange}
-                            className="border p-2 w-full rounded-lg"
-                            required
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Biaya Perbaikan</label>
+                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Total</label>
                         <input
                             type="number"
-                            name="cost"
-                            value={formData.cost}
+                            name="amount"
+                            value={formData.amount}
                             onChange={handleChange}
                             className="border p-2 w-full rounded-lg"
                             required
@@ -92,18 +84,44 @@ export default function RepairsData({ isOpen, onClose, onSubmit, repairsData }) 
                             className="border p-2 w-full rounded-lg"
                             required
                         >
-                            <option value="">Pilih Status</option>
-                            <option value="complete">Selesai</option>
-                            <option value="pending">Pending</option>
-                            <option value="in_progress">Sedang Diproses</option>
+                            <option value="" disabled>Select status</option>
+                            <option value="Ditolak">Ditolak</option>
+                            <option value="Disetujui">Disetujui</option>
+                            <option value="Revisi">Revisi</option>
                         </select>
+                    </div>
+                    <div className="mb-4">
+                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Date</label>
+                        <input
+                            type="date"
+                            name="date"
+                            value={formData.date}
+                            onChange={handleChange}
+                            className="border p-2 w-full rounded-lg"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block mb-1 text-[var(--text-semi-bold-color)]">Document</label>
+                        <input
+                            type="file"
+                            name="document"
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    document: e.target.files?.[0] || null,
+                                })
+                            }
+                            className="border p-2 w-full rounded-lg"
+                            required
+                        />
                     </div>
                     <div className="flex justify-end">
                         <button
                             type="submit"
                             className="bg-[var(--main-color)] text-white px-8 py-2 rounded-lg hover:bg-[#1a4689] min-w-[8rem]"
                         >
-                            {repairsData ? 'Update' : 'Kirim'}
+                            {rabData ? 'Update' : 'Submit'}
                         </button>
                     </div>
                 </form>

@@ -5,60 +5,48 @@ import "@/app/styles/globals.css";
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
-import FacilityModal from "@/app/components/FacilityModal.js";
 
-type Facility = {
-    no: number;
-    name: string;
-    quantity: number;
-    description: string;
-    notes?: string;
 
-};
-
-export default function FacilityDataPage() {
+export default function StudentAffairsNewsInformationPage() {
     useEffect(() => {
         // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["Facilities"]);
+        roleMiddleware(["StudentAffairs"]);
     }, []);
 
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
 
     const data = [
-        { no: 1, name: "Ruang Kelas", quantity: 38, description: "Ruang untuk belajar", notes: "Catatan 1",  },
-        { no: 2, name: "Lab Bahasa", quantity: 2, description: "Ruang untuk belajar bahasa", notes: "Catatan 2", },
-        { "no": 3, "name": "Lab Simulasi Digital", "quantity": 2, "description": "Ruang untuk simulasi digital", "notes": "Catatan 3" },
-        { "no": 4, "name": "Lab Produksi Grafika", "quantity": 7, "description": "Ruang untuk produksi grafika", "notes": "Catatan 4" },
-        { "no": 5, "name": "Lab Animasi", "quantity": 4, "description": "Ruang untuk belajar animasi", "notes": "Catatan 5" },
-        { "no": 6, "name": "Ruang Perpustakaan", "quantity": 10, "description": "Ruang untuk perpustakaan", "notes": "Catatan 6" },
-        { "no": 7, "name": "Ruang Olahraga", "quantity": 1, "description": "Ruang untuk olahraga", "notes": "Catatan 7" },
-        { "no": 8, "name": "Ruang Musik", "quantity": 3, "description": "Ruang untuk musik", "notes": "Catatan 8" },
-        { "no": 9, "name": "Ruang Seni", "quantity": 2, "description": "Ruang untuk seni", "notes": "Catatan 9" },
-        { "no": 10, "name": "Ruang Komputer", "quantity": 15, "description": "Ruang untuk komputer", "notes": "Catatan 10" },
-        { "no": 11, "name": "Ruang Diskusi", "quantity": 5, "description": "Ruang untuk diskusi", "notes": "Catatan 11" },
-        { "no": 12, "name": "Ruang Kesehatan", "quantity": 1, "description": "Ruang untuk kesehatan", "notes": "Catatan 12" },
-        { "no": 13, "name": "Ruang Multimedia", "quantity": 4, "description": "Ruang untuk multimedia", "notes": "Catatan 13" },
-        { "no": 14, "name": "Ruang Rapat", "quantity": 1, "description": "Ruang untuk rapat", "notes": "Catatan 14" },
-        { "no": 15, "name": "Ruang Baca", "quantity": 6, "description": "Ruang untuk baca", "notes": "Catatan 15" },
-        { "no": 16, "name": "Ruang Kegiatan", "quantity": 2, "description": "Ruang untuk kegiatan", "notes": "Catatan 16" },
-        { "no": 17, "name": "Ruang Teknologi", "quantity": 3, "description": "Ruang untuk teknologi", "notes": "Catatan 17" },
-        { "no": 18, "name": "Ruang Kelas 2", "quantity": 30, "description": "Ruang untuk kelas 2", "notes": "Catatan 18" },
-        { "no": 19, "name": "Ruang Kelas 3", "quantity": 25, "description": "Ruang untuk kelas 3", "notes": "Catatan 19" },
-        { "no": 20, "name": "Ruang Kelas 4", "quantity": 20, "description": "Ruang untuk kelas 4", "notes": "Catatan 20" }
-    
-        
+        { no: 1, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "21/01/2024" },
+        { no: 2, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "22/01/2024" },
+        { no: 3, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "23/01/2024" },
+        { no: 4, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "24/01/2024" },
+        { no: 5, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "25/01/2024" },
+        { no: 6, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "25/01/2024" },
+        { no: 7, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 8, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 9, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 10, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 11, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 12, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 13, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 14, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 15, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 16, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 17, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 18, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 19, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 20, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+
     ];
 
     // Search item tabel
     const filteredData = data.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.notes?.toLowerCase().includes(searchTerm.toLowerCase())
+        item.date.includes(searchTerm)
     );
 
     const totalEntries = filteredData.length;
@@ -71,32 +59,12 @@ export default function FacilityDataPage() {
         setIsPanelOpen(!isPanelOpen);
     };
 
-    const handleAddClick = () => {
-        setSelectedFacility(null);
-        setIsModalOpen(true);
-    };
-
-    const handleEditClick = (facility: Facility) => {
-        setSelectedFacility(facility);
-        setIsModalOpen(true);
-    };
-
-    const handleModalSubmit = (data: Facility) => {
-        if (selectedFacility) {
-            // Update data
-            console.log("Edit Data", data);
-        } else {
-            // Tambah data baru
-            console.log("Tambah Data", data);
-        }
-    };
-
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Fasilitas</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Sarpras, selamat datang kembali</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Informasi Berita</h1>
+                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
                 </div>
 
 
@@ -138,7 +106,7 @@ export default function FacilityDataPage() {
                         <div className="flex space-x-2 mt-5 sm:mt-0">
                             {/* Button Tambah Data */}
                             <button
-                                onClick={handleAddClick}
+                                onClick={() => console.log("Tambah Data")}
                                 className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
                             >
                                 Tambah Data
@@ -199,27 +167,41 @@ export default function FacilityDataPage() {
                             <thead className="text-[var(--text-semi-bold-color)]">
                                 <tr>
                                     <th className="py-2 px-4 border-b text-left">No</th>
-                                    <th className="py-2 px-4 border-b text-left">Nama Fasilitas</th>
-                                    <th className="py-2 px-4 border-b text-left">Jumlah</th>
+                                    <th className="py-2 px-4 border-b text-left">Gambar</th>
+                                    <th className="py-2 px-4 border-b text-left">Judul</th>
                                     <th className="py-2 px-4 border-b text-left">Deskripsi</th>
-                                    <th className="py-2 px-4 border-b text-left">Catatan</th>
-                                    <th className="py-2 px-4 border-b text-left">Aksi</th>
+                                    <th className="py-2 px-4 border-b text-left">Tanggal</th>
+                                    <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {currentEntries.map((item) => (
                                     <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
                                         <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.name}</td>
-                                        <td className="py-2 px-4 border-b">{item.quantity}</td>
+                                        <td className="py-2 px-4 border-b">
+                                            <div className="w-16 h-16 overflow-hidden rounded">
+                                                {item.document ? (
+                                                    <Image
+                                                        src={item.document}
+                                                        alt="Bukti Surat"
+                                                        className="w-full h-full object-cover"
+                                                        width={256}
+                                                        height={256}
+                                                    />
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="py-2 px-4 border-b">{item.title}</td>
                                         <td className="py-2 px-4 border-b">{item.description}</td>
-                                        <td className="py-2 px-4 border-b">{item.notes}</td>
+                                        <td className="py-2 px-4 border-b">{item.date}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 {/* Edit Button */}
                                                 <button
-                                                    onClick={() => handleEditClick(item)}
                                                     className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+
                                                 >
                                                     <i className="bx bxs-edit text-lg"></i>
                                                 </button>
@@ -227,6 +209,7 @@ export default function FacilityDataPage() {
                                                 {/* Delete Button */}
                                                 <button
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
+
                                                 >
                                                     <i className="bx bxs-trash-alt text-lg"></i>
                                                 </button>
@@ -274,12 +257,6 @@ export default function FacilityDataPage() {
                     </div>
                 </div>
             </main>
-            <FacilityModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-                facilityData={selectedFacility}
-            />
         </div>
     );
 }

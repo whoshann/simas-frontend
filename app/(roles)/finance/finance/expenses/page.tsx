@@ -5,9 +5,9 @@ import "@/app/styles/globals.css";
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
-import FacilityModal from "@/app/components/FacilityModal.js";
+import ExpensesModal from "@/app/components/ExpensesModal.js";
 
-type Facility = {
+type Expenses = {
     no: number;
     name: string;
     quantity: number;
@@ -26,7 +26,7 @@ export default function ExpensesPage() {
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+    const [selectedExpenses, setSelectedExpenses] = useState<Expenses | null>(null);
 
     const data = [
         { no: 1, name: "Perbaikan Meja", quantity: 600000, rabId: 101, date: "15/12/2024" },
@@ -52,17 +52,17 @@ export default function ExpensesPage() {
     };
 
     const handleAddClick = () => {
-        setSelectedFacility(null);
+        setSelectedExpenses(null);
         setIsModalOpen(true);
     };
 
-    const handleEditClick = (facility: Facility) => {
-        setSelectedFacility(facility);
+    const handleEditClick = (expenses: Expenses) => {
+        setSelectedExpenses(expenses);
         setIsModalOpen(true);
     };
 
-    const handleModalSubmit = (data: Facility) => {
-        if (selectedFacility) {
+    const handleModalSubmit = (data: Expenses) => {
+        if (selectedExpenses) {
             // Update data
             console.log("Edit Data", data);
         } else {
@@ -76,7 +76,7 @@ export default function ExpensesPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pengeluaran</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Keuangan, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo role Keuangan, selamat datang kembali</p>
                 </div>
 
 
@@ -254,11 +254,11 @@ export default function ExpensesPage() {
                     </div>
                 </div>
             </main>
-            <FacilityModal
+            <ExpensesModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
-                facilityData={selectedFacility}
+                expensesData={selectedExpenses}
             />
         </div>
     );

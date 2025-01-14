@@ -1,15 +1,16 @@
 import React from 'react';
 
-export default function FacilityData({ isOpen, onClose, onSubmit, incomingData }) {
+export default function ItemData({ isOpen, onClose, onSubmit, itemData }) {
     if (!isOpen) return null;
 
-    const [formData, setFormData] = React.useState(incomingData || {
+    const [formData, setFormData] = React.useState(itemData || {
         no: 0,
-        name: '',
-        stock: 1,
-        condition: '',
-        quantity: 1,
-
+        itemName: '',
+        unitPrice: 0,
+        amountPrice: 0,
+        supplier: '',
+        requestDate: '',
+        requester: '',
 
     });
 
@@ -35,7 +36,7 @@ export default function FacilityData({ isOpen, onClose, onSubmit, incomingData }
                         <i className="bx bx-x text-2xl"></i>
                     </button>
                     <h2 className="text-xl mb-2 font-semibold text-[var(--text-semi-bold-color)]">
-                        {incomingData ? 'Edit Data Barang Masuk Sekolah' : 'Tambah Data Barang Masuk Sekolah'}
+                        {itemData ? 'Edit Data Pengajuan Barang' : 'Tambah Data Pengajuan Barang'}
                     </h2>
                 </div>
                 <div className="overflow-y-auto max-h-[70vh] p-4">
@@ -44,46 +45,70 @@ export default function FacilityData({ isOpen, onClose, onSubmit, incomingData }
                             <label className="block mb-1 text-[var(--text-semi-bold-color)]">Nama Barang</label>
                             <input
                                 type="text"
-                                name="name"
-                                value={formData.name}
+                                name="itemName"
+                                value={formData.itemName}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Kondisi</label>
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Harga Satuan</label>
+                            <input
+                                type="number"
+                                name="unitPrice"
+                                value={formData.unitPrice}
+                                onChange={handleChange}
+                                className="border p-2 w-full rounded-lg"
+                                required
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Total Harga</label>
+                            <input
+                                type="number"
+                                name="amountPrice"
+                                value={formData.amountPrice}
+                                onChange={handleChange}
+                                className="border p-2 w-full rounded-lg"
+                                required
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Pemasok</label>
                             <input
                                 type="text"
-                                name="condition"
-                                value={formData.condition}
+                                name="supplier"
+                                value={formData.supplier}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Stok</label>
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Tanggal Pengajuan</label>
                             <input
-                                type="number"
-                                name="stock"
-                                value={formData.stock}
+                                type="date"
+                                name="requestDate"
+                                value={formData.requestDate}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required
                             />
                         </div>
+
                         <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Jumlah</label>
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Pengaju</label>
                             <input
-                                type="number"
-                                name="quantity"
-                                value={formData.quantity}
+                                type="text"
+                                name="requester"
+                                value={formData.requester}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required
                             />
                         </div>
+                        
                         
                         
                         <div className="flex justify-end">
@@ -91,7 +116,7 @@ export default function FacilityData({ isOpen, onClose, onSubmit, incomingData }
                                 type="submit"
                                 className="bg-[var(--main-color)] text-white px-8 py-2 rounded-lg hover:bg-[#1a4689] min-w-[8rem]"
                             >
-                                {incomingData ? 'Update' : 'Kirim'}
+                                {itemData ? 'Update' : 'Kirim'}
                             </button>
                         </div>
                     </form>
