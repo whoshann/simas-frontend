@@ -3,22 +3,40 @@
 import React, { useState } from 'react';
 import Cookies from "js-cookie";
 import { useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+    id: number;
+    name: string;
+    role: string;
+}
+
 
 const Sidebar: React.FC = () => {
     const [role, setRole] = useState<string | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isDropdownOpenKesiswaan, setIsDropdownOpenKesiswaan] = useState(false);
     const [isDropdownOpenFasilitas, setIsDropdownOpenFasilitas] = useState(false);
     const [activeMenu, setActiveMenu] = useState<string>('Beranda');
 
+
     useEffect(() => {
-        // Ambil role dari cookies
         const token = Cookies.get("token");
         setIsLoggedIn(!!token);
-        const userRole = Cookies.get("role");
-        setRole(userRole || null);
 
+        if (token) {
+            try {
+                const decoded = jwtDecode<DecodedToken>(token); // Menggunakan jwtDecode
+                console.log("Decoded token:", decoded);
+                setRole(decoded.role);
+                console.log("Role set to:", decoded.role);
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
+        }
+        setIsLoading(false);
 
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -69,6 +87,12 @@ const Sidebar: React.FC = () => {
         // Do not close dropdown
     };
 
+    // Tambahkan kondisi loading
+    if (isLoading) {
+        return null;
+    }
+
+
     return (
         (<div>
             {/* Tombol Hamburger di luar sidebar */}
@@ -83,7 +107,13 @@ const Sidebar: React.FC = () => {
                 {/* Start Sidebar menu navigation */}
                 <nav>
                     <a
-                        href="#"
+                        href={
+                            role === "StudentAffairs" ? "/student-affairs" :
+                                role === "Student" ? "/student" :
+                                    role === "Teacher" ? "/teacher" :
+                                        role === "Facilities" ? "/facilities" :
+                                            ""
+                        }
                         className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Beranda' ? 'active' : ''}`}
                         onClick={() => handleMenuClick('Beranda')}
                     >
@@ -93,193 +123,243 @@ const Sidebar: React.FC = () => {
 
 
                     {/*Start Role Student and Teacher menu */}
+                    {(role === "Student" || role === "Teacher" || !isLoggedIn) && (
+                        <div>
+                            <div>
+                                <button
+                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Kesiswaan' ? 'active' : ''}`}
+                                    onClick={toggleDropdownKesiswaan}
+                                >
+                                    <i className='bx bxs-book mr-3'></i>
+                                    <a href="#" className='mr-14 font-medium'> Kesiswaan</a>
+                                    <svg
+                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenKesiswaan ? 'rotate' : ''} ${activeMenu === 'Kesiswaan' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                <div className={` ${isDropdownOpenKesiswaan ? '' : 'hidden'}`}>
+                                    <a
+                                        href={
+                                            role === "Student" ? "/student/student-affairs/absence" :
+                                                role === "Teacher" ? "/teacher" :
+                                                    "/login"
+                                        }
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Absensi' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Absensi')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Absensi' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Absensi
+                                    </a>
+
+                                    <a
+                                        href={
+                                            role === "Student" ? "/student/student-affairs/violations" :
+                                                role === "Teacher" ? "/teacher" :
+                                                    "/login"
+                                        }
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Pelanggaran' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Pelanggaran')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Pelanggaran' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Pelanggaran
+                                    </a>
 
 
-                    <div>
-                        <button
-                            className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Kesiswaan' ? 'active' : ''}`}
-                            onClick={toggleDropdownKesiswaan}
-                        >
-                            <i className='bx bxs-book mr-3'></i>
-                            <a href="#" className='mr-14 font-medium'> Kesiswaan</a>
-                            <svg
-                                className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenKesiswaan ? 'rotate' : ''} ${activeMenu === 'Kesiswaan' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                        <div className={` ${isDropdownOpenKesiswaan ? '' : 'hidden'}`}>
+                                    <a
+                                        href={
+                                            role === "Student" ? "/student/student-affairs/claim-insurance" :
+                                                role === "Teacher" ? "/teacher" :
+                                                    "/login"
+                                        }
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Klaim Asuransi' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Klaim Asuransi')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Klaim Asuransi' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Klaim Asuransi
+                                    </a>
+                                </div>
+                            </div>
+
                             <a
-                                href=""
-                                className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Absensi' ? 'text-blue-900' : ''}`}
-                                onClick={() => handleSubMenuClick('Absensi')}
+                                href="#"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Humas' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Humas')}
                             >
-                                <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Absensi' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                Absensi
+                                <i className='bx bxs-contact mr-2 font-medium'></i> {/* Ikon untuk Humas */}
+                                Humas
+                            </a>
+                            <a
+                                href="#"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Tata Usaha' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Tata Usaha')}
+                            >
+                                <i className='bx bxs-archive mr-2 font-medium'></i> {/* Ikon untuk Tata Usaha */}
+                                Tata Usaha
                             </a>
 
                             <a
-                                href=""
-                                className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Pelanggaran' ? 'text-blue-900' : ''}`}
-                                onClick={() => handleSubMenuClick('Pelanggaran')}
+                                href={
+                                    role === "Student" ? "/student/finance/payment-status" :
+                                        role === "Teacher" ? "/teacher" :
+                                            ""
+                                }
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Keuangan' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Keuangan')}
                             >
-                                <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Pelanggaran' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                Pelanggaran
+                                <i className='bx bxs-report mr-2 font-medium'></i> {/* Ikon untuk Keuangan */}
+                                Keuangan
                             </a>
 
+                            <a
+                                href="#"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Kurikulum' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Kurikulum')}
+                            >
+                                <i className='bx bxs-report mr-2 font-medium'></i>
+                                Kurikulum
+                            </a>
 
                             <a
-                                href=""
-                                className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Klaim Asuransi' ? 'text-blue-900' : ''}`}
-                                onClick={() => handleSubMenuClick('Klaim Asuransi')}
+                                href={
+                                    role === "Student" ? "/student/facilities-management/borrowing-goods" :
+                                        role === "Teacher" ? "/teacher" :
+                                            "/login"
+                                }
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Facilities' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Facilities')}
                             >
-                                <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Klaim Asuransi' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                <i className='bx bxs-chalkboard mr-2 font-medium'></i> {/* Ikon untuk Sarpras */}
+                                Sarpras
+                            </a>
+
+                        </div>
+                    )}
+
+
+
+                    {/* Start Role Student Affairs Sidebar Menu */}
+                    {role === "StudentAffairs" && (
+                        <div>
+                            <a
+                                href="/student-affairs/student-absence"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Student Absence' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Student Absence')}
+                            >
+                                <i className='bx bxs-calendar mr-2 font-medium'></i> {/* Ikon untuk Absensi Siswa */}
+                                Absensi Siswa
+                            </a>
+                            <a
+                                href="/student-affairs/student-achievement"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Student Achievement' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Student Achievement')}
+                            >
+                                <i className='bx bxs-trophy mr-2 font-medium'></i> {/* Ikon untuk Student Achievement */}
+                                Prestasi Siswa
+                            </a>
+                            <a
+                                href="/student-affairs/student-violations"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Student Violation' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Student Violation')}
+                            >
+                                <i className='bx bxs-error-alt mr-2 font-medium'></i> {/* Ikon untuk Pelanggaran Siswa */}
+                                Pelanggaran Siswa
+                            </a>
+                            <a
+                                href="/student-affairs/student-claim-insurance"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Insurance Claim' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Insurance Claim')}
+                            >
+                                <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk Klaim Asuransi */}
                                 Klaim Asuransi
                             </a>
-                        </div>
-                    </div>
-
-                    <a
-                        href="#"
-                        className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Humas' ? 'active' : ''}`}
-                        onClick={() => handleMenuClick('Humas')}
-                    >
-                        <i className='bx bxs-contact mr-2 font-medium'></i> {/* Ikon untuk Humas */}
-                        Humas
-                    </a>
-                    <a
-                        href="#"
-                        className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Tata Usaha' ? 'active' : ''}`}
-                        onClick={() => handleMenuClick('Tata Usaha')}
-                    >
-                        <i className='bx bxs-archive mr-2 font-medium'></i> {/* Ikon untuk Tata Usaha */}
-                        Tata Usaha
-                    </a>
-
-                    <a
-                        href=""
-                        className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Keuangan' ? 'active' : ''}`}
-                        onClick={() => handleMenuClick('Keuangan')}
-                    >
-                        <i className='bx bxs-report mr-2 font-medium'></i> {/* Ikon untuk Keuangan */}
-                        Keuangan
-                    </a>
-
-                    <a
-                        href="#"
-                        className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Kurikulum' ? 'active' : ''}`}
-                        onClick={() => handleMenuClick('Kurikulum')}
-                    >
-                        <i className='bx bxs-report mr-2 font-medium'></i>
-                        Kurikulum
-                    </a>
-
-                    <a
-                        href=""
-                        className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Sarpras' ? 'active' : ''}`}
-                        onClick={() => handleMenuClick('Sarpras')}
-                    >
-                        <i className='bx bxs-chalkboard mr-2 font-medium'></i> {/* Ikon untuk Sarpras */}
-                        Sarpras
-                    </a>
-                    <a
-                        href="/student-affairs/student-absence"
-                        className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Absensi Siswa' ? 'active' : ''}`}
-                        onClick={() => handleMenuClick('Absensi Siswa')}
-                    >
-                        <i className='bx bxs-contact mr-2 font-medium'></i> {/* Ikon untuk Absensi Siswa */}
-                        Absensi Siswa
-                    </a>
-                    <a
-                        href="/student-affairs/student-achievement"
-                        className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Prestasi Siswa' ? 'active' : ''}`}
-                        onClick={() => handleMenuClick('Prestasi Siswa')}
-                    >
-                        <i className='bx bxs-archive mr-2 font-medium'></i> {/* Ikon untuk Prestasi Siswa */}
-                        Prestasi Siswa
-                    </a>
-                    <a
-                        href="/student-affairs/student-violations"
-                        className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Pelanggaran Siswa' ? 'active' : ''}`}
-                        onClick={() => handleMenuClick('Pelanggaran Siswa')}
-                    >
-                        <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk Pelanggaran Siswa */}
-                        Pelanggaran Siswa
-                    </a>
-                    <a
-                        href="/student-affairs/student-claim-insurance"
-                        className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Klaim Asuransi' ? 'active' : ''}`}
-                        onClick={() => handleMenuClick('Klaim Asuransi')}
-                    >
-                        <i className='bx bxs-report mr-2 font-medium'></i> {/* Ikon untuk Klaim Asuransi */}
-                        Klaim Asuransi
-                    </a>
-                    <a
-                        href="/student-affairs/news-information"
-                        className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Informasi Berita' ? 'active' : ''}`}
-                        onClick={() => handleMenuClick('Informasi Berita')}
-                    >
-                        <i className='bx bxs-chalkboard mr-2 font-medium'></i> {/* Ikon untuk Informasi Berita */}
-                        Informasi Berita
-                    </a>
-
-                    {/* Menu Role  */}
-
-                    <div>
-                        <button
-                            className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Fasilitas Sekolah' ? 'active' : ''}`}
-                            onClick={toggleDropdownFasilitas}
-                        >
-                            <i className='bx bxs-book mr-3'></i>
-                            <a href="#" className='font-medium'> Fasilitas Sekolah</a>
-                            <svg
-                                className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFasilitas ? 'rotate' : ''} ${activeMenu === 'Fasilitas Sekolah' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                        <div className={` ${isDropdownOpenFasilitas ? '' : 'hidden'}`}>
                             <a
-                                href="#"
-                                className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Fasilitas' ? 'text-blue-900' : ''}`}
-                                onClick={() => handleSubMenuClick('Data Fasilitas')}
+                                href="/student-affairs/news-information"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'News Information' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('News Information')}
                             >
-                                <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Fasilitas' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                Data Fasilitas
+                                <i className='bx bxs-news mr-2 font-medium'></i> {/* Ikon untuk Informasi Berita */}
+                                Informasi Berita
                             </a>
                             <a
-                                href="#"
-                                className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Ruang' ? 'text-blue-900' : ''}`}
-                                onClick={() => handleSubMenuClick('Data Ruang')}
+                                href="/student-affairs/student-data"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Student Data' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Student Data')}
                             >
-                                <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Ruang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                Data Ruang
+                                <i className='bx bxs-graduation mr-2 font-medium'></i> {/* Ikon untuk Data Siswa */}
+                                Data Siswa
                             </a>
                             <a
-                                href="#"
-                                className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Barang' ? 'text-blue-900' : ''}`}
-                                onClick={() => handleSubMenuClick('Data Barang')}
+                                href="/student-affairs/teacher-data"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Teacher Data' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Teacher Data')}
                             >
-                                <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Barang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                Data Barang
+                                <i className='bx bxs-user-badge mr-2 font-medium'></i> {/* Ikon untuk Data Guru */}
+                                Data Guru
                             </a>
                         </div>
-                    </div>
-                    <a
-                        href="/facilities/finance/budget-proposal"
-                        className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Keuangan' ? 'active' : ''}`}
-                        onClick={() => handleMenuClick('Keuangan')}
-                    >
-                        <i className='bx bxs-report mr-2 font-medium'></i> {/* Ikon untuk Keuangan */}
-                        Keuangan
-                    </a>
+                    )}
 
+
+                    {/* Start Role Facilities Sidebar Menu */}
+                    {role === "Facilities" && (
+                        <div>
+                            <div>
+                                <button
+                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Fasilitas Sekolah' ? 'active' : ''}`}
+                                    onClick={toggleDropdownFasilitas}
+                                >
+                                    <i className='bx bxs-book mr-3'></i>
+                                    <a href="#" className='font-medium'> Fasilitas Sekolah</a>
+                                    <svg
+                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFasilitas ? 'rotate' : ''} ${activeMenu === 'Fasilitas Sekolah' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                <div className={` ${isDropdownOpenFasilitas ? '' : 'hidden'}`}>
+                                    <a
+                                        href="#"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Fasilitas' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Data Fasilitas')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Fasilitas' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Data Fasilitas
+                                    </a>
+                                    <a
+                                        href="#"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Ruang' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Data Ruang')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Ruang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Data Ruang
+                                    </a>
+                                    <a
+                                        href="#"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Barang' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Data Barang')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Barang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Data Barang
+                                    </a>
+                                </div>
+                            </div>
+                            <a
+                                href="/facilities/finance/budget-proposal"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Keuangan' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Keuangan')}
+                            >
+                                <i className='bx bxs-report mr-2 font-medium'></i> {/* Ikon untuk Keuangan */}
+                                Keuangan
+                            </a>
+                        </div>
+                    )}
 
                     {/* End Role Facilities  Sidebar Menu */}
 
@@ -287,7 +367,7 @@ const Sidebar: React.FC = () => {
                 {/* End Sidebar menu navigation  */}
 
                 {/* Login Button */}
-                <a href={isLoggedIn ? "/user-profile" : "/login"} className="absolute bottom-5 left-2 right-2 px-3">
+                <a href={isLoggedIn ? "/profile" : "/login"} className="absolute bottom-5 left-2 right-2 px-3">
                     <button className="flex items-center justify-center w-full py-3 rounded-xl border border-[var(--text-semi-bold-color)] bg-white text-[var(--text-semi-bold-color)] hover:opacity-90 transition">
                         <i className={`bx ${isLoggedIn ? 'bx-user' : 'bx-power-off'} mr-2 font-medium`}></i>
                         {isLoggedIn ? "Profile Anda" : "Login / Masuk"}

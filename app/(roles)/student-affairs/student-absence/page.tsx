@@ -5,14 +5,23 @@ import "@/app/styles/globals.css";
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 
 export default function StudentAffairsAbsencePage() {
+    // Panggil middleware dan hooks di awal komponen
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["StudentAffairs"]);
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
+        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
+        fetchData();
     }, []);
 
+    const [user, setUser] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
+    const token = Cookies.get("token");
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
@@ -60,8 +69,32 @@ export default function StudentAffairsAbsencePage() {
         setIsPanelOpen(!isPanelOpen);
     };
 
+    const fetchData = async () => {
+        try {
+            // Set default Authorization header dengan Bearer token
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            // Fetch data user dari endpoint API
+            const response = await axios.get("http://localhost:3333/student");
+            setUser(response.data); // Simpan data user ke dalam state
+        } catch (err: any) {
+            console.error("Error saat fetching data:", err);
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+        } finally {
+            setLoading(false); // Set loading selesai
+        }
+    };
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
+
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Absensi Siswa</h1>
@@ -208,7 +241,7 @@ export default function StudentAffairsAbsencePage() {
                                                 {/* Edit Button */}
                                                 <button
                                                     className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-                                                    
+
                                                 >
                                                     <i className="bx bxs-edit text-lg"></i>
                                                 </button>
@@ -216,7 +249,7 @@ export default function StudentAffairsAbsencePage() {
                                                 {/* Delete Button */}
                                                 <button
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-                                                    
+
                                                 >
                                                     <i className="bx bxs-trash-alt text-lg"></i>
                                                 </button>

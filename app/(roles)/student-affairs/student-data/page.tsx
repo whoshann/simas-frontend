@@ -10,13 +10,12 @@ import Cookies from "js-cookie";
 import axios from "axios";
 
 
-export default function StudentAffairsViolationsPage() {
+export default function StudentAffairsStudentDataPage() {
     useEffect(() => {
         // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
         roleMiddleware(["StudentAffairs", "SuperAdmin"]);
         fetchData();
     }, []);
-
     const [user, setUser] = useState<any>({});
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
@@ -27,37 +26,205 @@ export default function StudentAffairsViolationsPage() {
     const [currentPage, setCurrentPage] = useState(1);
 
     const data = [
-        { no: 1, name: "Ilham Kurniawan", classSchool: "X PH A", violations: "Merokok", category: "Ringan", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "21/01/2024" },
-        { no: 2, name: "Adi Kurniawan", classSchool: "X PH B", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "22/01/2024" },
-        { no: 3, name: "Imam Kurniawan", classSchool: "XI IPA A", violations: "Bongkar Lab 1", category: "Berat", punishment: "Skors 1 Minggu", document: null, date: "23/01/2024" },
-        { no: 4, name: "Fawas Kurniawan", classSchool: "XI IPA B", violations: "Menyembunyikan HP", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "24/01/2024" },
-        { no: 5, name: "Obing Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 6, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Ringan", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 7, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 8, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 9, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 10, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 11, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 12, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 13, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 14, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 15, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 16, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 17, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 18, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 19, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 20, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-
+        {
+            no: 1,
+            name: "Ahmad Rizky",
+            classSchool: "10",
+            major: "IPA 1",
+            nis: "2024001",
+            nisn: "1234567890",
+            gender: "Laki-laki",
+            birthDate: "15/03/2008",
+            birthPlace: "Jakarta",
+            address: "Jl. Mawar No. 10, Jakarta Selatan",
+            phone: "081234567890",
+            parentPhone: "081234567891",
+            religion: "Islam",
+            motherName: "Siti Aminah",
+            fatherName: "Budi Santoso",
+            guardian: "Haji Slamet"
+        },
+        {
+            no: 2,
+            name: "Siti Nurhaliza",
+            classSchool: "11",
+            major: "IPS 2",
+            nis: "2024002",
+            nisn: "1234567891",
+            gender: "Perempuan",
+            birthDate: "22/05/2007",
+            birthPlace: "Bandung",
+            address: "Jl. Melati No. 15, Bandung",
+            phone: "081234567892",
+            parentPhone: "081234567893",
+            religion: "Islam",
+            motherName: "Nur Aini",
+            fatherName: "Ahmad Yani",
+            guardian: null
+        },
+        {
+            no: 3,
+            name: "Michael Wijaya",
+            classSchool: "12",
+            major: "IPA 3",
+            nis: "2024003",
+            nisn: "1234567892",
+            gender: "Laki-laki",
+            birthDate: "10/08/2006",
+            birthPlace: "Surabaya",
+            address: "Jl. Anggrek No. 20, Surabaya",
+            phone: "081234567894",
+            parentPhone: "081234567895",
+            religion: "Kristen",
+            motherName: "Linda Wijaya",
+            fatherName: "Robert Wijaya",
+            guardian: "Tante Maria"
+        },
+        {
+            no: 4,
+            name: "Putri Rahayu",
+            classSchool: "10",
+            major: "IPS 1",
+            nis: "2024004",
+            nisn: "1234567893",
+            gender: "Perempuan",
+            birthDate: "05/12/2008",
+            birthPlace: "Yogyakarta",
+            address: "Jl. Kamboja No. 25, Yogyakarta",
+            phone: "081234567896",
+            parentPhone: "081234567897",
+            religion: "Islam",
+            motherName: "Sri Rahayu",
+            fatherName: "Bambang Sutejo",
+            guardian: null
+        },
+        {
+            no: 5,
+            name: "David Chen",
+            classSchool: "11",
+            major: "IPA 2",
+            nis: "2024005",
+            nisn: "1234567894",
+            gender: "Laki-laki",
+            birthDate: "18/09/2007",
+            birthPlace: "Medan",
+            address: "Jl. Dahlia No. 30, Medan",
+            phone: "081234567898",
+            parentPhone: "081234567899",
+            religion: "Buddha",
+            motherName: "Lily Chen",
+            fatherName: "Jimmy Chen",
+            guardian: "Paman Alex"
+        },
+        {
+            no: 6,
+            name: "Anisa Fitriani",
+            classSchool: "12",
+            major: "IPS 3",
+            nis: "2024006",
+            nisn: "1234567895",
+            gender: "Perempuan",
+            birthDate: "25/04/2006",
+            birthPlace: "Semarang",
+            address: "Jl. Kenanga No. 35, Semarang",
+            phone: "081234567900",
+            parentPhone: "081234567901",
+            religion: "Islam",
+            motherName: "Fatimah",
+            fatherName: "Abdul Rahman",
+            guardian: null
+        },
+        {
+            no: 7,
+            name: "Budi Prakoso",
+            classSchool: "10",
+            major: "IPA 1",
+            nis: "2024007",
+            nisn: "1234567896",
+            gender: "Laki-laki",
+            birthDate: "30/11/2008",
+            birthPlace: "Malang",
+            address: "Jl. Tulip No. 40, Malang",
+            phone: "081234567902",
+            parentPhone: "081234567903",
+            religion: "Islam",
+            motherName: "Suryani",
+            fatherName: "Hendra Prakoso",
+            guardian: "Kakek Suryo"
+        },
+        {
+            no: 8,
+            name: "Grace Patricia",
+            classSchool: "11",
+            major: "IPS 2",
+            nis: "2024008",
+            nisn: "1234567897",
+            gender: "Perempuan",
+            birthDate: "12/06/2007",
+            birthPlace: "Manado",
+            address: "Jl. Bougenville No. 45, Manado",
+            phone: "081234567904",
+            parentPhone: "081234567905",
+            religion: "Kristen",
+            motherName: "Sarah Patricia",
+            fatherName: "John Patricia",
+            guardian: null
+        },
+        {
+            no: 9,
+            name: "Reza Mahendra",
+            classSchool: "12",
+            major: "IPA 3",
+            nis: "2024009",
+            nisn: "1234567898",
+            gender: "Laki-laki",
+            birthDate: "08/02/2006",
+            birthPlace: "Palembang",
+            address: "Jl. Teratai No. 50, Palembang",
+            phone: "081234567906",
+            parentPhone: "081234567907",
+            religion: "Islam",
+            motherName: "Dewi Sartika",
+            fatherName: "Agus Mahendra",
+            guardian: "Bibi Rina"
+        },
+        {
+            no: 10,
+            name: "Maya Indah",
+            classSchool: "10",
+            major: "IPS 1",
+            nis: "2024010",
+            nisn: "1234567899",
+            gender: "Perempuan",
+            birthDate: "20/07/2008",
+            birthPlace: "Makassar",
+            address: "Jl. Flamboyan No. 55, Makassar",
+            phone: "081234567908",
+            parentPhone: "081234567909",
+            religion: "Islam",
+            motherName: "Ratna Sari",
+            fatherName: "Dedi Kusuma",
+            guardian: null
+        }
     ];
 
     // Search item tabel
     const filteredData = data.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.classSchool.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.violations.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.punishment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.date.includes(searchTerm)
+        item.major.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.nis.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.nisn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.birthDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.birthPlace.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.parentPhone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.religion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.motherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.fatherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.guardian && item.guardian.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
     const totalEntries = filteredData.length;
@@ -100,7 +267,7 @@ export default function StudentAffairsViolationsPage() {
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Point Pelanggaran Siswa</h1>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Siswa</h1>
                     <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
                 </div>
 
@@ -206,11 +373,19 @@ export default function StudentAffairsViolationsPage() {
                                     <th className="py-2 px-4 border-b text-left">No</th>
                                     <th className="py-2 px-4 border-b text-left">Nama</th>
                                     <th className="py-2 px-4 border-b text-left">Kelas</th>
-                                    <th className="py-2 px-4 border-b text-left">Pelanggaran</th>
-                                    <th className="py-2 px-4 border-b text-left">Kategori</th>
-                                    <th className="py-2 px-4 border-b text-left">Hukuman</th>
-                                    <th className="py-2 px-4 border-b text-left">Bukti Foto</th>
-                                    <th className="py-2 px-4 border-b text-left">Tanggal</th>
+                                    <th className="py-2 px-4 border-b text-left">Jurusan</th>
+                                    <th className="py-2 px-4 border-b text-left">Nis</th>
+                                    <th className="py-2 px-4 border-b text-left">Nisn</th>
+                                    <th className="py-2 px-4 border-b text-left">Jenis Kelamin</th>
+                                    <th className="py-2 px-4 border-b text-left">Tanggal Lahir</th>
+                                    <th className="py-2 px-4 border-b text-left">Tempat Lahir</th>
+                                    <th className="py-2 px-4 border-b text-left">Alamat</th>
+                                    <th className="py-2 px-4 border-b text-left">Nomor</th>
+                                    <th className="py-2 px-4 border-b text-left">Nomor Orangtua</th>
+                                    <th className="py-2 px-4 border-b text-left">Agama</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Ibu</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Ayah</th>
+                                    <th className="py-2 px-4 border-b text-left">Wali</th>
                                     <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
                             </thead>
@@ -220,29 +395,19 @@ export default function StudentAffairsViolationsPage() {
                                         <td className="py-2 px-4 border-b">{item.no}</td>
                                         <td className="py-2 px-4 border-b">{item.name}</td>
                                         <td className="py-2 px-4 border-b">{item.classSchool}</td>
-                                        <td className="py-2 px-4 border-b">{item.violations}</td>
-                                        <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${item.category === 'Ringan' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.category === 'Sedang' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.category === 'Berat' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : ''}`}>
-                                                {item.category}
-                                            </span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b">{item.punishment}</td>
-                                        <td className="py-2 px-4 border-b">
-                                            <div className="w-16 h-16 overflow-hidden rounded">
-                                                {item.document ? (
-                                                    <Image
-                                                        src={item.document}
-                                                        alt="Bukti Surat"
-                                                        className="w-full h-full object-cover"
-                                                        width={256}
-                                                        height={256}
-                                                    />
-                                                ) : (
-                                                    '-'
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
+                                        <td className="py-2 px-4 border-b">{item.major}</td>
+                                        <td className="py-2 px-4 border-b">{item.nis}</td>
+                                        <td className="py-2 px-4 border-b">{item.nisn}</td>
+                                        <td className="py-2 px-4 border-b">{item.gender}</td>
+                                        <td className="py-2 px-4 border-b">{item.birthDate}</td>
+                                        <td className="py-2 px-4 border-b">{item.birthPlace}</td>
+                                        <td className="py-2 px-4 border-b">{item.address}</td>
+                                        <td className="py-2 px-4 border-b">{item.phone}</td>
+                                        <td className="py-2 px-4 border-b">{item.parentPhone}</td>
+                                        <td className="py-2 px-4 border-b">{item.religion}</td>
+                                        <td className="py-2 px-4 border-b">{item.motherName}</td>
+                                        <td className="py-2 px-4 border-b">{item.fatherName}</td>
+                                        <td className="py-2 px-4 border-b">{item.guardian || '-'}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 {/* Edit Button */}

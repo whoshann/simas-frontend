@@ -10,13 +10,12 @@ import Cookies from "js-cookie";
 import axios from "axios";
 
 
-export default function StudentAffairsViolationsPage() {
+export default function StudentAffairsTeacherDataPage() {
     useEffect(() => {
         // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
         roleMiddleware(["StudentAffairs", "SuperAdmin"]);
         fetchData();
     }, []);
-
     const [user, setUser] = useState<any>({});
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
@@ -27,37 +26,97 @@ export default function StudentAffairsViolationsPage() {
     const [currentPage, setCurrentPage] = useState(1);
 
     const data = [
-        { no: 1, name: "Ilham Kurniawan", classSchool: "X PH A", violations: "Merokok", category: "Ringan", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "21/01/2024" },
-        { no: 2, name: "Adi Kurniawan", classSchool: "X PH B", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "22/01/2024" },
-        { no: 3, name: "Imam Kurniawan", classSchool: "XI IPA A", violations: "Bongkar Lab 1", category: "Berat", punishment: "Skors 1 Minggu", document: null, date: "23/01/2024" },
-        { no: 4, name: "Fawas Kurniawan", classSchool: "XI IPA B", violations: "Menyembunyikan HP", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "24/01/2024" },
-        { no: 5, name: "Obing Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 6, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Ringan", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 7, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 8, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 9, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 10, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 11, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 12, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 13, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 14, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 15, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 16, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 17, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 18, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 19, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 20, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-
+        {
+            no: 1,
+            photo: "/images/Berita1.jpg",
+            name: "Dr. Ahmad Sulaiman",
+            nip: "196504151990031002",
+            gender: "Laki-laki",
+            birthDate: "15/04/1965",
+            birthPlace: "Jakarta",
+            address: "Jl. Mawar No. 10, Jakarta Selatan",
+            phone: "081234567890",
+            lastEducation: "S3",
+            majorLastEducation: "Manajemen Pendidikan",
+            subject: "Matematika",
+            position: "Kepala Sekolah"
+        },
+        {
+            no: 2,
+            photo: "/images/Berita1.jpg",
+            name: "Siti Aminah, M.Pd",
+            nip: "198707182010042003",
+            gender: "Perempuan",
+            birthDate: "18/07/1987",
+            birthPlace: "Bandung",
+            address: "Jl. Melati No. 15, Bandung",
+            phone: "081234567891",
+            lastEducation: "S2",
+            majorLastEducation: "Pendidikan Bahasa Inggris",
+            subject: "Bahasa Inggris",
+            position: "Wakil Kepala Sekolah"
+        },
+        {
+            no: 3,
+            photo: "/images/Berita1.jpg",
+            name: "Budi Santoso, S.Pd",
+            nip: "199003242012011004",
+            gender: "Laki-laki",
+            birthDate: "24/03/1990",
+            birthPlace: "Surabaya",
+            address: "Jl. Anggrek No. 20, Surabaya",
+            phone: "081234567892",
+            lastEducation: "S1",
+            majorLastEducation: "Pendidikan Fisika",
+            subject: "Fisika",
+            position: "Guru"
+        },
+        {
+            no: 4,
+            photo: "/images/Berita1.jpg",
+            name: "Dewi Lestari, M.Si",
+            nip: "198505122009042001",
+            gender: "Perempuan",
+            birthDate: "12/05/1985",
+            birthPlace: "Yogyakarta",
+            address: "Jl. Dahlia No. 25, Yogyakarta",
+            phone: "081234567893",
+            lastEducation: "S2",
+            majorLastEducation: "Kimia",
+            subject: "Kimia",
+            position: "Guru"
+        },
+        {
+            no: 5,
+            photo: "/images/Berita1.jpg",
+            name: "Rudi Hermawan, S.Kom",
+            nip: "199208302015041005",
+            gender: "Laki-laki",
+            birthDate: "30/08/1992",
+            birthPlace: "Semarang",
+            address: "Jl. Kenanga No. 30, Semarang",
+            phone: "081234567894",
+            lastEducation: "S1",
+            majorLastEducation: "Teknik Informatika",
+            subject: "Informatika",
+            position: "Guru"
+        }
     ];
+
 
     // Search item tabel
     const filteredData = data.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.classSchool.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.violations.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.punishment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.date.includes(searchTerm)
+        item.nip.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.birthDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.birthPlace.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.lastEducation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.majorLastEducation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.position.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const totalEntries = filteredData.length;
@@ -100,7 +159,7 @@ export default function StudentAffairsViolationsPage() {
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Point Pelanggaran Siswa</h1>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Guru</h1>
                     <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
                 </div>
 
@@ -204,13 +263,18 @@ export default function StudentAffairsViolationsPage() {
                             <thead className="text-[var(--text-semi-bold-color)]">
                                 <tr>
                                     <th className="py-2 px-4 border-b text-left">No</th>
+                                    <th className="py-2 px-4 border-b text-left">Foto</th>
                                     <th className="py-2 px-4 border-b text-left">Nama</th>
-                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
-                                    <th className="py-2 px-4 border-b text-left">Pelanggaran</th>
-                                    <th className="py-2 px-4 border-b text-left">Kategori</th>
-                                    <th className="py-2 px-4 border-b text-left">Hukuman</th>
-                                    <th className="py-2 px-4 border-b text-left">Bukti Foto</th>
-                                    <th className="py-2 px-4 border-b text-left">Tanggal</th>
+                                    <th className="py-2 px-4 border-b text-left">Nip</th>
+                                    <th className="py-2 px-4 border-b text-left">Jenis Kelamin</th>
+                                    <th className="py-2 px-4 border-b text-left">Tanggal Lahir</th>
+                                    <th className="py-2 px-4 border-b text-left">Tempat Lahir</th>
+                                    <th className="py-2 px-4 border-b text-left">Alamat</th>
+                                    <th className="py-2 px-4 border-b text-left">Nomor</th>
+                                    <th className="py-2 px-4 border-b text-left">Pendidikan Terakhir</th>
+                                    <th className="py-2 px-4 border-b text-left">Jurusan Pendidikan Terakhir</th>
+                                    <th className="py-2 px-4 border-b text-left">Mapel Yang Diajarkan</th>
+                                    <th className="py-2 px-4 border-b text-left">Posisi Jabatan</th>
                                     <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
                             </thead>
@@ -218,21 +282,12 @@ export default function StudentAffairsViolationsPage() {
                                 {currentEntries.map((item) => (
                                     <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
                                         <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.name}</td>
-                                        <td className="py-2 px-4 border-b">{item.classSchool}</td>
-                                        <td className="py-2 px-4 border-b">{item.violations}</td>
-                                        <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${item.category === 'Ringan' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.category === 'Sedang' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.category === 'Berat' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : ''}`}>
-                                                {item.category}
-                                            </span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b">{item.punishment}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="w-16 h-16 overflow-hidden rounded">
-                                                {item.document ? (
+                                                {item.photo ? (
                                                     <Image
-                                                        src={item.document}
-                                                        alt="Bukti Surat"
+                                                        src={item.photo}
+                                                        alt="Foto Profile"
                                                         className="w-full h-full object-cover"
                                                         width={256}
                                                         height={256}
@@ -242,7 +297,17 @@ export default function StudentAffairsViolationsPage() {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
+                                        <td className="py-2 px-4 border-b">{item.name}</td>
+                                        <td className="py-2 px-4 border-b">{item.nip}</td>
+                                        <td className="py-2 px-4 border-b">{item.gender}</td>
+                                        <td className="py-2 px-4 border-b">{item.birthDate}</td>
+                                        <td className="py-2 px-4 border-b">{item.birthPlace}</td>
+                                        <td className="py-2 px-4 border-b">{item.address}</td>
+                                        <td className="py-2 px-4 border-b">{item.phone}</td>
+                                        <td className="py-2 px-4 border-b">{item.lastEducation}</td>
+                                        <td className="py-2 px-4 border-b">{item.majorLastEducation}</td>
+                                        <td className="py-2 px-4 border-b">{item.subject}</td>
+                                        <td className="py-2 px-4 border-b">{item.position}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 {/* Edit Button */}

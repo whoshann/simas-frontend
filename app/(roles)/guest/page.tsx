@@ -1,6 +1,5 @@
 import "@/app/styles/globals.css";
 import Image from 'next/image';
-import RootLayout from "@/app/layout";
 
 export default function GuestDashboard() {
     return (

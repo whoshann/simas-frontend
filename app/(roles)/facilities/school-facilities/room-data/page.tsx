@@ -19,7 +19,7 @@ type Room = {
 export default function RoomDataPage() {
     useEffect(() => {
         // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["Facilities"]);
+        roleMiddleware(["Facilities","SuperAdmin"]);
 
         fetchData()
     }, []);
