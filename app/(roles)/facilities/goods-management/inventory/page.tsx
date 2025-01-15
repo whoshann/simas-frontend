@@ -75,16 +75,16 @@ export default function InventoryPage() {
         }
     };
 
-    const handleModalSubmit = async (data: any) => {
+    const handleModalSubmit = async (formData: FormData) => {
         try {
             if (selectedInventory) {
-                await updateInventory(selectedInventory.id!, data);
+                await updateInventory(selectedInventory.id!, formData);
             } else {
-                await addInventory(data);
+                await addInventory(formData);
             }
             setIsModalOpen(false);
         } catch (error) {
-            console.error('Error submitting form:', error);
+            console.error('Error:', error);
         }
     };
 

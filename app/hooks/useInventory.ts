@@ -24,23 +24,23 @@ export const useInventory = () => {
     }
   };
 
-  const addInventory = async (data: CreateInventoryDto) => {
+  const addInventory = async (formData: FormData) => {
     try {
-      await inventoryApi.create(data);
+      const response = await inventoryApi.create(formData);
       await fetchInventories();
-    } catch (err) {
-      setError("Gagal menambah inventory");
-      throw err;
+    } catch (error) {
+      console.error("Error adding inventory:", error);
+      throw error;
     }
   };
 
-  const updateInventory = async (id: number, data: UpdateInventoryDto) => {
+  const updateInventory = async (id: number, formData: FormData) => {
     try {
-      await inventoryApi.update(id, data);
+      await inventoryApi.update(id, formData);
       await fetchInventories();
-    } catch (err) {
-      setError("Gagal mengupdate inventory");
-      throw err;
+    } catch (error) {
+      console.error("Error updating inventory:", error);
+      throw error;
     }
   };
 

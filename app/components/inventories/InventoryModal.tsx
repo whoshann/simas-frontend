@@ -4,7 +4,7 @@ import { Inventory, CreateInventoryDto } from '@/app/api/inventories/types';
 interface InventoryModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: CreateInventoryDto) => void;
+    onSubmit: (data: FormData) => void;
     inventoryData?: Inventory | null;
 }
 
@@ -22,6 +22,7 @@ export const InventoryModal: React.FC<InventoryModalProps> = ({
         photo: inventoryData?.photo || '',
         stock: inventoryData?.stock || 0,
     });
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type } = e.target;
@@ -31,22 +32,48 @@ export const InventoryModal: React.FC<InventoryModalProps> = ({
         }));
     };
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const base64 = await convertToBase64(file);
+    const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+        const submitFormData = new FormData();
+        submitFormData.append('code', formData.code);
+        submitFormData.append('name', formData.name);
+        submitFormData.append('stock', '0');
+
+        // Handle file upload
+        if (selectedFile) {
+            submitFormData.append('photo', selectedFile);
+        } else if (inventoryData && inventoryData.photo) {
+            // If editing and no new file selected, send the existing photo
+            const response = await fetch(inventoryData.photo);
+            const blob = await response.blob();
+            submitFormData.append('photo', blob, inventoryData.photo.split('/').pop() || 'photo.jpg');
+        }
+
+        await onSubmit(submitFormData);
+        onClose();
+    } catch (error: any) {
+        console.error('Error:', error);
+        alert(error.response?.data?.message || 'Terjadi kesalahan');
+    }
+};
+
+const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+        setSelectedFile(file);
+        // You can still keep the base64 preview if needed
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
             setFormData(prev => ({
                 ...prev,
-                photo: base64
+                photo: reader.result as string
             }));
-        }
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSubmit(formData);
-        onClose();
-    };
+        };
+    }
+};
 
     const convertToBase64 = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {

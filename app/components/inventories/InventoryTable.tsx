@@ -1,5 +1,5 @@
 import { Inventory } from '@/app/api/inventories/types';
-import { getStatusInIndonesian, statusMapping } from '../../utils/statusConverter';
+import Image from 'next/image';
 
 interface InventoryTableProps {
     inventories: Inventory[];
@@ -32,7 +32,19 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                         <td className="py-2 px-4 border-b">{startIndex + inventories.indexOf(inventory) + 1}</td>
                         <td className="py-2 px-4 border-b">{inventory.code}</td>
                         <td className="py-2 px-4 border-b">{inventory.name}</td>
-                        <td className="py-2 px-4 border-b">{inventory.photo}</td>
+                        <td className="py-2 px-4 border-b">
+                            {inventory.photo ? (
+                                <img
+                                    src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/inventory/${inventory.photo.split('/').pop()}`}
+                                    alt={inventory.name}
+                                    width={150}
+                                    height={50}
+                                    className="rounded-md object-cover"
+                                />
+                            ) : (
+                                <span className="text-gray-400">No image</span>
+                            )}
+                        </td>
                         <td className="py-2 px-4 border-b">{inventory.stock}</td>
                         <td className="py-2 px-4 border-b">
                             <div className="flex space-x-2">

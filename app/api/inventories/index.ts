@@ -20,8 +20,13 @@ export const inventoryApi = {
     return response.data;
   },
 
-  create: async (data: CreateInventoryDto): Promise<InventoryResponse> => {
-    const response = await axios.post(API_URL, data, { headers: getHeaders() });
+  create: async (formData: FormData): Promise<InventoryResponse> => {
+    const response = await axios.post(API_URL, formData, {
+      headers: {
+        ...getHeaders(),
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   },
 
