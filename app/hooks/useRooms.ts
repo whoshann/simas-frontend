@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
-import { Room } from "../(auth)/api/rooms/types";
-import { roomsApi } from "../(auth)/api/rooms";
+import { Room } from "../api/rooms/types";
+import { roomsApi } from "../api/rooms";
 
 export const useRooms = () => {
   const [rooms, setRooms] = useState<Room[]>([]);

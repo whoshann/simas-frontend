@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Room } from '@/app/(auth)/api/rooms/types';
+import { Room } from '@/app/api/rooms/types';
 import { reverseStatusMapping } from '@/app/utils/statusConverter';
 
 interface RoomModalProps {

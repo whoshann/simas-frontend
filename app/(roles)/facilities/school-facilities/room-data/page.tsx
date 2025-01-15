@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Room } from '@/app/(auth)/api/rooms/types';
+import { Room } from '@/app/api/rooms/types';
 import { RoomHeader } from '@/app/components/rooms/RoomHeader';
 import { RoomActions } from '@/app/components/rooms/RoomActions';
 import { RoomTable } from '@/app/components/rooms/RoomTable';

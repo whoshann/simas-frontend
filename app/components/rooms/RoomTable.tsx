@@ -1,4 +1,4 @@
-import { Room } from '@/app/(auth)/api/rooms/types';
+import { Room } from '@/app/api/rooms/types';
 import { getStatusInIndonesian, statusMapping } from '../../utils/statusConverter';
 
 interface RoomTableProps {
