@@ -1,24 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Room } from '@/app/(auth)/api/rooms/types';
+import { reverseStatusMapping } from '@/app/utils/statusConverter';
 
-export default function RoomData({ isOpen, onClose, onSubmit, roomData }) {
+interface RoomModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (data: Room) => void;
+    roomData?: Room | null;
+}
+
+export const RoomModal: React.FC<RoomModalProps> = ({ isOpen, onClose, onSubmit, roomData }) => {
     if (!isOpen) return null;
 
-    const [formData, setFormData] = React.useState(roomData || {
-        no: 0,
+    const [formData, setFormData] = useState<Room>(roomData || {
         name: '',
         type: '',
         capacity: 1,
         status: '',
     });
-        
-    const handleChange = (e) => {
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        const newValue = name === 'capacity' ? parseInt(value, 10) : value;
+
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [name]: newValue
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit(formData);
         onClose();
@@ -28,7 +39,6 @@ export default function RoomData({ isOpen, onClose, onSubmit, roomData }) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white rounded-lg shadow-lg relative w-[28rem] max-h-[80vh] overflow-hidden mx-4">
                 <div className="bg-white p-4 sticky top-0 z-10">
-                    {/* Menggunakan ikon dari Boxicons */}
                     <button onClick={onClose} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
                         <i className="bx bx-x text-2xl"></i>
                     </button>
@@ -52,15 +62,15 @@ export default function RoomData({ isOpen, onClose, onSubmit, roomData }) {
                         <div className="mb-4">
                             <label className="block mb-1 text-[var(--text-semi-bold-color)]">Tipe Ruang</label>
                             <select
-                                name="code"
+                                name="type"
                                 value={formData.type}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required
                             >
                                 <option value="">Pilih Kategori</option>
-                                <option value="Elektronik">Ruang Teori</option>
-                                <option value="Perabotan">Lab</option>
+                                <option value="Ruang Teori">Ruang Teori</option>
+                                <option value="Lab">Lab</option>
                             </select>
                         </div>
                         <div className="mb-4">
@@ -77,17 +87,16 @@ export default function RoomData({ isOpen, onClose, onSubmit, roomData }) {
                         <div className="mb-4">
                             <label className="block mb-1 text-[var(--text-semi-bold-color)]">Status</label>
                             <select
-                                name="code"
+                                name="status"
                                 value={formData.status}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required
                             >
                                 <option value="">Pilih Status</option>
-                                <option value="available">Tersedia</option>
-                                <option value="in_use">Sedang Digunakan</option>
-                                <option value="under_repair">Sedang Diperbaiki</option>
-
+                                <option value="Available">Tersedia</option>
+                                <option value="InUse">Sedang Digunakan</option>
+                                <option value="UnderRepair">Sedang Diperbaiki</option>
                             </select>
                         </div>
                         <div className="flex justify-end">
@@ -103,4 +112,6 @@ export default function RoomData({ isOpen, onClose, onSubmit, roomData }) {
             </div>
         </div>
     );
-}
+};
+
+export default RoomModal;
