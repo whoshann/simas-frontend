@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { loginUser } from "../api/api";
 import Cookies from "js-cookie";
 import Image from "next/legacy/image";
+import { jwtDecode } from "jwt-decode";
 
 
 export default function LoginPage() {
@@ -14,26 +15,27 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
+    interface CustomJwtPayload {
+        role: string;
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         try {
             const result = await loginUser(identifier, password);
-            console.log("Login berhasil:", result);
-    
+            const token = result.data.access_token;
             // Simpan token ke dalam cookies
             Cookies.set("token", result.data.access_token, {
                 expires: 1, // Cookie akan kedaluwarsa dalam 1 hari
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
             });
-            // Cookies.set("role", result.data.role, { expires: 1 }); //menyimpan role
-
-            // Dapatkan role dari hasil login
-            const role = result.data.role;
+            const decodedToken = jwtDecode<CustomJwtPayload>(token);
+            const userRole = decodedToken.role;
 
             // Redirect berdasarkan role
-            switch (role) {
+            switch (userRole) {
                 case "SuperAdmin":
                     window.location.href = "/superadmin";
                     break;
@@ -68,7 +70,7 @@ export default function LoginPage() {
                     window.location.href = "/dashboard/curriculum";
                     break;
                 default:
-                    console.error("Role tidak dikenal:", role);
+                    console.error("Role tidak dikenal:", userRole);
                     setError("Role tidak dikenal. Silakan hubungi administrator.");
                     break;
             }

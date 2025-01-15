@@ -1,7 +1,6 @@
 import Cookies from "js-cookie";
 import { JwtPayload, jwtDecode } from "jwt-decode";
 
-// Perluas tipe JwtPayload untuk mendukung properti 'role'
 interface CustomJwtPayload extends JwtPayload {
   role: string;
 }
