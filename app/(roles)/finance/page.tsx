@@ -4,6 +4,9 @@ import "@/app/styles/globals.css";
 import { useState, useEffect, useRef } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import { Chart, registerables } from "chart.js";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 Chart.register(...registerables);
 
@@ -23,14 +26,31 @@ const data = [
 ];
 
 export default function FinanceDashboardPage() {
-  useEffect(() => {
-    roleMiddleware(["Finance"]);
-  }, []);
+
+  const fetchDataAuth = async () => {
+    try {
+      // Set default Authorization header dengan Bearer token
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      // Fetch data user dari endpoint API
+      const response = await axios.get("http://localhost:3333/users");
+      setUser(response.data); // Simpan data user ke dalam state
+    } catch (err: any) {
+      console.error("Error saat fetching data:", err);
+      setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+    } finally {
+      setLoading(false); // Set loading selesai
+    }
+  };
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedMonth, setSelectedMonth] = useState("Januari");
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const token = Cookies.get("token");
+  const [user, setUser] = useState<any>({});
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
   const months = [
     "Januari",
@@ -52,6 +72,10 @@ export default function FinanceDashboardPage() {
   };
 
   useEffect(() => {
+    roleMiddleware(["Finance", "SuperAdmin"]);
+
+    fetchDataAuth()
+
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx) {
       new Chart(ctx, {
@@ -94,14 +118,21 @@ export default function FinanceDashboardPage() {
         },
       });
     }
-  
+
     return () => {
       if (ctx) {
         Chart.getChart(ctx)?.destroy();
       }
     };
   }, []);
-  
+
+if (loading) {
+    return <LoadingSpinner />;
+}
+
+if (error) {
+    return <p className="text-red-500">{error}</p>;
+}
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
@@ -131,9 +162,8 @@ export default function FinanceDashboardPage() {
               </p>
             </div>
             <svg
-              className={`ml-7 h-4 w-4 transform transition-transform ${
-                isPanelOpen ? "rotate-90" : ""
-              }`}
+              className={`ml-7 h-4 w-4 transform transition-transform ${isPanelOpen ? "rotate-90" : ""
+                }`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

@@ -6,6 +6,10 @@ import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
 import RepairsModal from "@/app/components/RepairsModal.js";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
+
 
 type Repairs = {
     no: number;
@@ -21,10 +25,15 @@ type Repairs = {
 
 export default function RepairsPage() {
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Facilities'
-        roleMiddleware(["Facilities"]);
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
+        roleMiddleware(["Facilities", "SuperAdmin"]);
+        fetchData();
     }, []);
 
+    const token = Cookies.get("token");
+    const [user, setUser] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
@@ -76,8 +85,32 @@ export default function RepairsPage() {
         }
     };
 
+    const fetchData = async () => {
+        try {
+            // Set default Authorization header dengan Bearer token
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            // Fetch data user dari endpoint API
+            const response = await axios.get("http://localhost:3333/users");
+            setUser(response.data); // Simpan data user ke dalam state
+        } catch (err: any) {
+            console.error("Error saat fetching data:", err);
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+        } finally {
+            setLoading(false); // Set loading selesai
+        }
+    };
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
+
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Perbaikan</h1>

@@ -13,16 +13,54 @@ interface DecodedToken {
 
 
 const Sidebar: React.FC = () => {
+
     const [role, setRole] = useState<string | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isDropdownOpenKesiswaan, setIsDropdownOpenKesiswaan] = useState(false);
+    const [isDropdownOpenFinanceStudent, setIsDropdownOpenFinanceStudent] = useState(false);
+    const [isDropdownOpenFinance, setIsDropdownOpenFinance] = useState(false);
     const [isDropdownOpenFasilitas, setIsDropdownOpenFasilitas] = useState(false);
-    const [activeMenu, setActiveMenu] = useState<string>('Beranda');
+    const [isDropdownOpenPengelolaBarang, setIsDropdownOpenPengelolaBarang] = useState(false);
+
+    const [activeMenu, setActiveMenu] = useState<string>(() => {
+        // Mengambil activeMenu dari localStorage saat inisialisasi
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('activeMenu') || 'Beranda';
+        }
+        return 'Beranda';
+    });
 
 
     useEffect(() => {
+
+        const activeMenuName = localStorage.getItem('activeMenu');
+
+        // Cek apakah active menu adalah bagian dari submenu Kesiswaan
+        if (['Absensi', 'Pelanggaran', 'Achievement', 'Klaim Asuransi'].includes(activeMenuName || '')) {
+            setIsDropdownOpenKesiswaan(true);
+        }
+
+        // Cek apakah active menu adalah bagian dari submenu Finance
+        if (['Status Pembayaran', 'Biaya SPP'].includes(activeMenuName || '')) {
+            setIsDropdownOpenFinanceStudent(true);
+        }
+
+        // Cek apakah active menu adalah bagian dari submenu Fasilitas
+        if (['Data Fasilitas', 'Data Barang', 'Data Ruang'].includes(activeMenuName || '')) {
+            setIsDropdownOpenFasilitas(true);
+        }
+
+        // Cek apakah active menu adalah bagian dari submenu Pengelolaan Barang
+        if (['Barang Masuk', 'Barang Keluar', 'Inventaris', 'Pengajuan Barang'].includes(activeMenuName || '')) {
+            setIsDropdownOpenPengelolaBarang(true);
+        }
+        // Cek apakah active menu adalah bagian dari submenu Keuangan
+        if (['Pengeluaran', 'Pemasukan', 'Keuangan Bulanan'].includes(activeMenuName || '')) {
+            setIsDropdownOpenFinance(true);
+        }
+
         const token = Cookies.get("token");
         setIsLoggedIn(!!token);
 
@@ -62,7 +100,7 @@ const Sidebar: React.FC = () => {
 
     const toggleDropdownKesiswaan = () => {
         setIsDropdownOpenKesiswaan(!isDropdownOpenKesiswaan);
-        setIsDropdownOpenFasilitas(false); // Tutup dropdown Fasilitas 
+        setIsDropdownOpenFinanceStudent(false); // Tutup dropdown Fasilitas 
         if (!isDropdownOpenKesiswaan) {
             setActiveMenu('Kesiswaan');
         }
@@ -71,27 +109,57 @@ const Sidebar: React.FC = () => {
     const toggleDropdownFasilitas = () => {
         setIsDropdownOpenFasilitas(!isDropdownOpenFasilitas);
         setIsDropdownOpenKesiswaan(false); // Tutup dropdown Kesiswaan
+        setIsDropdownOpenPengelolaBarang(false);
         if (!isDropdownOpenFasilitas) {
             setActiveMenu('Fasilitas Sekolah');
         }
     };
 
+    const toggleDropdownFinanceStudent = () => {
+        setIsDropdownOpenFinanceStudent(!isDropdownOpenFinanceStudent);
+        setIsDropdownOpenKesiswaan(false); // Tutup dropdown lain
+        setIsDropdownOpenFasilitas(false); // Tutup dropdown lain
+        if (!isDropdownOpenFinanceStudent) {
+            setActiveMenu('Keuangan');
+        }
+    };
+
+    const toggleDropdownFinance = () => {
+        setIsDropdownOpenFinance(!isDropdownOpenFinance);
+        if (!isDropdownOpenFinanceStudent) {
+            setActiveMenu('Keuangan Sekolah');
+        }
+    };
+
+    const toggleDropdownPengelolaBarang = () => {
+        setIsDropdownOpenPengelolaBarang(!isDropdownOpenPengelolaBarang);
+        setIsDropdownOpenFasilitas(false); // Tutup dropdown lain
+        if (!isDropdownOpenFinanceStudent) {
+            setActiveMenu('Pengelola Barang');
+        }
+    };
+
+    // Fungsi untuk mengatur active menu
     const handleMenuClick = (menu: string) => {
         setActiveMenu(menu);
-        setIsDropdownOpenKesiswaan(false); // Tutup dropdown Kesiswaan
-        setIsDropdownOpenFasilitas(false); // Tutup dropdown Fasilitas Sekolah
+        localStorage.setItem('activeMenu', menu);
+        setIsDropdownOpenKesiswaan(false);
+        setIsDropdownOpenFasilitas(false);
+        setIsDropdownOpenFinanceStudent(false);
+        setIsDropdownOpenFinance(false);
+        setIsDropdownOpenPengelolaBarang(false);
     };
 
     const handleSubMenuClick = (submenu: string) => {
         setActiveMenu(submenu);
-        // Do not close dropdown
+        localStorage.setItem('activeMenu', submenu);
+        // Tidak menutup dropdown saat submenu diklik
     };
 
     // Tambahkan kondisi loading
     if (isLoading) {
         return null;
     }
-
 
     return (
         (<div>
@@ -112,7 +180,8 @@ const Sidebar: React.FC = () => {
                                 role === "Student" ? "/student" :
                                     role === "Teacher" ? "/teacher" :
                                         role === "Facilities" ? "/facilities" :
-                                            ""
+                                            role === "SuperAdmin" ? "/finance" : //bersifat sementara
+                                                ""
                         }
                         className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Beranda' ? 'active' : ''}`}
                         onClick={() => handleMenuClick('Beranda')}
@@ -127,13 +196,20 @@ const Sidebar: React.FC = () => {
                         <div>
                             <div>
                                 <button
-                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Kesiswaan' ? 'active' : ''}`}
+                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${isDropdownOpenKesiswaan || ['Absensi', 'Pelanggaran', 'Achievement', 'Klaim Asuransi'].includes(activeMenu)
+                                        ? 'active'
+                                        : ''
+                                        }`}
                                     onClick={toggleDropdownKesiswaan}
                                 >
                                     <i className='bx bxs-book mr-3'></i>
                                     <a href="#" className='mr-14 font-medium'> Kesiswaan</a>
                                     <svg
-                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenKesiswaan ? 'rotate' : ''} ${activeMenu === 'Kesiswaan' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
+                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenKesiswaan ? 'rotate' : ''
+                                            } ${isDropdownOpenKesiswaan || ['Absensi', 'Pelanggaran', 'Achievement', 'Klaim Asuransi'].includes(activeMenu)
+                                                ? 'text-white'
+                                                : 'text-[var(--text-thin-color)]'
+                                            }`}
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -166,6 +242,19 @@ const Sidebar: React.FC = () => {
                                     >
                                         <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Pelanggaran' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
                                         Pelanggaran
+                                    </a>
+
+                                    <a
+                                        href={
+                                            role === "Student" ? "/student/student-affairs/achievement" :
+                                                role === "Teacher" ? "/teacher" :
+                                                    "/login"
+                                        }
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Achievement' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Achievement')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Achievement' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Prestasi
                                     </a>
 
 
@@ -201,18 +290,55 @@ const Sidebar: React.FC = () => {
                                 Tata Usaha
                             </a>
 
-                            <a
-                                href={
-                                    role === "Student" ? "/student/finance/payment-status" :
-                                        role === "Teacher" ? "/teacher" :
-                                            ""
-                                }
-                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Keuangan' ? 'active' : ''}`}
-                                onClick={() => handleMenuClick('Keuangan')}
-                            >
-                                <i className='bx bxs-report mr-2 font-medium'></i> {/* Ikon untuk Keuangan */}
-                                Keuangan
-                            </a>
+                            <div>
+                                <button
+                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${isDropdownOpenFinanceStudent || ['Status Pembayaran', 'Biaya SPP'].includes(activeMenu)
+                                        ? 'active'
+                                        : ''
+                                        }`}
+                                    onClick={toggleDropdownFinanceStudent}
+                                >
+                                    <i className='bx bxs-wallet mr-2'></i>
+                                    <a href="#" className='font-medium mr-10'> Keuangan</a>
+                                    <svg
+                                        className={`h-4 w-4 ml-9 transition-transform duration-200 ${isDropdownOpenFinanceStudent ? 'rotate' : ''} ${isDropdownOpenFinanceStudent || ['Status Pembayaran', 'Biaya SPP'].includes(activeMenu)
+                                            ? 'text-white'
+                                            : 'text-[var(--text-thin-color)]'
+                                            }`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                <div className={`${isDropdownOpenFinanceStudent ? '' : 'hidden'}`}>
+                                    <a
+                                        href={
+                                            role === "Student" ? "/student/finance/payment-status" :
+                                                role === "Teacher" ? "/teacher" :
+                                                    "/login"
+                                        }
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Status Pembayaran' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Status Pembayaran')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Status Pembayaran' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Status Pembayaran
+                                    </a>
+                                    <a
+                                        href={
+                                            role === "Student" ? "/student/finance/tuition-fees" :
+                                                role === "Teacher" ? "/teacher" :
+                                                    "/login"
+                                        }
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Biaya SPP' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Biaya SPP')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Biaya SPP' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Biaya SPP
+                                    </a>
+                                </div>
+                            </div>
 
                             <a
                                 href="#"
@@ -307,15 +433,29 @@ const Sidebar: React.FC = () => {
                     {/* Start Role Facilities Sidebar Menu */}
                     {role === "Facilities" && (
                         <div>
+                            <a
+                                href="/facilities/repairs"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Facilities' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Facilities')}
+                            >
+                                <i className='bx bxs-chalkboard mr-2 font-medium'></i>
+                                Perbaikan
+                            </a>
                             <div>
                                 <button
-                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Fasilitas Sekolah' ? 'active' : ''}`}
+                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${isDropdownOpenFasilitas || ['Data Fasilitas', 'Data Ruang', 'Data Barang'].includes(activeMenu)
+                                        ? 'active'
+                                        : ''
+                                        }`}
                                     onClick={toggleDropdownFasilitas}
                                 >
                                     <i className='bx bxs-book mr-3'></i>
                                     <a href="#" className='font-medium'> Fasilitas Sekolah</a>
                                     <svg
-                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFasilitas ? 'rotate' : ''} ${activeMenu === 'Fasilitas Sekolah' ? 'text-white' : 'text-[var(--text-thin-color)]'}`}
+                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFasilitas ? 'rotate' : ''}  ${isDropdownOpenFasilitas || ['Data Fasilitas', 'Data Ruang', 'Data Barang'].includes(activeMenu)
+                                            ? 'text-white'
+                                            : 'text-[var(--text-thin-color)]'
+                                            }`}
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -325,7 +465,7 @@ const Sidebar: React.FC = () => {
                                 </button>
                                 <div className={` ${isDropdownOpenFasilitas ? '' : 'hidden'}`}>
                                     <a
-                                        href="#"
+                                        href="/facilities/school-facilities/facility-data"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Fasilitas' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Data Fasilitas')}
                                     >
@@ -333,7 +473,7 @@ const Sidebar: React.FC = () => {
                                         Data Fasilitas
                                     </a>
                                     <a
-                                        href="#"
+                                        href="/facilities/school-facilities/room-data"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Ruang' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Data Ruang')}
                                     >
@@ -341,7 +481,7 @@ const Sidebar: React.FC = () => {
                                         Data Ruang
                                     </a>
                                     <a
-                                        href="#"
+                                        href="/facilities/school-facilities/item-data"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Barang' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Data Barang')}
                                     >
@@ -350,24 +490,157 @@ const Sidebar: React.FC = () => {
                                     </a>
                                 </div>
                             </div>
+                            <div>
+                                <button
+                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${isDropdownOpenPengelolaBarang || ['Barang Masuk', 'Barang Keluar', 'Inventaris', 'Pengajuan Barang'].includes(activeMenu)
+                                        ? 'active'
+                                        : ''
+                                        }`}
+                                    onClick={toggleDropdownPengelolaBarang}
+                                >
+                                    <i className='bx bxs-book mr-3'></i>
+                                    <a href="#" className='font-medium'>Kelola Barang</a>
+                                    <svg
+                                        className={`h-4 w-4 ml-9 transition-transform duration-200 ${isDropdownOpenPengelolaBarang ? 'rotate' : ''}${isDropdownOpenPengelolaBarang || ['Barang Masuk', 'Barang Keluar', 'Inventaris', 'Pengajuan Barang'].includes(activeMenu)
+                                            ? 'text-white'
+                                            : 'text-[var(--text-thin-color)]'
+                                            }`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                <div className={` ${isDropdownOpenPengelolaBarang ? '' : 'hidden'}`}>
+                                    <a
+                                        href="/facilities/goods-management/incoming-goods"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Barang Masuk' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Barang Masuk')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Barang Masuk' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Barang Masuk
+                                    </a>
+                                    <a
+                                        href="/facilities/goods-management/outgoing-goods"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Barang Keluar' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Barang Keluar')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Barang Keluar' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Barang Keluar
+                                    </a>
+                                    <a
+                                        href="/facilities/goods-management/inventory"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Inventaris' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Inventaris')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Inventaris' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Inventaris
+                                    </a>
+                                    <a
+                                        href="/facilities/goods-management/item-request"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Pengajuan Barang' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Pengajuan Barang')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Pengajuan Barang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Pengajuan barang
+                                    </a>
+
+                                </div>
+                            </div>
                             <a
                                 href="/facilities/finance/budget-proposal"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Keuangan' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Keuangan')}
                             >
-                                <i className='bx bxs-report mr-2 font-medium'></i> {/* Ikon untuk Keuangan */}
-                                Keuangan
+                                <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk Keuangan */}
+                                Usulan Anggaran
+                            </a>
+                        </div>
+                    )}
+                    {/* End Role Facilities Sidebar Menu */}
+
+
+
+                    {/* Start Role Finance sidebar menu */}
+
+                    {role === "SuperAdmin" && ( //bersifat sementara
+                        <div>
+                            <a
+                                href="/finance/budget-management"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Manajemen Anggaran' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Manajemen Anggaran')}
+                            >
+                                <i className='bx bxs-chalkboard mr-2 font-medium'></i>
+                                Manajemen Anggaran
+                            </a>
+                            <div>
+                                <button
+                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${isDropdownOpenFinance || ['Pengeluaran', 'Pemasukan', 'Keuangan Bulanan'].includes(activeMenu)
+                                        ? 'active'
+                                        : ''
+                                        }`}
+                                    onClick={toggleDropdownFinance}
+                                >
+                                    <i className='bx bxs-book mr-3'></i>
+                                    <a href="#" className='font-medium'> Keuangan Sekolah</a>
+                                    <svg
+                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFinance ? 'rotate' : ''}  ${isDropdownOpenFinance || ['Pengeluaran', 'Pemasukan', 'Keuangan Bulanan'].includes(activeMenu)
+                                            ? 'text-white'
+                                            : 'text-[var(--text-thin-color)]'
+                                            }`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                <div className={` ${isDropdownOpenFinance ? '' : 'hidden'}`}>
+                                    <a
+                                        href="/finance/finance/expenses"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Pengeluaran' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Pengeluaran')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Pengeluaran' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Pengeluaran
+                                    </a>
+                                    <a
+                                        href="/finance/finance/income"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Pemasukan' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Pemasukan')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Pemasukan' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Pemasukan
+                                    </a>
+                                    <a
+                                        href="/finance/finance/monthly-finances"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Keuangan Bulanan' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Keuangan Bulanan')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Keuangan Bulanan' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Keuangan Bulanan
+                                    </a>
+                                </div>
+                            </div>
+                            <a
+                                href="/finance/spp"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'SPP' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('SPP')}
+                            >
+                                <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk SPP */}
+                                SPP
                             </a>
                         </div>
                     )}
 
-                    {/* End Role Facilities  Sidebar Menu */}
+                    {/* End Role Finance sidebar menu */}
 
                 </nav>
                 {/* End Sidebar menu navigation  */}
 
                 {/* Login Button */}
-                <a href={isLoggedIn ? "/profile" : "/login"} className="absolute bottom-5 left-2 right-2 px-3">
+                <a href={isLoggedIn ? "/user-profile" : "/login"} className="absolute bottom-5 left-2 right-2 px-3">
                     <button className="flex items-center justify-center w-full py-3 rounded-xl border border-[var(--text-semi-bold-color)] bg-white text-[var(--text-semi-bold-color)] hover:opacity-90 transition">
                         <i className={`bx ${isLoggedIn ? 'bx-user' : 'bx-power-off'} mr-2 font-medium`}></i>
                         {isLoggedIn ? "Profile Anda" : "Login / Masuk"}

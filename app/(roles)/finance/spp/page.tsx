@@ -17,8 +17,8 @@ type Spp = {
 
 export default function SppPage() {
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Finance'
-        roleMiddleware(["Finance"]);
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
+        roleMiddleware(["Finance","SuperAdmin"]);
     }, []);
 
     const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -71,7 +71,7 @@ export default function SppPage() {
     };
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pembayaran SPP</h1>

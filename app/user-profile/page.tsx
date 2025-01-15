@@ -5,6 +5,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Image from "next/image";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+
 
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 
@@ -62,7 +64,7 @@ const UserProfile = () => {
   }, []);
 
   if (loading) {
-    return <div className="text-center mt-20">Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   if (error) {

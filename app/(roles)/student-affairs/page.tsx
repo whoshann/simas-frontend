@@ -4,10 +4,10 @@ import "@/app/styles/globals.css";
 import { useState, useRef } from 'react';
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { Chart, registerables } from 'chart.js';
 import Script from 'next/script';
 import React from 'react';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
 

@@ -1,38 +1,63 @@
 "use client";
 import "@/app/styles/globals.css";
 import React from "react";
-import Image from "next/legacy/image";
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 export default function FacilitiesBudgetProposalPage() {
 
+  // Panggil middleware dan hooks di awal komponen
   useEffect(() => {
-    roleMiddleware(["Student"]);
+    // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
+    roleMiddleware(["Student", "SuperAdmin"]);
+    fetchData();
   }, []);
 
+  const [user, setUser] = useState<any>({});
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const token = Cookies.get("token");
+
+  const fetchData = async () => {
+    try {
+      // Set default Authorization header dengan Bearer token
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      // Fetch data user dari endpoint API
+      const response = await axios.get("http://localhost:3333/student");
+      setUser(response.data); // Simpan data user ke dalam state
+    } catch (err: any) {
+      console.error("Error saat fetching data:", err);
+      setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+    } finally {
+      setLoading(false); // Set loading selesai
+    }
+  };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <p className="text-red-500">{error}</p>;
+  }
+
+
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+    <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9">
         <h1 className="text-2xl font-bold text-gray-800">Prestasi</h1>
         <p className="text-sm text-gray-600">Halo, selamat datang di halaman Prestasi</p>
       </header>
 
-      {/* Breadcrumb Section
-      <div className="px-9 mb-6">
-        <nav className="flex text-sm font-medium text-gray-600">
-          <a href="/" className="text-gray-400 hover:text-blue-600">Home</a>
-          <span className="mx-2">/</span>
-          <a href="/sarpras-pengajuan" className="text-gray-800 font-semibold hover:text-blue-600">Prestasi</a>
-        </nav>
-      </div> */}
-
-      
-
       <main className="px-9 pb-6">
         <div className="grid grid-cols-1 gap-6">
           {/* Form Section */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-lg shadow p-6">  
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
               <i className="bx bx-box text-2xl text-orange-600 mr-2"></i>
               <span className="ml-2">Form Prestasi</span>
@@ -43,13 +68,13 @@ export default function FacilitiesBudgetProposalPage() {
                   htmlFor="namaPrestasi"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Nama Prestasi
+                  Masukkan Nama Prestasi
                 </label>
                 <input
                   type="text"
                   id="namaPrestasi"
                   name="namaPrestasi"
-                  placeholder="Contoh: Juara 1 Lomba Debat"
+                  placeholder="Juara 1 Lomba Debat"
                   className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
                 />
               </div>
@@ -59,7 +84,7 @@ export default function FacilitiesBudgetProposalPage() {
                   htmlFor="kategoriPrestasi"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Kategori Prestasi
+                  Pilih Kategori Prestasi
                 </label>
                 <select
                   id="kategoriPrestasi"
@@ -77,13 +102,13 @@ export default function FacilitiesBudgetProposalPage() {
                   htmlFor="namaKompetisi"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Nama Kompetisi
+                  Masukkan Nama Kompetisi
                 </label>
                 <input
                   type="text"
                   id="namaKompetisi"
                   name="namaKompetisi"
-                  placeholder="Contoh: Lomba Debat Nasional 2025"
+                  placeholder="Lomba Debat Nasional 2025"
                   className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
                 />
               </div>
@@ -93,7 +118,7 @@ export default function FacilitiesBudgetProposalPage() {
                   htmlFor="tanggalPrestasi"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Tanggal Prestasi
+                  Masukkan Tanggal Prestasi
                 </label>
                 <input
                   type="date"
@@ -108,7 +133,7 @@ export default function FacilitiesBudgetProposalPage() {
                   htmlFor="buktiFoto"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Bukti Foto
+                  Upload Bukti Foto
                 </label>
                 <input
                   type="file"

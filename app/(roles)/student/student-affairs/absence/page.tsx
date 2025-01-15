@@ -5,9 +5,9 @@ import { useState } from 'react';
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
-
 export default function StudentAbsencePage() {
     useEffect(() => {
         // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
@@ -17,16 +17,16 @@ export default function StudentAbsencePage() {
         fetchData();
     }, []);
 
+    const [user, setUser] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
     const [selectedMonth, setSelectedMonth] = useState('Januari');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-    
-    const [user, setUser] = useState<any>({});
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
+
 
     const months = [
         'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -95,15 +95,16 @@ export default function StudentAbsencePage() {
     };
 
     if (loading) {
-        return <p>Memuat data...</p>;
+        return <LoadingSpinner />;
     }
 
     if (error) {
         return <p className="text-red-500">{error}</p>;
     }
 
+
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
 
 
             {/* Start Header */}

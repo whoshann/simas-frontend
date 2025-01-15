@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import "@/app/styles/globals.css";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Script from 'next/script';
 import { Chart, registerables } from 'chart.js';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
 import Image from 'next/image';
@@ -55,7 +55,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+    <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9">
         <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
         <p className="text-sm text-[var(--text-thin-color)]">Halo James, selamat datang kembali</p>
