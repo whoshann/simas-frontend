@@ -1,19 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Room } from '@/app/(auth)/api/rooms/types';
+import { reverseStatusMapping } from '@/app/utils/statusConverter';
 
-export default function RoomModal({ isOpen, onClose, onSubmit, roomData }) {
+interface RoomModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (data: Room) => void;
+    roomData?: Room | null;
+}
+
+export const RoomModal: React.FC<RoomModalProps> = ({ isOpen, onClose, onSubmit, roomData }) => {
     if (!isOpen) return null;
 
-    const [formData, setFormData] = React.useState(roomData || {
+    const [formData, setFormData] = useState<Room>(roomData || {
         name: '',
         type: '',
         capacity: 1,
         status: '',
     });
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-
-        // Jika input adalah untuk kapasitas, konversi ke integer
         const newValue = name === 'capacity' ? parseInt(value, 10) : value;
 
         setFormData({
@@ -22,7 +29,7 @@ export default function RoomModal({ isOpen, onClose, onSubmit, roomData }) {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit(formData);
         onClose();
@@ -105,4 +112,6 @@ export default function RoomModal({ isOpen, onClose, onSubmit, roomData }) {
             </div>
         </div>
     );
-}
+};
+
+export default RoomModal;

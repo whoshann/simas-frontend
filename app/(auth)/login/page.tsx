@@ -2,10 +2,8 @@
 
 import "@/app/styles/globals.css";
 import { useState } from 'react';
-import { loginUser } from "../api/api";
-import Cookies from "js-cookie";
+import { useAuth } from '@/app/hooks/useAuth';
 import Image from "next/legacy/image";
-import { jwtDecode } from "jwt-decode";
 
 
 export default function LoginPage() {
@@ -13,69 +11,16 @@ export default function LoginPage() {
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState("");
-
-    interface CustomJwtPayload {
-        role: string;
-    }
+    const { login, error } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         try {
-            const result = await loginUser(identifier, password);
-            const token = result.data.access_token;
-            // Simpan token ke dalam cookies
-            Cookies.set("token", result.data.access_token, {
-                expires: 1, // Cookie akan kedaluwarsa dalam 1 hari
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-            });
-            const decodedToken = jwtDecode<CustomJwtPayload>(token);
-            const userRole = decodedToken.role;
-
-            // Redirect berdasarkan role
-            switch (userRole) {
-                case "SuperAdmin":
-                    window.location.href = "/superadmin";
-                    break;
-                case "Teacher":
-                    window.location.href = "/teacher";
-                    break;
-                case "Student":
-                    window.location.href = "/student";
-                    break;
-                case "StudentAffairs":
-                    window.location.href = "/student-affairs";
-                    break;
-                case "PublicRelations":
-                    window.location.href = "/dashboard/public-relations";
-                    break;
-                case "WorkshopHead":
-                    window.location.href = "/dashboard/workshop-head";
-                    break;
-                case "Insdustry":
-                    window.location.href = "/dashboard/industry";
-                    break;
-                case "Finance":
-                    window.location.href = "/dashboard/finance";
-                    break;
-                case "Administration":
-                    window.location.href = "/dashboard/administration";
-                    break;
-                case "Facilities":
-                    window.location.href = "/facilities";
-                    break;
-                case "Curriculum":
-                    window.location.href = "/dashboard/curriculum";
-                    break;
-                default:
-                    console.error("Role tidak dikenal:", userRole);
-                    setError("Role tidak dikenal. Silakan hubungi administrator.");
-                    break;
-            }
-        } catch (err: any) {
-            setError(err.message || "Gagal login. Silakan coba lagi.");
+            const redirectUrl = await login(identifier, password);
+            window.location.href = redirectUrl;
+        } catch (err) {
+            // Error sudah ditangani di useAuth
+            console.error(err);
         }
     };
 

@@ -16,11 +16,7 @@ interface CircleProgressBarProps {
 }
 
 export default function FacilitiesDashboardPage() {
-    useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["Facilities"]);
-    }, []);
-
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [selectedMonth, setSelectedMonth] = useState('Januari');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -29,6 +25,18 @@ export default function FacilitiesDashboardPage() {
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
 
+    useEffect(() => {
+        try {
+            roleMiddleware(["Facilities"]);
+            setIsAuthorized(true);
+        } catch (error) {
+            setIsAuthorized(false);
+        }
+    }, []);
+
+    if (!isAuthorized) {
+        return null; // atau loading state
+    }
 
     const months = [
         'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
