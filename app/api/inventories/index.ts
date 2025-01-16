@@ -32,16 +32,26 @@ export const inventoryApi = {
 
   update: async (
     id: number,
-    data: UpdateInventoryDto
+    formData: FormData
   ): Promise<InventoryResponse> => {
-    const response = await axios.patch(`${API_URL}/${id}`, data, {
-      headers: getHeaders(),
+    const response = await axios.patch(`${API_URL}/${id}`, formData, {
+      headers: {
+        ...getHeaders(),
+        "Content-Type": "multipart/form-data",
+      },
     });
     return response.data;
   },
 
   delete: async (id: number): Promise<InventoryResponse> => {
     const response = await axios.delete(`${API_URL}/${id}`, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
+
+  getById: async (id: number): Promise<InventoryResponse> => {
+    const response = await axios.get(`${API_URL}/${id}`, {
       headers: getHeaders(),
     });
     return response.data;

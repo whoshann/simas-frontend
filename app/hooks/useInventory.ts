@@ -54,6 +54,19 @@ export const useInventory = () => {
     }
   };
 
+  const getInventoryById = async (id: number) => {
+    try {
+      setLoading(true);
+      const response = await inventoryApi.getById(id);
+      return response.data;
+    } catch (error) {
+      console.error("Error getting inventory:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchInventories();
   }, []);
@@ -66,5 +79,6 @@ export const useInventory = () => {
     updateInventory,
     deleteInventory,
     refetch: fetchInventories,
+    getInventoryById,
   };
 };
