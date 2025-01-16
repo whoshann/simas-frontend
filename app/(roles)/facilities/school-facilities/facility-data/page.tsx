@@ -1,6 +1,6 @@
 "use client";
 import "@/app/styles/globals.css";
-import { Facility } from '@/app/(auth)/api/facilities/types';
+import { Facility } from '@/app/api/facilities/types';
 import { FacilityHeader } from '@/app/components/facilities/FacilityHeader';
 import { FacilityActions } from '@/app/components/facilities/FacilityActions';
 import { FacilityTable } from '@/app/components/facilities/FacilityTable';

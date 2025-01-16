@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Facility } from '@/app/(auth)/api/facilities/types';
+import { Facility } from '@/app/api/facilities/types';
 import { reverseStatusMapping } from '@/app/utils/statusConverter';
 
 interface FacilityModalProps {
