@@ -1,5 +1,5 @@
 import { Inventory } from "../inventories/types";
-import { Condition } from "./enums";
+import { Condition } from "../../utils/enums";
 
 export interface IncomingGoods {
   id?: number;
