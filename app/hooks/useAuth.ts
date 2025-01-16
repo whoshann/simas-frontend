@@ -1,9 +1,17 @@
 import { useState } from "react";
+<<<<<<< HEAD
+import { authApi } from "@/app/(auth)/api/auth";
+import { JwtPayload } from "@/app/(auth)/api/auth/types";
+import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
+import { ROUTES } from "../(auth)/api/auth/routes";
+=======
 import { authApi } from "@/app/api/auth";
 import { JwtPayload } from "@/app/api/auth/types";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { ROUTES } from "../api/auth/routes";
+>>>>>>> 8c1250a108172c784d86ee593e24d6fb64f55b27
 
 export const useAuth = () => {
   const [error, setError] = useState("");
