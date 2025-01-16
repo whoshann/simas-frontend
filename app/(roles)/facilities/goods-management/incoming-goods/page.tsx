@@ -90,7 +90,7 @@ export default function IncomingGoodDataPage() {
             <IncomingGoodsHeader 
                 searchTerm={searchTerm}
                 onSearchChange={(e) => setSearchTerm(e.target.value)}
-            />
+            /> 
 
             <main className="px-9 pb-6">
                 <div className="bg-white shadow-md rounded-lg p-6 mb-6">
