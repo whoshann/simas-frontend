@@ -9,10 +9,9 @@ import { InventoryActions } from "@/app/components/inventories/InventoryActions"
 import { InventoryTable } from "@/app/components/inventories/InventoryTable";
 import { InventoryPagination } from "@/app/components/inventories/InventoryPagination";
 import { InventoryModal } from "@/app/components/inventories/InventoryModal";
-
+    
 export default function InventoryPage() {
-    const [isAuthorized, setIsAuthorized] = useState(false);
-    const { inventories, loading, error, addInventory, updateInventory, deleteInventory } = useInventory();
+    const { inventories, loading, error, fetchInventories, addInventory, updateInventory, deleteInventory } = useInventory();
     
     // State untuk table
     const [searchTerm, setSearchTerm] = useState("");
@@ -23,15 +22,33 @@ export default function InventoryPage() {
     // State untuk modal
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedInventory, setSelectedInventory] = useState<Inventory | null>(null);
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        try {
-            roleMiddleware(["Facilities"]);
-            setIsAuthorized(true);
-        } catch (error) {
-            setIsAuthorized(false);
-        }
+   useEffect(() => {
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["Facilities"]);
+                setIsAuthorized(true);
+                await fetchInventories();
+            } catch (error) {
+                console.error("Auth error:", error);
+                setIsAuthorized(false);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        initializePage();
     }, []);
+
+    if (isLoading) {
+        return <div>Loading...</div>; // atau komponen loading yang lebih bagus
+    }
+
+    if (!isAuthorized) {
+        return null;
+    }
 
     // Filter dan pagination logic
     const filteredData = inventories.filter(item =>
@@ -87,9 +104,6 @@ export default function InventoryPage() {
             console.error('Error:', error);
         }
     };
-
-    if (!isAuthorized || loading) return null;
-    if (error) return <div>Error: {error}</div>;
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Inventory, CreateInventoryDto } from '@/app/api/inventories/types';
 
 interface InventoryModalProps {
@@ -16,13 +16,26 @@ export const InventoryModal: React.FC<InventoryModalProps> = ({
 }) => {
     if (!isOpen) return null;
 
-    const [formData, setFormData] = useState<CreateInventoryDto>({
-        code: inventoryData?.code || '',
-        name: inventoryData?.name || '',
-        photo: inventoryData?.photo || '',
-        stock: inventoryData?.stock || 0,
+    const [formData, setFormData] = useState({
+        code: '',
+        name: '',
+        stock: 0,
     });
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [currentImage, setCurrentImage] = useState<string>('');
+
+    useEffect(() => {
+        if (inventoryData) {
+            setFormData({
+                code: inventoryData.code,
+                name: inventoryData.name,
+                stock: inventoryData.stock,
+            });
+            if (inventoryData.photo) {
+                setCurrentImage(`${process.env.NEXT_PUBLIC_API_URL}/${inventoryData.photo}`);
+            }
+        }
+    }, [inventoryData]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type } = e.target;
@@ -33,47 +46,36 @@ export const InventoryModal: React.FC<InventoryModalProps> = ({
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
+        e.preventDefault();
+        
         const submitFormData = new FormData();
         submitFormData.append('code', formData.code);
         submitFormData.append('name', formData.name);
-        submitFormData.append('stock', '0');
-
-        // Handle file upload
+        submitFormData.append('stock', formData.stock.toString());
+        
         if (selectedFile) {
             submitFormData.append('photo', selectedFile);
-        } else if (inventoryData && inventoryData.photo) {
-            // If editing and no new file selected, send the existing photo
-            const response = await fetch(inventoryData.photo);
-            const blob = await response.blob();
-            submitFormData.append('photo', blob, inventoryData.photo.split('/').pop() || 'photo.jpg');
         }
 
         await onSubmit(submitFormData);
         onClose();
-    } catch (error: any) {
-        console.error('Error:', error);
-        alert(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-};
+    };
 
-const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-        setSelectedFile(file);
-        // You can still keep the base64 preview if needed
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-            setFormData(prev => ({
-                ...prev,
-                photo: reader.result as string
-            }));
-        };
-    }
-};
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+            // You can still keep the base64 preview if needed
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                setFormData(prev => ({
+                    ...prev,
+                    photo: reader.result as string
+                }));
+            };
+        }
+    };
 
     const convertToBase64 = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {

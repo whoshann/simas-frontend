@@ -18,15 +18,36 @@ export default function RoomDataPage() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Hooks
     const { rooms, loading, error, fetchRooms, createRoom, updateRoom, deleteRoom } = useRooms();
 
     useEffect(() => {
-        roleMiddleware(["Facilities"]);
-        
-        fetchRooms();
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["Facilities"]);
+                setIsAuthorized(true);
+                await fetchRooms();
+            } catch (error) {
+                console.error("Auth error:", error);
+                setIsAuthorized(false);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        initializePage();
     }, []);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!isAuthorized) {
+        return null;
+    }
 
     // Calculations
     const startIndex = (currentPage - 1) * entriesPerPage;
