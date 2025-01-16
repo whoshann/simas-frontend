@@ -9,7 +9,7 @@ export const roleMiddleware = async (allowedRoles: string[]) => {
       throw new Error("Token tidak ditemukan");
     }
 
-    const decoded = verifyToken();
+    const decoded = await verifyToken();
     if (!allowedRoles.includes(decoded.role)) {
       window.location.href = "/unauthorized";
       throw new Error("Role tidak diizinkan");

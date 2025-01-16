@@ -77,6 +77,7 @@ export const useInventory = () => {
     error,
     addInventory,
     updateInventory,
+    fetchInventories,
     deleteInventory,
     refetch: fetchInventories,
     getInventoryById,
