@@ -4,8 +4,10 @@ import "@/app/styles/globals.css";
 import { useState, useRef } from 'react';
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import Script from 'next/script';
 import React from 'react';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 
 interface CircleProgressBarProps {
@@ -16,7 +18,25 @@ interface CircleProgressBarProps {
 }
 
 export default function FacilitiesDashboardPage() {
+
+    useEffect(() => {
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["Facilities"]);
+                setIsAuthorized(true);
+            } catch (error) {
+                console.error("Error initializing page:", error);
+                setIsAuthorized(false);
+            }
+        };
+        initializePage()
+    }, []);
+
     const [isAuthorized, setIsAuthorized] = useState(false);
+    const token = Cookies.get("token");
+    const [setUser] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [selectedMonth, setSelectedMonth] = useState('Januari');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -24,19 +44,6 @@ export default function FacilitiesDashboardPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-
-    useEffect(() => {
-        try {
-            roleMiddleware(["Facilities"]);
-            setIsAuthorized(true);
-        } catch (error) {
-            setIsAuthorized(false);
-        }
-    }, []);
-
-    if (!isAuthorized) {
-        return null; // atau loading state
-    }
 
     const months = [
         'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -69,9 +76,27 @@ export default function FacilitiesDashboardPage() {
         setIsPanelOpen(!isPanelOpen);
     };
 
-    return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+    // if (loading) {
+    //     return (
+    //         <LoadingSpinner />
+    //     );
+    // }
 
+    if (error) {
+        return (
+            <div className="flex-1 flex items-center justify-center text-red-500">
+                Error: {error}
+            </div>
+        );
+    }
+
+    if (!isAuthorized) {
+        return null;
+    }
+
+
+    return (
+        <main className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
 
             {/* Start Header */}
             <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row justify-between items-center">
@@ -115,10 +140,7 @@ export default function FacilitiesDashboardPage() {
             </header>
             {/* End Header */}
 
-
-
-            <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 mt-6">
-
+            <div className="flex-1 overflow-x-hidden overflow-y-auto px-9 mt-6">
 
 
                 {/* Start 4 Cards */}
@@ -177,7 +199,7 @@ export default function FacilitiesDashboardPage() {
                                     <span className="text-[var(--text-regular-color)]">19/12/2024</span>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center mb-2">
                                 <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
                                 <div>
@@ -185,7 +207,7 @@ export default function FacilitiesDashboardPage() {
                                     <span className="text-[var(--text-regular-color)]">18/12/2024</span>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center mb-2">
                                 <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
                                 <div>
@@ -193,7 +215,7 @@ export default function FacilitiesDashboardPage() {
                                     <span className="text-[var(--text-regular-color)]">18/12/2024</span>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center mb-2">
                                 <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
                                 <div>
@@ -201,7 +223,7 @@ export default function FacilitiesDashboardPage() {
                                     <span className="text-[var(--text-regular-color)]">15/12/2024</span>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center mb-2">
                                 <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
                                 <div>
@@ -228,7 +250,7 @@ export default function FacilitiesDashboardPage() {
                                     <span className="text-[var(--text-regular-color)]">20/12/2024</span>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center mb-2">
                                 <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
                                 <div>
@@ -236,7 +258,7 @@ export default function FacilitiesDashboardPage() {
                                     <span className="text-[var(--text-regular-color)]">19/12/2024</span>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center mb-2">
                                 <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
                                 <div>
@@ -244,7 +266,7 @@ export default function FacilitiesDashboardPage() {
                                     <span className="text-[var(--text-regular-color)]">18/12/2024</span>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center mb-2">
                                 <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
                                 <div>
@@ -252,7 +274,7 @@ export default function FacilitiesDashboardPage() {
                                     <span className="text-[var(--text-regular-color)]">17/12/2024</span>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center mb-2">
                                 <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
                                 <div>
@@ -364,7 +386,7 @@ export default function FacilitiesDashboardPage() {
 
 
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
     );
 }

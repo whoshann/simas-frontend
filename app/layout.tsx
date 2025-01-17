@@ -20,7 +20,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={plusJakartaSans.className}>
       <head>
-        <link rel='stylesheet' href='https://unpkg.com/boxicons@latest/css/boxicons.min.css'></link>
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'></link>
+        <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
       </head>
       <body>
         {children}

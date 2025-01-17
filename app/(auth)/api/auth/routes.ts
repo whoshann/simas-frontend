@@ -7,6 +7,8 @@ export const ROUTES = {
     TEACHER: "/teacher",
     STUDENT: "/student",
     FACILITIES: "/facilities",
+    FINANCE: "/finance",
+    STUDENTAFFAIRS: "/student-affairs",
     // ... tambahkan route lainnya
   },
 } as const;

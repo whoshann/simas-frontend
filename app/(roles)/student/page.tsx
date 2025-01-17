@@ -5,9 +5,10 @@ import "@/app/styles/globals.css";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Script from 'next/script';
 import { Chart, registerables } from 'chart.js';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
-import Image from 'next/image';
 import axios from "axios";
+import Image from 'next/image';
 
 // Daftarkan semua komponen yang diperlukan
 Chart.register(...registerables);
@@ -17,8 +18,6 @@ export default function StudentDashboard() {
   useEffect(() => {
     // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
     roleMiddleware(["Student", "SuperAdmin"]);
-
-    // Panggil fungsi fetch data
     fetchData();
   }, []);
 
@@ -48,7 +47,7 @@ export default function StudentDashboard() {
   };
 
   if (loading) {
-    return <p>Memuat data...</p>;
+    return <LoadingSpinner/>;
   }
 
   if (error) {
@@ -56,7 +55,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+    <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9">
         <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
         <p className="text-sm text-[var(--text-thin-color)]">Halo James, selamat datang kembali</p>

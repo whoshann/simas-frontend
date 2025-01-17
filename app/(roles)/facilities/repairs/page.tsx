@@ -11,6 +11,8 @@ import { RepairsTable } from '@/app/components/repairs/RepairsTable';
 import { RepairsActions } from '@/app/components/repairs/RepairsActions';
 import { useRepairs } from '@/app/hooks/useRepairs';
 import { useRooms } from '@/app/hooks/useRooms';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+
 
 export default function RepairsPage() {
     // State
@@ -32,7 +34,7 @@ export default function RepairsPage() {
             try {
                 await roleMiddleware(["Facilities"]);
                 setIsAuthorized(true);
-                
+
                 // Fetch all data
                 const results = await Promise.all([
                     fetchRepairs(),
@@ -53,7 +55,7 @@ export default function RepairsPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const filteredRepairs = repairs.filter((repair: Repairs) => {
         if (!searchTerm) return true;
-        
+
         const searchValue = searchTerm.toLowerCase();
         if (repair.category === 'Items') {
             return repair.inventory?.name?.toLowerCase().includes(searchValue);
@@ -63,7 +65,7 @@ export default function RepairsPage() {
     });
 
     console.log('Filtered Repairs:', filteredRepairs);
-    
+
     const totalEntries = filteredRepairs.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const displayedRepairs = filteredRepairs.slice(startIndex, startIndex + entriesPerPage);
@@ -72,9 +74,7 @@ export default function RepairsPage() {
 
     if (loading) {
         return (
-            <div className="flex-1 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--main-color)]"></div>
-            </div>
+            <LoadingSpinner />
         );
     }
 
@@ -117,10 +117,10 @@ export default function RepairsPage() {
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-            <RepairsHeader 
+            <RepairsHeader
                 searchTerm={searchTerm}
                 onSearchChange={(e) => setSearchTerm(e.target.value)}
-            /> 
+            />
 
             <main className="px-9 pb-6">
                 <div className="bg-white shadow-md rounded-lg p-6 mb-6">

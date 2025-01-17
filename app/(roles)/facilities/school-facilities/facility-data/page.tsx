@@ -9,9 +9,12 @@ import FacilityModal from '@/app/components/facility/FacilityModal';
 import { useFacilities } from '@/app/hooks/useFacilities';
 import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
 import { useState, useEffect } from 'react';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+
 
 export default function FacilityDataPage() {
     //State
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
@@ -62,6 +65,23 @@ export default function FacilityDataPage() {
         }
     };
 
+    if (loading) {
+        return (
+            <LoadingSpinner />
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex-1 flex items-center justify-center text-red-500">
+                Error: {error}
+            </div>
+        );
+    }
+
+    if (!isAuthorized) {
+        return null;
+    }
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
             <FacilityHeader 

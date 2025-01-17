@@ -33,6 +33,8 @@ export const useAuth = () => {
       Teacher: ROUTES.DASHBOARD.TEACHER,
       Student: ROUTES.DASHBOARD.STUDENT,
       Facilities: ROUTES.DASHBOARD.FACILITIES,
+      Finance: ROUTES.DASHBOARD.FINANCE,
+      StudentAffairs: ROUTES.DASHBOARD.STUDENTAFFAIRS
       // ... tambahkan role lainnya
     };
 

@@ -5,14 +5,23 @@ import { useEffect, useState } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from "next/image";
 import Calendar from "react-calendar";
-import axios from "axios";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
+import axios from "axios";
 
 export default function TeacherDashboardPage() {
   const [date, setDate] = useState(new Date());
   const [user, setUser] = useState({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Panggil middleware untuk memeriksa role, hanya izinkan 'Teacher' dan 'SuperAdmin'
+    roleMiddleware(["Teacher", "SuperAdmin"]);
+
+    // Panggil fungsi fetch data
+    fetchData();
+  }, []);
 
   const token = Cookies.get("token");
   // console.log("Token:", token);
@@ -33,21 +42,14 @@ export default function TeacherDashboardPage() {
     }
   };
 
-  useEffect(() => {
-    // Panggil middleware untuk memeriksa role, hanya izinkan 'Student'
-    roleMiddleware(["Teacher", "SuperAdmin"]);
-
-    // Panggil fungsi fetch data
-    fetchData();
-  }, []);
-
   if (loading) {
-    return <p>Memuat data...</p>;
+    return <LoadingSpinner />;
   }
 
   if (error) {
     return <p className="text-red-500">{error}</p>;
   }
+
   // Tambahkan data agenda
   const agenda = [
     {

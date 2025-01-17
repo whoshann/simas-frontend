@@ -7,6 +7,9 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import { Chart, registerables } from 'chart.js';
 import Script from 'next/script';
 import React from 'react';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 Chart.register(...registerables);
 
@@ -68,11 +71,17 @@ const CircleProgressBar: React.FC<CircleProgressBarProps> = ({ percentage, label
 
 
 export default function StudentAffairsDashboardPage() {
+    // Panggil middleware dan hooks di awal komponen
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["StudentAffairs"]);
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
+        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
+        fetchData();
     }, []);
 
+    const token = Cookies.get("token");
+    const [user, setUser] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [selectedMonth, setSelectedMonth] = useState('Januari');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -130,8 +139,32 @@ export default function StudentAffairsDashboardPage() {
         setIsPanelOpen(!isPanelOpen);
     };
 
+    const fetchData = async () => {
+        try {
+            // Set default Authorization header dengan Bearer token
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            // Fetch data user dari endpoint API
+            const response = await axios.get("http://localhost:3333/student");
+            setUser(response.data); // Simpan data user ke dalam state
+        } catch (err: any) {
+            console.error("Error saat fetching data:", err);
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+        } finally {
+            setLoading(false); // Set loading selesai
+        }
+    };
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
+
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
 
 
             {/* Start Header */}

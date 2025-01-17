@@ -5,84 +5,118 @@ import "@/app/styles/globals.css";
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
-import RabModal from "@/app/components/RabModal.js";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
 
-type Rab = {
-    no: number;
-    title: string;
-    description: string;
-    amount: number;
-    status: "Disetujui" | "Revisi" | "Ditolak";
-    date: string;
-    document: string;
-};
 
-export default function BudgetManagementPage() {
+export default function StudentAffairsTeacherDataPage() {
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["Finance","SuperAdmin"]);
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
+        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
+        fetchData();
     }, []);
-
+    const [user, setUser] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
+    const token = Cookies.get("token");
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedRab, setSelectedRab] = useState<Rab | null>(null);
 
     const data = [
-    { 
-        no: 1, 
-        title: "Renovation of Computer Lab", 
-        description: "Repair of lab facilities", 
-        amount: 20000000, 
-        status: "Ditolak", 
-        date: "15/12/2024", 
-        document: "Proposal_Renovation_Lab.pdf" 
-    },
-    { 
-        no: 2, 
-        title: "Sports Equipment", 
-        description: "Procurement of balls and nets", 
-        amount: 5000000, 
-        status: "Disetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Sports.pdf" 
-    },
-    { 
-        no: 3, 
-        title: "Student Workshop", 
-        description: "Robotics training for students", 
-        amount: 15000000, 
-        status: "Disetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Workshop.pdf" 
-    },
-    { 
-        no: 4, 
-        title: "Book Procurement", 
-        description: "Library reference books", 
-        amount: 3000000, 
-        status: "Disetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Books.pdf" 
-    },
-    { 
-        no: 5, 
-        title: "Building Maintenance", 
-        description: "Repair of classroom ceiling", 
-        amount: 10000000, 
-        status: "DIsetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Maintenance.pdf" 
-    }
-];
+        {
+            no: 1,
+            photo: "/images/Berita1.jpg",
+            name: "Dr. Ahmad Sulaiman",
+            nip: "196504151990031002",
+            gender: "Laki-laki",
+            birthDate: "15/04/1965",
+            birthPlace: "Jakarta",
+            address: "Jl. Mawar No. 10, Jakarta Selatan",
+            phone: "081234567890",
+            lastEducation: "S3",
+            majorLastEducation: "Manajemen Pendidikan",
+            subject: "Matematika",
+            position: "Kepala Sekolah"
+        },
+        {
+            no: 2,
+            photo: "/images/Berita1.jpg",
+            name: "Siti Aminah, M.Pd",
+            nip: "198707182010042003",
+            gender: "Perempuan",
+            birthDate: "18/07/1987",
+            birthPlace: "Bandung",
+            address: "Jl. Melati No. 15, Bandung",
+            phone: "081234567891",
+            lastEducation: "S2",
+            majorLastEducation: "Pendidikan Bahasa Inggris",
+            subject: "Bahasa Inggris",
+            position: "Wakil Kepala Sekolah"
+        },
+        {
+            no: 3,
+            photo: "/images/Berita1.jpg",
+            name: "Budi Santoso, S.Pd",
+            nip: "199003242012011004",
+            gender: "Laki-laki",
+            birthDate: "24/03/1990",
+            birthPlace: "Surabaya",
+            address: "Jl. Anggrek No. 20, Surabaya",
+            phone: "081234567892",
+            lastEducation: "S1",
+            majorLastEducation: "Pendidikan Fisika",
+            subject: "Fisika",
+            position: "Guru"
+        },
+        {
+            no: 4,
+            photo: "/images/Berita1.jpg",
+            name: "Dewi Lestari, M.Si",
+            nip: "198505122009042001",
+            gender: "Perempuan",
+            birthDate: "12/05/1985",
+            birthPlace: "Yogyakarta",
+            address: "Jl. Dahlia No. 25, Yogyakarta",
+            phone: "081234567893",
+            lastEducation: "S2",
+            majorLastEducation: "Kimia",
+            subject: "Kimia",
+            position: "Guru"
+        },
+        {
+            no: 5,
+            photo: "/images/Berita1.jpg",
+            name: "Rudi Hermawan, S.Kom",
+            nip: "199208302015041005",
+            gender: "Laki-laki",
+            birthDate: "30/08/1992",
+            birthPlace: "Semarang",
+            address: "Jl. Kenanga No. 30, Semarang",
+            phone: "081234567894",
+            lastEducation: "S1",
+            majorLastEducation: "Teknik Informatika",
+            subject: "Informatika",
+            position: "Guru"
+        }
+    ];
 
 
     // Search item tabel
     const filteredData = data.filter(item =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchTerm.toLowerCase()) 
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.nip.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.birthDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.birthPlace.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.lastEducation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.majorLastEducation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.position.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const totalEntries = filteredData.length;
@@ -95,40 +129,38 @@ export default function BudgetManagementPage() {
         setIsPanelOpen(!isPanelOpen);
     };
 
-    const handleAddClick = () => {
-        setSelectedRab(null);
-        setIsModalOpen(true);
-    };
 
-    const handleEditClick = (rab: Rab) => {
-        setSelectedRab(rab);
-        setIsModalOpen(true);
-    };
+    const fetchData = async () => {
+        try {
+            // Set default Authorization header dengan Bearer token
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    const handleModalSubmit = (data: Rab) => {
-        if (selectedRab) {
-            // Update data
-            console.log("Edit Data", data);
-        } else {
-            // Tambah data baru
-            console.log("Tambah Data", data);
+            // Fetch data user dari endpoint API
+            const response = await axios.get("http://localhost:3333/student");
+            setUser(response.data); // Simpan data user ke dalam state
+        } catch (err: any) {
+            console.error("Error saat fetching data:", err);
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+        } finally {
+            setLoading(false); // Set loading selesai
         }
     };
 
-    const handleAccClick = (rab: Rab) => {
-        const updatedData = data.map(item =>
-            item.no === rab.no ? { ...item, status: "Disetujui" } : item
-        );
-        console.log("Acc Data", rab); // Log data yang di-acc
-    };
-    
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
+
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Pengajuan RAB</h1>
-                    <p className="text-sm text-gray-600">Halo role Keuangan, selamat datang kembali</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Guru</h1>
+                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
                 </div>
 
 
@@ -170,7 +202,7 @@ export default function BudgetManagementPage() {
                         <div className="flex space-x-2 mt-5 sm:mt-0">
                             {/* Button Tambah Data */}
                             <button
-                                onClick={handleAddClick}
+                                onClick={() => console.log("Tambah Data")}
                                 className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
                             >
                                 Tambah Data
@@ -231,57 +263,70 @@ export default function BudgetManagementPage() {
                             <thead className="text-[var(--text-semi-bold-color)]">
                                 <tr>
                                     <th className="py-2 px-4 border-b text-left">No</th>
-                                    <th className="py-2 px-4 border-b text-left">Judul</th>
-                                    <th className="py-2 px-4 border-b text-left">Keterangan</th>
-                                    <th className="py-2 px-4 border-b text-left">Total</th>
-                                    <th className="py-2 px-4 border-b text-left">Dokumen</th>
-                                    <th className="py-2 px-4 border-b text-left">Status</th>
-                                    <th className="py-2 px-4 border-b text-left">Date</th>
-                                    <th className="py-2 px-4 border-b text-left">Aksi</th>
+                                    <th className="py-2 px-4 border-b text-left">Foto</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama</th>
+                                    <th className="py-2 px-4 border-b text-left">Nip</th>
+                                    <th className="py-2 px-4 border-b text-left">Jenis Kelamin</th>
+                                    <th className="py-2 px-4 border-b text-left">Tanggal Lahir</th>
+                                    <th className="py-2 px-4 border-b text-left">Tempat Lahir</th>
+                                    <th className="py-2 px-4 border-b text-left">Alamat</th>
+                                    <th className="py-2 px-4 border-b text-left">Nomor</th>
+                                    <th className="py-2 px-4 border-b text-left">Pendidikan Terakhir</th>
+                                    <th className="py-2 px-4 border-b text-left">Jurusan Pendidikan Terakhir</th>
+                                    <th className="py-2 px-4 border-b text-left">Mapel Yang Diajarkan</th>
+                                    <th className="py-2 px-4 border-b text-left">Posisi Jabatan</th>
+                                    <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {currentEntries.map((item) => (
                                     <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
                                         <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.title}</td>
-                                        <td className="py-2 px-4 border-b">{item.description}</td>
-                                        <td className="py-2 px-4 border-b">Rp. {item.amount.toLocaleString()}</td>
-                                        <td className="py-2 px-4 border-b">{item.document}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <span className={`px-2 py-1 rounded-full text-xs ${item.status === "Ditolak" ? 'bg-red-100 text-red-600' : item.status === "Revisi" ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'}`}>
-                                                {item.status}
-                                            </span>
+                                            <div className="w-16 h-16 overflow-hidden rounded">
+                                                {item.photo ? (
+                                                    <Image
+                                                        src={item.photo}
+                                                        alt="Foto Profile"
+                                                        className="w-full h-full object-cover"
+                                                        width={256}
+                                                        height={256}
+                                                    />
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </div>
                                         </td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
+                                        <td className="py-2 px-4 border-b">{item.name}</td>
+                                        <td className="py-2 px-4 border-b">{item.nip}</td>
+                                        <td className="py-2 px-4 border-b">{item.gender}</td>
+                                        <td className="py-2 px-4 border-b">{item.birthDate}</td>
+                                        <td className="py-2 px-4 border-b">{item.birthPlace}</td>
+                                        <td className="py-2 px-4 border-b">{item.address}</td>
+                                        <td className="py-2 px-4 border-b">{item.phone}</td>
+                                        <td className="py-2 px-4 border-b">{item.lastEducation}</td>
+                                        <td className="py-2 px-4 border-b">{item.majorLastEducation}</td>
+                                        <td className="py-2 px-4 border-b">{item.subject}</td>
+                                        <td className="py-2 px-4 border-b">{item.position}</td>
                                         <td className="py-2 px-4 border-b">
-                                        <div className="flex space-x-2">
-                                            {/* Edit Button */}
-                                            <button
-                                                onClick={() => handleEditClick(item)}
-                                                className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-                                            >
-                                                <i className="bx bxs-edit text-lg"></i>
-                                            </button>
+                                            <div className="flex space-x-2">
+                                                {/* Edit Button */}
+                                                <button
+                                                    className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
 
-                                            {/* Delete Button */}
-                                            <button
-                                                className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-                                            >
-                                                <i className="bx bx-x text-lg"></i> {/* Ganti ikon menjadi silang */}
-                                            </button>
+                                                >
+                                                    <i className="bx bxs-edit text-lg"></i>
+                                                </button>
 
+                                                {/* Delete Button */}
+                                                <button
+                                                    className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
 
-                                            {/* Acc Button */}
-                                            <button
-                                                onClick={() => handleAccClick(item)}
-                                                className="w-8 h-8 rounded-full bg-[#28a7452b] flex items-center justify-center text-green-700"
-                                            >
-                                                <i className="bx bx-check text-lg"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-
+                                                >
+                                                    <i className="bx bxs-trash-alt text-lg"></i>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -324,12 +369,6 @@ export default function BudgetManagementPage() {
                     </div>
                 </div>
             </main>
-            <RabModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-                rabData={selectedRab}
-            />
         </div>
     );
 }

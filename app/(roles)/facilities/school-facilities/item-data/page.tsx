@@ -5,84 +5,69 @@ import "@/app/styles/globals.css";
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
-import RabModal from "@/app/components/RabModal.js";
+import ItemData from "@/app/components/ItemData.js";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
 
-type Rab = {
-    no: number;
-    title: string;
-    description: string;
-    amount: number;
-    status: "Disetujui" | "Revisi" | "Ditolak";
-    date: string;
-    document: string;
+type Item = {
+    no: number; // Nomor urut
+    name: string; // Nama barang
+    code: string; // Kode barang (contoh: "Elektronik" atau "Perabotan")
+    quantity: number; // Jumlah barang
+    date: string; // Tanggal (format: "DD/MM/YYYY")
 };
 
-export default function BudgetManagementPage() {
+export default function ItemDataPage() {
     useEffect(() => {
         // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["Finance","SuperAdmin"]);
+        roleMiddleware(["Facilities","SuperAdmin"]);
+
+        fetchDataAuth()
     }, []);
 
+
+    const token = Cookies.get("token");
+    const [user, setUser] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedRab, setSelectedRab] = useState<Rab | null>(null);
+    const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+
 
     const data = [
-    { 
-        no: 1, 
-        title: "Renovation of Computer Lab", 
-        description: "Repair of lab facilities", 
-        amount: 20000000, 
-        status: "Ditolak", 
-        date: "15/12/2024", 
-        document: "Proposal_Renovation_Lab.pdf" 
-    },
-    { 
-        no: 2, 
-        title: "Sports Equipment", 
-        description: "Procurement of balls and nets", 
-        amount: 5000000, 
-        status: "Disetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Sports.pdf" 
-    },
-    { 
-        no: 3, 
-        title: "Student Workshop", 
-        description: "Robotics training for students", 
-        amount: 15000000, 
-        status: "Disetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Workshop.pdf" 
-    },
-    { 
-        no: 4, 
-        title: "Book Procurement", 
-        description: "Library reference books", 
-        amount: 3000000, 
-        status: "Disetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Books.pdf" 
-    },
-    { 
-        no: 5, 
-        title: "Building Maintenance", 
-        description: "Repair of classroom ceiling", 
-        amount: 10000000, 
-        status: "DIsetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Maintenance.pdf" 
-    }
-];
-
+        { no: 1, name: "Proyektor", code: "Elektronik", quantity: 40, date: "15/12/2024" },
+        { no: 2, name: "Meja Siswa", code: "Perabotan", quantity: 400, date: "15/12/2024" },
+        { no: 3, name: "Kursi Siswa", code: "Perabotan", quantity: 500, date: "15/12/2024" },
+        { no: 4, name: "Papan Tulis", code: "Perabotan", quantity: 200, date: "15/12/2024" },
+        { no: 5, name: "Komputer", code: "Elektronik", quantity: 400, date: "15/12/2024" },
+        { no: 6, name: "Printer", code: "Elektronik", quantity: 50, date: "15/12/2024" },
+        { no: 7, name: "Scanner", code: "Elektronik", quantity: 30, date: "15/12/2024" },
+        { no: 8, name: "Whiteboard", code: "Perabotan", quantity: 100, date: "15/12/2024" },
+        { no: 9, name: "Laptop", code: "Elektronik", quantity: 60, date: "15/12/2024" },
+        { no: 10, name: "Tablet", code: "Elektronik", quantity: 70, date: "15/12/2024" },
+        { no: 11, name: "Kursi Guru", code: "Perabotan", quantity: 50, date: "15/12/2024" },
+        { no: 12, name: "Meja Guru", code: "Perabotan", quantity: 50, date: "15/12/2024" },
+        { no: 13, name: "AC", code: "Elektronik", quantity: 20, date: "15/12/2024" },
+        { no: 14, name: "Kipas Angin", code: "Elektronik", quantity: 100, date: "15/12/2024" },
+        { no: 15, name: "Rak Buku", code: "Perabotan", quantity: 80, date: "15/12/2024" },
+        { no: 16, name: "Lemari", code: "Perabotan", quantity: 40, date: "15/12/2024" },
+        { no: 17, name: "Papan Pengumuman", code: "Perabotan", quantity: 30, date: "15/12/2024" },
+        { no: 18, name: "Proyektor Mini", code: "Elektronik", quantity: 25, date: "15/12/2024" },
+        { no: 19, name: "Speaker", code: "Elektronik", quantity: 50, date: "15/12/2024" },
+        { no: 20, name: "Mikrofon", code: "Elektronik", quantity: 40, date: "15/12/2024" },
+    ];
 
     // Search item tabel
     const filteredData = data.filter(item =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchTerm.toLowerCase()) 
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.quantity.toString().includes(searchTerm) ||
+        item.date.includes(searchTerm)
     );
 
     const totalEntries = filteredData.length;
@@ -96,17 +81,17 @@ export default function BudgetManagementPage() {
     };
 
     const handleAddClick = () => {
-        setSelectedRab(null);
+        setSelectedItem(null);
         setIsModalOpen(true);
     };
 
-    const handleEditClick = (rab: Rab) => {
-        setSelectedRab(rab);
+    const handleEditClick = (item: Item) => {
+        setSelectedItem(item);
         setIsModalOpen(true);
     };
 
-    const handleModalSubmit = (data: Rab) => {
-        if (selectedRab) {
+    const handleModalSubmit = (data: Item) => {
+        if (selectedItem) {
             // Update data
             console.log("Edit Data", data);
         } else {
@@ -115,20 +100,38 @@ export default function BudgetManagementPage() {
         }
     };
 
-    const handleAccClick = (rab: Rab) => {
-        const updatedData = data.map(item =>
-            item.no === rab.no ? { ...item, status: "Disetujui" } : item
-        );
-        console.log("Acc Data", rab); // Log data yang di-acc
+
+    const fetchDataAuth = async () => {
+        try {
+            // Set default Authorization header dengan Bearer token
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            // Fetch data user dari endpoint API
+            const response = await axios.get("http://localhost:3333/users");
+            setUser(response.data); // Simpan data user ke dalam state
+        } catch (err: any) {
+            console.error("Error saat fetching data:", err);
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+        } finally {
+            setLoading(false); // Set loading selesai
+        }
     };
-    
+
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Pengajuan RAB</h1>
-                    <p className="text-sm text-gray-600">Halo role Keuangan, selamat datang kembali</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Barang</h1>
+                    <p className="text-sm text-gray-600">Halo Admin Sarpras, selamat datang kembali</p>
                 </div>
 
 
@@ -231,12 +234,10 @@ export default function BudgetManagementPage() {
                             <thead className="text-[var(--text-semi-bold-color)]">
                                 <tr>
                                     <th className="py-2 px-4 border-b text-left">No</th>
-                                    <th className="py-2 px-4 border-b text-left">Judul</th>
-                                    <th className="py-2 px-4 border-b text-left">Keterangan</th>
-                                    <th className="py-2 px-4 border-b text-left">Total</th>
-                                    <th className="py-2 px-4 border-b text-left">Dokumen</th>
-                                    <th className="py-2 px-4 border-b text-left">Status</th>
-                                    <th className="py-2 px-4 border-b text-left">Date</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Barang</th>
+                                    <th className="py-2 px-4 border-b text-left">Kode Barang</th>
+                                    <th className="py-2 px-4 border-b text-left">Jumlah</th>
+                                    <th className="py-2 px-4 border-b text-left">Tanggal</th>
                                     <th className="py-2 px-4 border-b text-left">Aksi</th>
                                 </tr>
                             </thead>
@@ -244,44 +245,28 @@ export default function BudgetManagementPage() {
                                 {currentEntries.map((item) => (
                                     <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
                                         <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.title}</td>
-                                        <td className="py-2 px-4 border-b">{item.description}</td>
-                                        <td className="py-2 px-4 border-b">Rp. {item.amount.toLocaleString()}</td>
-                                        <td className="py-2 px-4 border-b">{item.document}</td>
-                                        <td className="py-2 px-4 border-b">
-                                            <span className={`px-2 py-1 rounded-full text-xs ${item.status === "Ditolak" ? 'bg-red-100 text-red-600' : item.status === "Revisi" ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'}`}>
-                                                {item.status}
-                                            </span>
-                                        </td>
+                                        <td className="py-2 px-4 border-b">{item.name}</td>
+                                        <td className="py-2 px-4 border-b">{item.code}</td>
+                                        <td className="py-2 px-4 border-b">{item.quantity}</td>
                                         <td className="py-2 px-4 border-b">{item.date}</td>
                                         <td className="py-2 px-4 border-b">
-                                        <div className="flex space-x-2">
-                                            {/* Edit Button */}
-                                            <button
-                                                onClick={() => handleEditClick(item)}
-                                                className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-                                            >
-                                                <i className="bx bxs-edit text-lg"></i>
-                                            </button>
+                                            <div className="flex space-x-2">
+                                                {/* Edit Button */}
+                                                <button
+                                                    onClick={() => handleEditClick(item)}
+                                                    className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+                                                >
+                                                    <i className="bx bxs-edit text-lg"></i>
+                                                </button>
 
-                                            {/* Delete Button */}
-                                            <button
-                                                className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-                                            >
-                                                <i className="bx bx-x text-lg"></i> {/* Ganti ikon menjadi silang */}
-                                            </button>
-
-
-                                            {/* Acc Button */}
-                                            <button
-                                                onClick={() => handleAccClick(item)}
-                                                className="w-8 h-8 rounded-full bg-[#28a7452b] flex items-center justify-center text-green-700"
-                                            >
-                                                <i className="bx bx-check text-lg"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-
+                                                {/* Delete Button */}
+                                                <button
+                                                    className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
+                                                >
+                                                    <i className="bx bxs-trash-alt text-lg"></i>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -324,11 +309,11 @@ export default function BudgetManagementPage() {
                     </div>
                 </div>
             </main>
-            <RabModal
+            <ItemData
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
-                rabData={selectedRab}
+                itemData={selectedItem}
             />
         </div>
     );

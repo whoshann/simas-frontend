@@ -7,7 +7,7 @@ import PaymentSppModal from "@/app/components/PaymentSppModal.js";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
-
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 interface CustomJwtPayload {
   sub: number;
 }
@@ -24,9 +24,16 @@ interface SchoolPayment {
 export default function StudentPaymentStatusPage() {
   const [studentId, setStudentId] = useState<string | null>(null);
   const [payments, setPayments] = useState<SchoolPayment[]>([]);
+  const [user, setUser] = useState<any>({});
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    roleMiddleware(["Student"]);
+    // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
+    roleMiddleware(["Student", "SuperAdmin"]);
+
+    // Panggil fungsi fetch data
+    fetchData();
 
     const token = Cookies.get("token");
     if (token) {
@@ -90,6 +97,33 @@ export default function StudentPaymentStatusPage() {
     setSelectedDetail(detail);
     setIsModalOpen(true);
   };
+
+  const token = Cookies.get("token");
+
+  const fetchData = async () => {
+      try {
+          // Set default Authorization header dengan Bearer token
+          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+          // Fetch data user dari endpoint API
+          const response = await axios.get("http://localhost:3333/student");
+          setUser(response.data); // Simpan data user ke dalam state
+      } catch (err: any) {
+          console.error("Error saat fetching data:", err);
+          setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+      } finally {
+          setLoading(false); // Set loading selesai
+      }
+  };
+
+  if (loading) {
+      return <LoadingSpinner />;
+  }
+
+  if (error) {
+      return <p className="text-red-500">{error}</p>;
+  }
+
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
