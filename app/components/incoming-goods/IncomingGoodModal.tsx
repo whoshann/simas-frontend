@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IncomingGoods } from '@/app/api/incoming-goods/types';
 import { Inventory } from '@/app/api/inventories/types';
-import { Condition } from '@/app/api/incoming-goods/enums';
+import { Condition } from '@/app/utils/enums';
 import { ConditionLabel } from '@/app/utils/enumHelpers';
 
 interface IncomingGoodsModalProps {
