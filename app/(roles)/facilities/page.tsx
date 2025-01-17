@@ -18,14 +18,23 @@ interface CircleProgressBarProps {
 }
 
 export default function FacilitiesDashboardPage() {
+
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-        roleMiddleware(["Facilities", "SuperAdmin"]);
-        fetchData();
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["Facilities"]);
+                setIsAuthorized(true);
+            } catch (error) {
+                console.error("Error initializing page:", error);
+                setIsAuthorized(false);
+            }
+        };
+        initializePage()
     }, []);
 
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const token = Cookies.get("token");
-    const [user, setUser] = useState<any>({});
+    const [setUser] = useState<any>({});
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -67,34 +76,27 @@ export default function FacilitiesDashboardPage() {
         setIsPanelOpen(!isPanelOpen);
     };
 
-    const fetchData = async () => {
-        try {
-            // Set default Authorization header dengan Bearer token
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-            // Fetch data user dari endpoint API
-            const response = await axios.get("http://localhost:3333/users");
-            setUser(response.data); // Simpan data user ke dalam state
-        } catch (err: any) {
-            console.error("Error saat fetching data:", err);
-            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-        } finally {
-            setLoading(false); // Set loading selesai
-        }
-    };
-
-    if (loading) {
-        return <LoadingSpinner />;
-    }
+    // if (loading) {
+    //     return (
+    //         <LoadingSpinner />
+    //     );
+    // }
 
     if (error) {
-        return <p className="text-red-500">{error}</p>;
+        return (
+            <div className="flex-1 flex items-center justify-center text-red-500">
+                Error: {error}
+            </div>
+        );
+    }
+
+    if (!isAuthorized) {
+        return null;
     }
 
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
-
+        <main className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
 
             {/* Start Header */}
             <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row justify-between items-center">
@@ -138,10 +140,7 @@ export default function FacilitiesDashboardPage() {
             </header>
             {/* End Header */}
 
-
-
-            <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 mt-6">
-
+            <div className="flex-1 overflow-x-hidden overflow-y-auto px-9 mt-6">
 
 
                 {/* Start 4 Cards */}
@@ -387,7 +386,7 @@ export default function FacilitiesDashboardPage() {
 
 
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
     );
 }
