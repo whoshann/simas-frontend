@@ -1,11 +1,11 @@
 "use client";
 import "@/app/styles/globals.css";
 import { Facility } from '@/app/(auth)/api/facilities/types';
-import { FacilityHeader } from '@/app/components/facilities/FacilityHeader';
-import { FacilityActions } from '@/app/components/facilities/FacilityActions';
-import { FacilityTable } from '@/app/components/facilities/FacilityTable';
-import { FacilityPagination } from '@/app/components/facilities/FacilityPagination';
-import FacilityModal from '@/app/components/facilities/FacilityModal';
+import { FacilityHeader } from '@/app/components/facility/FacilityHeader';
+import { FacilityActions } from '@/app/components/facility/FacilityActions';
+import { FacilityTable } from '@/app/components/facility/FacilityTable';
+import { FacilityPagination } from '@/app/components/facility/FacilityPagination';
+import FacilityModal from '@/app/components/facility/FacilityModal';
 import { useFacilities } from '@/app/hooks/useFacilities';
 import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
 import { useState, useEffect } from 'react';

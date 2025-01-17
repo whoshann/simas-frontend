@@ -87,14 +87,16 @@ export const RepairsModal: React.FC<RepairsModalProps> = ({
         });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
+        // Bersihkan data sebelum dikirim
         const { 
             id, 
             createdAt, 
             updatedAt, 
             inventory,
+            room,
             ...submitData 
         } = formData;
         
