@@ -26,8 +26,7 @@ const data = [
 ];
 
 export default function FinanceDashboardPage() {
-
-  const fetchDataAuth = async () => {
+  const fetchData = async () => {
     try {
       // Set default Authorization header dengan Bearer token
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -73,8 +72,7 @@ export default function FinanceDashboardPage() {
 
   useEffect(() => {
     roleMiddleware(["Finance", "SuperAdmin"]);
-
-    fetchDataAuth()
+    fetchData()
 
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx) {

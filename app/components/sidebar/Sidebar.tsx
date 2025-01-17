@@ -180,7 +180,7 @@ const Sidebar: React.FC = () => {
                                 role === "Student" ? "/student" :
                                     role === "Teacher" ? "/teacher" :
                                         role === "Facilities" ? "/facilities" :
-                                            role === "SuperAdmin" ? "/finance" : //bersifat sementara
+                                            role === "Finance" ? "/finance" : //bersifat sementara
                                                 ""
                         }
                         className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Beranda' ? 'active' : ''}`}
@@ -564,7 +564,7 @@ const Sidebar: React.FC = () => {
 
                     {/* Start Role Finance sidebar menu */}
 
-                    {role === "SuperAdmin" && ( //bersifat sementara
+                    {role === "Finance" && ( //bersifat sementara
                         <div>
                             <a
                                 href="/finance/budget-management"
