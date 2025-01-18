@@ -5,12 +5,23 @@ import { useState } from 'react';
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 export default function StudentViolationsPage() {
+    // Panggil middleware dan hooks di awal komponen
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student'
-        roleMiddleware(["Student"]);
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
+        roleMiddleware(["Student", "SuperAdmin"]);
+        fetchData();
     }, []);
+
+    const [user, setUser] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
+
+    const token = Cookies.get("token");
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [entriesPerPage, setEntriesPerPage] = useState(5);
@@ -38,8 +49,33 @@ export default function StudentViolationsPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
 
+    const fetchData = async () => {
+        try {
+            // Set default Authorization header dengan Bearer token
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            // Fetch data user dari endpoint API
+            const response = await axios.get("http://localhost:3333/student");
+            setUser(response.data); // Simpan data user ke dalam state
+        } catch (err: any) {
+            console.error("Error saat fetching data:", err);
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+        } finally {
+            setLoading(false); // Set loading selesai
+        }
+    };
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
+
+
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
 
 
             {/* Start Header */}
@@ -174,8 +210,8 @@ export default function StudentViolationsPage() {
                                                         src={item.document}
                                                         alt="Bukti Foto"
                                                         className="w-full h-full object-cover"
-                                                        width={256} 
-                                                        height={256} 
+                                                        width={256}
+                                                        height={256}
                                                     />
                                                 ) : (
                                                     '-'

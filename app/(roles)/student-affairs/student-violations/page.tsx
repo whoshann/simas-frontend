@@ -5,40 +5,48 @@ import "@/app/styles/globals.css";
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 
 export default function StudentAffairsViolationsPage() {
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["StudentAffairs"]);
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
+        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
+        fetchData();
     }, []);
 
+    const [user, setUser] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
+    const token = Cookies.get("token");
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
 
     const data = [
-        { no: 1, name: "Ilham Kurniawan", classSchool: "X PH A", violations: "Merokok", category: "Ringan", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "21/01/2024" },
-        { no: 2, name: "Adi Kurniawan", classSchool: "X PH B", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: null, date: "22/01/2024" },
-        { no: 3, name: "Imam Kurniawan", classSchool: "XI IPA A", violations: "Bongkar Lab 1", category: "Berat", punishment:"Skors 1 Minggu", document: null, date: "23/01/2024" },
-        { no: 4, name: "Fawas Kurniawan", classSchool: "XI IPA B", violations: "Menyembunyikan HP", category: "Sedang", punishment:"Skors 1 Minggu", document: null, date: "24/01/2024" },
-        { no: 5, name: "Obing Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 6, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Ringan", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 7, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 8, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 9, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 10, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 11, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 12, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 13, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 14, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 15, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 16, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 17, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 18, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 19, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 20, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 1, name: "Ilham Kurniawan", classSchool: "X PH A", violations: "Merokok", category: "Ringan", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "21/01/2024" },
+        { no: 2, name: "Adi Kurniawan", classSchool: "X PH B", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "22/01/2024" },
+        { no: 3, name: "Imam Kurniawan", classSchool: "XI IPA A", violations: "Bongkar Lab 1", category: "Berat", punishment: "Skors 1 Minggu", document: null, date: "23/01/2024" },
+        { no: 4, name: "Fawas Kurniawan", classSchool: "XI IPA B", violations: "Menyembunyikan HP", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "24/01/2024" },
+        { no: 5, name: "Obing Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 6, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Ringan", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 7, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 8, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 9, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 10, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 11, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 12, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 13, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 14, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 15, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 16, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 17, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 18, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 19, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+        { no: 20, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
 
     ];
 
@@ -62,8 +70,34 @@ export default function StudentAffairsViolationsPage() {
         setIsPanelOpen(!isPanelOpen);
     };
 
+
+    const fetchData = async () => {
+        try {
+            // Set default Authorization header dengan Bearer token
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            // Fetch data user dari endpoint API
+            const response = await axios.get("http://localhost:3333/student");
+            setUser(response.data); // Simpan data user ke dalam state
+        } catch (err: any) {
+            console.error("Error saat fetching data:", err);
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+        } finally {
+            setLoading(false); // Set loading selesai
+        }
+    };
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
+
+
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Point Pelanggaran Siswa</h1>

@@ -3,19 +3,27 @@
 import React, { useState, useEffect } from "react";
 import "@/app/styles/globals.css";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
+
 
 // Mendefinisikan tipe status klaim
 type Status = "Pending" | "Disetujui" | "Ditolak";
 
 export default function StudentAffairsClaimInsurancePage() {
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["StudentAffairs"]);
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
+        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
+        fetchData();
     }, []);
 
-    // State untuk status breadcrumb
+    const [user, setUser] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
+    const token = Cookies.get("token");
     const [status, setStatus] = useState<Status>("Pending");
-
+    
     // Data dummy untuk klaim asuransi
     const claims = [
         { id: 1, name: "Ilham", date: "20/01/2024", status: "Pending", icon: "bx bxs-id-card" },
@@ -23,19 +31,19 @@ export default function StudentAffairsClaimInsurancePage() {
         { id: 3, name: "Ilham", date: "20/01/2024", status: "Pending", icon: "bx bxs-id-card" },
         { id: 4, name: "Rina", date: "20/01/2024", status: "Pending", icon: "bx bxs-id-card" },
         { id: 5, name: "Toni", date: "20/01/2024", status: "Pending", icon: "bx bxs-id-card" },
-
+        
         { id: 6, name: "Budi", date: "21/01/2024", status: "Disetujui", icon: "bx bxs-id-card" },
         { id: 7, name: "Siti", date: "21/01/2024", status: "Disetujui", icon: "bx bxs-id-card" },
         { id: 8, name: "Eka", date: "21/01/2024", status: "Disetujui", icon: "bx bxs-id-card" },
         { id: 9, name: "Wawan", date: "21/01/2024", status: "Disetujui", icon: "bx bxs-id-card" },
-
+        
         { id: 10, name: "Joko", date: "22/01/2024", status: "Ditolak", icon: "bx bxs-id-card" },
         { id: 11, name: "Nina", date: "22/01/2024", status: "Ditolak", icon: "bx bxs-id-card" },
         { id: 12, name: "Rosa", date: "22/01/2024", status: "Ditolak", icon: "bx bxs-id-card" },
     ];
-
-    // Filter klaim berdasarkan status breadcrumb
+    
     const filteredClaims = claims.filter((claim) => claim.status === status);
+    // Filter klaim berdasarkan status breadcrumb
 
     // Mengatur warna background dan teks berdasarkan status
     const getStatusStyle = (status: Status) => {
@@ -51,8 +59,34 @@ export default function StudentAffairsClaimInsurancePage() {
         }
     };
 
+    
+    const fetchData = async () => {
+        try {
+            // Set default Authorization header dengan Bearer token
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            // Fetch data user dari endpoint API
+            const response = await axios.get("http://localhost:3333/student");
+            setUser(response.data); // Simpan data user ke dalam state
+        } catch (err: any) {
+            console.error("Error saat fetching data:", err);
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+        } finally {
+            setLoading(false); // Set loading selesai
+        }
+    };
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
+
+
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pengajuan Klaim Asuransi Siswa</h1>

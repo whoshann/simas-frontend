@@ -9,8 +9,6 @@ export default function FacilityData({ isOpen, onClose, onSubmit, facilityData }
         quantity: 1,
         description: '',
         notes: '',
-        
-
     });
 
     const handleChange = (e) => {
