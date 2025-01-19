@@ -1,52 +1,70 @@
 "use client";
-
-import React, { useState, useEffect } from "react";
 import "@/app/styles/globals.css";
-import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import IncomeModal from "@/app/components/IncomeModal.js";
+import { Income, IncomesRequest } from '@/app/api/incomes/types';
+import { IncomesHeader } from '@/app/components/incomes/IncomeHeader';
+import { IncomeActions } from '@/app/components/incomes/IncomeAction';
+import { IncomeTable } from '@/app/components/incomes/IncomeTable';
+import { IncomePagination } from '@/app/components/incomes/IncomePagination';
+import IncomeModal from '@/app/components/incomes/IncomeModal';
+import { useIncome } from '@/app/hooks/useIncomes';
+import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
+import { useState, useEffect } from 'react';
+import { useMonthlyFinances } from '@/app/hooks/useMonthlyFinances';
 
-type Income = {
-    no: number;
-    name: string;
-    quantity: number;
-    date: string;
-};
 
-export default function IncomePage() {
-    useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["Finance","SuperAdmin"]);
-    }, []);
 
-    const [isPanelOpen, setIsPanelOpen] = useState(false);
+export default function IncomeDataPage() {
+    //State
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedIncome, setSelectedIncome] = useState<Income | null>(null);
 
-    const data = [
-        { no: 1, name: "Dana BOS", quantity: 50000000, date: "15/12/2024" },
-        { no: 2, name: "Donasi Alumni", quantity: 10000000, date: "15/12/2024" },
-        { no: 3, name: "SPP Bulanan", quantity: 1500000, date: "15/12/2024" },
-        { no: 4, name: "Sponsor Industri", quantity: 20000000, date: "15/12/2024" },
-    ];
+    const { incomes, loading, error, fetchIncomes, createIncomes, updateIncomes, deleteIncomes } = useIncome();
+    const { 
+        monthlyFinances, 
+        fetchMonthlyFinances 
+    } = useMonthlyFinances();
 
-    // Search item tabel
-    const filteredData = data.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const totalEntries = filteredData.length;
-    const totalPages = Math.ceil(totalEntries / entriesPerPage);
-    const startIndex = (currentPage - 1) * entriesPerPage;
-    const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-
-    const togglePanel = () => {
-        setIsPanelOpen(!isPanelOpen);
+useEffect(() => {
+    const initializePage = async () => {
+        try {
+            await roleMiddleware(["Finance","SuperAdmin"]);
+            setIsAuthorized(true);
+            await fetchIncomes();
+            await fetchMonthlyFinances();
+        } catch (error) {
+            console.error("Auth error:", error);
+            setIsAuthorized(false);
+        }
     };
 
+    initializePage();
+}, []);
+
+if (loading) {
+    return <div>Loading...</div>;
+}
+
+if (!isAuthorized) {
+    return null;
+}
+
+    // Calculations
+    const startIndex = (currentPage - 1) * entriesPerPage;
+    const filteredIncomes = incomes.filter((incomes: Income) => 
+        incomes.monthlyFinanceId && 
+        incomes.monthlyFinanceId.toString().includes(searchTerm.toLowerCase())
+    );
+    const totalEntries = filteredIncomes.length;
+    const totalPages = Math.ceil(totalEntries / entriesPerPage);
+    const displayedIncomes = filteredIncomes.slice(startIndex, startIndex + entriesPerPage);
+
+    // Handlers
+    // Handlers
     const handleAddClick = () => {
         setSelectedIncome(null);
         setIsModalOpen(true);
@@ -57,189 +75,57 @@ export default function IncomePage() {
         setIsModalOpen(true);
     };
 
-    const handleModalSubmit = (data: Income) => {
-        if (selectedIncome) {
-            // Update data
-            console.log("Edit Data", data);
-        } else {
-            // Tambah data baru
-            console.log("Tambah Data", data);
+    const handleModalSubmit = async (data: Income) => {
+        try {
+            const incomeData: IncomesRequest = {
+                monthlyFinanceId: data.monthlyFinanceId!,
+                amount: data.amount,
+                incomeDate: data.incomeDate.toString(),
+            };
+
+            if (selectedIncome) {
+                await updateIncomes(selectedIncome.id!, incomeData);
+            } else {
+                await createIncomes(incomeData);
+            }
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error('Error handling income:', error);
         }
     };
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
-            <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pemasukan</h1>
-                    <p className="text-sm text-gray-600">Halo role Keuangan, selamat datang kembali</p>
-                </div>
-
-                {/* Filtering Bulanan */}
-                <div className="mt-4 sm:mt-0">
-                    <div className="bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
-                        <i className='bx bx-search text-[var(--text-semi-bold-color)] text-lg mr-0 sm:mr-2 ml-2 sm:ml-0'></i>
-                        <input
-                            type="text"
-                            placeholder="Cari data..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="border-0 focus:outline-none text-base w-40"
-                        />
-                    </div>
-                </div>
-            </header>
+        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+                <IncomesHeader 
+                searchTerm={searchTerm}
+                onSearchChange={(e) => setSearchTerm(e.target.value)}
+                />
 
             <main className="px-9 pb-6">
-                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-                    <div className="mb-4 flex justify-between flex-wrap sm:flex-nowrap">
-                        <div className="text-xs sm:text-base">
-                            <label className="mr-2">Tampilkan</label>
-                            <select
-                                value={entriesPerPage}
-                                onChange={(e) => setEntriesPerPage(Number(e.target.value))}
-                                className="border border-gray-300 rounded-lg p-1 text-xs sm:text-sm w-12 sm:w-16"
-                            >
-                                <option value={5}>5</option>
-                                <option value={10}>10</option>
-                                <option value={15}>15</option>
-                                <option value={20}>20</option>
-                            </select>
-                            <label className="ml-2">Entri</label>
-                        </div>
+            <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+                    <IncomeActions
+                        entriesPerPage={entriesPerPage}
+                        onEntriesChange={(e) => setEntriesPerPage(Number(e.target.value))}
+                        onAddClick={handleAddClick}
+                        dropdownOpen={dropdownOpen}
+                        setDropdownOpen={setDropdownOpen}
+                    />
 
-                        {/* 3 button */}
-                        <div className="flex space-x-2 mt-5 sm:mt-0">
-                            {/* Button Tambah Data */}
-                            <button
-                                onClick={handleAddClick}
-                                className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
-                            >
-                                Tambah Data
-                            </button>
+                    <IncomeTable
+                        incomes={displayedIncomes}
+                        startIndex={startIndex}
+                        onEdit={handleEditClick}
+                        onDelete={deleteIncomes}
+                    />
 
-                            {/* Button Import CSV */}
-                            <button
-                                onClick={() => console.log("Import CSV")}
-                                className="bg-[var(--second-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#de881f]"
-                            >
-                                Import Dari Excel
-                            </button>
-
-                            {/* Dropdown Export */}
-                            <div className="relative">
-                                <button
-                                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                                    className="bg-[var(--third-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#09859a] flex items-center"
-                                >
-                                    Export Data
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth={2}
-                                        stroke="currentColor"
-                                        className={`w-4 h-4 ml-2 transform transition-transform ${dropdownOpen ? 'rotate-90' : 'rotate-0'}`}
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
-                                {dropdownOpen && (
-                                    <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-                                        <button
-                                            onClick={() => console.log("Export PDF")}
-                                            className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
-                                        >
-                                            Export PDF
-                                        </button>
-                                        <button
-                                            onClick={() => console.log("Export Excel")}
-                                            className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
-                                        >
-                                            Export Excel
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full rounded-lg overflow-hidden">
-                            <thead className="text-[var(--text-semi-bold-color)]">
-                                <tr>
-                                    <th className="py-2 px-4 border-b text-left">No</th>
-                                    <th className="py-2 px-4 border-b text-left">Sumber Pemasukan</th>
-                                    <th className="py-2 px-4 border-b text-left">Jumlah</th>
-                                    <th className="py-2 px-4 border-b text-left">Tanggal</th>
-                                    <th className="py-2 px-4 border-b text-left">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.name}</td>
-                                        <td className="py-2 px-4 border-b">Rp. {item.quantity.toLocaleString()}</td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
-                                        <td className="py-2 px-4 border-b">
-                                            <div className="flex space-x-2">
-                                                {/* Edit Button */}
-                                                <button
-                                                    onClick={() => handleEditClick(item)}
-                                                    className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-                                                >
-                                                    <i className="bx bxs-edit text-lg"></i>
-                                                </button>
-
-                                                {/* Delete Button */}
-                                                <button
-                                                    className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-                                                >
-                                                    <i className="bx bxs-trash-alt text-lg"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div className="flex justify-between items-center mt-5">
-                        <span className="text-xs sm:text-base">Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri</span>
-
-                        <div className="flex items-center">
-                            <button
-                                onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-                                disabled={currentPage === 1}
-                                className="px-4 py-2 text-[var(--main-color)]"
-                            >
-                                &lt;
-                            </button>
-                            <div className="flex space-x-1">
-                                {Array.from({ length: Math.min(totalPages - (currentPage - 1), 2) }, (_, index) => {
-                                    const pageNumber = currentPage + index;
-                                    return (
-                                        <button
-                                            key={pageNumber}
-                                            onClick={() => setCurrentPage(pageNumber)}
-                                            className={`rounded-md px-3 py-1 ${currentPage === pageNumber ? 'bg-[var(--main-color)] text-white' : 'text-[var(--main-color)]'}`}
-                                        >
-                                            {pageNumber}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                            <button
-                                onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
-                                disabled={currentPage === totalPages}
-                                className="px-4 py-2 text-[var(--main-color)]"
-                            >
-                                &gt;
-                            </button>
-                        </div>
-                    </div>
+                    <IncomePagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        startIndex={startIndex}
+                        entriesPerPage={entriesPerPage}
+                        totalEntries={totalEntries}
+                        onPageChange={setCurrentPage}
+                    />
                 </div>
             </main>
             <IncomeModal
@@ -247,6 +133,7 @@ export default function IncomePage() {
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
                 incomeData={selectedIncome}
+                monthlyFinances={monthlyFinances}
             />
         </div>
     );
