@@ -1,4 +1,9 @@
-import { Condition, RepairStatus, RepairCategory } from "./enums";
+import {
+  Condition,
+  RepairStatus,
+  RepairCategory,
+  GuaranteeOutgoingGoods,
+} from "./enums";
 
 export const ConditionLabel = {
   Good: "Baik",
@@ -27,4 +32,16 @@ export const getRepairCategoryLabel = (category: RepairCategory): string => {
 
 export const getRepairStatusLabel = (status: RepairStatus): string => {
   return RepairStatusLabel[status] || status;
+};
+
+export const GuaranteeOutgoingGoodsLabel = {
+  KTP: "KTP",
+  StudentCard: "Kartu Pelajar",
+  Handphone: "Handphone",
+};
+
+export const getGuaranteeOutgoingGoodsLabel = (
+  guarantee: GuaranteeOutgoingGoods
+): string => {
+  return GuaranteeOutgoingGoodsLabel[guarantee] || guarantee;
 };

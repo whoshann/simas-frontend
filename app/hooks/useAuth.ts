@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { authApi } from "@/app/(auth)/api/auth";
-import { JwtPayload } from "@/app/(auth)/api/auth/types";
+import { authApi } from "@/app/api/auth";
+import { JwtPayload } from "@/app/api/auth/types";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
-import { ROUTES } from "../(auth)/api/auth/routes";
+import { ROUTES } from "@/app/api/auth/routes";
 
 export const useAuth = () => {
   const [error, setError] = useState("");
@@ -34,7 +34,7 @@ export const useAuth = () => {
       Student: ROUTES.DASHBOARD.STUDENT,
       Facilities: ROUTES.DASHBOARD.FACILITIES,
       Finance: ROUTES.DASHBOARD.FINANCE,
-      StudentAffairs: ROUTES.DASHBOARD.STUDENTAFFAIRS
+      StudentAffairs: ROUTES.DASHBOARD.STUDENTAFFAIRS,
       // ... tambahkan role lainnya
     };
 
