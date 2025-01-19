@@ -42,11 +42,6 @@ const Sidebar: React.FC = () => {
             setIsDropdownOpenKesiswaan(true);
         }
 
-        // Cek apakah active menu adalah bagian dari submenu Finance
-        if (['Status Pembayaran', 'Biaya SPP'].includes(activeMenuName || '')) {
-            setIsDropdownOpenFinanceStudent(true);
-        }
-
         // Cek apakah active menu adalah bagian dari submenu Fasilitas
         if (['Data Fasilitas', 'Data Barang', 'Data Ruang'].includes(activeMenuName || '')) {
             setIsDropdownOpenFasilitas(true);
@@ -67,11 +62,11 @@ const Sidebar: React.FC = () => {
         if (token) {
             try {
                 const decoded = jwtDecode<DecodedToken>(token); // Menggunakan jwtDecode
-                console.log("Decoded token:", decoded);
+                // console.log("Decoded token:", decoded);
                 setRole(decoded.role);
-                console.log("Role set to:", decoded.role);
+                // console.log("Role set to:", decoded.role);
             } catch (error) {
-                console.error("Error decoding token:", error);
+                // console.error("Error decoding token:", error);
             }
         }
         setIsLoading(false);
@@ -100,7 +95,6 @@ const Sidebar: React.FC = () => {
 
     const toggleDropdownKesiswaan = () => {
         setIsDropdownOpenKesiswaan(!isDropdownOpenKesiswaan);
-        setIsDropdownOpenFinanceStudent(false); // Tutup dropdown Fasilitas 
         if (!isDropdownOpenKesiswaan) {
             setActiveMenu('Kesiswaan');
         }
@@ -112,15 +106,6 @@ const Sidebar: React.FC = () => {
         setIsDropdownOpenPengelolaBarang(false);
         if (!isDropdownOpenFasilitas) {
             setActiveMenu('Fasilitas Sekolah');
-        }
-    };
-
-    const toggleDropdownFinanceStudent = () => {
-        setIsDropdownOpenFinanceStudent(!isDropdownOpenFinanceStudent);
-        setIsDropdownOpenKesiswaan(false); // Tutup dropdown lain
-        setIsDropdownOpenFasilitas(false); // Tutup dropdown lain
-        if (!isDropdownOpenFinanceStudent) {
-            setActiveMenu('Keuangan');
         }
     };
 
@@ -145,7 +130,6 @@ const Sidebar: React.FC = () => {
         localStorage.setItem('activeMenu', menu);
         setIsDropdownOpenKesiswaan(false);
         setIsDropdownOpenFasilitas(false);
-        setIsDropdownOpenFinanceStudent(false);
         setIsDropdownOpenFinance(false);
         setIsDropdownOpenPengelolaBarang(false);
     };
@@ -180,8 +164,9 @@ const Sidebar: React.FC = () => {
                                 role === "Student" ? "/student" :
                                     role === "Teacher" ? "/teacher" :
                                         role === "Facilities" ? "/facilities" :
-                                            role === "Finance" ? "/finance" : //bersifat sementara
-                                                ""
+                                            role === "Finance" ? "/finance" :
+                                                role === "SuperAdmin" ? "/superadmin" :
+                                                    ""
                         }
                         className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Beranda' ? 'active' : ''}`}
                         onClick={() => handleMenuClick('Beranda')}
@@ -290,55 +275,20 @@ const Sidebar: React.FC = () => {
                                 Tata Usaha
                             </a>
 
-                            <div>
-                                <button
-                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${isDropdownOpenFinanceStudent || ['Status Pembayaran', 'Biaya SPP'].includes(activeMenu)
-                                        ? 'active'
-                                        : ''
-                                        }`}
-                                    onClick={toggleDropdownFinanceStudent}
-                                >
-                                    <i className='bx bxs-wallet mr-2'></i>
-                                    <a href="#" className='font-medium mr-10'> Keuangan</a>
-                                    <svg
-                                        className={`h-4 w-4 ml-9 transition-transform duration-200 ${isDropdownOpenFinanceStudent ? 'rotate' : ''} ${isDropdownOpenFinanceStudent || ['Status Pembayaran', 'Biaya SPP'].includes(activeMenu)
-                                            ? 'text-white'
-                                            : 'text-[var(--text-thin-color)]'
-                                            }`}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
-                                <div className={`${isDropdownOpenFinanceStudent ? '' : 'hidden'}`}>
-                                    <a
-                                        href={
-                                            role === "Student" ? "/student/finance/payment-status" :
-                                                role === "Teacher" ? "/teacher" :
-                                                    "/login"
-                                        }
-                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Status Pembayaran' ? 'text-blue-900' : ''}`}
-                                        onClick={() => handleSubMenuClick('Status Pembayaran')}
-                                    >
-                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Status Pembayaran' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                        Status Pembayaran
-                                    </a>
-                                    <a
-                                        href={
-                                            role === "Student" ? "/student/finance/tuition-fees" :
-                                                role === "Teacher" ? "/teacher" :
-                                                    "/login"
-                                        }
-                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Biaya SPP' ? 'text-blue-900' : ''}`}
-                                        onClick={() => handleSubMenuClick('Biaya SPP')}
-                                    >
-                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Biaya SPP' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                        Biaya SPP
-                                    </a>
-                                </div>
-                            </div>
+                            <a
+                                href={
+                                    role === "Student" ? "/student/finance/payment-status" :
+                                        role === "Teacher" ? "/teacher" :
+                                            "/login"
+                                }
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Keuangan' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Keuangan')}
+                            >
+                                <i className='bx bxs-wallet mr-2 font-medium'></i>
+                                Keuangan
+                            </a>
+
+
 
                             <a
                                 href="#"
@@ -635,6 +585,47 @@ const Sidebar: React.FC = () => {
                     )}
 
                     {/* End Role Finance sidebar menu */}
+
+                    {/* Start Role Super Admin */}
+
+                    {role === "SuperAdmin" && (
+                        <div>
+                            <a
+                                href="/superadmin/student-data"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Data Siswa' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Data Siswa')}
+                            >
+                                <i className='bx bxs-graduation mr-2 font-medium'></i>
+                                Data Siswa
+                            </a>
+                            <a
+                                href="/superadmin/teacher-data"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Data Guru' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Data Guru')}
+                            >
+                                <i className='bx bxs-user-rectangle mr-2 font-medium'></i>
+                                Data Guru
+                            </a>
+                            <a
+                                href="/superadmin/employee-data"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Data Karyawan' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Data Karyawan')}
+                            >
+                                <i className='bx bxs-id-card mr-2 font-medium'></i>
+                                Data Karyawan
+                            </a>
+                            <a
+                                href="/superadmin/budget-management"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Jurusan' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Jurusan')}
+                            >
+                                <i className='bx bxs-chalkboard mr-2 font-medium'></i>
+                                Jurusan
+                            </a>
+                        </div>
+                    )}
+
+                    {/* End Role Super Admin */}
 
                 </nav>
                 {/* End Sidebar menu navigation  */}

@@ -19,6 +19,7 @@
     "react-calendar": "^5.1.0",
     "react-dom": "^18",
     "react-slick": "^0.30.3",
+    "react-toastify": "^11.0.3",
     "slick-carousel": "^1.8.1",
     "to-regex-range": "^5.0.1"
   },
