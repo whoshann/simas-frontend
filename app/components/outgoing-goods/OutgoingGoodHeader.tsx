@@ -6,7 +6,7 @@ interface OutgoingGoodsHeaderProps {
 export const OutgoingGoodsHeader: React.FC<OutgoingGoodsHeaderProps> = ({ searchTerm, onSearchChange }) => (
     <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
-            <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Barang Masuk</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Barang Keluar</h1>
             <p className="text-sm text-gray-600">Halo Admin Sarpras, selamat datang kembali</p>
         </div>
         <div className="mt-4 sm:mt-0">
@@ -14,7 +14,7 @@ export const OutgoingGoodsHeader: React.FC<OutgoingGoodsHeaderProps> = ({ search
                 <i className='bx bx-search text-[var(--text-semi-bold-color)] text-lg mr-0 sm:mr-2 ml-2 sm:ml-0'></i>
                 <input
                     type="text"
-                    placeholder="Cari data..."
+                    placeholder="Cari data barang keluar..."
                     value={searchTerm}
                     onChange={onSearchChange}
                     className="border-0 focus:outline-none text-base w-40"

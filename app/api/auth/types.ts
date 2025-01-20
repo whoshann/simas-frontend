@@ -13,3 +13,11 @@ export interface LoginResponse {
 export interface JwtPayload {
   role: string;
 }
+
+interface TokenPayload {
+  sub: number;
+  username: string;
+  role: string;
+  iat: number;
+  exp: number;
+}

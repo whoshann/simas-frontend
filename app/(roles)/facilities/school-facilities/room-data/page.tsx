@@ -9,6 +9,7 @@ import { RoomPagination } from '@/app/components/rooms/RoomPagination';
 import RoomModal from '@/app/components/rooms/RoomModal';
 import { useRooms } from '@/app/hooks/useRooms';
 import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
+import LoadingSpinner from '@/app/components/loading/LoadingSpinner';
 
 export default function RoomDataPage() {
     // State
@@ -42,7 +43,7 @@ export default function RoomDataPage() {
     }, []);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <LoadingSpinner />;
     }
 
     if (!isAuthorized) {

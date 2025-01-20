@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
-import { Facility } from "../(auth)/api/facilities/types";
-import { facilitiesApi } from "../(auth)/api/facilities";
+import { Facility } from "../api/facilities/types";
+import { facilitiesApi } from "../api/facilities";
 
 export const useFacilities = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);

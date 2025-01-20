@@ -14,3 +14,9 @@ export enum RepairStatus {
   InProgress = "InProgress",
   Pending = "Pending",
 }
+
+export enum GuaranteeOutgoingGoods {
+  KTP = "KTP",
+  StudentCard = "StudentCard",
+  Handphone = "Handphone",
+}

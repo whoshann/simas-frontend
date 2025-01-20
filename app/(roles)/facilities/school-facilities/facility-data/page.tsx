@@ -1,6 +1,6 @@
 "use client";
 import "@/app/styles/globals.css";
-import { Facility } from '@/app/(auth)/api/facilities/types';
+import { Facility } from '@/app/api/facilities/types';
 import { FacilityHeader } from '@/app/components/facility/FacilityHeader';
 import { FacilityActions } from '@/app/components/facility/FacilityActions';
 import { FacilityTable } from '@/app/components/facility/FacilityTable';
@@ -22,13 +22,25 @@ export default function FacilityDataPage() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     const { facilities, loading, error, fetchFacilities, createFacility, updateFacility, deleteFacility } = useFacilities();
 
     useEffect(() => {
-        roleMiddleware(["Facilities"]);
-        
-        fetchFacilities();
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["Facilities"]);
+                setIsAuthorized(true);
+                await fetchFacilities();
+            } catch (error) {
+                console.error("Auth error:", error);
+                setIsAuthorized(false);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        initializePage();
     }, []);
 
     // Calculations
@@ -65,7 +77,7 @@ export default function FacilityDataPage() {
         }
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <LoadingSpinner />
         );
