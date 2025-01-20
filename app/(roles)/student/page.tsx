@@ -49,10 +49,7 @@ export default function StudentDashboard() {
   const fetchStudentData = async (userId: number) => {
     try {
       const response = await authApi.getStudentLogin(userId);
-      setStudent(prev => ({
-        ...prev,
-        ...response.data
-      }));
+      setStudent(response.data); // Asumsi response.data sudah sesuai dengan tipe Student
     } catch (err) {
       console.error("Error fetching user data:", err);
       setError("Failed to fetch user data");

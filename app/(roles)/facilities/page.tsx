@@ -7,7 +7,6 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import React from 'react';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
-import axios from "axios";
 import { useDashboardFacilities } from "@/app/hooks/useDashboardFacilities";
 import { getTokenData } from "@/app/utils/tokenHelper";
 import { authApi } from "@/app/api/auth";
@@ -48,16 +47,16 @@ export default function FacilitiesDashboardPage() {
     }, []);
 
     const fetchUserData = async (userId: number) => {
-    try {
-      const response = await authApi.getUserLogin(userId);
-      setUser(prev => ({
-        ...prev,
-        ...response.data
-      }));
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-    }
-  };
+        try {
+            const response = await authApi.getUserLogin(userId);
+            setUser(prev => ({
+                ...prev,
+                ...response.data
+            }));
+        } catch (err) {
+            console.error("Error fetching user data:", err);
+        }
+    };
 
     const [isAuthorized, setIsAuthorized] = useState(false);
     const token = Cookies.get("token");
@@ -353,11 +352,11 @@ export default function FacilitiesDashboardPage() {
                                         <td className="py-1 px-2 border-b">{item.date}</td>
                                         <td className="py-1 px-2 border-b">
                                             <span className={`inline-block px-3 py-1 rounded-full ${item.statusColor}`}>
-                                                {item.status === 'Completed' 
+                                                {item.status === 'Completed'
                                                     ? 'Selesai'
                                                     : item.status === 'InProgress'
-                                                    ? 'Sedang Dikerjakan'
-                                                    : 'Pending'}
+                                                        ? 'Sedang Dikerjakan'
+                                                        : 'Pending'}
                                             </span>
                                         </td>
                                     </tr>

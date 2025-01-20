@@ -2,50 +2,74 @@
 
 import React from 'react';
 import "@/app/styles/globals.css";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import Cookies from "js-cookie";
-import axios from "axios";
+import { authApi } from "@/app/api/auth";
+import { getTokenData } from "@/app/utils/tokenHelper";
+
 
 export default function StudentClaimInsurancePage() {
     // Panggil middleware dan hooks di awal komponen
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-        roleMiddleware(["Student", "SuperAdmin"]);
-        fetchData();
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["Student"]);
+                setIsAuthorized(true);
+            } catch (error) {
+                console.error("Auth error:", error);
+                setIsAuthorized(false);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initializePage();
+
+        const tokenData = getTokenData();
+        if (tokenData) {
+            // Gunakan tokenData.id (dari sub) untuk fetch data user
+            fetchStudentData(tokenData.id);
+            setStudent(prev => ({
+                ...prev,
+                role: tokenData.role
+            }));
+        }
     }, []);
 
-    const [user, setUser] = useState<any>({});
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
-
-    const token = Cookies.get("token");
-
-    const fetchData = async () => {
+    const fetchStudentData = async (userId: number) => {
         try {
-            // Set default Authorization header dengan Bearer token
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-            // Fetch data user dari endpoint API
-            const response = await axios.get("http://localhost:3333/student");
-            setUser(response.data); // Simpan data user ke dalam state
-        } catch (err: any) {
-            console.error("Error saat fetching data:", err);
-            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-        } finally {
-            setLoading(false); // Set loading selesai
+            const response = await authApi.getStudentLogin(userId);
+            setStudent(response.data); // Asumsi response.data sudah sesuai dengan tipe Student
+        } catch (err) {
+            console.error("Error fetching user data:", err);
+            setError("Failed to fetch user data");
         }
     };
 
+    const [student, setStudent] = useState<any>({});
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
+
+
     if (loading) {
-        return <LoadingSpinner />;
+        return (
+            <LoadingSpinner />
+        );
     }
 
     if (error) {
-        return <p className="text-red-500">{error}</p>;
+        return (
+            <div className="flex-1 flex items-center justify-center text-red-500">
+                Error: {error}
+            </div>
+        );
     }
 
+    if (!isAuthorized) {
+        return null;
+    }
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
@@ -122,6 +146,31 @@ export default function StudentClaimInsurancePage() {
                                 />
                             </div>
 
+                            <div>
+                                <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
+                                    Masukkan alasan pengajuan asuransi
+                                </label>
+                                <textarea
+                                    id="reason"
+                                    name="reason"
+                                    placeholder="Karena membutuhkan dana bantuan"
+                                    className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white resize-none"
+                                    rows={3} 
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="photo" className="block text-sm font-medium text-gray-700">
+                                    Masukkan foto bukti pendukung
+                                </label>
+                                <input
+                                    type="file"
+                                    id="photo"
+                                    name="photo"
+                                    placeholder="Karena membutuhkan dana bantuan"
+                                    className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
+                                />
+                            </div>
 
 
                             <div className="mb-4">
