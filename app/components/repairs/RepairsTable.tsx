@@ -33,14 +33,14 @@ export const RepairsTable: React.FC<RepairsTableProps> = ({ repairs, onEdit, onD
         <table className="min-w-full bg-white">
             <thead>
                 <tr>
-                    <th className="py-2 px-4 border-b">No</th>
-                    <th className="py-2 px-4 border-b">Nama</th>
-                    <th className="py-2 px-4 border-b">Kategori</th>
-                    <th className="py-2 px-4 border-b">Biaya</th>
-                    <th className="py-2 px-4 border-b">Deskripsi</th>
-                    <th className="py-2 px-4 border-b">Status</th>
-                    <th className="py-2 px-4 border-b">Tanggal Perbaikan</th>
-                    <th className="py-2 px-4 border-b">Aksi</th>
+                    <th className="py-2 px-4 border-b text-left">No</th>
+                    <th className="py-2 px-4 border-b text-left">Nama</th>
+                    <th className="py-2 px-4 border-b text-left">Kategori</th>
+                    <th className="py-2 px-4 border-b text-left">Biaya</th>
+                    <th className="py-2 px-4 border-b text-left">Deskripsi</th>
+                    <th className="py-2 px-4 border-b text-left">Status</th>
+                    <th className="py-2 px-4 border-b text-left">Tanggal Perbaikan</th>
+                    <th className="py-2 px-4 border-b text-left">Aksi</th>
                 </tr>
             </thead>
             <tbody>

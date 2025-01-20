@@ -8,17 +8,26 @@ interface IncomingGoodTableProps {
     onDelete: (id: number) => void;
 }
 
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
 export const IncomingGoodTable: React.FC<IncomingGoodTableProps> = ({ incomingGoods, onEdit, onDelete, startIndex }) => {
     return (
         <table className="min-w-full bg-white">
             <thead>
                 <tr>
-                    <th className="py-2 px-4 border-b">No</th>
-                    <th className="py-2 px-4 border-b">Nama Barang</th>
-                    <th className="py-2 px-4 border-b">Jumlah</th>
-                    <th className="py-2 px-4 border-b">Tanggal</th>
-                    <th className="py-2 px-4 border-b">Kondisi</th>
-                    <th className="py-2 px-4 border-b">Aksi</th>
+                    <th className="py-2 px-4 border-b text-left">No</th>
+                    <th className="py-2 px-4 border-b text-left">Nama Barang</th>
+                    <th className="py-2 px-4 border-b text-left">Jumlah</th>
+                    <th className="py-2 px-4 border-b text-left">Tanggal</th>
+                    <th className="py-2 px-4 border-b text-left">Kondisi</th>
+                    <th className="py-2 px-4 border-b text-left">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,7 +36,7 @@ export const IncomingGoodTable: React.FC<IncomingGoodTableProps> = ({ incomingGo
                         <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
                         <td className="py-2 px-4 border-b">{item.inventory?.name || 'N/A'}</td>
                         <td className="py-2 px-4 border-b">{item.quantity}</td>
-                        <td className="py-2 px-4 border-b">{item.date}</td>
+                        <td className="py-2 px-4 border-b">{formatDate(item.date)}</td>
                         <td className="py-2 px-4 border-b">
                             {ConditionLabel[item.condition]}
                         </td>

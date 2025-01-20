@@ -13,12 +13,12 @@ export const RoomTable: React.FC<RoomTableProps> = ({ rooms, onEdit, onDelete, s
         <table className="min-w-full bg-white">
             <thead>
                 <tr>
-                    <th className="py-2 px-4 border-b">No</th>
-                    <th className="py-2 px-4 border-b">Nama</th>
-                    <th className="py-2 px-4 border-b">Tipe</th>
-                    <th className="py-2 px-4 border-b">Kapasitas</th>
-                    <th className="py-2 px-4 border-b">Status</th>
-                    <th className="py-2 px-4 border-b">Aksi</th>
+                    <th className="py-2 px-4 border-b text-left">No</th>
+                    <th className="py-2 px-4 border-b text-left">Nama</th>
+                    <th className="py-2 px-4 border-b text-left">Tipe</th>
+                    <th className="py-2 px-4 border-b text-left">Kapasitas</th>
+                    <th className="py-2 px-4 border-b text-left">Status</th>
+                    <th className="py-2 px-4 border-b text-left">Aksi</th>
                 </tr>
             </thead>
             <tbody>

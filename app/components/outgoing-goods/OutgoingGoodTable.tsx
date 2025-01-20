@@ -8,6 +8,15 @@ interface OutgoingGoodTableProps {
     onDelete: (id: number) => void;
 }
 
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
 export const OutgoingGoodTable: React.FC<OutgoingGoodTableProps> = ({ outgoingGoods, onEdit, onDelete, startIndex }) => {
     return (
         <table className="min-w-full bg-white">
@@ -28,22 +37,22 @@ export const OutgoingGoodTable: React.FC<OutgoingGoodTableProps> = ({ outgoingGo
             <tbody>
                 {outgoingGoods.map((outgoingGoods, index) => (
                     <tr key={outgoingGoods.id}>
-                        <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
-                        <td className="py-2 px-4 border-b">{outgoingGoods.borrowerName}</td>
-                        <td className="py-2 px-4 border-b">{outgoingGoods.role}</td>
-                        <td className="py-2 px-4 border-b">{outgoingGoods.inventory.name}</td>
-                        <td className="py-2 px-4 border-b">{outgoingGoods.quantity}</td>
-                        <td className="py-2 px-4 border-b">
-                            {new Date(outgoingGoods.borrowDate).toLocaleDateString("id-ID")}
+                        <td className="py-2 px-4 border-b text-left">{startIndex + index + 1}</td>
+                        <td className="py-2 px-4 border-b text-left">{outgoingGoods.borrowerName}</td>
+                        <td className="py-2 px-4 border-b text-left">{outgoingGoods.role}</td>
+                        <td className="py-2 px-4 border-b text-left">{outgoingGoods.inventory.name}</td>
+                        <td className="py-2 px-4 border-b text-left">{outgoingGoods.quantity}</td>
+                        <td className="py-2 px-4 border-b text-left">
+                            {formatDate(outgoingGoods.borrowDate)}
                         </td>
-                        <td className="py-2 px-4 border-b">
-                            {new Date(outgoingGoods.returnDate).toLocaleDateString("id-ID")}
+                        <td className="py-2 px-4 border-b text-left">
+                            {formatDate(outgoingGoods.returnDate)}
                         </td>
-                        <td className="py-2 px-4 border-b">{outgoingGoods.reason}</td>
-                        <td className="py-2 px-4 border-b">
+                        <td className="py-2 px-4 border-b text-left">{outgoingGoods.reason}</td>
+                        <td className="py-2 px-4 border-b text-left">
                             {getGuaranteeOutgoingGoodsLabel(outgoingGoods.guarantee)}
                         </td>
-                        <td className="py-2 px-4 border-b">
+                        <td className="py-2 px-4 border-b text-left">
                             <div className="flex space-x-2">
                                 <button
                                     onClick={() => onEdit(outgoingGoods)}

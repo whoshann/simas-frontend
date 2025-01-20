@@ -1,5 +1,5 @@
 import axios from "axios";
-import { LoginCredentials, LoginResponse, TokenPayload } from "./types";
+import { LoginCredentials, LoginResponse } from "./types";
 import Cookies from "js-cookie";
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 const getHeaders = () => ({
@@ -47,6 +47,18 @@ export const authApi = {
       return response.data;
     } catch (error) {
       console.error("Error fetching student:", error);
+      throw error;
+    }
+  },
+
+  getUserLogin: async (id: number) => {
+    try {
+      const response = await axios.get(`${API_URL}/users/${id}`, {
+        headers: getHeaders(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
       throw error;
     }
   },
