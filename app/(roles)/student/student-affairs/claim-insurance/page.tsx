@@ -104,7 +104,6 @@ export default function StudentClaimInsurancePage() {
                                 >
                                     <option>Orang tua meninggal</option>
                                     <option>Kecelakaan</option>
-                                    <option>Speaker</option>
                                 </select>
                             </div>
 
