@@ -607,6 +607,14 @@ const Sidebar: React.FC = () => {
                                 Data Guru
                             </a>
                             <a
+                                href="/superadmin/position-data"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Posisi Jabatan' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Posisi Jabatan')}
+                            >
+                                <i className='bx bxs-user-rectangle mr-2 font-medium'></i>
+                                Posisi Jabatan
+                            </a>
+                            <a
                                 href="/superadmin/employee-data"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Data Karyawan' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Data Karyawan')}
@@ -614,13 +622,30 @@ const Sidebar: React.FC = () => {
                                 <i className='bx bxs-id-card mr-2 font-medium'></i>
                                 Data Karyawan
                             </a>
+
                             <a
-                                href="/superadmin/budget-management"
+                                href="/superadmin/subject-data"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Mapel' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Mapel')}
+                            >
+                                <i className='bx bxs-book mr-2 font-medium'></i>
+                                Data Mapel
+                            </a>
+                            <a
+                                href="/superadmin/school-class-data"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Kelas' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Kelas')}
+                            >
+                                <i className='bx bxs-school mr-2 font-medium'></i>
+                                Data Kelas
+                            </a>
+                            <a
+                                href="/superadmin/major-data"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Jurusan' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Jurusan')}
                             >
                                 <i className='bx bxs-chalkboard mr-2 font-medium'></i>
-                                Jurusan
+                                Data Jurusan
                             </a>
                         </div>
                     )}

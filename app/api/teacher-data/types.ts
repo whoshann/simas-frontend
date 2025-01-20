@@ -1,29 +1,42 @@
 export interface Teacher {
-    id?: number;
-    name: string;
+    id: number;
+    picture?: string;
     nip: string;
+    name: string;
     gender: string;
-    birthDate: string;
-    birthPlace: string;
+    placeOfBirth: string;
+    birthDate: Date;
     address: string;
     phone: string;
-    email: string;
-    position: string;
-    subject: string;
-    religion: string;
-    education: string;
+    lastEducation: string;
+    lastEducationMajor: string;
+    subjectId: number;
+    positionId: number;
+    role: string;
+    subject: {
+        id: number;
+        name: string;
+        code: string; // Tambahkan code
+    };
+    position: {
+        id: number;
+        name: string;
+        position: string; // Tambahkan position
+    };
     createdAt?: string;
     updatedAt?: string;
 }
 
 export interface TeacherResponse {
     code: number;
-    entity: string;
+    status: string;
+    message: string;
     data: Teacher;
 }
 
 export interface TeachersResponse {
     code: number;
-    entity: string;
+    status: string;
+    message: string;
     data: Teacher[];
 }
