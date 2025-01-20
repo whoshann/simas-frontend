@@ -6,21 +6,46 @@ import PageHeader from "@/app/components/superadmin/DataTable/TableHeader";
 import DataTable from "@/app/components/superadmin/DataTable/TableData";
 import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import { studentsApi } from "@/app/api/student-data";
+import { useStudents } from "@/app/hooks/useStudentData";
 import { Student } from "@/app/api/student-data/types";
+
 
 interface FormData {
     [key: string]: any;
 }
 
 export default function StudentPage() {
+    const [isPageLoading, setIsPageLoading] = useState(true);
+    const {
+        students,
+        loading,
+        fetchStudents,
+        createStudent,
+        updateStudent,
+        deleteStudent
+    } = useStudents();
+
     // State declarations
-    const [students, setStudents] = useState<Student[]>([]);
-    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+
+    // Fetch data saat komponen dimount
+    useEffect(() => {
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["SuperAdmin"]);
+                await fetchStudents();
+            } catch (error) {
+                console.error("Error:", error);
+            } finally {
+                setIsPageLoading(false);
+            }
+        };
+
+        initializePage();
+    }, []);
 
     const handleExport = (type: 'pdf' | 'excel') => {
         if (type === 'pdf') {
@@ -65,9 +90,9 @@ export default function StudentPage() {
             type: 'select' as const,
             required: true,
             options: [
-                { value: '10', label: '10' },
-                { value: '11', label: '11' },
-                { value: '12', label: '12' }
+                { value: '10', label: 'Kelas 10' },
+                { value: '11', label: 'Kelas 11' },
+                { value: '12', label: 'Kelas 12' }
             ]
         },
         {
@@ -76,10 +101,10 @@ export default function StudentPage() {
             type: 'select' as const,
             required: true,
             options: [
-                { value: 'RPL', label: 'RPL' },
-                { value: 'TKJ', label: 'TKJ' },
-                { value: 'ANIMASI', label: 'ANIMASI' },
-                { value: 'PH', label: 'PH' }
+                { value: 'IPA 1', label: 'IPA 1' },
+                { value: 'IPA 2', label: 'IPA 2' },
+                { value: 'IPS 1', label: 'IPS 1' },
+                { value: 'IPS 2', label: 'IPS 2' }
             ]
         },
         { name: 'nis', label: 'NIS', type: 'text' as const, required: true },
@@ -94,7 +119,13 @@ export default function StudentPage() {
                 { value: 'Perempuan', label: 'Perempuan' }
             ]
         },
-        { name: 'birthDate', label: 'Tanggal Lahir', type: 'date' as const, required: true },
+        {
+            name: 'birthDate',
+            label: 'Tanggal Lahir',
+            type: 'date' as const,
+            required: true,
+            valueFormat: (value: string) => value ? value.split('T')[0] : '' // Format tanggal
+        },
         { name: 'birthPlace', label: 'Tempat Lahir', type: 'text' as const, required: true },
         { name: 'address', label: 'Alamat', type: 'textarea' as const, required: true, colSpan: 2 },
         { name: 'phone', label: 'Nomor Telepon', type: 'tel' as const, required: true },
@@ -118,41 +149,31 @@ export default function StudentPage() {
         { name: 'guardian', label: 'Nama Wali (Opsional)', type: 'text' as const }
     ];
 
-    // Fetch data saat komponen dimount
-    useEffect(() => {
-        const initializePage = async () => {
-            try {
-                await roleMiddleware(["SuperAdmin"]);
-                const response = await studentsApi.getAll();
-                setStudents(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.error("Error:", error);
-                setLoading(false);
-            }
-        };
-
-        initializePage();
-    }, []);
-
     // Handler untuk edit data
     const handleEdit = (id: number) => {
         const student = students.find(s => s.id === id);
-        setSelectedStudent(student || null);
-        setIsModalOpen(true);
+        if (student) {
+            // Format tanggal sebelum menampilkan di form
+            const formattedStudent = {
+                ...student,
+                birthDate: student.birthDate ? student.birthDate.split('T')[0] : ''
+            };
+            setSelectedStudent(formattedStudent);
+            setIsModalOpen(true);
+        }
     };
 
     // Handler untuk delete data
     const handleDelete = async (id: number) => {
         if (window.confirm("Apakah Anda yakin ingin menghapus data ini?")) {
             try {
-                await studentsApi.delete(id);
-                setStudents(students.filter(student => student.id !== id));
+                await deleteStudent(id);
             } catch (error) {
                 console.error("Error deleting student:", error);
             }
         }
     };
+
 
     // Handler untuk submit form (add/edit)
     const handleSubmit = async (formData: FormData): Promise<void> => {
@@ -177,14 +198,10 @@ export default function StudentPage() {
 
             if (selectedStudent) {
                 // Update existing student
-                const response = await studentsApi.update(selectedStudent.id!, studentData);
-                setStudents(students.map(student => 
-                    student.id === selectedStudent.id ? response.data : student
-                ));
+                await updateStudent(selectedStudent.id!, studentData);
             } else {
                 // Add new student
-                const response = await studentsApi.create(studentData);
-                setStudents([...students, response.data]);
+                await createStudent(studentData);
             }
             setIsModalOpen(false);
             setSelectedStudent(null);
@@ -193,7 +210,7 @@ export default function StudentPage() {
         }
     };
 
-    if (loading) return <LoadingSpinner />;
+    if (isPageLoading) return <LoadingSpinner />;
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">

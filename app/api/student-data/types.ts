@@ -1,22 +1,31 @@
 export interface Student {
     id?: number;
     name: string;
-    classSchool: string;
-    major: string;
+    classSchool: {
+        id: number;
+        name: string;
+        code: string;
+        grade: 'X' | 'XI' | 'XII';
+    };
+    major: {
+        id: number;
+        name: string;
+        code: string;
+    };
     nis: string;
     nisn: string;
-    gender: string;
+    gender: 'L' | 'P';
     birthDate: string;
     birthPlace: string;
     address: string;
     phone: string;
     parentPhone: string;
-    religion: string;
+    religion: 'ISLAM' | 'CHRISTIANITY' | 'HINDUISM' | 'BUDDHISM' | 'CONFUCIANISM' | 'CATHOLICISM';
     motherName: string;
     fatherName: string;
     guardian: string | null;
-    createdAt?: string;  // Tambahkan jika diperlukan
-    updatedAt?: string;  // Tambahkan jika diperlukan
+    createdAt?: string;
+    updatedAt?: string;
   }
   
   export interface StudentResponse {
