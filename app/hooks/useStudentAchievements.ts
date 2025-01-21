@@ -1,63 +1,71 @@
-import { useState, useCallback } from "react";
-import { StudentAchievement } from "../api/student-achievements/types";
-import { studentachievementsApi } from "../api/student-achievements";
+import { useState } from 'react';
+import { StudentAchievement } from '@/app/api/student-achievements/types';
+import { studentAchievementsApi } from '@/app/api/student-achievements';
 
 export const useStudentAchievements = () => {
-  const [studentachievements, setStudentAchievements] = useState<StudentAchievement[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    const [studentAchievements, setStudentAchievements] = useState<StudentAchievement[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-  const fetchStudentAchievements = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await studentachievementsApi.getAll();
-      setStudentAchievements(response.data);
-      setError(null);
-    } catch (err) {
-      setError("Failed to fetch student achievements");
-      console.error("Error fetching student achievements:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const fetchStudentsAchievements = async () => {
+        try {
+            setLoading(true);
+            const response = await studentAchievementsApi.getAll();
+            setStudentAchievements(response.data as StudentAchievement[]);
+            setError(null);
+        } catch (err: any) {
+            setError(err.message || 'Error fetching students');
+            console.error('Error fetching students:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const createStudentAchievement = async (data: Omit<StudentAchievement, "id">) => {
-    try {
-      await studentachievementsApi.create(data);
-      await fetchStudentAchievements();
-    } catch (err) {
-      console.error("Error creating room:", err);
-      throw err;
-    }
-  };
+    const createStudentAchievement = async (data: Omit<StudentAchievement, 'id'>) => {
+        try {
+            const response = await studentAchievementsApi.create(data);
+            setStudentAchievements((prev) => [...prev, response.data as StudentAchievement]);
+            return response.data;
+        } catch (err: any) {
+            console.error('Error creating student:', err);
+            throw err;
+        }
+    };
 
-  const updateStudentAchievement = async (id: number, data: Partial<StudentAchievement>) => {
-    try {
-      await studentachievementsApi.update(id, data);
-      await fetchStudentAchievements();
-    } catch (err) {
-      console.error("Error updating room:", err);
-      throw err;
-    }
-  };
+    const updateStudentAchievement = async (id: number, data: Partial<StudentAchievement>) => {
+        try {
+            const response = await studentAchievementsApi.update(id, data);
+            setStudentAchievements((prev) =>
+                prev.map((studentAchievement) =>
+                    studentAchievement.id === id ? { ...studentAchievement, ...response.data } : studentAchievement
+                )
+            );
+            return response.data;
+        } catch (err: any) {
+            console.error('Error updating student:', err);
+            throw err;
+        }
+    };
 
-  const deleteStudentAchievement = async (id: number) => {
-    try {
-      await studentachievementsApi.delete(id);
-      await fetchStudentAchievements();
-    } catch (err) {
-      console.error("Error deleting room:", err);
-      throw err;
-    }
-  };
+    const deleteStudentAchievement = async (id: number) => {
+        try {
+            await studentAchievementsApi.delete(id);
+            setStudentAchievements((prev) =>
+                prev.filter((studentAchievement) => studentAchievement.id !== id)
+            );
+        } catch (err: any) {
+            console.error('Error deleting student:', err);
+            throw err;
+        }
+    };
 
-  return {
-    studentachievements,
-    loading,
-    error,
-    fetchStudentAchievements,
-    createStudentAchievement,
-    updateStudentAchievement,
-    deleteStudentAchievement,
-  };
+    return {
+        studentAchievements,
+        loading,
+        error,
+        fetchStudentsAchievements,
+        createStudentAchievement,
+        updateStudentAchievement,
+        deleteStudentAchievement,
+    };
 };

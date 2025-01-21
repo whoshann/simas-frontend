@@ -4,7 +4,7 @@ export interface StudentAchievement {
     classSchool: string;
     achievement: string;
     category: string;
-    photoEvidence?: string | null;
+    photo?: string | null;
     date?: string;
     createdAt?: string;
     updatedAt?: string;

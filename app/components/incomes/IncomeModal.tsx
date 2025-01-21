@@ -110,16 +110,6 @@ export const IncomesModal: React.FC<IncomeModalProps> = ({
                                 required
                             />
                         </div>
-                        
-                        {monthlyFinanceDetails && (
-                            <div className="mb-4">
-                                <p className="text-[var(--text-semi-bold-color)]">
-                                    Detail Bulan Terpilih:
-                                </p>
-                                <p>Pendapatan: {monthlyFinanceDetails.income}</p>
-                                <p>Pengeluaran: {monthlyFinanceDetails.expenses}</p>
-                            </div>
-                        )}
                         <div className="mb-4">
                             <label className="block mb-1 text-[var(--text-semi-bold-color)]">Jumlah</label>
                             <input

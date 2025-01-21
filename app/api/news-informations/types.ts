@@ -1,6 +1,5 @@
 export interface NewsInformation {
     id?: number;
-    photo?: string;
     title: string;
     description: string;
     date?: string;

@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { NewsInformation, NewsInformationResponse, NewsInformationsResponse } from "./types";
 
-const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/facility`;
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/news-information`;
 
 const getHeaders = () => ({
   Authorization: `Bearer ${Cookies.get("token")}`,
@@ -27,7 +27,7 @@ export const newsinformationsApi = {
     return response.data;
   },
 
-  update: async (id: number, data: Partial<NewsInformation>): Promise<NewsInformationsResponse> => {
+  update: async (id: number, data: Partial<NewsInformation>): Promise<NewsInformationResponse> => {
     const { id: _, createdAt, updatedAt, ...updateData } = data;
     const response = await axios.patch(`${API_URL}/${id}`, updateData, {
       headers: getHeaders(),

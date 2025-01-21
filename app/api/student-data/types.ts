@@ -1,4 +1,4 @@
-export interface StudentData{
+export interface Student {
     id?: number;
     name: string;
     classSchool: string;
@@ -9,25 +9,24 @@ export interface StudentData{
     birthDate: string;
     birthPlace: string;
     address: string;
-    phone: number;
-    parentPhone: number;
+    phone: string;
+    parentPhone: string;
     religion: string;
     motherName: string;
     fatherName: string;
-    guardian: string;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface StudentDataResponse {
-    code: number;
-    entity: string;
-    data: StudentData
-}
-
-export interface StudentsDataResponse {
-    code: number;
-    entity: string;
-    data: StudentData[];
-}
+    guardian: string | null;
+    createdAt?: string;  // Tambahkan jika diperlukan
+    updatedAt?: string;  // Tambahkan jika diperlukan
+  }
   
+  export interface StudentResponse {
+    code: number;
+    entity: string;
+    data: Student;
+  }
+  
+  export interface StudentsResponse {
+    code: number;
+    entity: string;
+    data: Student[];
+  }

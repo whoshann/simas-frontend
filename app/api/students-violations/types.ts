@@ -4,12 +4,12 @@ export interface StudentViolations {
     classSchool: string;
     photo?: string;
     category: string;
+    violations?: string;
+    punishment?: string;
     date?: string;
     createdAt?: string;
     updatedAt?: string;
-    violations?: string;
-    punishment?: string;
-    photoEvidence?: string | null;
+    
 }
 
 export interface StudentViolationsResponse {

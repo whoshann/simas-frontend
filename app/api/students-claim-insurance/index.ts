@@ -1,33 +1,33 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { StudentAchievement, StudentAchievementResponse, StudentAchievementsResponse } from "./types";
+import { StudentClaimInsurance, StudentClaimInsuranceResponse, StudentsClaimInsuranceResponse } from "./types";
 
-const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/student-achievements`;
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/student`;
 
 const getHeaders = () => ({
     Authorization: `Bearer ${Cookies.get("token")}`,
     "Content-Type": "application/json",
 });
 
-export const studentAchievementsApi = {
-    getAll: async (): Promise<StudentAchievementsResponse> => {
+export const studentsclaiminsuranceApi = {
+    getAll: async (): Promise<StudentsClaimInsuranceResponse> => {
         const response = await axios.get(API_URL, { headers: getHeaders() });
         return response.data;
     },
 
-    create: async (data: Omit<StudentAchievement, "id" | "createdAt" | "updatedAt">): Promise<StudentAchievementResponse> => {
+    create: async (data: Omit<StudentClaimInsurance, "id" | "createdAt" | "updatedAt">): Promise<StudentClaimInsuranceResponse> => {
         const response = await axios.post(API_URL, data, { headers: getHeaders() });
         return response.data;
     },
 
-    update: async (id: number, data: Partial<StudentAchievement>): Promise<StudentAchievementResponse> => {
+    update: async (id: number, data: Partial<StudentClaimInsurance>): Promise<StudentClaimInsuranceResponse> => {
         const response = await axios.patch(`${API_URL}/${id}`, data, {
             headers: getHeaders(),
         });
         return response.data;
     },
 
-    delete: async (id: number): Promise<StudentAchievementResponse> => {
+    delete: async (id: number): Promise<StudentClaimInsuranceResponse> => {
         const response = await axios.delete(`${API_URL}/${id}`, {
             headers: getHeaders(),
         });
