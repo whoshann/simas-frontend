@@ -66,7 +66,7 @@ export default function FacilitiesDashboardPage() {
         username: '',
     });
     const months = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Semua', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
     ];
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -74,7 +74,7 @@ export default function FacilitiesDashboardPage() {
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [entriesPerPage, setEntriesPerPage] = useState(5);
+    const [entriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
 
     const { dashboardData, loading, error, refreshData } = useDashboardFacilities();
@@ -85,12 +85,14 @@ export default function FacilitiesDashboardPage() {
     // Pindahkan fungsi filterDataByMonth ke sini
     const filterDataByMonth = (date: string) => {
         if (!date) return false;
+        if (selectedMonth === 'Semua') return true; // Tampilkan semua data jika 'Semua' dipilih
+
         const itemDate = new Date(date);
-        return itemDate.getMonth() === months.indexOf(selectedMonth) &&
+        return itemDate.getMonth() === months.indexOf(selectedMonth) - 1 && // Kurangi 1 karena ada 'Semua' di index 0
             itemDate.getFullYear() === selectedYear;
     };
 
-    // Filter berdasarkan bulan dan pencarian
+    // Filter data
     const filteredRepairs = dashboardData.repairs
         .filter(item => filterDataByMonth(item.date))
         .filter(item => item.category.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -99,16 +101,31 @@ export default function FacilitiesDashboardPage() {
     const totalEntries = filteredRepairs.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
-    const currentEntries = filteredRepairs.slice(startIndex, startIndex + entriesPerPage);
+    const endIndex = startIndex + entriesPerPage;
 
-    // Filter data untuk card summary dan tabel
+    // Slice data untuk halaman saat ini
+    const currentEntries = filteredRepairs.slice(startIndex, endIndex);
+
+    // Filter data untuk card summary
     const filteredDashboardData = {
-        incomingGoods: dashboardData.incomingGoods.filter(item => filterDataByMonth(item.formattedDate)).length,
-        outgoingGoods: dashboardData.outgoingGoods.filter(item => filterDataByMonth(item.formattedDate)).length,
-        totalInventory: dashboardData.totalInventory.filter(item => filterDataByMonth(item.formattedDate)).length,
-        totalRooms: dashboardData.totalRooms.filter(item => filterDataByMonth(item.formattedDate)).length,
-        latestBorrowings: dashboardData.latestBorrowings.filter(item => filterDataByMonth(item.date)),
-        repairs: dashboardData.repairs.filter(item => filterDataByMonth(item.date))
+        incomingGoods: selectedMonth === 'Semua'
+            ? dashboardData.incomingGoods.length
+            : dashboardData.incomingGoods.filter(item => filterDataByMonth(item.formattedDate)).length,
+        outgoingGoods: selectedMonth === 'Semua'
+            ? dashboardData.outgoingGoods.length
+            : dashboardData.outgoingGoods.filter(item => filterDataByMonth(item.formattedDate)).length,
+        totalInventory: selectedMonth === 'Semua'
+            ? dashboardData.totalInventory.length
+            : dashboardData.totalInventory.filter(item => filterDataByMonth(item.formattedDate)).length,
+        totalRooms: selectedMonth === 'Semua'
+            ? dashboardData.totalRooms.length
+            : dashboardData.totalRooms.filter(item => filterDataByMonth(item.formattedDate)).length,
+        latestBorrowings: selectedMonth === 'Semua'
+            ? dashboardData.latestBorrowings
+            : dashboardData.latestBorrowings.filter(item => filterDataByMonth(item.date)),
+        repairs: selectedMonth === 'Semua'
+            ? dashboardData.repairs
+            : dashboardData.repairs.filter(item => filterDataByMonth(item.date))
     };
 
     const togglePanel = () => {

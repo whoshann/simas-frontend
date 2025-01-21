@@ -1,20 +1,58 @@
 import React from 'react';
 import { ClaimData } from '@/app/api/insurance-modal/types';
+import { InsuranceClaimCategoryLabel, getInsuranceClaimCategoryLabel } from '@/app/utils/enumHelpers';
+import { InsuranceClaimCategory, InsuranceClaimStatus } from '@/app/utils/enums';
+import { useState } from 'react';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 interface ClaimModalProps {
     selectedClaim: ClaimData | null;
     onClose: () => void;
-    onConfirm: (claimId: number) => void;
-    onReject: (claimId: number) => void;
+    refreshData: () => void | Promise<void>; 
 }
+
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+};
 
 const ClaimModal: React.FC<ClaimModalProps> = ({
     selectedClaim,
     onClose,
-    onConfirm,
-    onReject
+    refreshData
 }) => {
+    const [isLoading, setIsLoading] = useState(false);
+
     if (!selectedClaim) return null;
+
+    const updateClaimStatus = async (status: InsuranceClaimStatus) => {
+        try {
+            setIsLoading(true);
+            const token = Cookies.get("token");
+            await axios.patch(
+                `${process.env.NEXT_PUBLIC_API_URL}/insurance-claim/${selectedClaim?.id}/status`,
+                { statusInsurance: status },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+            
+            refreshData();
+            onClose();
+        } catch (error) {
+            console.error('Error updating claim status:', error);
+            alert('Gagal mengupdate status klaim');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -41,13 +79,13 @@ const ClaimModal: React.FC<ClaimModalProps> = ({
                             <div>
                                 <p className="text-sm text-gray-500">Nama Lengkap</p>
                                 <p className="font-medium text-[var(--text-semi-bold-color)]">
-                                    {selectedClaim.name}
+                                    {selectedClaim.student?.name}
                                 </p>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Kelas</p>
                                 <p className="font-medium text-[var(--text-semi-bold-color)]">
-                                    {selectedClaim.class}
+                                    {selectedClaim.student?.class?.name}
                                 </p>
                             </div>
                         </div>
@@ -57,13 +95,13 @@ const ClaimModal: React.FC<ClaimModalProps> = ({
                             <div>
                                 <p className="text-sm text-gray-500">NIS</p>
                                 <p className="font-medium text-[var(--text-semi-bold-color)]">
-                                    {selectedClaim.nis}
+                                    {selectedClaim.student?.nis}
                                 </p>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Jenis Asuransi</p>
                                 <p className="font-medium text-[var(--text-semi-bold-color)]">
-                                    {selectedClaim.insuranceType}
+                                    {getInsuranceClaimCategoryLabel(selectedClaim.category as InsuranceClaimCategory)}
                                 </p>
                             </div>
                         </div>
@@ -73,7 +111,7 @@ const ClaimModal: React.FC<ClaimModalProps> = ({
                             <div>
                                 <p className="text-sm text-gray-500">Tanggal Kejadian</p>
                                 <p className="font-medium text-[var(--text-semi-bold-color)]">
-                                    {selectedClaim.incidentDate}
+                                    {formatDate(selectedClaim.claimDate)}
                                 </p>
                             </div>
                             <div>
@@ -104,16 +142,11 @@ const ClaimModal: React.FC<ClaimModalProps> = ({
                         <div>
                             <p className="text-sm text-gray-500 mb-2">Bukti Pendukung</p>
                             <div className="border rounded-lg p-2">
-                                {selectedClaim.supportingImage ? (
+                                {selectedClaim.photo ? (
                                     <img
-                                        src={selectedClaim.supportingImage}
+                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/insurance-claim/${selectedClaim.photo.split('/').pop()}`}
                                         alt="Bukti pendukung"
                                         className="w-full h-48 object-cover rounded"
-                                        onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.src = '/placeholder-image.jpg';
-                                            target.onerror = null;
-                                        }}
                                     />
                                 ) : (
                                     <div className="w-full h-48 bg-gray-100 flex items-center justify-center rounded">
@@ -127,32 +160,34 @@ const ClaimModal: React.FC<ClaimModalProps> = ({
                         {selectedClaim.statusInsurance === "Pending" ? (
                             <div className="flex justify-end space-x-4 mt-6">
                                 <button
-                                    onClick={() => onReject(selectedClaim.id)}
-                                    className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                                    onClick={() => updateClaimStatus(InsuranceClaimStatus.Rejected)}
+                                    disabled={isLoading}
+                                    className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
                                 >
-                                    Tolak
+                                    {isLoading ? 'Memproses...' : 'Tolak'}
                                 </button>
                                 <button
-                                    onClick={() => onConfirm(selectedClaim.id)}
-                                    className="px-6 py-2 bg-[var(--third-color)] text-white rounded-lg hover:opacity-90 transition-colors"
+                                    onClick={() => updateClaimStatus(InsuranceClaimStatus.Approved)}
+                                    disabled={isLoading}
+                                    className="px-6 py-2 bg-[var(--third-color)] text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50"
                                 >
-                                    Konfirmasi
+                                    {isLoading ? 'Memproses...' : 'Konfirmasi'}
                                 </button>
                             </div>
                         ) : (
                             <div className={`p-4 rounded-lg ${
-                                selectedClaim.statusInsurance === "Disetujui" 
+                                selectedClaim.statusInsurance === "Approved" 
                                     ? "bg-green-50 text-green-700 border border-green-200"
                                     : "bg-red-50 text-red-700 border border-red-200"
                             }`}>
                                 <div className="flex items-center">
                                     <i className={`bx ${
-                                        selectedClaim.statusInsurance === "Disetujui" 
+                                        selectedClaim.statusInsurance === "Approved"
                                             ? "bx-check text-green-500"
                                             : "bx-x text-red-500"
                                     } text-2xl mr-2`}></i>
                                     <p className="font-medium">
-                                        {selectedClaim.statusInsurance === "Disetujui"
+                                        {selectedClaim.statusInsurance === "Approved"
                                             ? "Klaim ini telah disetujui"
                                             : "Klaim ini telah ditolak"}
                                     </p>

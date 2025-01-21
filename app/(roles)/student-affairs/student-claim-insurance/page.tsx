@@ -7,110 +7,78 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import ClaimModal from '@/app/components/insurance-modal/ClaimModal';
 import { ClaimData, StatusInsurance } from '@/app/api/insurance-modal/types';
 import Cookies from "js-cookie";
+import { InsuranceClaimCategory } from "@/app/utils/enums";
+import { InsuranceClaimStatus } from "@/app/utils/enums";
 import axios from "axios";
+import { InsuranceClaimCategoryLabel } from "@/app/utils/enumHelpers";
 
 export default function StudentAffairsClaimInsurancePage() {
     useEffect(() => {
-        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
-        fetchData();
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["StudentAffairs"]);
+                setIsAuthorized(true);
+                await fetchInsuranceClaim();
+            } catch (error) {
+                console.error("Error initializing page:", error);
+                setIsAuthorized(false);
+                setError('Anda tidak memiliki akses ke halaman ini');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        initializePage();
     }, []);
 
-    const [user, setUser] = useState<any>({});
     const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
-    const token = Cookies.get("token");
-    const [statusInsurance, setStatusInsurance] = useState<StatusInsurance>("Pending");
+    const [statusInsurance, setStatusInsurance] = useState<string>("");
     const [selectedClaim, setSelectedClaim] = useState<ClaimData | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [insuranceClaims, setInsuranceClaims] = useState<InsuranceClaim[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Data dummy
-    const claims: ClaimData[] = [
-        {
-            id: 1,
-            name: "Ilham",
-            date: "20/01/2024",
-            statusInsurance: "Pending",
-            class: "XII IPA 1",
-            nis: "1234567890",
-            insuranceType: "Kesehatan",
-            incidentDate: "15/01/2024",
-            fatherName: "Budi Santoso",
-            motherName: "Sri Wahyuni",
-            reason: "Kecelakaan saat praktikum di laboratorium",
-            supportingImage: "/images/Berita1.jpg"
-        },
-        {
-            id: 2,
-            name: "Imron",
-            date: "20/01/2024",
-            statusInsurance: "Disetujui",
-            class: "XII IPA 2",
-            nis: "1234567891",
-            insuranceType: "Kesehatan",
-            incidentDate: "16/01/2024",
-            fatherName: "Ahmad Suharto",
-            motherName: "Siti Aminah",
-            reason: "Cedera saat olahraga",
-            supportingImage: "/images/Berita1.jpg"
-        },
-        {
-            id: 3,
-            name: "Rina",
-            date: "20/01/2024",
-            statusInsurance: "Ditolak",
-            class: "XII IPS 1",
-            nis: "1234567892",
-            insuranceType: "Kesehatan",
-            incidentDate: "17/01/2024",
-            fatherName: "Joko Widodo",
-            motherName: "Iriana",
-            reason: "Sakit demam berdarah",
-            supportingImage: "/images/Berita1.jpg"
-        },
-        {
-            id: 4,
-            name: "Rina",
-            date: "21/02/2026",
-            statusInsurance: "Pending",
-            class: "XII IPS 1",
-            nis: "1234567892",
-            insuranceType: "Kesehatan",
-            incidentDate: "17/01/2024",
-            fatherName: "Joko Widodo",
-            motherName: "Iriana",
-            reason: "Sakit demam berdarah",
-            supportingImage: "/images/Berita1.jpg"
-        },
-        {
-            id: 5,
-            name: "Bambang",
-            date: "20/01/2024",
-            statusInsurance: "Disetujui",
-            class: "XII IPS 1",
-            nis: "1234567892",
-            insuranceType: "Kesehatan",
-            incidentDate: "17/01/2024",
-            fatherName: "Joko Widodo",
-            motherName: "Iriana",
-            reason: "Sakit demam berdarah",
-            supportingImage: "/images/Berita1.jpg"
-        },
-        {
-            id: 6,
-            name: "Tateng",
-            date: "20/01/2024",
-            statusInsurance: "Ditolak",
-            class: "XII IPS 1",
-            nis: "1234567892",
-            insuranceType: "Kesehatan",
-            incidentDate: "17/01/2024",
-            fatherName: "Joko Widodo",
-            motherName: "Iriana",
-            reason: "Sakit demam berdarah",
-            supportingImage: "/images/Berita1.jpg"
-        },
-    ];
+    interface InsuranceClaim {
+        id: number;
+        studentId: number;
+        student?: {
+            name?: string;
+            nis?: string;
+            class?: {
+                name?: string,
+            }
+        };
+        category: InsuranceClaimCategory;
+        claimDate: string;
+        fatherName: string;
+        motherName: string;
+        reason: string;
+        photo: string;
+        statusInsurance: InsuranceClaimStatus;
+    }
+
+    const fetchInsuranceClaim = async () => {
+        try {
+            setIsLoading(true);
+            const token = Cookies.get("token");
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/insurance-claim`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.data && response.data.data) {
+                setInsuranceClaims(response.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching insurance claims:', error);
+            setInsuranceClaims([]);
+        }
+    };
 
     const handleCardClick = (claim: ClaimData) => {
         setSelectedClaim(claim);
@@ -142,50 +110,79 @@ export default function StudentAffairsClaimInsurancePage() {
         setSelectedClaim(null);
     };
 
-    const getStatusStyle = (statusInsurance: StatusInsurance) => {
+    const getStatusStyle = (statusInsurance: string) => {
         switch (statusInsurance) {
             case "Pending":
                 return { textColor: "text-[var(--second-color)]", bgColor: "bg-[#e88e1f29]" };
-            case "Disetujui":
+            case "Approved":
                 return { textColor: "text-[var(--third-color)]", bgColor: "bg-[#0a97b028]" };
-            case "Ditolak":
+            case "Rejected":
                 return { textColor: "text-[var(--fourth-color)]", bgColor: "bg-[#bd00002a]" };
             default:
                 return { textColor: "text-gray-600", bgColor: "bg-gray-100" };
         }
     };
 
-    const fetchData = async () => {
-        try {
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            const response = await axios.get("http://localhost:3333/student");
-            setUser(response.data);
-        } catch (err: any) {
-            console.error("Error saat fetching data:", err);
-            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-        } finally {
-            setLoading(false);
+    const getStatusLabel = (status: string) => {
+        switch (status) {
+            case 'Approved':
+                return 'Disetujui';
+            case 'Rejected':
+                return 'Ditolak';
+            default:
+                return 'Pending';
         }
     };
 
-    const filteredClaims = claims.filter((claim) => {
+    const filteredClaims = insuranceClaims.filter((claim) => {
         // Filter berdasarkan status
-        const statusMatch = claim.statusInsurance === statusInsurance;
+        if (statusInsurance) {
+            const statusMatch = statusInsurance === 'Disetujui' ? claim.statusInsurance === 'Approved' :
+                statusInsurance === 'Ditolak' ? claim.statusInsurance === 'Rejected' :
+                    claim.statusInsurance === 'Pending';
+            if (!statusMatch) return false;
+        }
 
         // Filter berdasarkan pencarian
-        const searchLower = searchQuery.toLowerCase();
-        const searchMatch =
-            claim.name.toLowerCase().includes(searchLower) ||
-            claim.nis?.toLowerCase().includes(searchLower) ||
-            claim.class?.toLowerCase().includes(searchLower) ||
-            claim.insuranceType?.toLowerCase().includes(searchLower) ||
-            claim.date.toLowerCase().includes(searchLower);
+        if (searchQuery) {
+            const searchLower = searchQuery.toLowerCase();
+            return (
+                claim.student?.name?.toLowerCase().includes(searchLower) ||
+                claim.student?.nis?.toLowerCase().includes(searchLower) ||
+                claim.student?.class?.name?.toLowerCase().includes(searchLower) ||
+                InsuranceClaimCategoryLabel[claim.category]?.toLowerCase().includes(searchLower)
+            );
+        }
 
-        // Mengembalikan item yang sesuai dengan status dan pencarian
-        return statusMatch && (searchQuery === "" || searchMatch);
+        return true;
     });
 
-    if (loading) return <LoadingSpinner />;
+    useEffect(() => {
+        fetchInsuranceClaim();
+    }, []); // Fetch saat komponen dimount
+
+    // Helper function untuk format tanggal
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        });
+    };
+
+    const refreshData = async () => {
+        try {
+            setIsLoading(true);
+            await fetchInsuranceClaim();
+        } catch (error) {
+            console.error('Error refreshing data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (isLoading) return <LoadingSpinner />;
     if (error) return <p className="text-red-500">{error}</p>;
 
     return (
@@ -216,6 +213,13 @@ export default function StudentAffairsClaimInsurancePage() {
 
             <main className="px-9 pb-6 mt-5">
                 <div className="flex items-center space-x-2 text-sm sm:text-lg mb-6">
+                    <button
+                        className={`text-[var(--text-semi-bold-color)] ${statusInsurance === "" ? "font-semibold" : ""}`}
+                        onClick={() => setStatusInsurance("")}
+                    >
+                        Semua
+                    </button>
+                    <span>/</span>
                     <button
                         className={`text-[var(--text-semi-bold-color)] ${statusInsurance === "Pending" ? "font-semibold" : ""}`}
                         onClick={() => setStatusInsurance("Pending")}
@@ -254,15 +258,21 @@ export default function StudentAffairsClaimInsurancePage() {
                                         </div>
                                         <div>
                                             <p className="font-semibold text-sm text-[var(--text-semi-bold-color)]">
-                                                {claim.name}
+                                                {claim.student?.name}
                                             </p>
                                             <p className="text-xs sm:text-sm text-[var(--text-thin-color)]">
-                                                Tanggal Pengajuan: {claim.date}
+                                                NIS: {claim.student?.nis} | Kelas: {claim.student?.class?.name} | {InsuranceClaimCategoryLabel[claim.category]}
+                                            </p>
+                                            <p className="text-xs sm:text-sm text-[var(--text-thin-color)]">
+                                                Tanggal Pengajuan: {formatDate(claim.claimDate)}
                                             </p>
                                         </div>
                                     </div>
                                     <div className={`px-4 flex justify-center items-center py-1 rounded-full ${bgColor}`}>
-                                        <span className={`text-xs ${textColor}`}>{claim.statusInsurance}</span>
+                                        <span className={`text-xs ${textColor}`}>
+                                            {claim.statusInsurance === 'Pending' ? 'Pending' :
+                                                claim.statusInsurance === 'Approved' ? 'Disetujui' : 'Ditolak'}
+                                        </span>
                                     </div>
                                 </div>
                             );
@@ -286,8 +296,7 @@ export default function StudentAffairsClaimInsurancePage() {
                     <ClaimModal
                         selectedClaim={selectedClaim}
                         onClose={handleCloseModal}
-                        onConfirm={handleConfirm}
-                        onReject={handleReject}
+                        refreshData={refreshData}
                     />
                 )}
             </main>
