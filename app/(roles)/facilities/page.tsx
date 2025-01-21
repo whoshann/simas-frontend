@@ -8,8 +8,8 @@ import React from 'react';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import { useDashboardFacilities } from "@/app/hooks/useDashboardFacilities";
-import { getTokenData } from "@/app/utils/tokenHelper";
 import { authApi } from "@/app/api/auth";
+import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 
 interface User {
     id: number;
@@ -31,19 +31,19 @@ export default function FacilitiesDashboardPage() {
             try {
                 await roleMiddleware(["Facilities"]);
                 setIsAuthorized(true);
-                refreshData();
+                
+                const userId = getUserIdFromToken();
+                if (userId) {
+                    fetchUserData(Number(userId));
+                }
+                
             } catch (error) {
                 console.error("Error initializing page:", error);
                 setIsAuthorized(false);
             }
         };
-        initializePage()
 
-        const tokenData = getTokenData();
-        if (tokenData) {
-            // Hanya panggil fetchUserData
-            fetchUserData(tokenData.id);
-        }
+        initializePage();
     }, []);
 
     const fetchUserData = async (userId: number) => {
