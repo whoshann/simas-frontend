@@ -7,7 +7,14 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
-import { error } from "console";
+
+interface FormData {
+    userId: number;
+    title: string;
+    description: string;
+    total_budget: number;
+    document_path?: File;
+}
 
 const formatRupiah = (angka: string) => {
   const number = angka.replace(/[^,\d]/g, '').toString();
@@ -25,13 +32,58 @@ const formatRupiah = (angka: string) => {
   return `Rp ${rupiah}`;
 };
 
-interface FormData {
-    userId: number;
-    title: string;
-    description: string;
-    total_budget: number;
-    document_path?: File;
-}
+const staticHistory = [
+  {
+    id: 1,
+    title: "Pengadaan Alat Laboratorium",
+    submissionDate: "2024-03-15",
+    amount: "Rp 15.000.000",
+    status: "Pending"
+  },
+  {
+    id: 2,
+    title: "Renovasi Ruang Kelas",
+    submissionDate: "2024-03-10",
+    amount: "Rp 25.000.000",
+    status: "Approved"
+  },
+  {
+    id: 3,
+    title: "Pembelian Buku Perpustakaan",
+    submissionDate: "2024-03-05",
+    amount: "Rp 8.000.000",
+    status: "Rejected"
+  }
+];
+
+const getStatusStyle = (status: string) => {
+  switch (status) {
+    case 'Rejected':
+      return {
+        iconBg: 'bg-[#bd00002a]',
+        icon: 'bx bxs-x-circle text-[var(--fourth-color)]',
+        badgeBg: 'bg-[#bd000026]',
+        textColor: 'text-[var(--fourth-color)]',
+        text: 'Ditolak'
+      };
+    case 'Approved':
+      return {
+        iconBg: 'bg-[#0a97b028]',
+        icon: 'bx bxs-check-circle text-[var(--third-color)]',
+        badgeBg: 'bg-[#0a97b028]',
+        textColor: 'text-[var(--third-color)]',
+        text: 'Disetujui'
+      };
+    default:
+      return {
+        iconBg: 'bg-[#e88e1f29]',
+        icon: 'bx bxs-error-circle text-[var(--second-color)]',
+        badgeBg: 'bg-[#e88e1f29]',
+        textColor: 'text-[var(--second-color)]',
+        text: 'Pending'
+      };
+  }
+};
 
 export default function FacilitiesBudgetProposalPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -70,10 +122,8 @@ export default function FacilitiesBudgetProposalPage() {
   }, []);
 
   if (loading) {
-        return (
-            <LoadingSpinner />
-        );
-    }
+    return <LoadingSpinner />;
+  }
 
   if (!isAuthorized) {
     return null;
@@ -92,7 +142,6 @@ export default function FacilitiesBudgetProposalPage() {
     const numericValue = value.replace(/[^0-9]/g, '');
     const formattedValue = numericValue ? formatRupiah(numericValue) : '';
     setJumlahDana(formattedValue);
-    // Update formData dengan nilai numerik
     setFormData(prev => ({
       ...prev,
       total_budget: Number(numericValue)
@@ -135,23 +184,21 @@ export default function FacilitiesBudgetProposalPage() {
           },
         }
       );
-      if (response.status === 201) { // Menggunakan HTTP status code 201 Created
-            // Reset semua input
-            setFormData({
-                userId: formData.userId,
-                title: '',
-                description: '',
-                total_budget: 0
-            });
-            setSelectedFile(null);
-            setJumlahDana('');
+      if (response.status === 201) {
+        setFormData({
+          userId: formData.userId,
+          title: '',
+          description: '',
+          total_budget: 0
+        });
+        setSelectedFile(null);
+        setJumlahDana('');
 
-            // Reset file input
-            const fileInput = document.getElementById('document_path') as HTMLInputElement;
-            if (fileInput) fileInput.value = '';
+        const fileInput = document.getElementById('document_path') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
 
-            alert('Pengajuan RAB berhasil dikirim!');
-        }
+        alert('Pengajuan RAB berhasil dikirim!');
+      }
       
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -165,15 +212,6 @@ export default function FacilitiesBudgetProposalPage() {
         <h1 className="text-2xl font-bold text-gray-800">Pengajuan RAB</h1>
         <p className="text-sm text-gray-600">Halo, selamat datang di halaman Pengajuan RAB</p>
       </header>
-
-      {/* Breadcrumb Section */}
-      <div className="px-9 mb-6">
-        <nav className="flex text-sm font-medium text-gray-600">
-          <a href="/" className="text-gray-400 hover:text-blue-600">Home</a>
-          <span className="mx-2">/</span>
-          <a href="/sarpras-pengajuan" className="text-gray-800 font-semibold hover:text-blue-600">Pengajuan RAB</a>
-        </nav>
-      </div>
 
       {/* Alert Section */}
       <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-6 py-4 mx-9 flex items-start mb-6">
@@ -192,7 +230,7 @@ export default function FacilitiesBudgetProposalPage() {
       </div>
 
       <main className="px-9 pb-6">
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Form Section */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -201,10 +239,7 @@ export default function FacilitiesBudgetProposalPage() {
             </h2>
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700">
                   Nama Rencana Anggaran Biaya
                 </label>
                 <input
@@ -219,10 +254,7 @@ export default function FacilitiesBudgetProposalPage() {
               </div>
 
               <div>
-                <label
-                  htmlFor="total_budget"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="total_budget" className="block text-sm font-medium text-gray-700">
                   Jumlah Dana Yang Diajukan
                 </label>
                 <input
@@ -237,10 +269,7 @@ export default function FacilitiesBudgetProposalPage() {
               </div>
 
               <div>
-                <label
-                  htmlFor="document_path"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="document_path" className="block text-sm font-medium text-gray-700">
                   Document Pengajuan RAB (PDF)
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
@@ -250,26 +279,23 @@ export default function FacilitiesBudgetProposalPage() {
                     name="document_path"
                     accept=".pdf"
                     onChange={handleFileChange}
-                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="block w-full text-gray-700 border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#1F509A] hover:file:bg-blue-100"
                     required
-                />
+                  />
                 </div>
               </div>
 
               <div>
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                   Alasan Pengajuan Rencana Anggaran Biaya
                 </label>
                 <textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
-                    required
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                  required
                 ></textarea>
               </div>
 
@@ -280,6 +306,66 @@ export default function FacilitiesBudgetProposalPage() {
                 Kirim
               </button>
             </form>
+          </div>
+
+          {/* History Card */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)] mb-4 flex items-center">
+              <div className="bg-[#e88e1f29] flex justify-center items-center rounded-full h-7 w-7 p-2">
+                <i className='bx bx-history text-[var(--second-color)] text-lg'></i>
+              </div>
+              <span className="ml-2">Riwayat Pengajuan RAB</span>
+            </h2>
+            <div className="space-y-8">
+              {staticHistory.map((item) => {
+                const statusStyle = getStatusStyle(item.status);
+
+                return (
+                  <div key={item.id} className="flex justify-between items-center border border-gray-300 rounded-lg p-4">
+                    <div className="flex items-center">
+                      <div className={`${statusStyle.iconBg} rounded-full h-10 w-10 p-2 mr-4`}>
+                        <i className={`${statusStyle.icon} text-2xl`}></i>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">
+                          {item.title}
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-500">
+                          Tanggal: {new Date(item.submissionDate).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-500">
+                          Jumlah: {item.amount}
+                        </p>
+                        {item.status === 'Pending' && (
+                          <p className="text-xs text-[var(--second-color)]">
+                            Menunggu persetujuan dari admin
+                          </p>
+                        )}
+                        {item.status === 'Approved' && (
+                          <p className="text-xs text-[var(--third-color)]">
+                            RAB telah disetujui
+                          </p>
+                        )}
+                        {item.status === 'Rejected' && (
+                          <p className="text-xs text-[var(--fourth-color)]">
+                            RAB ditolak
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className={`px-4 flex justify-center items-center py-1 rounded-full ${statusStyle.badgeBg}`}>
+                      <span className={`text-xs ${statusStyle.textColor}`}>
+                        {statusStyle.text}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </main>

@@ -398,6 +398,14 @@ const Sidebar: React.FC = () => {
                                 <i className='bx bxs-user-badge mr-2 font-medium'></i> {/* Ikon untuk Data Guru */}
                                 Data Guru
                             </a>
+                            <a
+                                href="/student-affairs/budget-proposal"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Student Affairs Finance' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Student Affairs Finance')}
+                            >
+                                <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk Student Affairs Finance */}
+                                Usulan Anggaran
+                            </a>
                         </div>
                     )}
 
