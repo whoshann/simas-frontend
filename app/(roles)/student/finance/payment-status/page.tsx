@@ -31,8 +31,7 @@ export default function StudentPaymentStatusPage() {
   useEffect(() => {
     // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
     roleMiddleware(["Student", "SuperAdmin"]);
-
-    // Panggil fungsi fetch data
+    
     fetchData();
 
     const token = Cookies.get("token");
@@ -42,10 +41,8 @@ export default function StudentPaymentStatusPage() {
         const studentId = decodedToken.sub;
         setStudentId(studentId.toString());
 
-        const BASE_URL = "http://localhost:3333";
-
         // Fetch data dari backend
-        axios.get(`${BASE_URL}/school-payment/${studentId}`)
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/school-payment/${studentId}`)
           .then((response) => {
             if (Array.isArray(response.data.data)) {
               setPayments(response.data.data);
@@ -106,13 +103,13 @@ export default function StudentPaymentStatusPage() {
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
           // Fetch data user dari endpoint API
-          const response = await axios.get("http://localhost:3333/student");
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/student`);
           setUser(response.data); // Simpan data user ke dalam state
       } catch (err: any) {
           console.error("Error saat fetching data:", err);
           setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
       } finally {
-          setLoading(false); // Set loading selesai
+          setLoading(false);
       }
   };
 

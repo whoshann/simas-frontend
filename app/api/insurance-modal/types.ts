@@ -1,16 +1,22 @@
+import { InsuranceClaimCategory } from "@/app/utils/enums";
+import { InsuranceClaimStatus } from "@/app/utils/enums";
 export type StatusInsurance = "Pending" | "Disetujui" | "Ditolak";
 
 export interface ClaimData {
-    id: number;
-    name: string;
-    date: string;
-    statusInsurance: StatusInsurance;
-    class?: string;
+  id: number;
+  studentId: number;
+  student?: {
+    name?: string;
     nis?: string;
-    insuranceType?: string;
-    incidentDate?: string;
-    fatherName?: string;
-    motherName?: string;
-    reason?: string;
-    supportingImage?: string;
+    class?: {
+      name?: string;
+    };
+  };
+  category: InsuranceClaimCategory;
+  claimDate: string;
+  fatherName: string;
+  motherName: string;
+  reason: string;
+  photo: string;
+  statusInsurance: InsuranceClaimStatus;
 }
