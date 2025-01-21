@@ -85,7 +85,7 @@ const tableHeaders = [
         render: (value: DispenseStatus, row: any) => {
             const statusStyles = {
                 [DispenseStatus.Pending]: 'bg-[#e88e1f29] text-[var(--second-color)]',
-                [DispenseStatus.Approved]: 'bg-green-100 text-[var(--third-color)]',
+                [DispenseStatus.Approved]: 'bg-[#0a97b022] text-[var(--third-color)]',
                 [DispenseStatus.Rejected]: 'bg-red-100 text-[var(--fourth-color)]',
             };
 

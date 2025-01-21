@@ -170,10 +170,10 @@ export default function StudentBorrowingGoodsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-[#1f509a] text-white rounded-lg p-6 flex flex-col justify-center items-center">
             <Image
-              src="/images/siswa-peminjamanberhasil-sarpras_1.svg"
+              src="/images/student-borrowing-goods.png"
               alt="Ilustrasi Siswa"
               className="mb-4 rounded w-1/2"
-              width={500}
+              width={300}
               height={300}
             />
             <h2 className="text-lg font-bold mb-2 text-center mt-4">Ajukan Peminjaman Barangmu Dengan Mudah!</h2>
@@ -195,7 +195,7 @@ export default function StudentBorrowingGoodsPage() {
                   id="name"
                   name="name"
                   value={student.name}
-                  className="mt-2 block w-full hidden rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
+                  className="mt-2 w-full hidden rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
                 />
               </div>
               <div>
@@ -204,7 +204,7 @@ export default function StudentBorrowingGoodsPage() {
                   id="role"
                   name="role"
                   value={student.role}
-                  className="mt-2 block w-full hidden rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
+                  className="mt-2 w-full hidden rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
                 />
               </div>
 

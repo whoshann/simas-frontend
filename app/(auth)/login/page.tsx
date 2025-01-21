@@ -26,9 +26,9 @@ export default function LoginPage() {
 
     return (
         <div
-            className="flex flex-col md:flex-row h-screen items-center justify-center"
+            className="flex flex-col md:flex-row h-screen bg-[#F2F2F2] items-center justify-center"
         >
-            <div className="md:w-1/2 bg-white flex items-center justify-center">
+            <div className="md:w-1/2 flex items-center justify-center">
                 <Image
                     src="/images/IlustrasiLogin.svg"
                     alt="Illustration"

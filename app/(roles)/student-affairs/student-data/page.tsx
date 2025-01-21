@@ -35,7 +35,7 @@ export default function StudentPage() {
     useEffect(() => {
         const initializePage = async () => {
             try {
-                await roleMiddleware(["StudentAffairs"]);
+                await roleMiddleware(["StudentAffairs","SuperAdmin"]);
                 await fetchStudents();
             } catch (error) {
                 console.error("Error:", error);

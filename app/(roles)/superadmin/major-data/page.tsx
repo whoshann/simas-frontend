@@ -106,7 +106,7 @@ export default function MajorPage() {
         try {
             await deleteMajor(id);
         } catch (error) {
-            console.error("Error deleting major:", error);
+            console.error("Error deleting subject:", error);
         }
     };
 
