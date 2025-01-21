@@ -7,105 +7,98 @@ import DataTable from "@/app/components/superadmin/DataTable/TableData";
 import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useStudents } from "@/app/hooks/useStudentData";
+import { useSchoolClasses } from "@/app/hooks/useSchoolClassData";
+import { useMajors } from "@/app/hooks/useMajorData";
 import { Student } from "@/app/api/student-data/types";
 
-
-interface FormData {
-    [key: string]: any;
-}
-
 export default function StudentPage() {
-    const [isPageLoading, setIsPageLoading] = useState(true);
-    const {
-        students,
-        loading,
-        fetchStudents,
-        createStudent,
-        updateStudent,
-        deleteStudent
-    } = useStudents();
-
-    // State declarations
+    // State
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
-    // Fetch data saat komponen dimount
+    // Hooks
+    const { 
+        students, 
+        loading: studentsLoading, 
+        fetchStudents,
+        createStudent,
+        updateStudent,
+        deleteStudent 
+    } = useStudents();
+
+    const { 
+        schoolClasses, 
+        loading: classesLoading, 
+        fetchSchoolClasses 
+    } = useSchoolClasses();
+
+    const { 
+        majors, 
+        loading: majorsLoading, 
+        fetchMajors 
+    } = useMajors();
+
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["SuperAdmin"]);
+                setIsAuthorized(true);
+                
+                // Log sebelum mengambil data
+                console.log('Mulai mengambil data...');
+                
+                // Ambil data kelas dan jurusan terlebih dahulu
+                const [classesResponse, majorsResponse] = await Promise.all([
+                    fetchSchoolClasses(),
+                    fetchMajors()
+                ]);
+                
+                // Log data kelas dan jurusan
+                console.log('Data Kelas:', schoolClasses);
+                console.log('Data Jurusan:', majors);
+                
+                // Ambil data siswa
                 await fetchStudents();
+                
+                // Log data siswa
+                console.log('Data Siswa:', students);
+                
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Error saat inisialisasi:", error);
+                setIsAuthorized(false);
             } finally {
-                setIsPageLoading(false);
+                setIsLoading(false);
             }
         };
 
         initializePage();
     }, []);
 
-    const handleExport = (type: 'pdf' | 'excel') => {
-        if (type === 'pdf') {
-            console.log("Exporting to PDF...");
-        } else {
-            console.log("Exporting to Excel...");
-        }
-    };
-
-    // Table headers configuration
-    const headers = [
-        { key: "id", label: "No" },
-        { key: "name", label: "Nama" },
-        { key: "nis", label: "NIS" },
-        { key: "classSchool", label: "Kelas" },
-        { key: "major", label: "Jurusan" },
-        { key: "nisn", label: "NISN" },
-        { key: "gender", label: "Jenis Kelamin" },
-        { key: "birthDate", label: "Tanggal Lahir" },
-        { key: "birthPlace", label: "Tempat Lahir" },
-        { key: "address", label: "Alamat" },
-        { key: "phone", label: "Nomor" },
-        { key: "parentPhone", label: "Nomor Orang Tua" },
-        { key: "religion", label: "Agama" },
-        { key: "motherName", label: "Nama Ibu" },
-        { key: "fatherName", label: "Nama Ayah" },
-        { key: "guardian", label: "Nama Wali" }
-    ];
-
-    // Page content configuration
-    const pageContent = {
-        title: "Data Siswa",
-        greeting: "Halo Super Admin, selamat datang kembali"
-    };
-
-    // Form fields configuration
     const studentFields = [
         { name: 'name', label: 'Nama Lengkap', type: 'text' as const, required: true },
         {
-            name: 'classSchool',
+            name: 'classSchoolId',
             label: 'Kelas',
             type: 'select' as const,
             required: true,
-            options: [
-                { value: '10', label: 'Kelas 10' },
-                { value: '11', label: 'Kelas 11' },
-                { value: '12', label: 'Kelas 12' }
-            ]
+            options: schoolClasses?.map(cls => ({
+                value: String(cls.id),
+                label: `${cls.name} (${cls.grade})`
+            })) || []
         },
         {
-            name: 'major',
+            name: 'majorId',
             label: 'Jurusan',
             type: 'select' as const,
             required: true,
-            options: [
-                { value: 'IPA 1', label: 'IPA 1' },
-                { value: 'IPA 2', label: 'IPA 2' },
-                { value: 'IPS 1', label: 'IPS 1' },
-                { value: 'IPS 2', label: 'IPS 2' }
-            ]
+            options: majors?.map(major => ({
+                value: String(major.id),
+                label: `${major.name} (${major.code})`
+            })) || []
         },
         { name: 'nis', label: 'NIS', type: 'text' as const, required: true },
         { name: 'nisn', label: 'NISN', type: 'text' as const, required: true },
@@ -115,19 +108,19 @@ export default function StudentPage() {
             type: 'select' as const,
             required: true,
             options: [
-                { value: 'Laki-laki', label: 'Laki-laki' },
-                { value: 'Perempuan', label: 'Perempuan' }
+                { value: 'L', label: 'Laki-laki' },
+                { value: 'P', label: 'Perempuan' }
             ]
         },
-        {
+        { 
             name: 'birthDate',
             label: 'Tanggal Lahir',
             type: 'date' as const,
             required: true,
-            valueFormat: (value: string) => value ? value.split('T')[0] : '' // Format tanggal
+            valueFormat: (value: string) => value ? value.split('T')[0] : ''
         },
         { name: 'birthPlace', label: 'Tempat Lahir', type: 'text' as const, required: true },
-        { name: 'address', label: 'Alamat', type: 'textarea' as const, required: true, colSpan: 2 },
+        { name: 'address', label: 'Alamat', type: 'textarea' as const, required: true },
         { name: 'phone', label: 'Nomor Telepon', type: 'tel' as const, required: true },
         { name: 'parentPhone', label: 'Nomor Telepon Orang Tua', type: 'tel' as const, required: true },
         {
@@ -136,12 +129,12 @@ export default function StudentPage() {
             type: 'select' as const,
             required: true,
             options: [
-                { value: 'Islam', label: 'Islam' },
-                { value: 'Kristen', label: 'Kristen' },
-                { value: 'Katolik', label: 'Katolik' },
-                { value: 'Hindu', label: 'Hindu' },
-                { value: 'Buddha', label: 'Buddha' },
-                { value: 'Konghucu', label: 'Konghucu' }
+                { value: 'ISLAM', label: 'Islam' },
+                { value: 'CHRISTIANITY', label: 'Kristen' },
+                { value: 'CATHOLICISM', label: 'Katolik' },
+                { value: 'HINDUISM', label: 'Hindu' },
+                { value: 'BUDDHISM', label: 'Buddha' },
+                { value: 'CONFUCIANISM', label: 'Konghucu' }
             ]
         },
         { name: 'motherName', label: 'Nama Ibu', type: 'text' as const, required: true },
@@ -149,92 +142,121 @@ export default function StudentPage() {
         { name: 'guardian', label: 'Nama Wali (Opsional)', type: 'text' as const }
     ];
 
-    // Handler untuk edit data
     const handleEdit = (id: number) => {
         const student = students.find(s => s.id === id);
         if (student) {
-            // Format tanggal sebelum menampilkan di form
-            const formattedStudent = {
+            setSelectedStudent({
                 ...student,
-                birthDate: student.birthDate ? student.birthDate.split('T')[0] : ''
-            };
-            setSelectedStudent(formattedStudent);
+                classSchoolId: student.classSchoolId, // Gunakan ID langsung
+                majorId: student.majorId // Gunakan ID langsung
+            });
             setIsModalOpen(true);
         }
     };
 
-    // Handler untuk delete data
-    const handleDelete = async (id: number) => {
-        if (window.confirm("Apakah Anda yakin ingin menghapus data ini?")) {
-            try {
-                await deleteStudent(id);
-            } catch (error) {
-                console.error("Error deleting student:", error);
-            }
-        }
-    };
-
-
-    // Handler untuk submit form (add/edit)
-    const handleSubmit = async (formData: FormData): Promise<void> => {
+    const handleSubmit = async (formData: any) => {
         try {
+            console.log('Form Data Received:', formData);
+            
             const studentData = {
-                name: formData.name,
-                classSchool: formData.classSchool,
-                major: formData.major,
-                nis: formData.nis,
-                nisn: formData.nisn,
-                gender: formData.gender,
-                birthDate: formData.birthDate,
-                birthPlace: formData.birthPlace,
-                address: formData.address,
-                phone: formData.phone,
-                parentPhone: formData.parentPhone,
-                religion: formData.religion,
-                motherName: formData.motherName,
-                fatherName: formData.fatherName,
-                guardian: formData.guardian || null,
+                ...formData,
+                classSchoolId: Number(formData.classSchoolId),
+                majorId: Number(formData.majorId)
             };
+            
+            console.log('Processed Student Data:', studentData);
 
-            if (selectedStudent) {
-                // Update existing student
-                await updateStudent(selectedStudent.id!, studentData);
+            if (selectedStudent?.id) {
+                console.log('Updating Student:', selectedStudent.id);
+                await updateStudent(selectedStudent.id, studentData);
             } else {
-                // Add new student
+                console.log('Creating New Student');
                 await createStudent(studentData);
             }
             setIsModalOpen(false);
             setSelectedStudent(null);
         } catch (error) {
-            console.error("Error submitting data:", error);
+            console.error('Error in handleSubmit:', error);
         }
     };
 
-    if (isPageLoading) return <LoadingSpinner />;
+    if (isLoading || studentsLoading || classesLoading || majorsLoading) {
+        return <LoadingSpinner />;
+    }
+
+    if (!isAuthorized) {
+        return null;
+    }
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <PageHeader
-                title={pageContent.title}
-                greeting={pageContent.greeting}
+                title="Data Siswa"
+                greeting="Kelola data siswa di sini"
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
             />
 
             <DataTable
-                headers={headers}
-                data={students}
+                headers={[
+                    { key: 'no', label: 'No' },
+                    { key: 'name', label: 'Nama' },
+                    { key: 'classSchool', label: 'Kelas' },
+                    { key: 'major', label: 'Jurusan' },
+                    { key: 'nis', label: 'NIS' },
+                    { key: 'nisn', label: 'NISN' },
+                    { key: 'gender', label: 'Jenis Kelamin' },
+                    { key: 'birthDate', label: 'Tanggal Lahir' },
+                    { key: 'birthPlace', label: 'Tempat Lahir' },
+                    { key: 'address', label: 'Alamat' },
+                    { key: 'phone', label: 'Nomor Telepon' },
+                    { key: 'parentPhone', label: 'Nomor Telepon Orang Tua' },
+                    { key: 'religion', label: 'Agama' },
+                    { key: 'motherName', label: 'Nama Ibu' },
+                    { key: 'fatherName', label: 'Nama Ayah' },
+                    { key: 'guardian', label: 'Nama Wali' }
+                ]}
+                data={students.map((student, index) => {
+                    // Pastikan data relasi ada
+                    const classSchoolName = student.classSchool 
+                        ? `${student.classSchool.name} (${student.classSchool.grade})`
+                        : `Kelas ${student.classSchoolId}`; // Tampilkan ID jika data belum dimuat
+            
+                    const majorName = student.major 
+                        ? `${student.major.name} (${student.major.code})`
+                        : `Jurusan ${student.majorId}`; // Tampilkan ID jika data belum dimuat
+            
+                    return {
+                        no: index + 1,
+                        name: student.name,
+                        classSchool: classSchoolName,
+                        major: majorName,
+                        nis: student.nis,
+                        nisn: student.nisn,
+                        gender: student.gender === 'L' ? 'Laki-laki' : 'Perempuan',
+                        birthDate: new Date(student.birthDate).toLocaleDateString('id-ID'),
+                        birthPlace: student.birthPlace,
+                        address: student.address,
+                        phone: student.phone,
+                        parentPhone: student.parentPhone,
+                        religion: student.religion,
+                        motherName: student.motherName,
+                        fatherName: student.fatherName,
+                        guardian: student.guardian || '-',
+                        id: student.id
+                    };
+                })}
                 searchTerm={searchTerm}
                 entriesPerPage={entriesPerPage}
                 setEntriesPerPage={setEntriesPerPage}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                onDelete={deleteStudent}
                 onAdd={() => {
                     setSelectedStudent(null);
                     setIsModalOpen(true);
                 }}
                 onImport={() => console.log("Import")}
-                onExport={handleExport}
+                onExport={() => console.log("Export")}
             />
 
             <DynamicModal

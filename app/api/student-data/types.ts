@@ -1,13 +1,15 @@
 export interface Student {
     id?: number;
     name: string;
-    classSchool: {
+    classSchoolId: number; // Pastikan field ini ada
+    majorId: number; // Pastikan field ini ada
+    classSchool?: {
         id: number;
         name: string;
         code: string;
         grade: 'X' | 'XI' | 'XII';
     };
-    major: {
+    major?: {
         id: number;
         name: string;
         code: string;
@@ -26,16 +28,16 @@ export interface Student {
     guardian: string | null;
     createdAt?: string;
     updatedAt?: string;
-  }
-  
-  export interface StudentResponse {
+}
+
+export interface StudentResponse {
     code: number;
     entity: string;
     data: Student;
-  }
-  
-  export interface StudentsResponse {
+}
+
+export interface StudentsResponse {
     code: number;
     entity: string;
     data: Student[];
-  }
+}

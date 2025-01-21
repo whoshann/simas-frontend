@@ -21,10 +21,10 @@ export const useStudents = () => {
         }
     };
 
-    const createStudent = async (data: Omit<Student, 'id'>) => {
+    const createStudent = async (data: Omit<Student, 'id' | 'createdAt' | 'updatedAt' | 'classSchool' | 'major'>) => {
         try {
             const response = await studentsApi.create(data);
-            setStudents([...students, response.data]);
+            await fetchStudents(); // Refresh data setelah create
             return response.data;
         } catch (err: any) {
             console.error('Error creating student:', err);
@@ -32,12 +32,10 @@ export const useStudents = () => {
         }
     };
 
-    const updateStudent = async (id: number, data: Partial<Student>) => {
+    const updateStudent = async (id: number, data: Partial<Omit<Student, 'classSchool' | 'major'>>) => {
         try {
             const response = await studentsApi.update(id, data);
-            setStudents(students.map(student => 
-                student.id === id ? response.data : student
-            ));
+            await fetchStudents(); // Refresh data setelah update
             return response.data;
         } catch (err: any) {
             console.error('Error updating student:', err);
@@ -48,7 +46,7 @@ export const useStudents = () => {
     const deleteStudent = async (id: number) => {
         try {
             await studentsApi.delete(id);
-            setStudents(students.filter(student => student.id !== id));
+            await fetchStudents(); // Refresh data setelah delete
         } catch (err: any) {
             console.error('Error deleting student:', err);
             throw err;

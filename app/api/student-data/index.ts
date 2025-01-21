@@ -11,17 +11,29 @@ const getHeaders = () => ({
 
 export const studentsApi = {
     getAll: async (): Promise<StudentsResponse> => {
-        const response = await axios.get(API_URL, { headers: getHeaders() });
+        const response = await axios.get(`${API_URL}?include=classSchool,major`, { 
+            headers: getHeaders() 
+        });
         return response.data;
     },
 
-    create: async (data: Omit<Student, "id" | "createdAt" | "updatedAt">): Promise<StudentResponse> => {
-        const response = await axios.post(API_URL, data, { headers: getHeaders() });
+    create: async (data: Omit<Student, "id" | "createdAt" | "updatedAt" | "classSchool" | "major">): Promise<StudentResponse> => {
+        const payload = {
+            ...data,
+            classSchoolId: Number(data.classSchoolId),
+            majorId: Number(data.majorId)
+        };
+        const response = await axios.post(API_URL, payload, { headers: getHeaders() });
         return response.data;
     },
 
-    update: async (id: number, data: Partial<Student>): Promise<StudentResponse> => {
-        const response = await axios.patch(`${API_URL}/${id}`, data, {
+    update: async (id: number, data: Partial<Omit<Student, "classSchool" | "major">>): Promise<StudentResponse> => {
+        const payload = {
+            ...data,
+            classSchoolId: data.classSchoolId ? Number(data.classSchoolId) : undefined,
+            majorId: data.majorId ? Number(data.majorId) : undefined
+        };
+        const response = await axios.patch(`${API_URL}/${id}`, payload, {
             headers: getHeaders(),
         });
         return response.data;
