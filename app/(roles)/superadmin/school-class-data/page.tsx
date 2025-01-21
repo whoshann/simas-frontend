@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import PageHeader from "@/app/components/superadmin/DataTable/TableHeader";
-import DataTable from "@/app/components/superadmin/DataTable/TableData";
-import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
+import PageHeader from "@/app/components/DataTable/TableHeader";
+import DataTable from "@/app/components/DataTable/TableData";
+import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useSchoolClasses } from '@/app/hooks/useSchoolClassData';
 import { useMajors } from '@/app/hooks/useMajorData';

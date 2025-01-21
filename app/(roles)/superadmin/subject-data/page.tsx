@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import PageHeader from "@/app/components/superadmin/DataTable/TableHeader";
-import DataTable from "@/app/components/superadmin/DataTable/TableData";
-import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
+import PageHeader from "@/app/components/DataTable/TableHeader";
+import DataTable from "@/app/components/DataTable/TableData";
+import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useSubjects } from '@/app/hooks/useSubjectData';
 
@@ -114,7 +114,7 @@ export default function SubjectPage() {
                 await createSubject(subjectData);
                 alert('Data mapel berhasil ditambahkan!');
             }
-            
+
             await fetchSubjects();
             setIsModalOpen(false);
             setSelectedSubject(null);
@@ -122,7 +122,7 @@ export default function SubjectPage() {
             // Tampilkan detail error lebih lengkap
             console.error("Error submitting data:", error);
             console.error("Error response:", error.response?.data);
-            
+
             // Optional: Tambahkan notifikasi error untuk user
             alert(error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data');
         }

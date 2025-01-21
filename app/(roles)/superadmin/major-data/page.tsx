@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import PageHeader from "@/app/components/superadmin/DataTable/TableHeader";
-import DataTable from "@/app/components/superadmin/DataTable/TableData";
-import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
+import PageHeader from "@/app/components/DataTable/TableHeader";
+import DataTable from "@/app/components/DataTable/TableData";
+import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useMajors } from '@/app/hooks/useMajorData';
 
@@ -92,7 +92,7 @@ export default function MajorPage() {
                 await createMajor(majorData);
                 alert('Data jurusan berhasil ditambahkan!');
             }
-            
+
             await fetchMajors();
             setIsModalOpen(false);
             setSelectedMajor(null);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import TableActions from "@/app/components/superadmin/DataTable/TableAction";
-import TablePagination from "@/app/components/superadmin/DataTable/TablePagination";
+import TableActions from "@/app/components/DataTable/TableAction";
+import TablePagination from "@/app/components/DataTable/TablePagination";
 
 interface TableHeader {
     key: string;

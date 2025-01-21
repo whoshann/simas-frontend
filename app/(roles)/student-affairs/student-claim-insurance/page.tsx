@@ -264,7 +264,7 @@ export default function StudentAffairsClaimInsurancePage() {
                                                 NIS: {claim.student?.nis} | Kelas: {claim.student?.class?.name} | {InsuranceClaimCategoryLabel[claim.category]}
                                             </p>
                                             <p className="text-xs sm:text-sm text-[var(--text-thin-color)]">
-                                                Tanggal Pengajuan: {formatDate(claim.claimDate)}
+                                                Tanggal Kejadian: {formatDate(claim.claimDate)}
                                             </p>
                                         </div>
                                     </div>

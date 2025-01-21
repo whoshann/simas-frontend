@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import PageHeader from "@/app/components/superadmin/DataTable/TableHeader";
-import DataTable from "@/app/components/superadmin/DataTable/TableData";
-import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
+import PageHeader from "@/app/components/DataTable/TableHeader";
+import DataTable from "@/app/components/DataTable/TableData";
+import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { usePositions } from '@/app/hooks/usePositionData';
-import { toast, Toaster } from 'react-hot-toast'; 
+import { toast, Toaster } from 'react-hot-toast';
 
 interface FormData {
     [key: string]: any;
@@ -87,7 +87,7 @@ export default function PositionPage() {
                 await createPosition(positionData);
                 alert('Data posisi berhasil ditambahkan!');
             }
-            
+
             await fetchPositions();
             setIsModalOpen(false);
             setSelectedPosition(null);

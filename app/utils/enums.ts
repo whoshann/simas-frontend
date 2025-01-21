@@ -27,6 +27,12 @@ export enum InsuranceClaimStatus {
   Rejected = "Rejected",
 }
 
+export enum DispenseStatus {
+  Pending = "Pending",
+  Approved = "Download Letter",
+  Rejected = "Rejected",
+}
+
 export enum InsuranceClaimCategory {
   Accident = "Accident",
   DeathDuetoIllness = "DeathDuetoIllness",

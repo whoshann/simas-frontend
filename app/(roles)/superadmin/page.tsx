@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from "react";
 import "@/app/styles/globals.css";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import HeaderSection from "@/app/components/superadmin/DataTable/TableHeader";
-import TableActions from "@/app/components/superadmin/DataTable/TableAction";
-import DataTable from "@/app/components/superadmin/DataTable/TableData";
-import TablePagination from "@/app/components/superadmin/DataTable/TablePagination";
+import HeaderSection from "@/app/components/DataTable/TableHeader";
+import TableActions from "@/app/components/DataTable/TableAction";
+import DataTable from "@/app/components/DataTable/TableData";
+import TablePagination from "@/app/components/DataTable/TablePagination";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 
 export default function SuperAdminHomePage() {

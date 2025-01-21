@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import PageHeader from "@/app/components/superadmin/DataTable/TableHeader";
-import DataTable from "@/app/components/superadmin/DataTable/TableData";
-import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
+import PageHeader from "@/app/components/DataTable/TableHeader";
+import DataTable from "@/app/components/DataTable/TableData";
+import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useStudents } from "@/app/hooks/useStudentData";
 import { useSchoolClasses } from "@/app/hooks/useSchoolClassData";
@@ -21,25 +21,25 @@ export default function StudentPage() {
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
     // Hooks
-    const { 
-        students, 
-        loading: studentsLoading, 
+    const {
+        students,
+        loading: studentsLoading,
         fetchStudents,
         createStudent,
         updateStudent,
-        deleteStudent 
+        deleteStudent
     } = useStudents();
 
-    const { 
-        schoolClasses, 
-        loading: classesLoading, 
-        fetchSchoolClasses 
+    const {
+        schoolClasses,
+        loading: classesLoading,
+        fetchSchoolClasses
     } = useSchoolClasses();
 
-    const { 
-        majors, 
-        loading: majorsLoading, 
-        fetchMajors 
+    const {
+        majors,
+        loading: majorsLoading,
+        fetchMajors
     } = useMajors();
 
     useEffect(() => {
@@ -47,26 +47,26 @@ export default function StudentPage() {
             try {
                 await roleMiddleware(["SuperAdmin"]);
                 setIsAuthorized(true);
-                
+
                 // Log sebelum mengambil data
                 console.log('Mulai mengambil data...');
-                
+
                 // Ambil data kelas dan jurusan terlebih dahulu
                 const [classesResponse, majorsResponse] = await Promise.all([
                     fetchSchoolClasses(),
                     fetchMajors()
                 ]);
-                
+
                 // Log data kelas dan jurusan
                 console.log('Data Kelas:', schoolClasses);
                 console.log('Data Jurusan:', majors);
-                
+
                 // Ambil data siswa
                 await fetchStudents();
-                
+
                 // Log data siswa
                 console.log('Data Siswa:', students);
-                
+
             } catch (error) {
                 console.error("Error saat inisialisasi:", error);
                 setIsAuthorized(false);
@@ -112,7 +112,7 @@ export default function StudentPage() {
                 { value: 'P', label: 'Perempuan' }
             ]
         },
-        { 
+        {
             name: 'birthDate',
             label: 'Tanggal Lahir',
             type: 'date' as const,
@@ -157,13 +157,13 @@ export default function StudentPage() {
     const handleSubmit = async (formData: any) => {
         try {
             console.log('Form Data Received:', formData);
-            
+
             const studentData = {
                 ...formData,
                 classSchoolId: Number(formData.classSchoolId),
                 majorId: Number(formData.majorId)
             };
-            
+
             console.log('Processed Student Data:', studentData);
 
             if (selectedStudent?.id) {
@@ -218,14 +218,14 @@ export default function StudentPage() {
                 ]}
                 data={students.map((student, index) => {
                     // Pastikan data relasi ada
-                    const classSchoolName = student.classSchool 
+                    const classSchoolName = student.classSchool
                         ? `${student.classSchool.name} (${student.classSchool.grade})`
                         : `Kelas ${student.classSchoolId}`; // Tampilkan ID jika data belum dimuat
-            
-                    const majorName = student.major 
+
+                    const majorName = student.major
                         ? `${student.major.name} (${student.major.code})`
                         : `Jurusan ${student.majorId}`; // Tampilkan ID jika data belum dimuat
-            
+
                     return {
                         no: index + 1,
                         name: student.name,

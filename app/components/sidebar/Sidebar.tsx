@@ -255,6 +255,20 @@ const Sidebar: React.FC = () => {
                                         <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Klaim Asuransi' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
                                         Klaim Asuransi
                                     </a>
+
+                                    <a
+                                        href={
+                                            role === "Student" ? "/student/student-affairs/dispensation-letter" :
+                                                role === "Teacher" ? "/teacher" :
+                                                    "/login"
+                                        }
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Surat Disensasi' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Surat Disensasi')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Surat Dispensasi' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Surat Dispensasi
+                                    </a>
+                                    
                                 </div>
                             </div>
 
@@ -343,6 +357,14 @@ const Sidebar: React.FC = () => {
                             >
                                 <i className='bx bxs-error-alt mr-2 font-medium'></i> {/* Ikon untuk Pelanggaran Siswa */}
                                 Pelanggaran Siswa
+                            </a>
+                            <a
+                                href="/student-affairs/dispensation-letter"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Dispense Letter' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Dispense Letter')}
+                            >
+                                <i className='bx bxs-envelope mr-2 font-medium'></i> {/* Ikon untuk Surat Dispen */}
+                                Surat Dispen
                             </a>
                             <a
                                 href="/student-affairs/student-claim-insurance"

@@ -4,39 +4,30 @@ import React from "react";
 import { useEffect,useState } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import Cookies from "js-cookie";
-import axios from "axios";
 
-export default function FacilitiesBudgetProposalPage() {
 
-  // Panggil middleware dan hooks di awal komponen
+export default function StudentAchievementPage() {
+
   useEffect(() => {
-    // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-    roleMiddleware(["Student", "SuperAdmin"]);
-    fetchData();
-  }, []);
+    const initializePage = async () => {
+        try {
+            await roleMiddleware(["Student","SuperAdmin"]);
+            setIsAuthorized(true);
+        } catch (error) {
+            console.error("Auth error:", error);
+            setIsAuthorized(false);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const [user, setUser] = useState<any>({});
+    initializePage();
+}, []);
+
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
-  const token = Cookies.get("token");
-
-  const fetchData = async () => {
-    try {
-      // Set default Authorization header dengan Bearer token
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      // Fetch data user dari endpoint API
-      const response = await axios.get("http://localhost:3333/student");
-      setUser(response.data); // Simpan data user ke dalam state
-    } catch (err: any) {
-      console.error("Error saat fetching data:", err);
-      setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-    } finally {
-      setLoading(false); // Set loading selesai
-    }
-  };
 
   if (loading) {
     return <LoadingSpinner />;
@@ -50,7 +41,7 @@ export default function FacilitiesBudgetProposalPage() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9">
-        <h1 className="text-2xl font-bold text-gray-800">Prestasi</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Prestasi</h1>
         <p className="text-sm text-gray-600">Halo, selamat datang di halaman Prestasi</p>
       </header>
 
@@ -58,7 +49,7 @@ export default function FacilitiesBudgetProposalPage() {
         <div className="grid grid-cols-1 gap-6">
           {/* Form Section */}
           <div className="bg-white rounded-lg shadow p-6">  
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)] mb-4 flex items-center">
               <i className="bx bx-box text-2xl text-orange-600 mr-2"></i>
               <span className="ml-2">Form Prestasi</span>
             </h2>
