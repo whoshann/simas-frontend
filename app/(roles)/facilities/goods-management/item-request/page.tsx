@@ -8,17 +8,16 @@ import Image from 'next/image';
 import ItemModal from "@/app/components/ItemModal.js";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
-import axios from "axios";
+import { Procurement } from "@/app/api/procurement/types";
+import { useProcurements } from "@/app/hooks/useProcurements";
+import { getProcurementStatusLabel } from "@/app/utils/enumHelpers";
+import { ProcurementStatus } from "@/app/utils/enums";
+import { procurementsApi } from "@/app/api/procurement";
 
-type Item = {
-    no: number;
-    itemName: string;
-    unitPrice: number;
-    amountPrice: number;
-    supplier?: string;
-    requestDate: string;
-    requester: string;
-};
+interface TableProps {
+    procurement: Procurement[];
+    startIndex: number;
+}
 
 export default function ItemRequestPage() {
     useEffect(() => {
@@ -26,6 +25,7 @@ export default function ItemRequestPage() {
             try {
                 await roleMiddleware(["Facilities"]);
                 setIsAuthorized(true);
+                fetchProcurements();
             } catch (error) {
                 console.error("Auth error:", error);
                 setIsAuthorized(false);
@@ -44,48 +44,24 @@ export default function ItemRequestPage() {
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+    const [selectedItem, setSelectedItem] = useState<Procurement | null>(null);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-
-    const data = [
-
-        {
-            no: 1,
-            itemName: "Papan Tulis",
-            unitPrice: 54000,
-            amountPrice: 108000,
-            supplier: "Sinar Jaya",
-            requestDate: "13/01/2025",
-            requester: "John Doe", // Added requester field
-        },
-        {
-            no: 2,
-            itemName: "Meja Guru",
-            unitPrice: 150000,
-            amountPrice: 300000,
-            supplier: "Mebel Sejahtera",
-            requestDate: "13/01/2025",
-            requester: "Jane Smith", // Added requester field
-        },
-        {
-            no: 3,
-            itemName: "Kursi Siswa",
-            unitPrice: 75000,
-            amountPrice: 1500000,
-            supplier: "Perabotan Cerdas",
-            requestDate: "13/01/2025",
-            requester: "Mark Lee", // Added requester field
-        },      
-    ];
-
+    const { procurements, fetchProcurements } = useProcurements();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
   
     // Search item tabel
-    const filteredData = data.filter(item =>
+    const filteredData = procurements.filter((item: Procurement) =>
         item.itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.supplier.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.requester.toLowerCase().includes(searchTerm.toLowerCase())
+        item.procurementName.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const formatDate = (date: string) => {
+        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(date).toLocaleDateString('id-ID', options);
+    };
 
     const totalEntries = filteredData.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
@@ -102,30 +78,50 @@ export default function ItemRequestPage() {
         setIsModalOpen(true);
     };
 
-    const handleEditClick = (item: Item) => {
-        setSelectedItem(item);
-        setIsModalOpen(true);
-    };
-
-    const handleModalSubmit = (data: Item) => {
-        if (selectedItem) {
-            // Update data
-            console.log("Edit Data", data);
-        } else {
-            // Tambah data baru
-            console.log("Tambah Data", data);
+    const handleCheckClick = async (item: Procurement) => {
+        try {
+            setLoading(true);
+            setError("");
+            
+            await procurementsApi.updateStatus(
+                item.id.toString(), 
+                "Approved"
+            );
+            
+            // Refresh data setelah update
+            await fetchProcurements(); // Pastikan Anda memiliki fungsi untuk fetch ulang data
+            
+            alert("Status pengajuan berhasil diubah menjadi Approved");
+        } catch (error) {
+            alert("Gagal mengubah status pengajuan");
+        } finally {
+            setLoading(false);
         }
     };
-    const handleCheckClick = (item: Item) => {
-        console.log("Centang clicked for item: ", item);
-    };
     
-    const handleCancelClick = (item: Item) => {
-        console.log("Cancel clicked for item: ", item);
+    const handleCancelClick = async (item: Procurement) => {
+        try {
+            setLoading(true);
+            setError("");
+            
+            await procurementsApi.updateStatus(
+                item.id.toString(), 
+                "Rejected"
+            );
+            
+            // Refresh data setelah update
+            await fetchProcurements();
+            
+            alert("Status pengajuan berhasil diubah menjadi Rejected");
+        } catch (error) {
+            alert("Gagal mengubah status pengajuan");
+        } finally {
+            setLoading(false);
+        }
     };
 
      if (isLoading) {
-        return <div>Loading...</div>;
+        return <LoadingSpinner />;
     }
 
     if (!isAuthorized) {
@@ -179,12 +175,12 @@ export default function ItemRequestPage() {
 
                         <div className="flex space-x-2 mt-5 sm:mt-0">
                             {/* Button Tambah Data */}
-                            <button
+                            {/* <button
                                 onClick={handleAddClick}
                                 className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
                             >
                                 Tambah Data
-                            </button>
+                            </button> */}
 
                             {/* Button Import CSV */}
                             <button
@@ -247,42 +243,44 @@ export default function ItemRequestPage() {
                                     <th className="py-2 px-4 border-b text-left">Pemasok</th>
                                     <th className="py-2 px-4 border-b text-left">Tanggal Pengajuan</th>
                                     <th className="py-2 px-4 border-b text-left">Pengaju</th>
+                                    <th className="py-2 px-4 border-b text-left">Status</th>
                                     <th className="py-2 px-4 border-b text-left">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
+                                {currentEntries.map((item: Procurement, index: number) => (
+                                    <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
+                                        <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
                                         <td className="py-2 px-4 border-b">{item.itemName}</td>
                                         <td className="py-2 px-4 border-b">{item.unitPrice}</td>
-                                        <td className="py-2 px-4 border-b">{item.amountPrice}</td>
+                                        <td className="py-2 px-4 border-b">{item.totalPrice}</td>
                                         <td className="py-2 px-4 border-b">{item.supplier}</td>
-                                        <td className="py-2 px-4 border-b">{item.requestDate}</td>
-                                        <td className="py-2 px-4 border-b">{item.requester}</td>
- 
-
+                                        <td className="py-2 px-4 border-b">{formatDate(item.procurementDate)}</td>
+                                        <td className="py-2 px-4 border-b">{item.procurementName}</td>
+                                        <td className="py-2 px-4 border-b">{getProcurementStatusLabel(item.procurementStatus as ProcurementStatus)}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
-                                                {/* Centang (Check) Button */}
-                                                <button
-                                                    onClick={() => handleCheckClick(item)} // Handle check action
-                                                    className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-                                                >
-                                                    <i className="bx bx-check text-lg"></i> {/* Check icon */}
-                                                </button>
+                                                {item.procurementStatus !== 'Approved' && item.procurementStatus !== 'Rejected' && (
+                                                    <>
+                                                        {/* Centang (Check) Button */}
+                                                        <button
+                                                            onClick={() => handleCheckClick(item)}
+                                                            className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+                                                        >
+                                                            <i className="bx bx-check text-lg"></i>
+                                                        </button>
 
-                                                {/* Cancel Button */}
-                                                <button
-                                                    onClick={() => handleCancelClick(item)} // Handle cancel action
-                                                    className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-                                                >
-                                                    <i className="bx bx-x text-lg"></i> {/* Cross icon */}
-                                                </button>
+                                                        {/* Cancel Button */}
+                                                        <button
+                                                            onClick={() => handleCancelClick(item)}
+                                                            className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
+                                                        >
+                                                            <i className="bx bx-x text-lg"></i>
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
-                                            </td>
-
-
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -325,12 +323,6 @@ export default function ItemRequestPage() {
                     </div>
                 </div>
             </main>
-            <ItemModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-                itemData={selectedItem}
-            />
         </div>
     );
 }

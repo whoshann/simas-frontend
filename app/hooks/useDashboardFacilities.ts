@@ -5,6 +5,7 @@ import { outgoingGoodsApi } from "@/app/api/outgoing-goods";
 import { repairsApi } from "@/app/api/repairs";
 import { inventoryApi } from "@/app/api/inventories";
 import { roomsApi } from "@/app/api/rooms";
+import { procurementsApi } from "@/app/api/procurement";
 
 interface DashboardData {
   incomingGoods: Array<{ formattedDate: string; [key: string]: any }>;
@@ -26,6 +27,10 @@ interface DashboardData {
     name: string;
     date: string;
   }>;
+  latestProcurements: Array<{
+    name: string;
+    date: string;
+  }>;
 }
 
 export const useDashboardFacilities = () => {
@@ -37,6 +42,7 @@ export const useDashboardFacilities = () => {
     repairs: [],
     latestBorrowings: [],
     latestRequests: [],
+    latestProcurements: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,14 +71,21 @@ export const useDashboardFacilities = () => {
     try {
       setLoading(true);
 
-      const [incomingRes, outgoingRes, inventoriesRes, roomsRes, repairsRes] =
-        await Promise.all([
-          incomingGoodsApi.getAll(),
-          outgoingGoodsApi.getAll(),
-          inventoryApi.getAll(),
-          roomsApi.getAll(),
-          repairsApi.getAll(),
-        ]);
+      const [
+        incomingRes,
+        outgoingRes,
+        inventoriesRes,
+        roomsRes,
+        repairsRes,
+        procurementsRes,
+      ] = await Promise.all([
+        incomingGoodsApi.getAll(),
+        outgoingGoodsApi.getAll(),
+        inventoryApi.getAll(),
+        roomsApi.getAll(),
+        repairsApi.getAll(),
+        procurementsApi.getAll(),
+      ]);
 
       const formatDateIncomingGoods = incomingRes.data.map((item) => ({
         ...item,
@@ -120,6 +133,11 @@ export const useDashboardFacilities = () => {
           incomingRes.data?.slice(0, 5).map((item) => ({
             name: item.inventory?.name || "",
             date: formatDate(item.date),
+          })) || [],
+        latestProcurements:
+          procurementsRes.data?.slice(0, 5).map((item) => ({
+            name: item.itemName || "",
+            date: formatDate(item.procurementDate),
           })) || [],
       });
 

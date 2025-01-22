@@ -5,6 +5,7 @@ import {
   GuaranteeOutgoingGoods,
   InsuranceClaimStatus,
   InsuranceClaimCategory,
+  ProcurementStatus,
 } from "./enums";
 
 export const ConditionLabel = {
@@ -72,4 +73,16 @@ export const getInsuranceClaimCategoryLabel = (
   category: InsuranceClaimCategory
 ): string => {
   return InsuranceClaimCategoryLabel[category] || category;
+};
+
+export const ProcurementStatusLabel = {
+  Pending: "Menunggu",
+  Approved: "Disetujui",
+  Rejected: "Ditolak",
+};
+
+export const getProcurementStatusLabel = (
+  status: ProcurementStatus
+): string => {
+  return ProcurementStatusLabel[status] || status;
 };

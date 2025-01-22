@@ -40,3 +40,9 @@ export enum InsuranceClaimCategory {
   ParentalDeath = "ParentalDeath",
   DisabilityDuetoAccident = "DisabilityDuetoAccident",
 }
+
+export enum ProcurementStatus {
+  Pending = "Pending",
+  Approved = "Approved",
+  Rejected = "Rejected",
+}
