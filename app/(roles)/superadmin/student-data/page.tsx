@@ -6,7 +6,7 @@ import PageHeader from "@/app/components/DataTable/TableHeader";
 import DataTable from "@/app/components/DataTable/TableData";
 import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import { useStudents } from "@/app/hooks/useStudentData";
+import { useStudents } from "@/app/hooks/useStudent";
 import { useSchoolClasses } from "@/app/hooks/useSchoolClassData";
 import { useMajors } from "@/app/hooks/useMajorData";
 import { Student } from "@/app/api/student-data/types";

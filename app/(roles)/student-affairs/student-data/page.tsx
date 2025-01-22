@@ -6,9 +6,9 @@ import PageHeader from "@/app/components/DataTable/TableHeader";
 import DataTable from "@/app/components/DataTable/TableData";
 import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import { useStudents } from "@/app/hooks/useStudentData";
-import { Student } from "@/app/api/student-data/types";
-
+import { useStudents } from "@/app/hooks/useStudent";
+import { Student } from "@/app/api/student/types";
+import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 
 interface FormData {
     [key: string]: any;
@@ -30,20 +30,27 @@ export default function StudentPage() {
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [userId, setUserId] = useState<string>('');
 
     // Fetch data saat komponen dimount
     useEffect(() => {
         const initializePage = async () => {
             try {
-                await roleMiddleware(["StudentAffairs","SuperAdmin"]);
+                await roleMiddleware(["StudentAffairs"]);
+                setIsAuthorized(true);
                 await fetchStudents();
+                const id = getUserIdFromToken();
+                if (id) {
+                    setUserId(id);
+                }
             } catch (error) {
-                console.error("Error:", error);
-            } finally {
-                setIsPageLoading(false);
+                console.error("Error initializing page:", error);
+                setIsAuthorized(false);
             }
         };
 
+        initializePage();
         initializePage();
     }, []);
 
@@ -56,14 +63,8 @@ export default function StudentPage() {
     };
 
     // Fungsi untuk memformat tanggal
-    const formatDate = (dateString: string) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
     };
 
 
@@ -74,25 +75,25 @@ export default function StudentPage() {
         { key: "nis", label: "NIS" },
         { key: "nisn", label: "NISN" },
         {
-            key: "classSchool",
+            key: "Class",
             label: "Kelas",
-            render: (value: string) => value || '-'
+            render: (student: Student) => student.Class?.name || '-'
         },
         {
-            key: "major",
+            key: "Major",
             label: "Jurusan",
-            render: (value: string) => value || '-'
+            render: (student: Student) => student.Major?.name || '-'
         },
         {
             key: "birthDate",
             label: "Tanggal Lahir",
-            render: (value: string) => formatDate(value)
+            render: (student: Student) => formatDate(student.birthDate)
         },
         { key: "birthPlace", label: "Tempat Lahir" },
         {
             key: "gender",
             label: "Jenis Kelamin",
-            render: (value: string) => value === 'L' ? 'Laki-laki' : 'Perempuan'
+            render: (student: Student) => student.gender === 'L' ? 'Laki-laki' : 'Perempuan'
         },
         { key: "address", label: "Alamat" },
         { key: "phone", label: "Nomor" },
@@ -196,9 +197,10 @@ export default function StudentPage() {
     const handleEdit = (id: number) => {
         const student = students.find(s => s.id === id);
         if (student) {
-            // Format tanggal sebelum menampilkan di form
             const formattedStudent = {
                 ...student,
+                classId: student.Class?.id,
+                majorId: student.Major?.id,
                 birthDate: student.birthDate ? student.birthDate.split('T')[0] : ''
             };
             setSelectedStudent(formattedStudent);
@@ -223,8 +225,8 @@ export default function StudentPage() {
         try {
             const studentData = {
                 name: formData.name,
-                classSchool: formData.classSchool,
-                major: formData.major,
+                classId: parseInt(formData.classId),
+                majorId: parseInt(formData.majorId),
                 nis: formData.nis,
                 nisn: formData.nisn,
                 gender: formData.gender,
@@ -240,10 +242,8 @@ export default function StudentPage() {
             };
 
             if (selectedStudent) {
-                // Update existing student
-                await updateStudent(selectedStudent.id!, studentData);
+                await updateStudent(selectedStudent.id, studentData);
             } else {
-                // Add new student
                 await createStudent(studentData);
             }
             setIsModalOpen(false);

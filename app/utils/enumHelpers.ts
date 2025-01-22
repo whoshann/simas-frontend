@@ -6,6 +6,10 @@ import {
   InsuranceClaimStatus,
   InsuranceClaimCategory,
   ProcurementStatus,
+  AbsenceStatus,
+  Religion,
+  Gender,
+  AchievementType,
 } from "./enums";
 
 export const ConditionLabel = {
@@ -85,4 +89,46 @@ export const getProcurementStatusLabel = (
   status: ProcurementStatus
 ): string => {
   return ProcurementStatusLabel[status] || status;
+};
+
+export const AbsenceStatusLabel = {
+  Present: "Hadir",
+  Permission: "Izin",
+  Sick: "Sakit",
+  Alpha: "Alpha",
+};
+
+export const getAbsenceStatusLabel = (status: AbsenceStatus): string => {
+  return AbsenceStatusLabel[status] || status;
+};
+
+export const ReligionLabel = {
+  ISLAM: "Islam",
+  CHRISTIANITY: "Kristen",
+  HINDUISM: "Hindu",
+  BUDDHISM: "Buddha",
+  CONFUCIANISM: "Konghucu",
+  CATHOLICISM: "Katolik",
+};
+
+export const getReligionLabel = (religion: Religion): string => {
+  return ReligionLabel[religion] || religion;
+};
+
+export const GenderLabel = {
+  L: "Laki-laki",
+  P: "Perempuan",
+};
+
+export const getGenderLabel = (gender: Gender): string => {
+  return GenderLabel[gender] || gender;
+};
+
+export const AchievementTypeLabel = {
+  academic: "Akademik",
+  Non_Academic: "Non Akademik",
+};
+
+export const getAchievementTypeLabel = (type: AchievementType): string => {
+  return AchievementTypeLabel[type] || type;
 };

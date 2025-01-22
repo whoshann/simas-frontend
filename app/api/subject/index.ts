@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { Subject, SubjectResponse, SubjectsResponse } from "./types";
+import { Subject, SubjectsResponse } from "./types";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/subjects`;
 
@@ -15,7 +15,7 @@ export const subjectsApi = {
         return response.data;
     },
 
-    create: async (data: Omit<Subject, "id" | "createdAt" | "updatedAt">): Promise<SubjectResponse> => {
+    create: async (data: Omit<Subject, "id" | "createdAt" | "updatedAt">): Promise<SubjectsResponse> => {
         console.log('Data yang akan dikirim:', data);
         
         const response = await axios.post(API_URL, data, { 
@@ -24,14 +24,14 @@ export const subjectsApi = {
         return response.data;
     },
 
-    update: async (id: number, data: Partial<Subject>): Promise<SubjectResponse> => {
+    update: async (id: number, data: Partial<Subject>): Promise<SubjectsResponse> => {
         const response = await axios.patch(`${API_URL}/${id}`, data, {
             headers: getHeaders(),
         });
         return response.data;
     },
 
-    delete: async (id: number): Promise<SubjectResponse> => {
+    delete: async (id: number): Promise<SubjectsResponse> => {
         const response = await axios.delete(`${API_URL}/${id}`, {
             headers: getHeaders(),
         });

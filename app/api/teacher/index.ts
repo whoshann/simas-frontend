@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { Teacher, TeacherResponse, TeachersResponse } from "./types";
+import { Teacher, TeachersResponse } from "./types";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/teachers`;
 
@@ -16,7 +16,7 @@ export const teachersApi = {
         return response.data;
     },
 
-    create: async (formData: FormData): Promise<TeacherResponse> => {
+    create: async (formData: FormData): Promise<TeachersResponse> => {
         const response = await axios.post(API_URL, formData, { 
             headers: {
                 ...getHeaders(),
@@ -26,7 +26,7 @@ export const teachersApi = {
         return response.data;
     },
 
-    update: async (id: number, formData: FormData): Promise<TeacherResponse> => {
+    update: async (id: number, formData: FormData): Promise<TeachersResponse> => {
         const response = await axios.patch(`${API_URL}/${id}`, formData, {
             headers: {
                 ...getHeaders(),
@@ -36,7 +36,7 @@ export const teachersApi = {
         return response.data;
     },
 
-    delete: async (id: number): Promise<TeacherResponse> => {
+    delete: async (id: number): Promise<TeachersResponse> => {
         const response = await axios.delete(`${API_URL}/${id}`, {
             headers: getHeaders(),
         });

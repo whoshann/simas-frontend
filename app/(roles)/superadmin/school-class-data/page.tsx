@@ -8,8 +8,8 @@ import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useSchoolClasses } from '@/app/hooks/useSchoolClassData';
 import { useMajors } from '@/app/hooks/useMajorData';
-import { useTeachers } from '@/app/hooks/useTeacherData';
-import { Grade, SchoolClass } from '@/app/api/school-class-data/types';
+import { useTeachers } from '@/app/hooks/useTeacher';
+import { Grade, SchoolClass } from '@/app/api/school-class/types';
 
 export default function SchoolClassPage() {
     const {

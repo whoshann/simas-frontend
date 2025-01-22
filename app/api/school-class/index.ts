@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { SchoolClass, SchoolClassResponse, SchoolClassesResponse, UpdateSchoolClassDto } from "./types";
+import { SchoolClass, SchoolClassResponse, UpdateSchoolClassDto } from "./types";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/school-class`;
 
@@ -10,7 +10,7 @@ const getHeaders = () => ({
 });
 
 export const schoolClassesApi = {
-    getAll: async (): Promise<SchoolClassesResponse> => {
+    getAll: async (): Promise<SchoolClassResponse> => {
         const response = await axios.get(API_URL, { headers: getHeaders() });
         return response.data;
     },

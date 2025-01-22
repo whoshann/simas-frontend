@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Major } from '@/app/api/major-data/types';
-import { majorsApi } from '@/app/api/major-data';
+import { Major } from '@/app/api/major/types';
+import { majorsApi } from '@/app/api/major';
 
 export const useMajors = () => {
     const [majors, setMajors] = useState<Major[]>([]);

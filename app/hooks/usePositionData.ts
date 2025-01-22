@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Position } from '@/app/api/position-data/types';
-import { positionsApi } from '@/app/api/position-data';
+import { Position } from '@/app/api/position/types';
+import { positionsApi } from '@/app/api/position';
 
 export const usePositions = () => {
     const [positions, setPositions] = useState<Position[]>([]);
