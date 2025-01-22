@@ -7,14 +7,10 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
+import { error } from "console";
+import TableData2 from "@/app/components/StudentDispenseTable/TableData2";
+import { InsuranceClaimStatus } from '@/app/utils/enums';
 
-interface FormData {
-    userId: number;
-    title: string;
-    description: string;
-    total_budget: number;
-    document_path?: File;
-}
 
 const formatRupiah = (angka: string) => {
     const number = angka.replace(/[^,\d]/g, '').toString();
@@ -32,64 +28,91 @@ const formatRupiah = (angka: string) => {
     return `Rp ${rupiah}`;
 };
 
-const staticHistory = [
+interface FormData {
+    userId: number;
+    title: string;
+    description: string;
+    total_budget: number;
+    document_path?: File;
+}
+
+// Data statis untuk tabel
+const staticBudgetProposalData = [
     {
+        no:1,
         id: 1,
-        title: "Pengadaan Alat Laboratorium",
-        submissionDate: "2024-03-15",
-        amount: "Rp 15.000.000",
-        status: "Pending"
+        title: "Pengajuan Dana Gelar Karya Pembelajaran",
+        total_budget: 5000000,
+        document_path: "proposal_gkp.pdf",
+        description: "Dana untuk pelaksanaan gelar karya pembelajaran semester genap",
+        date: "2024-01-15",
+        status: InsuranceClaimStatus.Pending
     },
     {
+        no:2,
         id: 2,
-        title: "Renovasi Ruang Kelas",
-        submissionDate: "2024-03-10",
-        amount: "Rp 25.000.000",
-        status: "Approved"
+        title: "Pengajuan Dana Lomba Robotik",
+        total_budget: 3500000,
+        document_path: "proposal_robotik.pdf",
+        description: "Dana untuk persiapan tim robotik dalam kompetisi nasional",
+        date: "2024-01-10",
+        status: InsuranceClaimStatus.Approved
     },
     {
+        no:3,
         id: 3,
-        title: "Pembelian Buku Perpustakaan",
-        submissionDate: "2024-03-05",
-        amount: "Rp 8.000.000",
-        status: "Rejected"
+        title: "Pengajuan Dana Pelatihan Guru",
+        total_budget: 2500000,
+        document_path: "proposal_pelatihan.pdf",
+        description: "Dana untuk workshop pengembangan kompetensi guru",
+        date: "2024-01-05",
+        status: InsuranceClaimStatus.Rejected
     }
 ];
 
-const getStatusStyle = (status: string) => {
-    switch (status) {
-        case 'Rejected':
-            return {
-                iconBg: 'bg-[#bd00002a]',
-                icon: 'bx bxs-x-circle text-[var(--fourth-color)]',
-                badgeBg: 'bg-[#bd000026]',
-                textColor: 'text-[var(--fourth-color)]',
-                text: 'Ditolak'
+const tableHeaders = [
+    { key: 'no', label: 'No' },
+    { key: 'title', label: 'Nama RAB' },
+    {
+        key: 'total_budget',
+        label: 'Jumlah Dana',
+        render: (value: number) => formatRupiah(value.toString())
+    },
+    { key: 'document_path', label: 'Dokumen Pendukung' },
+    { key: 'description', label: 'Alasan Pengajuan' },
+    { key: 'date', label: 'Tanggal Pengajuan' },
+    {
+        key: 'status',
+        label: 'Status',
+        render: (value: InsuranceClaimStatus) => {
+            const statusStyles = {
+                [InsuranceClaimStatus.Pending]: 'bg-[#e88e1f29] text-[var(--second-color)]',
+                [InsuranceClaimStatus.Approved]: 'bg-[#0a97b022] text-[var(--third-color)]',
+                [InsuranceClaimStatus.Rejected]: 'bg-red-100 text-[var(--fourth-color)]',
             };
-        case 'Approved':
-            return {
-                iconBg: 'bg-[#0a97b028]',
-                icon: 'bx bxs-check-circle text-[var(--third-color)]',
-                badgeBg: 'bg-[#0a97b028]',
-                textColor: 'text-[var(--third-color)]',
-                text: 'Disetujui'
-            };
-        default:
-            return {
-                iconBg: 'bg-[#e88e1f29]',
-                icon: 'bx bxs-error-circle text-[var(--second-color)]',
-                badgeBg: 'bg-[#e88e1f29]',
-                textColor: 'text-[var(--second-color)]',
-                text: 'Pending'
-            };
-    }
-};
 
-export default function StudentAffairsBudgetProposalPage() {
+            const statusText = {
+                [InsuranceClaimStatus.Pending]: 'Menunggu',
+                [InsuranceClaimStatus.Approved]: 'Disetujui',
+                [InsuranceClaimStatus.Rejected]: 'Ditolak',
+            };
+
+            return (
+                <span className={`px-3 py-1 rounded-full text-sm ${statusStyles[value]}`}>
+                    {statusText[value]}
+                </span>
+            );
+        }
+    }
+];
+
+export default function FacilitiesBudgetProposalPage() {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [loading, setLoading] = useState(false);
     const [userId, setUserId] = useState<string>('');
     const [jumlahDana, setJumlahDana] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [formData, setFormData] = useState<FormData>({
         userId: 0,
         title: '',
@@ -122,7 +145,9 @@ export default function StudentAffairsBudgetProposalPage() {
     }, []);
 
     if (loading) {
-        return <LoadingSpinner />;
+        return (
+            <LoadingSpinner />
+        );
     }
 
     if (!isAuthorized) {
@@ -142,6 +167,7 @@ export default function StudentAffairsBudgetProposalPage() {
         const numericValue = value.replace(/[^0-9]/g, '');
         const formattedValue = numericValue ? formatRupiah(numericValue) : '';
         setJumlahDana(formattedValue);
+        // Update formData dengan nilai numerik
         setFormData(prev => ({
             ...prev,
             total_budget: Number(numericValue)
@@ -184,7 +210,8 @@ export default function StudentAffairsBudgetProposalPage() {
                     },
                 }
             );
-            if (response.status === 201) {
+            if (response.status === 201) { // Menggunakan HTTP status code 201 Created
+                // Reset semua input
                 setFormData({
                     userId: formData.userId,
                     title: '',
@@ -194,6 +221,7 @@ export default function StudentAffairsBudgetProposalPage() {
                 setSelectedFile(null);
                 setJumlahDana('');
 
+                // Reset file input
                 const fileInput = document.getElementById('document_path') as HTMLInputElement;
                 if (fileInput) fileInput.value = '';
 
@@ -230,7 +258,7 @@ export default function StudentAffairsBudgetProposalPage() {
             </div>
 
             <main className="px-9 pb-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                     {/* Form Section */}
                     <div className="bg-white rounded-lg shadow p-6">
                         <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -239,7 +267,10 @@ export default function StudentAffairsBudgetProposalPage() {
                         </h2>
                         <form className="space-y-4" onSubmit={handleSubmit}>
                             <div>
-                                <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                                <label
+                                    htmlFor="title"
+                                    className="block text-sm font-medium text-gray-700"
+                                >
                                     Nama Rencana Anggaran Biaya
                                 </label>
                                 <input
@@ -254,7 +285,10 @@ export default function StudentAffairsBudgetProposalPage() {
                             </div>
 
                             <div>
-                                <label htmlFor="total_budget" className="block text-sm font-medium text-gray-700">
+                                <label
+                                    htmlFor="total_budget"
+                                    className="block text-sm font-medium text-gray-700"
+                                >
                                     Jumlah Dana Yang Diajukan
                                 </label>
                                 <input
@@ -269,7 +303,10 @@ export default function StudentAffairsBudgetProposalPage() {
                             </div>
 
                             <div>
-                                <label htmlFor="document_path" className="block text-sm font-medium text-gray-700">
+                                <label
+                                    htmlFor="document_path"
+                                    className="block text-sm font-medium text-gray-700"
+                                >
                                     Document Pengajuan RAB (PDF)
                                 </label>
                                 <div className="mt-1 relative rounded-md shadow-sm">
@@ -286,7 +323,10 @@ export default function StudentAffairsBudgetProposalPage() {
                             </div>
 
                             <div>
-                                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                                <label
+                                    htmlFor="description"
+                                    className="block text-sm font-medium text-gray-700"
+                                >
                                     Alasan Pengajuan Rencana Anggaran Biaya
                                 </label>
                                 <textarea
@@ -307,66 +347,15 @@ export default function StudentAffairsBudgetProposalPage() {
                             </button>
                         </form>
                     </div>
-
-                    {/* History Card */}
-                    <div className="bg-white rounded-lg shadow p-6">
-                        <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)] mb-4 flex items-center">
-                            <div className="bg-[#e88e1f29] flex justify-center items-center rounded-full h-7 w-7 p-2">
-                                <i className='bx bx-history text-[var(--second-color)] text-lg'></i>
-                            </div>
-                            <span className="ml-2">Riwayat Pengajuan RAB</span>
-                        </h2>
-                        <div className="space-y-8">
-                            {staticHistory.map((item) => {
-                                const statusStyle = getStatusStyle(item.status);
-
-                                return (
-                                    <div key={item.id} className="flex justify-between items-center border border-gray-300 rounded-lg p-4">
-                                        <div className="flex items-center">
-                                            <div className={`${statusStyle.iconBg} rounded-full h-10 w-10 p-2 mr-4`}>
-                                                <i className={`${statusStyle.icon} text-2xl`}></i>
-                                            </div>
-                                            <div>
-                                                <p className="font-medium text-sm">
-                                                    {item.title}
-                                                </p>
-                                                <p className="text-xs sm:text-sm text-gray-500">
-                                                    Tanggal: {new Date(item.submissionDate).toLocaleDateString("id-ID", {
-                                                        day: "numeric",
-                                                        month: "long",
-                                                        year: "numeric",
-                                                    })}
-                                                </p>
-                                                <p className="text-xs sm:text-sm text-gray-500">
-                                                    Jumlah: {item.amount}
-                                                </p>
-                                                {item.status === 'Pending' && (
-                                                    <p className="text-xs text-[var(--second-color)]">
-                                                        Menunggu persetujuan dari admin
-                                                    </p>
-                                                )}
-                                                {item.status === 'Approved' && (
-                                                    <p className="text-xs text-[var(--third-color)]">
-                                                        RAB telah disetujui
-                                                    </p>
-                                                )}
-                                                {item.status === 'Rejected' && (
-                                                    <p className="text-xs text-[var(--fourth-color)]">
-                                                        RAB ditolak
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className={`px-4 flex justify-center items-center py-1 rounded-full ${statusStyle.badgeBg}`}>
-                                            <span className={`text-xs ${statusStyle.textColor}`}>
-                                                {statusStyle.text}
-                                            </span>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
+                    {/* Tabel Riwayat */}
+                    <TableData2
+                        headers={tableHeaders}
+                        data={staticBudgetProposalData}
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        entriesPerPage={entriesPerPage}
+                        setEntriesPerPage={setEntriesPerPage}
+                    />
                 </div>
             </main>
         </div>

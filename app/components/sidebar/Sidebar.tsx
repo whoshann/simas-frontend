@@ -171,13 +171,13 @@ const Sidebar: React.FC = () => {
                         className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Beranda' ? 'active' : ''}`}
                         onClick={() => handleMenuClick('Beranda')}
                     >
-                        <i className='bx bxs-grid-alt mr-2 font-medium'></i> {/* Ikon untuk Beranda */}
+                        <i className='bx bxs-dashboard mr-2 font-medium'></i> {/* Ikon untuk Beranda */}
                         Beranda
                     </a>
 
 
                     {/*Start Role Student and Teacher menu */}
-                    {(role === "Student" || role === "Teacher" || !isLoggedIn) && (
+                    {role === "Student" && (
                         <div>
                             <div>
                                 <button
@@ -204,11 +204,7 @@ const Sidebar: React.FC = () => {
                                 </button>
                                 <div className={` ${isDropdownOpenKesiswaan ? '' : 'hidden'}`}>
                                     <a
-                                        href={
-                                            role === "Student" ? "/student/student-affairs/absence" :
-                                                role === "Teacher" ? "/teacher" :
-                                                    "/login"
-                                        }
+                                        href="/student/student-affairs/absence"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Absensi' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Absensi')}
                                     >
@@ -217,11 +213,7 @@ const Sidebar: React.FC = () => {
                                     </a>
 
                                     <a
-                                        href={
-                                            role === "Student" ? "/student/student-affairs/violations" :
-                                                role === "Teacher" ? "/teacher" :
-                                                    "/login"
-                                        }
+                                        href="/student/student-affairs/violations"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Pelanggaran' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Pelanggaran')}
                                     >
@@ -230,11 +222,7 @@ const Sidebar: React.FC = () => {
                                     </a>
 
                                     <a
-                                        href={
-                                            role === "Student" ? "/student/student-affairs/achievement" :
-                                                role === "Teacher" ? "/teacher" :
-                                                    "/login"
-                                        }
+                                        href="/student/student-affairs/achievement"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Achievement' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Achievement')}
                                     >
@@ -244,11 +232,7 @@ const Sidebar: React.FC = () => {
 
 
                                     <a
-                                        href={
-                                            role === "Student" ? "/student/student-affairs/claim-insurance" :
-                                                role === "Teacher" ? "/teacher" :
-                                                    "/login"
-                                        }
+                                        href="/student/student-affairs/claim-insurance"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Klaim Asuransi' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Klaim Asuransi')}
                                     >
@@ -257,18 +241,14 @@ const Sidebar: React.FC = () => {
                                     </a>
 
                                     <a
-                                        href={
-                                            role === "Student" ? "/student/student-affairs/dispensation-letter" :
-                                                role === "Teacher" ? "/teacher" :
-                                                    "/login"
-                                        }
+                                        href="/student/student-affairs/dispensation-letter"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Surat Disensasi' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Surat Disensasi')}
                                     >
                                         <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Surat Dispensasi' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
                                         Surat Dispensasi
                                     </a>
-                                    
+
                                 </div>
                             </div>
 
@@ -290,11 +270,7 @@ const Sidebar: React.FC = () => {
                             </a>
 
                             <a
-                                href={
-                                    role === "Student" ? "/student/finance/payment-status" :
-                                        role === "Teacher" ? "/teacher" :
-                                            "/login"
-                                }
+                                href="/student/finance/payment-status"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Keuangan' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Keuangan')}
                             >
@@ -314,11 +290,7 @@ const Sidebar: React.FC = () => {
                             </a>
 
                             <a
-                                href={
-                                    role === "Student" ? "/student/facilities-management/borrowing-goods" :
-                                        role === "Teacher" ? "/teacher" :
-                                            "/login"
-                                }
+                                href="/student/facilities-management/borrowing-goods"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Facilities' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Facilities')}
                             >
@@ -329,7 +301,32 @@ const Sidebar: React.FC = () => {
                         </div>
                     )}
 
+                    {/* Start Role Teacher Sidebar Menu */}
 
+                    {role === "Teacher" && (
+                        <div>
+                            <a
+                                href="/teacher/finance/budget-proposal"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Budget Proposal' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Budget Proposal')}
+                            >
+                                <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk Usulan Anggaran */}
+                                Usulan Anggaran RAB
+                            </a>
+                            <a
+                                href="/teacher/facilities-management/borrowing-goods"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Borrowing Goods' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Borrowing Goods')}
+                            >
+                                <i className='bx bxs-hdd mr-2 font-medium'></i> {/* Ikon untuk Peminjaman Barang */}
+                                Peminjaman Barang
+                            </a>
+
+                        </div>
+                    )}
+
+
+                    {/* End Role Teacher Sidebar Menu */}
 
                     {/* Start Role Student Affairs Sidebar Menu */}
                     {role === "StudentAffairs" && (
@@ -404,7 +401,7 @@ const Sidebar: React.FC = () => {
                                 onClick={() => handleMenuClick('Student Affairs Finance')}
                             >
                                 <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk Student Affairs Finance */}
-                                Usulan Anggaran
+                                Usulan Anggaran RAB
                             </a>
                         </div>
                     )}
@@ -526,7 +523,7 @@ const Sidebar: React.FC = () => {
                                 onClick={() => handleMenuClick('Keuangan')}
                             >
                                 <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk Keuangan */}
-                                Usulan Anggaran
+                                Usulan Anggaran RAB
                             </a>
                         </div>
                     )}

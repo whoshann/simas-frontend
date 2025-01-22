@@ -6,7 +6,7 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import TableData2 from "@/app/components/StudentDispenseTable/TableData2";
 import { DispenseStatus } from '@/app/utils/enums';
-import { saveAs } from 'file-saver'; 
+
 
 // Fungsi untuk mengunduh PDF
 const handleDownloadPDF = async (data: any) => {
@@ -14,20 +14,20 @@ const handleDownloadPDF = async (data: any) => {
         // Mengambil file PDF dari folder public
         const response = await fetch('/images/contoh-surat.pdf');
         const blob = await response.blob();
-        
+
         // Generate nama file yang unik berdasarkan data siswa
         const fileName = `surat_dispensasi_${data.date.replace(/-/g, '')}_${data.name.replace(/\s+/g, '_').toLowerCase()}.pdf`;
-        
+
         // Buat link untuk download
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.download = fileName;
-        
+
         // Trigger download
         document.body.appendChild(link);
         link.click();
-        
+
         // Cleanup
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
