@@ -62,4 +62,16 @@ export const authApi = {
       throw error;
     }
   },
+
+  getTeacherLogin: async (id: number) => {
+    try {
+      const response = await axios.get(`${API_URL}/teachers/${id}`, {
+        headers: getHeaders(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching student:", error);
+      throw error;
+    }
+  },
 };

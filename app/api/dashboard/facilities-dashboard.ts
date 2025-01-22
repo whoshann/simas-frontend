@@ -6,6 +6,7 @@ export interface DashboardData {
   repairs: RepairItem[];
   latestBorrowings: ActivityItem[];
   latestRequests: ActivityItem[];
+  latestProcurements: ActivityItem[];
 }
 
 export interface RepairItem {

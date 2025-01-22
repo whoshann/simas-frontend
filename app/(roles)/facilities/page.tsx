@@ -125,7 +125,10 @@ export default function FacilitiesDashboardPage() {
             : dashboardData.latestBorrowings.filter(item => filterDataByMonth(item.date)),
         repairs: selectedMonth === 'Semua'
             ? dashboardData.repairs
-            : dashboardData.repairs.filter(item => filterDataByMonth(item.date))
+            : dashboardData.repairs.filter(item => filterDataByMonth(item.date)),
+        latestProcurements: selectedMonth === 'Semua'
+            ? dashboardData.latestProcurements
+            : dashboardData.latestProcurements.filter(item => filterDataByMonth(item.date)),
     };
 
     const togglePanel = () => {
@@ -278,45 +281,21 @@ export default function FacilitiesDashboardPage() {
                         </div>
 
                         <div className="flex flex-col">
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Pengajuan barang baru: Proyektor.</p>
-                                    <span className="text-[var(--text-regular-color)]">20/12/2024</span>
+                            {filteredDashboardData.latestProcurements.map((procurement, index) => (
+                                <div key={index} className="flex items-center mb-2">
+                                    <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
+                                    <div>
+                                        <p>Pengajuan barang baru: {procurement.name}.</p>
+                                        <span className="text-[var(--text-regular-color)]">{procurement.date}</span>
+                                    </div>
                                 </div>
-                            </div>
+                            ))}
 
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Pengajuan barang baru: Papan Tulis.</p>
-                                    <span className="text-[var(--text-regular-color)]">19/12/2024</span>
+                            {filteredDashboardData.latestProcurements.length === 0 && (
+                                <div className="text-center text-gray-500">
+                                    Tidak ada data pengajuan barang
                                 </div>
-                            </div>
-
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Pengajuan barang baru: AC.</p>
-                                    <span className="text-[var(--text-regular-color)]">18/12/2024</span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Pengajuan barang baru: Kipas Angin.</p>
-                                    <span className="text-[var(--text-regular-color)]">17/12/2024</span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Pengajuan barang baru: TV.</p>
-                                    <span className="text-[var(--text-regular-color)]">16/12/2024</span>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -378,6 +357,12 @@ export default function FacilitiesDashboardPage() {
                                         </td>
                                     </tr>
                                 ))}
+
+                                {currentEntries.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="text-center text-gray-500 py-4">Tidak ada data perbaikan</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
