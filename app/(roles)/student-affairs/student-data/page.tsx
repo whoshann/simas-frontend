@@ -37,6 +37,7 @@ export default function StudentPage() {
     useEffect(() => {
         const initializePage = async () => {
             try {
+                setIsPageLoading(true);
                 await roleMiddleware(["StudentAffairs"]);
                 setIsAuthorized(true);
                 await fetchStudents();
@@ -47,10 +48,11 @@ export default function StudentPage() {
             } catch (error) {
                 console.error("Error initializing page:", error);
                 setIsAuthorized(false);
+            } finally {
+                setIsPageLoading(false);
             }
         };
 
-        initializePage();
         initializePage();
     }, []);
 
@@ -75,15 +77,19 @@ export default function StudentPage() {
         { key: "nis", label: "NIS" },
         { key: "nisn", label: "NISN" },
         {
-            key: "Class",
-            label: "Kelas",
-            render: (student: Student) => student.Class?.name || '-'
-        },
-        {
-            key: "Major",
-            label: "Jurusan",
-            render: (student: Student) => student.Major?.name || '-'
-        },
+        key: "class",
+        label: "Kelas",
+        render: (student: Student) => {
+            return student.class?.name || '-';
+        }
+    },
+    {
+        key: "major",
+        label: "Jurusan",
+        render: (student: Student) => {
+            return student.major?.name || '-';
+        }
+    },
         {
             key: "birthDate",
             label: "Tanggal Lahir",
@@ -199,8 +205,8 @@ export default function StudentPage() {
         if (student) {
             const formattedStudent = {
                 ...student,
-                classId: student.Class?.id,
-                majorId: student.Major?.id,
+                classId: student.class.id,
+                majorId: student.major.id,
                 birthDate: student.birthDate ? student.birthDate.split('T')[0] : ''
             };
             setSelectedStudent(formattedStudent);

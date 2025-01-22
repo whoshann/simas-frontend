@@ -1,6 +1,5 @@
 import { AbsenceStatus } from "@/app/utils/enums";
 import { Student } from "../student/types";
-import { SchoolClass } from "../school-class/types";
 
 export interface Absence {
   id: number;
@@ -14,7 +13,7 @@ export interface Absence {
   photo: string | null;
   createdAt: string;
   updatedAt: string;
-  Student: StudentInAbsence;
+  Student: Student;
 }
 
 export interface AbsenceResponse {
@@ -22,9 +21,4 @@ export interface AbsenceResponse {
   code: string;
   message: string;
   data: Absence[];
-}
-
-interface StudentInAbsence {
-  name: string;
-  class: SchoolClass;
 }

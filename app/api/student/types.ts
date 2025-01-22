@@ -21,8 +21,8 @@ export interface Student {
   guardian: string;
   createdAt: string;
   updatedAt: string;
-  Class: SchoolClass;
-  Major: Major;
+  class: SchoolClass;
+  major: Major;
 }
 
 export interface StudentsResponse {

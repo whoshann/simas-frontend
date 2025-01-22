@@ -8,115 +8,52 @@ import Image from 'next/image';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
-
+import { getUserIdFromToken } from "@/app/utils/tokenHelper";
+import { useTeachers } from "@/app/hooks/useTeacher";
 
 export default function StudentAffairsTeacherDataPage() {
-    useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
-        fetchData();
-    }, []);
-    const [user, setUser] = useState<any>({});
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
+
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [userId, setUserId] = useState<string>('');
     const token = Cookies.get("token");
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
+    const { teachers, loading, error, fetchTeachers } = useTeachers();
 
-    const data = [
-        {
-            no: 1,
-            photo: "/images/Berita1.jpg",
-            name: "Dr. Ahmad Sulaiman",
-            nip: "196504151990031002",
-            gender: "Laki-laki",
-            birthDate: "15/04/1965",
-            birthPlace: "Jakarta",
-            address: "Jl. Mawar No. 10, Jakarta Selatan",
-            phone: "081234567890",
-            lastEducation: "S3",
-            majorLastEducation: "Manajemen Pendidikan",
-            subject: "Matematika",
-            position: "Kepala Sekolah"
-        },
-        {
-            no: 2,
-            photo: "/images/Berita1.jpg",
-            name: "Siti Aminah, M.Pd",
-            nip: "198707182010042003",
-            gender: "Perempuan",
-            birthDate: "18/07/1987",
-            birthPlace: "Bandung",
-            address: "Jl. Melati No. 15, Bandung",
-            phone: "081234567891",
-            lastEducation: "S2",
-            majorLastEducation: "Pendidikan Bahasa Inggris",
-            subject: "Bahasa Inggris",
-            position: "Wakil Kepala Sekolah"
-        },
-        {
-            no: 3,
-            photo: "/images/Berita1.jpg",
-            name: "Budi Santoso, S.Pd",
-            nip: "199003242012011004",
-            gender: "Laki-laki",
-            birthDate: "24/03/1990",
-            birthPlace: "Surabaya",
-            address: "Jl. Anggrek No. 20, Surabaya",
-            phone: "081234567892",
-            lastEducation: "S1",
-            majorLastEducation: "Pendidikan Fisika",
-            subject: "Fisika",
-            position: "Guru"
-        },
-        {
-            no: 4,
-            photo: "/images/Berita1.jpg",
-            name: "Dewi Lestari, M.Si",
-            nip: "198505122009042001",
-            gender: "Perempuan",
-            birthDate: "12/05/1985",
-            birthPlace: "Yogyakarta",
-            address: "Jl. Dahlia No. 25, Yogyakarta",
-            phone: "081234567893",
-            lastEducation: "S2",
-            majorLastEducation: "Kimia",
-            subject: "Kimia",
-            position: "Guru"
-        },
-        {
-            no: 5,
-            photo: "/images/Berita1.jpg",
-            name: "Rudi Hermawan, S.Kom",
-            nip: "199208302015041005",
-            gender: "Laki-laki",
-            birthDate: "30/08/1992",
-            birthPlace: "Semarang",
-            address: "Jl. Kenanga No. 30, Semarang",
-            phone: "081234567894",
-            lastEducation: "S1",
-            majorLastEducation: "Teknik Informatika",
-            subject: "Informatika",
-            position: "Guru"
-        }
-    ];
+    useEffect(() => {
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["StudentAffairs"]);
+                setIsAuthorized(true);
+                await fetchTeachers();
+                const id = getUserIdFromToken();
+                if (id) {
+                    setUserId(id);
+                }
+            } catch (error) {
+                console.error("Error initializing page:", error);
+                setIsAuthorized(false);
+            }
+        };
 
+        initializePage();
+    }, []);
 
     // Search item tabel
-    const filteredData = data.filter(item =>
+    const filteredData = teachers.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.nip.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.birthDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.birthPlace.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.placeOfBirth.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.lastEducation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.majorLastEducation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.position.toLowerCase().includes(searchTerm.toLowerCase())
+        item.lastEducationMajor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.position.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const totalEntries = filteredData.length;
@@ -129,23 +66,6 @@ export default function StudentAffairsTeacherDataPage() {
         setIsPanelOpen(!isPanelOpen);
     };
 
-
-    const fetchData = async () => {
-        try {
-            // Set default Authorization header dengan Bearer token
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-            // Fetch data user dari endpoint API
-            const response = await axios.get("http://localhost:3333/student");
-            setUser(response.data); // Simpan data user ke dalam state
-        } catch (err: any) {
-            console.error("Error saat fetching data:", err);
-            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-        } finally {
-            setLoading(false); // Set loading selesai
-        }
-    };
-
     if (loading) {
         return <LoadingSpinner />;
     }
@@ -153,7 +73,6 @@ export default function StudentAffairsTeacherDataPage() {
     if (error) {
         return <p className="text-red-500">{error}</p>;
     }
-
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
@@ -279,14 +198,14 @@ export default function StudentAffairsTeacherDataPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
+                                {currentEntries.map((item, index) => (
+                                    <tr key={index} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
+                                        <td className="py-2 px-4 border-b">{index + 1}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="w-16 h-16 overflow-hidden rounded">
-                                                {item.photo ? (
+                                                {item.picture ? (
                                                     <Image
-                                                        src={item.photo}
+                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/teacher/${item.picture.split('/').pop()}`}
                                                         alt="Foto Profile"
                                                         className="w-full h-full object-cover"
                                                         width={256}
@@ -301,13 +220,13 @@ export default function StudentAffairsTeacherDataPage() {
                                         <td className="py-2 px-4 border-b">{item.nip}</td>
                                         <td className="py-2 px-4 border-b">{item.gender}</td>
                                         <td className="py-2 px-4 border-b">{item.birthDate}</td>
-                                        <td className="py-2 px-4 border-b">{item.birthPlace}</td>
+                                        <td className="py-2 px-4 border-b">{item.placeOfBirth}</td>
                                         <td className="py-2 px-4 border-b">{item.address}</td>
                                         <td className="py-2 px-4 border-b">{item.phone}</td>
                                         <td className="py-2 px-4 border-b">{item.lastEducation}</td>
-                                        <td className="py-2 px-4 border-b">{item.majorLastEducation}</td>
-                                        <td className="py-2 px-4 border-b">{item.subject}</td>
-                                        <td className="py-2 px-4 border-b">{item.position}</td>
+                                        <td className="py-2 px-4 border-b">{item.lastEducationMajor}</td>
+                                        <td className="py-2 px-4 border-b">{item.subject.name}</td>
+                                        <td className="py-2 px-4 border-b">{item.position.name}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 {/* Edit Button */}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Student } from "../api/student/types";
 import { studentsApi } from "../api/student";
 
@@ -7,26 +7,23 @@ export const useStudents = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     try {
       setLoading(true);
       const response = await studentsApi.getAll();
-      if (response.success) {
-        setStudents(response.data);
-        setError(null);
-      } else {
-        setError(response.message || "Error fetching students");
-      }
-    } catch (err: any) {
-      setError(err.message || "Error fetching students");
-      console.error("Error fetching students:", err);
+      console.log("Students data:", response.data); // Untuk debugging
+      setStudents(response.data);
+      setError(null);
+    } catch (err) {
+      setError("Gagal mengambil data siswa");
+      console.error(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const createStudent = async (
-    data: Omit<Student, "id" | "createdAt" | "updatedAt" | "Class" | "Major">
+    data: Omit<Student, "id" | "createdAt" | "updatedAt" | "class" | "major">
   ) => {
     try {
       const response = await studentsApi.create(data);
@@ -44,7 +41,7 @@ export const useStudents = () => {
 
   const updateStudent = async (
     id: number,
-    data: Partial<Omit<Student, "Class" | "Major">>
+    data: Partial<Omit<Student, "class" | "major">>
   ) => {
     try {
       const response = await studentsApi.update(id, data);
