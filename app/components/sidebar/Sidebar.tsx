@@ -35,7 +35,7 @@ const Sidebar: React.FC = () => {
 
 
     useEffect(() => {
-        
+
         const token = Cookies.get("token");
         setIsLoggedIn(!!token);
 
@@ -153,14 +153,29 @@ const Sidebar: React.FC = () => {
 
     return (
         (<div>
+
             {/* Tombol Hamburger di luar sidebar */}
-            <button onClick={toggleSidebar} className="fixed top-4 left-4 z-50 text-gray-600 focus:outline-none">
-                <i className={`bx ${isSidebarOpen ? 'bx-x' : 'bx-menu'}`}></i>
-            </button>
+            <div className={`h-screen bg-white w-16 z-40 transition-all duration-300 ${isSidebarOpen ? 'hidden' : 'block'}`}>
+                <button
+                    onClick={toggleSidebar}
+                    className="w-full pt-4 pb-2 px-4 text-gray-600 focus:outline-none"
+                >
+                    <i className='bx bx-menu text-xl'></i>
+                </button>
+            </div>
+
             <aside className={`bg-white w-64 h-screen space-y-6 py-7 px-4 z-1 fixed md:sticky inset-y-0 left-0 transition duration-300 ease-in-out ${isSidebarOpen ? 'block' : 'hidden'}`}>
 
                 {/* Sidebar Title */}
-                <h2 className="text-[var(--text-semi-bold-color)] text-3xl font-semibold pl-4">Lorem</h2>
+                <div className="flex items-center justify-between px-4">
+                    <h2 className="text-[var(--text-semi-bold-color)] text-3xl font-semibold">Lorem</h2>
+                    <button
+                        onClick={toggleSidebar}
+                        className="text-gray-600 mt-2 focus:outline-none"
+                    >
+                        <i className='bx bx-x text-2xl'></i>
+                    </button>
+                </div>
 
                 {/* Start Sidebar menu navigation */}
                 <nav>
@@ -254,7 +269,6 @@ const Sidebar: React.FC = () => {
                                         <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Surat Dispensasi' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
                                         Surat Dispensasi
                                     </a>
-
                                 </div>
                             </div>
 
@@ -286,7 +300,6 @@ const Sidebar: React.FC = () => {
                                 <i className='bx bxs-wallet mr-2 font-medium'></i>
                                 Keuangan
                             </a>
-
 
 
                             <a
@@ -335,7 +348,6 @@ const Sidebar: React.FC = () => {
 
                         </div>
                     )}
-
 
                     {/* End Role Teacher Sidebar Menu */}
 
@@ -684,8 +696,8 @@ const Sidebar: React.FC = () => {
                 {/* End Sidebar menu navigation  */}
 
                 {/* Login Button */}
-                <a href={isLoggedIn ? "/user-profile" : "/login"} className="absolute bottom-5 left-2 right-2 px-3">
-                    <button className="flex items-center justify-center w-full py-3 rounded-xl border border-[var(--text-semi-bold-color)] bg-white text-[var(--text-semi-bold-color)] hover:opacity-90 transition">
+                <a href={isLoggedIn ? "/user-profile" : "/login"} className="fixed bottom-5 left-2 right-2 px-3">
+                    <button className="flex items-center justify-center w-52 py-3 rounded-xl border border-[var(--text-semi-bold-color)] bg-white text-[var(--text-semi-bold-color)] hover:opacity-90 transition">
                         <i className={`bx ${isLoggedIn ? 'bx-user' : 'bx-power-off'} mr-2 font-medium`}></i>
                         {isLoggedIn ? "Profile Anda" : "Login / Masuk"}
                     </button>

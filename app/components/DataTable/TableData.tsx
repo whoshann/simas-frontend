@@ -53,7 +53,7 @@ export default function DataTable({
     );
 
     return (
-        <main className="px-9 pb-6">
+        <main className="pb-6">
             <div className="bg-white shadow-md rounded-lg p-6">
                 {/* Table Actions */}
                 <TableActions

@@ -8,7 +8,7 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import { error } from "console";
-import TableData2 from "@/app/components/StudentDispenseTable/TableData2";
+import TableData2 from "@/app/components/TableWithoutAction/TableData2";
 import { InsuranceClaimStatus } from '@/app/utils/enums';
 
 
@@ -39,7 +39,7 @@ interface FormData {
 // Data statis untuk tabel
 const staticBudgetProposalData = [
     {
-        no:1,
+        no: 1,
         id: 1,
         title: "Pengajuan Dana Gelar Karya Pembelajaran",
         total_budget: 5000000,
@@ -49,7 +49,7 @@ const staticBudgetProposalData = [
         status: InsuranceClaimStatus.Pending
     },
     {
-        no:2,
+        no: 2,
         id: 2,
         title: "Pengajuan Dana Lomba Robotik",
         total_budget: 3500000,
@@ -59,7 +59,7 @@ const staticBudgetProposalData = [
         status: InsuranceClaimStatus.Approved
     },
     {
-        no:3,
+        no: 3,
         id: 3,
         title: "Pengajuan Dana Pelatihan Guru",
         total_budget: 2500000,
@@ -112,7 +112,7 @@ export default function FacilitiesBudgetProposalPage() {
     const [userId, setUserId] = useState<string>('');
     const [jumlahDana, setJumlahDana] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
-const [entriesPerPage, setEntriesPerPage] = useState(5);
+    const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [formData, setFormData] = useState<FormData>({
         userId: 0,
         title: '',

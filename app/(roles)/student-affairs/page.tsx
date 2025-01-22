@@ -8,8 +8,15 @@ import { Chart, registerables } from 'chart.js';
 import Script from 'next/script';
 import React from 'react';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import Cookies from "js-cookie";
-import axios from "axios";
+import { authApi } from "@/app/api/auth";
+import { getUserIdFromToken } from "@/app/utils/tokenHelper";
+import TableData2 from "@/app/components/TableWithoutAction/TableData2";
+
+interface User {
+    id: number;
+    name: string;
+    username: string;
+}
 
 Chart.register(...registerables);
 
@@ -17,13 +24,13 @@ interface CircleProgressBarProps {
     percentage: number;
     label: string;
     color: string;
-    backgroundColor: string; // Menambahkan backgroundColor
+    backgroundColor: string;
 }
 
 const CircleProgressBar: React.FC<CircleProgressBarProps> = ({ percentage, label, color, backgroundColor }) => {
-    const strokeWidth = 18; // Mempertebal garis menjadi 20
-    const radius = 50; // Sesuaikan dengan strokeWidth
-    const center = radius + strokeWidth; // Pusat lingkaran
+    const strokeWidth = 18;
+    const radius = 50;
+    const center = radius + strokeWidth;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (percentage / 100) * circumference;
 
@@ -71,88 +78,133 @@ const CircleProgressBar: React.FC<CircleProgressBarProps> = ({ percentage, label
 
 
 export default function StudentAffairsDashboardPage() {
-    // Panggil middleware dan hooks di awal komponen
-    useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
-        fetchData();
-    }, []);
 
-    const token = Cookies.get("token");
-    const [user, setUser] = useState<any>({});
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [selectedMonth, setSelectedMonth] = useState('Januari');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [entriesPerPage, setEntriesPerPage] = useState(5);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [user, setUser] = useState<User>({
+        id: 0,
+        name: '',
+        username: '',
+    });
 
+    useEffect(() => {
+        const initializePage = async () => {
+            try {
+                // Cek role dengan middleware
+                await roleMiddleware(["StudentAffairs", "SuperAdmin"]);
+                setIsAuthorized(true);
+
+                // Fetch user data
+                const userId = getUserIdFromToken();
+                if (userId) {
+                    await fetchUserData(Number(userId));
+                }
+
+            } catch (error) {
+                console.error("Error initializing page:", error);
+                setError("Terjadi kesalahan saat memuat halaman");
+                setIsAuthorized(false);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initializePage();
+    }, []);
+
+    const fetchUserData = async (userId: number) => {
+        try {
+            const response = await authApi.getUserLogin(userId);
+            setUser(prev => ({
+                ...prev,
+                ...response.data
+            }));
+        } catch (err) {
+            console.error("Error fetching user data:", err);
+            setError("Gagal memuat data pengguna");
+        }
+    };
 
     const months = [
         'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
     ];
 
-    // Data statis tabel absensi
-    const data = [
-        { no: 1, name: "Ilham Kurniawan", class: "X PH A", achivement: "Juara 1 Oimpiade sains", category: "Akademik", date: "21/01/2024" },
-        { no: 2, name: "Adi Kurniawan", class: "X PH B", achivement: "Juara 1 FF", category: "Non Akademik", date: "22/01/2024" },
-        { no: 3, name: "Imam Kurniawan", class: "XI IPA A", achivement: "Juara Satu ML", category: "Non Akademik", date: "23/01/2024" },
-        { no: 4, name: "Amar Kurniawan", class: "XI IPA B", achivement: "Juara 1 Olimpiade Ipas", category: "Akademik", date: "24/01/2024" },
-        { no: 5, name: "Fawas Kurniawan", class: "XII IPS A", achivement: "Juara 1 Olimpiade MTK", category: "Akademik", date: "25/01/2024" },
-        { no: 6, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 7, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 8, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 9, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 10, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 11, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 12, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 13, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 14, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 15, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 16, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 17, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 18, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 19, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-        { no: 20, name: "Ilham Kurniawan", class: "XII IPS A", achivement: "Hadir", category: "Akademik", date: "25/01/2024" },
-
+    // Data dummy tabel prestasi
+    const achievementData = [
+        {
+            id: 1,
+            name: "Ilham Kurniawan",
+            class: "X PH A",
+            achievement: "Juara 1 Olimpiade sains",
+            category: "Akademik",
+            date: "21/01/2024"
+        },
+        {
+            id: 2,
+            name: "Adi Kurniawan",
+            class: "X PH B",
+            achievement: "Juara 1 FF",
+            category: "Non Akademik",
+            date: "22/01/2024"
+        },
+        {
+            id: 3,
+            name: "Imam Kurniawan",
+            class: "XI IPA A",
+            achievement: "Juara Satu ML",
+            category: "Non Akademik",
+            date: "23/01/2024"
+        },
+        {
+            id: 4,
+            name: "Amar Kurniawan",
+            class: "XI IPA B",
+            achievement: "Juara 1 Olimpiade IPA",
+            category: "Akademik",
+            date: "24/01/2024"
+        },
+        {
+            id: 5,
+            name: "Fawas Kurniawan",
+            class: "XII IPS A",
+            achievement: "Juara 1 Olimpiade MTK",
+            category: "Akademik",
+            date: "25/01/2024"
+        }
     ];
 
-    // Search item tabel
-    const filteredData = data.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.class.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.achivement.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.date.includes(searchTerm)
-    );
+    // Konfigurasi header tabel
+    const tableHeaders = [
+        { key: 'id', label: 'No' },
+        { key: 'name', label: 'Nama' },
+        { key: 'class', label: 'Kelas' },
+        { key: 'achievement', label: 'Prestasi' },
+        {
+            key: 'category',
+            label: 'Kategori',
+            render: (value: string) => (
+                <span className={`inline-block px-3 py-1 rounded-full ${value === 'Non Akademik'
+                        ? 'bg-[#0a97b028] text-[var(--third-color)]'
+                        : 'bg-[#e88e1f29] text-[var(--second-color)]'
+                    }`}>
+                    {value}
+                </span>
+            )
+        },
+        { key: 'date', label: 'Tanggal' }
+    ];
 
-    const totalEntries = filteredData.length;
-    const totalPages = Math.ceil(totalEntries / entriesPerPage);
-    const startIndex = (currentPage - 1) * entriesPerPage;
-    const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
 
     const togglePanel = () => {
         setIsPanelOpen(!isPanelOpen);
-    };
-
-    const fetchData = async () => {
-        try {
-            // Set default Authorization header dengan Bearer token
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-            // Fetch data user dari endpoint API
-            const response = await axios.get("http://localhost:3333/student");
-            setUser(response.data); // Simpan data user ke dalam state
-        } catch (err: any) {
-            console.error("Error saat fetching data:", err);
-            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-        } finally {
-            setLoading(false); // Set loading selesai
-        }
     };
 
     if (loading) {
@@ -305,7 +357,7 @@ export default function StudentAffairsDashboardPage() {
                         }} />
                     </div>
 
-                    {/* Card 2 (Sakit + Alpha) */}
+                    {/* Card 2 */}
                     <div className="bg-white shadow-md rounded-lg px-7 py-7 col-span-1 ">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)] ">Total Pelanggarn Siswa</h3>
@@ -342,108 +394,23 @@ export default function StudentAffairsDashboardPage() {
                 </div>
 
 
-                {/* Card for Table */}
-                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
 
-
-                    <div className="mb-4 flex justify-between ">
-
-                        {/* Start Showing entries */}
-                        <div className="">
-                            <span className="text-md sm:text-lg font-semibold text-[var(--text-semi-bold-color)]"> Daftar Siswa Berprestasi</span>
-                        </div>
-                        {/* End Showing entries */}
-
-
-                        {/*Start Search */}
-                        <div className="border border-gray-300 rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-24 sm:w-56" >
-                            <i className='bx bx-search text-[var(--text-semi-bold-color)] text-xs sm:text-lg mr-2'></i>
-                            <input
-                                type="text"
-                                placeholder="Cari data..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="border-0 focus:outline-none text-xs sm:text-base w-16 sm:w-40"
-                            />
-                        </div>
-                        {/*End Search */}
+                {/* Table Section */}
+                <div>
+                    <div className="mb-4">
+                        <span className="text-md sm:text-lg font-semibold text-[var(--text-semi-bold-color)]">
+                            Daftar Siswa Berprestasi
+                        </span>
                     </div>
 
-
-                    {/* Start Table */}
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full rounded-lg overflow-hidden">
-                            <thead className="text-[var(--text-semi-bold-color)]">
-                                <tr>
-                                    <th className="py-2 px-4 border-b text-left">No</th>
-                                    <th className="py-2 px-4 border-b text-left">Nama</th>
-                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
-                                    <th className="py-2 px-4 border-b text-left">Prestasi</th>
-                                    <th className="py-2 px-4 border-b text-left">Kategori</th>
-                                    <th className="py-2 px-4 border-b text-left">Tanggal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.name}</td>
-                                        <td className="py-2 px-4 border-b">{item.class}</td>
-                                        <td className="py-2 px-4 border-b">{item.achivement}</td>
-                                        <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${item.category === 'Non Akademik' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.category === 'Akademik' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : ''}`}>
-                                                {item.category}
-                                            </span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    {/* End Table */}
-
-
-
-                    {/*Start Pagination and showing entries */}
-                    <div className="flex justify-between items-center mt-5">
-                        <span className="text-xs sm:text-base" >Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri</span>
-
-                        {/* Pagination */}
-                        <div className="flex items-center">
-                            <button
-                                onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-                                disabled={currentPage === 1}
-                                className="px-4 py-2 text-[var(--main-color)]"
-                            >
-                                &lt;
-                            </button>
-                            {/* Pagination Numbers */}
-                            <div className="flex space-x-1">
-                                {Array.from({ length: Math.min(totalPages - (currentPage - 1), 2) }, (_, index) => {
-                                    const pageNumber = currentPage + index;
-                                    return (
-                                        <button
-                                            key={pageNumber}
-                                            onClick={() => setCurrentPage(pageNumber)}
-                                            className={` rounded-md px-3 py-1 ${currentPage === pageNumber ? ' bg-[var(--main-color)] text-white ' : 'text-[var(--main-color)]'}`}>
-                                            {pageNumber}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                            <button
-                                onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
-                                disabled={currentPage === totalPages}
-                                className="px-4 py-2 text-[var(--main-color)]"
-                            >
-                                &gt;
-                            </button>
-                        </div>
-                    </div>
-                    {/*End Pagination and showing entries */}
-
-
+                    <TableData2
+                        headers={tableHeaders}
+                        data={achievementData}
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        entriesPerPage={entriesPerPage}
+                        setEntriesPerPage={setEntriesPerPage}
+                    />
                 </div>
             </main>
         </div>

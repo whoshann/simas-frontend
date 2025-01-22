@@ -4,7 +4,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import TableData2 from "@/app/components/StudentDispenseTable/TableData2";
+import TableData2 from "@/app/components/TableWithoutAction/TableData2";
 import { DispenseStatus } from '@/app/utils/enums';
 
 
