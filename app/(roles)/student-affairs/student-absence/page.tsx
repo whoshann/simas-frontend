@@ -8,56 +8,50 @@ import Image from 'next/image';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
-
+import { getUserIdFromToken } from "@/app/utils/tokenHelper";
+import { useAbsence } from "@/app/hooks/useAbsence";
+import { AbsenceStatusLabel, getAbsenceStatusLabel } from "@/app/utils/enumHelpers";
 
 export default function StudentAffairsAbsencePage() {
-    // Panggil middleware dan hooks di awal komponen
-    useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
-        fetchData();
-    }, []);
 
-    const [user, setUser] = useState<any>({});
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
-    const token = Cookies.get("token");
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [userId, setUserId] = useState<string>('');
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
+    const { absence, loading, error, fetchAbsence } = useAbsence();
 
-    const data = [
-        { no: 1, name: "Ilham Kurniawan", class: "X PH A", status: "Hadir", document: null, date: "21/01/2024" },
-        { no: 2, name: "Adi Kurniawan", class: "X PH B", status: "Izin", document: "/images/Berita1.jpg", date: "22/01/2024" },
-        { no: 3, name: "Imam Kurniawan", class: "XI IPA A", status: "Sakit", document: "/images/Berita1.jpg", date: "23/01/2024" },
-        { no: 4, name: "Fawas Kurniawan", class: "XI IPA B", status: "Alpha", document: null, date: "24/01/2024" },
-        { no: 5, name: "Obing Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 6, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 7, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 8, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 9, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 10, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 11, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 12, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 13, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 14, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 15, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 16, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 17, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 18, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 19, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 20, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+    useEffect(() => {
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["StudentAffairs"]);
+                setIsAuthorized(true);
+                await fetchAbsence();   
+                const id = getUserIdFromToken();
+                if (id) {
+                    setUserId(id);
+                }
+            } catch (error) {
+                console.error("Error initializing page:", error);
+                setIsAuthorized(false);
+            }
+        };
 
-    ];
+        initializePage();
+    }, []);
+
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    };
 
     // Search item tabel
-    const filteredData = data.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.class.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.date.includes(searchTerm)
-    );
+    const filteredData = absence.filter(item =>
+    item.Student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.Student.class.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.date.includes(searchTerm)
+);
 
     const totalEntries = filteredData.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
@@ -67,22 +61,6 @@ export default function StudentAffairsAbsencePage() {
 
     const togglePanel = () => {
         setIsPanelOpen(!isPanelOpen);
-    };
-
-    const fetchData = async () => {
-        try {
-            // Set default Authorization header dengan Bearer token
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-            // Fetch data user dari endpoint API
-            const response = await axios.get("http://localhost:3333/student");
-            setUser(response.data); // Simpan data user ke dalam state
-        } catch (err: any) {
-            console.error("Error saat fetching data:", err);
-            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-        } finally {
-            setLoading(false); // Set loading selesai
-        }
     };
 
     if (loading) {
@@ -100,7 +78,6 @@ export default function StudentAffairsAbsencePage() {
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Absensi Siswa</h1>
                     <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
                 </div>
-
 
                 {/* Filtering Bulanan */}
                 <div className="mt-4 sm:mt-0">
@@ -204,20 +181,20 @@ export default function StudentAffairsAbsencePage() {
                             </thead>
                             <tbody>
                                 {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.name}</td>
-                                        <td className="py-2 px-4 border-b">{item.class}</td>
+                                    <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
+                                        <td className="py-2 px-4 border-b">1</td>
+                                        <td className="py-2 px-4 border-b">{item.Student.name}</td>
+                                        <td className="py-2 px-4 border-b">{item.Student.class.name}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${item.status === 'Hadir' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.status === 'Sakit' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.status === 'Alpha' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : item.status === 'Izin' ? 'bg-[#1f509a26] text-[var(--main-color)] ' : ''}`}>
-                                                {item.status}
+                                            <span className={`inline-block px-3 py-1 rounded-full ${item.status === AbsenceStatusLabel.Present ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.status === AbsenceStatusLabel.Sick ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.status === AbsenceStatusLabel.Permission ? 'bg-[#bd000025] text-[var(--fourth-color)]' : item.status === AbsenceStatusLabel.Permission ? 'bg-[#1f509a26] text-[var(--main-color)] ' : ''}`}>
+                                                {getAbsenceStatusLabel(item.status)}
                                             </span>
                                         </td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="w-16 h-16 overflow-hidden rounded">
-                                                {item.document ? (
-                                                    <Image
-                                                        src={item.document}
+                                                {item.photo ? (
+                                                    <img
+                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/absence/${item.photo.split('/').pop()}`}
                                                         alt="Bukti Surat"
                                                         className="w-full h-full object-cover"
                                                         width={256}
@@ -228,7 +205,7 @@ export default function StudentAffairsAbsencePage() {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
+                                        <td className="py-2 px-4 border-b">{formatDate(item.date)}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 {/* Edit Button */}

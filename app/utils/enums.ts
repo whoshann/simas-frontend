@@ -46,3 +46,35 @@ export enum ProcurementStatus {
   Approved = "Approved",
   Rejected = "Rejected",
 }
+
+export enum AbsenceStatus {
+  Present = "Present",
+  Permission = "Permission",
+  Sick = "Sick",
+  Alpha = "Alpha",
+}
+
+export enum Religion {
+  ISLAM = "ISLAM",
+  CHRISTIANITY = "CHRISTIANITY",
+  HINDUISM = "HINDUISM",
+  BUDDHISM = "BUDDHISM",
+  CONFUCIANISM = "CONFUCIANISM",
+  CATHOLICISM = "CATHOLICISM",
+}
+
+export enum Gender {
+  Male = "L",
+  Female = "P",
+}
+
+export enum Grade {
+  X = "X",
+  XI = "XI",
+  XII = "XII",
+}
+
+export enum AchievementType {
+  academic = "academic",
+  Non_Academic = "Non_Academic",
+}

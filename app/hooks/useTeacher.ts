@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Teacher } from '@/app/api/teacher-data/types';
-import { teachersApi } from '@/app/api/teacher-data';
+import { Teacher } from '@/app/api/teacher/types';
+import { teachersApi } from '@/app/api/teacher';
 
 export const useTeachers = () => {
     const [teachers, setTeachers] = useState<Teacher[]>([]);

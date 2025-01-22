@@ -6,7 +6,7 @@ import PageHeader from "@/app/components/DataTable/TableHeader";
 import DataTable from "@/app/components/DataTable/TableData";
 import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import { useSubjects } from '@/app/hooks/useSubjectData';
+import { useSubjects } from '@/app/hooks/useSubject';
 
 interface SubjectForm {
     id?: number;
