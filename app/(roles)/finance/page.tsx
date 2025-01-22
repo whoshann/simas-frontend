@@ -6,7 +6,6 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import { Chart, registerables } from "chart.js";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
-import axios from "axios";
 
 Chart.register(...registerables);
 
@@ -26,29 +25,13 @@ const data = [
 ];
 
 export default function FinanceDashboardPage() {
-  const fetchData = async () => {
-    try {
-      // Set default Authorization header dengan Bearer token
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      // Fetch data user dari endpoint API
-      const response = await axios.get("http://localhost:3333/users");
-      setUser(response.data); // Simpan data user ke dalam state
-    } catch (err: any) {
-      console.error("Error saat fetching data:", err);
-      setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-    } finally {
-      setLoading(false); // Set loading selesai
-    }
-  };
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedMonth, setSelectedMonth] = useState("Januari");
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const token = Cookies.get("token");
-  const [user, setUser] = useState<any>({});
-  const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
 
   const months = [
@@ -71,9 +54,20 @@ export default function FinanceDashboardPage() {
   };
 
   useEffect(() => {
-    roleMiddleware(["Finance", "SuperAdmin"]);
-    fetchData()
 
+    const initializePage = async () => {
+      try {
+          await roleMiddleware(["Finance"]);
+          setIsAuthorized(true);
+          setLoading(false)
+
+      } catch (error) {
+          console.error("Error initializing page:", error);
+          setIsAuthorized(false);
+      }
+  };
+
+  initializePage();
     const ctx = canvasRef.current?.getContext("2d");
     if (ctx) {
       new Chart(ctx, {
@@ -122,6 +116,7 @@ export default function FinanceDashboardPage() {
         Chart.getChart(ctx)?.destroy();
       }
     };
+    
   }, []);
 
 if (loading) {
@@ -192,6 +187,7 @@ if (loading) {
       <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 mt-6">
         {/* Start Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          
           <div className="bg-white shadow-md rounded-lg p-6 flex flex-col justify-between">
             <div className="flex flex-col items-start">
               <div className="bg-[#1f509a27] rounded-full p-3 mb-2 w-12 h-12 flex items-center justify-center">
@@ -200,13 +196,14 @@ if (loading) {
               <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
                 Total Keuangan
               </h3>
-              <p className="text-2xl font-bold">Rp.150.000.000,00</p>
+              <p className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Rp.150.000.000,00</p>
             </div>
             <p className="text-sm text-gray-600 mt-4">
               Terakhir Diperbarui pada Tanggal:
             </p>
             <p className="text-sm text-gray-600">25/12/2024</p>
           </div>
+
           <div className="bg-white shadow-md rounded-lg p-6 flex flex-col justify-between">
             <div className="flex flex-col items-start">
               <div className="bg-[#e88e1f29] rounded-full p-3 mb-2 w-12 h-12 flex items-center justify-center">
@@ -215,13 +212,14 @@ if (loading) {
               <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
                 Total Pemasukan
               </h3>
-              <p className="text-2xl font-bold">Rp.150.000.000,00</p>
+              <p className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Rp.150.000.000,00</p>
             </div>
             <p className="text-sm text-gray-600 mt-4">
               Terakhir Diperbarui pada Tanggal:
             </p>
             <p className="text-sm text-gray-600">25/12/2024</p>
           </div>
+
           <div className="bg-white shadow-md rounded-lg p-6 flex flex-col justify-between">
             <div className="flex flex-col items-start">
               <div className="bg-[#bd000025] rounded-full p-3 mb-2 w-12 h-12 flex items-center justify-center">
@@ -230,19 +228,20 @@ if (loading) {
               <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
                 Total Pengeluaran
               </h3>
-              <p className="text-2xl font-bold">Rp.150.000.000,00</p>
+              <p className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Rp.150.000.000,00</p>
             </div>
             <p className="text-sm text-gray-600 mt-4">
               Terakhir Diperbarui pada Tanggal:
             </p>
             <p className="text-sm text-gray-600">25/12/2024</p>
           </div>
+
         </div>
         {/* End Cards */}
 
         {/* Start Chart */}
         <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-          <h3 className="text-lg font-semibold">Keuangan Bulanan</h3>
+          <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">Keuangan Bulanan</h3>
           <canvas ref={canvasRef} className="w-full h-60" />
         </div>
         {/* End Chart */}
