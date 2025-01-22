@@ -23,19 +23,40 @@ const Sidebar: React.FC = () => {
     const [isDropdownOpenFinance, setIsDropdownOpenFinance] = useState(false);
     const [isDropdownOpenFasilitas, setIsDropdownOpenFasilitas] = useState(false);
     const [isDropdownOpenPengelolaBarang, setIsDropdownOpenPengelolaBarang] = useState(false);
-
     const [activeMenu, setActiveMenu] = useState<string>(() => {
+
         // Mengambil activeMenu dari localStorage saat inisialisasi
         if (typeof window !== 'undefined') {
-            return localStorage.getItem('activeMenu') || 'Beranda';
+            const storedMenu = localStorage.getItem('activeMenu');
+            return storedMenu || 'Beranda'; // Default ke 'Beranda' jika tidak ada
         }
         return 'Beranda';
     });
 
 
     useEffect(() => {
+        
+        const token = Cookies.get("token");
+        setIsLoggedIn(!!token);
 
         const activeMenuName = localStorage.getItem('activeMenu');
+
+        if (token && !activeMenuName) {
+            setActiveMenu('Beranda');
+            localStorage.setItem('activeMenu', 'Beranda');
+        }
+
+        if (token) {
+            try {
+                const decoded = jwtDecode<DecodedToken>(token); // Menggunakan jwtDecode
+                setRole(decoded.role);
+                // console.log("Role set to:", decoded.role);
+            } catch (error) {
+                // console.error("Error decoding token:", error);
+            }
+        }
+
+        setIsLoading(false);
 
         // Cek apakah active menu adalah bagian dari submenu Kesiswaan
         if (['Absensi', 'Pelanggaran', 'Achievement', 'Klaim Asuransi'].includes(activeMenuName || '')) {
@@ -48,28 +69,13 @@ const Sidebar: React.FC = () => {
         }
 
         // Cek apakah active menu adalah bagian dari submenu Pengelolaan Barang
-        if (['Barang Masuk', 'Barang Keluar', 'Inventaris', 'Pengajuan Barang'].includes(activeMenuName || '')) {
+        if (['Barang Masuk', 'Peminjaman Barang', 'Inventaris', 'Pengajuan Barang'].includes(activeMenuName || '')) {
             setIsDropdownOpenPengelolaBarang(true);
         }
         // Cek apakah active menu adalah bagian dari submenu Keuangan
         if (['Pengeluaran', 'Pemasukan', 'Keuangan Bulanan'].includes(activeMenuName || '')) {
             setIsDropdownOpenFinance(true);
         }
-
-        const token = Cookies.get("token");
-        setIsLoggedIn(!!token);
-
-        if (token) {
-            try {
-                const decoded = jwtDecode<DecodedToken>(token); // Menggunakan jwtDecode
-                // console.log("Decoded token:", decoded);
-                setRole(decoded.role);
-                // console.log("Role set to:", decoded.role);
-            } catch (error) {
-                // console.error("Error decoding token:", error);
-            }
-        }
-        setIsLoading(false);
 
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -177,7 +183,7 @@ const Sidebar: React.FC = () => {
 
 
                     {/*Start Role Student and Teacher menu */}
-                    {role === "Student" && (
+                    {(role === "Student" || !isLoggedIn) && (
                         <div>
                             <div>
                                 <button
@@ -270,7 +276,10 @@ const Sidebar: React.FC = () => {
                             </a>
 
                             <a
-                                href="/student/finance/payment-status"
+                                href={
+                                    role === "Student" ? "/student/finance/payment-status" :
+                                        "/login"
+                                }
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Keuangan' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Keuangan')}
                             >
@@ -290,7 +299,9 @@ const Sidebar: React.FC = () => {
                             </a>
 
                             <a
-                                href="/student/facilities-management/borrowing-goods"
+                                href={role === "Student" ? "/student/facilities-management/borrowing-goods" :
+                                    "/login"
+                                }
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Facilities' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Facilities')}
                             >
@@ -492,11 +503,11 @@ const Sidebar: React.FC = () => {
                                     </a>
                                     <a
                                         href="/facilities/goods-management/outgoing-goods"
-                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Barang Keluar' ? 'text-blue-900' : ''}`}
-                                        onClick={() => handleSubMenuClick('Barang Keluar')}
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Peminjaman Barang' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Peminjaman Barang')}
                                     >
-                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Barang Keluar' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                        Barang Keluar
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Peminjaman Barang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Peminjaman Barang
                                     </a>
                                     <a
                                         href="/facilities/goods-management/inventory"
@@ -530,9 +541,7 @@ const Sidebar: React.FC = () => {
                     {/* End Role Facilities Sidebar Menu */}
 
 
-
                     {/* Start Role Finance sidebar menu */}
-
                     {role === "Finance" && ( //bersifat sementara
                         <div>
                             <a
@@ -630,7 +639,7 @@ const Sidebar: React.FC = () => {
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Posisi Jabatan' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Posisi Jabatan')}
                             >
-                                <i className='bx bxs-user-rectangle mr-2 font-medium'></i>
+                                <i className='bx bxs-user-detail mr-2 font-medium'></i>
                                 Posisi Jabatan
                             </a>
                             <a

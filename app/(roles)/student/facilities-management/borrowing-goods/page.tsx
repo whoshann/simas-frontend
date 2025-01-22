@@ -315,7 +315,7 @@ export default function StudentBorrowingGoodsPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[var(--main-color)] text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-500 disabled:opacity-50"
+                  className="w-full bg-[var(--main-color)] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#2154a1] disabled:opacity-50"
                 >
                   {loading ? 'Memproses...' : 'Ajukan Peminjaman'}
                 </button>

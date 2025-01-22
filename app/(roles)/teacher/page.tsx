@@ -6,8 +6,6 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from "next/image";
 import Calendar from "react-calendar";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import Cookies from "js-cookie";
-import axios from "axios";
 
 export default function TeacherDashboardPage() {
   const [date, setDate] = useState(new Date());
@@ -79,13 +77,13 @@ export default function TeacherDashboardPage() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
       <header className="py-6 px-9">
-        <h1 className="text-2xl font-bold text-gray-800">Beranda</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
         <p className="text-sm text-gray-600">
           Halo James, selamat datang kembali
         </p>
       </header>
 
-      <main className="px-6 pb-6">
+      <main className="px-9 pb-6">
         {/* Banner */}
         <div className="bg-[var(--main-color)] text-white rounded-lg p-6 flex items-center justify-between mb-6">
           <div>
@@ -105,44 +103,32 @@ export default function TeacherDashboardPage() {
                   src="/images/Berita1.jpg"
                   alt="Sosialisasi Prakerin Orang Tua"
                   width={500}
-                  height={300}
-                  className="w-full object-cover rounded-lg"
+                  height={400}
+                  className="w-full h-[360px] object-cover rounded-lg"
                 />
               </div>
+
+
               <div className="p-4 flex">
-                <div className="flex flex-col items-center justify-center pr-4">
-                  <span className="text-2xl font-bold text-blue-700">8</span>
-                  <span className="text-2xl font-semibold text-teal-600">
+                <div className="flex flex-col items-center justify-center pr-8 pl-4">
+                  <span className="text-3xl font-bold text-[var(--main-color)]">8</span>
+                  <span className="text-3xl font-semibold text-[var(--third-color)]">
                     {new Date().toLocaleString("default", { month: "short" })}
                   </span>
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold">
+                  <h4 className="text-xl text-[var(--text-semi-bold-color)] font-semibold">
                     Sosialisasi Prakerin Orang Tua
                   </h4>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-md text-[var(--text-thin-color)]">
                     Sosialisasi terkait pemberangkatan prakerin untuk orang tua
                     siswa yang dilaksanakan di Home Theater jam 9 pagi tanggal
                     8 bulan Januari.
                   </p>
                 </div>
               </div>
-              <div className="p-4 flex">
-                <div className="flex flex-col items-center justify-center pr-4">
-                  <span className="text-2xl font-bold text-blue-700">8</span>
-                  <span className="text-2xl font-semibold text-teal-600">
-                    {new Date(2025, 0, 28).toLocaleString("default", { month: "short" })}
-                  </span>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold">
-                    Sosialisasi Pra PKL Siswa
-                  </h4>
-                  <p className="text-sm text-gray-600">
-                    Sosialisasi untuk siswa terkait persiapan dan pelaksanaan PKL yang akan dilaksanakan di ruang kelas jam 10 pagi tanggal 8 bulan Januari.
-                  </p>
-                </div>
-              </div>
+
+
             </div>
           </div>
 
@@ -150,7 +136,7 @@ export default function TeacherDashboardPage() {
           <div className="lg:col-span-1 flex flex-col">
             {/* Calendar */}
             <div className="bg-white shadow rounded-lg p-6 mb-6 w-full">
-              <h3 className="text-lg font-semibold mb-4">Kalender</h3>
+              <h3 className="text-lg text-[var(--text-semi-bold-color)] font-semibold mb-4">Kalender</h3>
               <Calendar
                 onChange={(value) => {
                   if (value instanceof Date) {
@@ -180,7 +166,7 @@ export default function TeacherDashboardPage() {
 
             {/* Agenda */}
             <div className="bg-white shadow rounded-lg p-6 w-full">
-              <h3 className="text-lg font-semibold mb-4">Agenda</h3>
+              <h3 className="text-lg text-[var(--text-semi-bold-color)] font-semibold mb-4">Agenda</h3>
               {getAgendaForDate(date).map((item, index) => (
                 <div
                   key={index}
@@ -188,11 +174,11 @@ export default function TeacherDashboardPage() {
                 >
                   {/* Angka */}
                   <div className="flex-shrink-0 mr-4 text-center">
-                    <span className="text-3xl font-bold text-blue-700">{item.date.getDate()}</span>
+                    <span className="text-3xl font-bold text-[var(--main-color)]">{item.date.getDate()}</span>
                   </div>
                   {/* Deskripsi */}
                   <div>
-                    <h4 className="text-sm font-semibold">{item.subject}</h4>
+                    <h4 className="text-sm font-semibold text-[var(--text-semi-bold-color)]">{item.subject}</h4>
                     <p className="text-sm text-gray-600">{item.chapters}</p>
                     <span className="text-sm text-gray-500">{item.time}</span>
                   </div>

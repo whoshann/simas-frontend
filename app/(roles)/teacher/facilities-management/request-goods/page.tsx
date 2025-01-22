@@ -5,6 +5,7 @@ import Image from "next/legacy/image";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import { authApi } from "@/app/api/auth";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { ProcurementStatus } from "@/app/utils/enums";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -154,9 +155,7 @@ export default function TeacherRequestGoodsPage() {
     return <p>Anda tidak memiliki izin untuk mengakses halaman ini.</p>;
   }
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
