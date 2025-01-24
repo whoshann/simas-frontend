@@ -33,7 +33,7 @@ export default function IncomeData({ isOpen, onClose, onSubmit, incomeData }) {
                         <i className="bx bx-x text-2xl"></i>
                     </button>
                     <h2 className="text-xl mb-2 font-semibold text-[var(--text-semi-bold-color)]">
-                        {incomeData ? 'Edit Data Pmeasukan Sekolah' : 'Tambah Data Pemasukan Sekolah'}
+                        {incomeData ? 'Edit Data Pemasukan Sekolah' : 'Tambah Data Pemasukan Sekolah'}
                     </h2>
                 </div>
                 <div className="overflow-y-auto max-h-[70vh] p-4">
@@ -42,8 +42,8 @@ export default function IncomeData({ isOpen, onClose, onSubmit, incomeData }) {
                         <label className="block mb-1 text-[var(--text-semi-bold-color)]">Sumber Pemasukan</label>
                         <input
                             type="text"
-                            name="source"
-                            value={formData.source}
+                            name="name"
+                            value={formData.name}
                             onChange={handleChange}
                             className="border p-2 w-full rounded-lg"
                             required
@@ -53,8 +53,8 @@ export default function IncomeData({ isOpen, onClose, onSubmit, incomeData }) {
                         <label className="block mb-1 text-[var(--text-semi-bold-color)]">Jumlah</label>
                         <input
                             type="number"
-                            name="amount"
-                            value={formData.amount}
+                            name="quantity"
+                            value={formData.quantity}
                             onChange={handleChange}
                             className="border p-2 w-full rounded-lg"
                             required

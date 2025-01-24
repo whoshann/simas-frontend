@@ -5,50 +5,40 @@ import "@/app/styles/globals.css";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Script from 'next/script';
 import { Chart, registerables } from 'chart.js';
-import Cookies from "js-cookie";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Image from 'next/image';
-import axios from "axios";
+
 
 // Daftarkan semua komponen yang diperlukan
 Chart.register(...registerables);
 
 export default function StudentDashboard() {
   // Panggil middleware dan hooks di awal komponen
-  useEffect(() => {
-    // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-    roleMiddleware(["Student", "SuperAdmin"]);
-
-    // Panggil fungsi fetch data
-    fetchData();
-  }, []);
-
-  const [user, setUser] = useState<any>({});
+  const [student, setStudent] = useState<any>({});
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
-  const token = Cookies.get("token");
-  // console.log("Token:", token);
+  useEffect(() => {
+    const initializePage = async () => {
+        try {
+            await roleMiddleware(["Student","SuperAdmin"]);
+            setIsAuthorized(true);
+        } catch (error) {
+            console.error("Auth error:", error);
+            setIsAuthorized(false);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    initializePage();
+  }, []);
+  
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const fetchData = async () => {
-    try {
-      // Set default Authorization header dengan Bearer token
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      // Fetch data user dari endpoint API
-      const response = await axios.get("http://localhost:3333/student");
-      setUser(response.data); // Simpan data user ke dalam state
-    } catch (err: any) {
-      console.error("Error saat fetching data:", err);
-      setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-    } finally {
-      setLoading(false); // Set loading selesai
-    }
-  };
-
   if (loading) {
-    return <p>Memuat data...</p>;
+    return <LoadingSpinner/>;
   }
 
   if (error) {
@@ -56,10 +46,10 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+    <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9">
         <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
-        <p className="text-sm text-[var(--text-thin-color)]">Halo James, selamat datang kembali</p>
+        <p className="text-sm text-[var(--text-thin-color)]">Halo {student.name}, selamat datang kembali</p>
       </header>
 
       <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 hide-scrollbar pb-8">

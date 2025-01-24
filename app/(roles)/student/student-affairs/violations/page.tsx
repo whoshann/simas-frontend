@@ -5,12 +5,33 @@ import { useState } from 'react';
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 export default function StudentViolationsPage() {
+    // Panggil middleware dan hooks di awal komponen
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student'
-        roleMiddleware(["Student"]);
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["Student","SuperAdmin"]);
+                setIsAuthorized(true);
+            } catch (error) {
+                console.error("Auth error:", error);
+                setIsAuthorized(false);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        initializePage();
     }, []);
+
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
+
+    const token = Cookies.get("token");
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [entriesPerPage, setEntriesPerPage] = useState(5);
@@ -38,8 +59,17 @@ export default function StudentViolationsPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
 
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
+
+
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
 
 
             {/* Start Header */}
@@ -174,8 +204,8 @@ export default function StudentViolationsPage() {
                                                         src={item.document}
                                                         alt="Bukti Foto"
                                                         className="w-full h-full object-cover"
-                                                        width={256} 
-                                                        height={256} 
+                                                        width={256}
+                                                        height={256}
                                                     />
                                                 ) : (
                                                     '-'

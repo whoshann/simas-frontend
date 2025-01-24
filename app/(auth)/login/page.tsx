@@ -2,8 +2,7 @@
 
 import "@/app/styles/globals.css";
 import { useState } from 'react';
-import { loginUser } from "../api/api";
-import Cookies from "js-cookie";
+import { useAuth } from '@/app/hooks/useAuth';
 import Image from "next/legacy/image";
 
 
@@ -12,76 +11,24 @@ export default function LoginPage() {
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState("");
+    const { login, error } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         try {
-            const result = await loginUser(identifier, password);
-            console.log("Login berhasil:", result);
-    
-            // Simpan token ke dalam cookies
-            Cookies.set("token", result.data.access_token, {
-                expires: 1, // Cookie akan kedaluwarsa dalam 1 hari
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-            });
-            // Cookies.set("role", result.data.role, { expires: 1 }); //menyimpan role
-
-            // Dapatkan role dari hasil login
-            const role = result.data.role;
-
-            // Redirect berdasarkan role
-            switch (role) {
-                case "SuperAdmin":
-                    window.location.href = "/superadmin";
-                    break;
-                case "Teacher":
-                    window.location.href = "/teacher";
-                    break;
-                case "Student":
-                    window.location.href = "/student";
-                    break;
-                case "StudentAffairs":
-                    window.location.href = "/student-affairs";
-                    break;
-                case "PublicRelations":
-                    window.location.href = "/dashboard/public-relations";
-                    break;
-                case "WorkshopHead":
-                    window.location.href = "/dashboard/workshop-head";
-                    break;
-                case "Insdustry":
-                    window.location.href = "/dashboard/industry";
-                    break;
-                case "Finance":
-                    window.location.href = "/dashboard/finance";
-                    break;
-                case "Administration":
-                    window.location.href = "/dashboard/administration";
-                    break;
-                case "Facilities":
-                    window.location.href = "/facilities";
-                    break;
-                case "Curriculum":
-                    window.location.href = "/dashboard/curriculum";
-                    break;
-                default:
-                    console.error("Role tidak dikenal:", role);
-                    setError("Role tidak dikenal. Silakan hubungi administrator.");
-                    break;
-            }
-        } catch (err: any) {
-            setError(err.message || "Gagal login. Silakan coba lagi.");
+            const redirectUrl = await login(identifier, password);
+            window.location.href = redirectUrl;
+        } catch (err) {
+            // Error sudah ditangani di useAuth
+            console.error(err);
         }
     };
 
     return (
         <div
-            className="flex flex-col md:flex-row h-screen items-center justify-center"
+            className="flex flex-col md:flex-row h-screen bg-[#F2F2F2] items-center justify-center"
         >
-            <div className="md:w-1/2 bg-white flex items-center justify-center">
+            <div className="md:w-1/2 flex items-center justify-center">
                 <Image
                     src="/images/IlustrasiLogin.svg"
                     alt="Illustration"
@@ -126,9 +73,9 @@ export default function LoginPage() {
                             onClick={() => setShowPassword(!showPassword)}
                         >
                             {showPassword ? (
-                                <i className='bx bxs-show h-7' /> 
+                                <i className='bx bxs-show h-7' />
                             ) : (
-                                <i className='bx bxs-hide h-7' /> 
+                                <i className='bx bxs-hide h-7' />
                             )}
                         </span>
                     </div>
@@ -148,6 +95,6 @@ export default function LoginPage() {
                     </button>
                 </form>
             </div>
-    </div>
-);
+        </div>
+    );
 }

@@ -2,10 +2,9 @@ import React, { useEffect } from "react";
 
 export default function PaymentSppModal({ isOpen, onClose, studentData }) {
   useEffect(() => {
-    // Load Snap script dynamically
     const script = document.createElement("script");
-    script.src = "https://app.sandbox.midtrans.com/snap/snap.js"; // Sandbox environment
-    script.setAttribute("data-client-key", "SB-Mid-client-ayobOM2NMVsUNeLf"); // Replace with your Client Key
+    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+    script.setAttribute("data-client-key", "SB-Mid-client-ayobOM2NMVsUNeLf");
     script.async = true;
     document.body.appendChild(script);
 
@@ -14,57 +13,77 @@ export default function PaymentSppModal({ isOpen, onClose, studentData }) {
     };
   }, []);
 
-  // Handle Snap Payment
-  const handleSnapPayment = () => {
-    fetch("https://your-backend-url.com/create-transaction", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Basic " + btoa("SB-Mid-server-IezZ7oR06DQeUDl3of6H8aHn"), // Server Key (Base64 encoded)
-      },
-      body: JSON.stringify({
-        transaction_details: {
-          order_id: `ORDER-${Date.now()}`, // Unique order ID
-          gross_amount: parseInt(studentData.jumlah.replace(/\D/g, "")), // Convert formatted string to number
+  const handleSnapPayment = async () => {
+    try {
+      console.log('Sending payment request with data:', {
+        orderId: `ORDER-${Date.now()}`,
+        grossAmount: parseInt(String(studentData.amount).replace(/\D/g, "")),
+        customerDetails: {
+          name: studentData?.studentName || "Student",
+          school_class: studentData?.className || "Unknown Class",
+          studentId: studentData?.studentId || null,
         },
-        customer_details: {
-          first_name: "Student", // Replace with real name if available
-          email: "student@example.com", // Replace with real email if available
+      });
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/school-payment/create-transaction`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.token) {
-          // Call Snap popup with transaction token
-          window.snap.pay(data.token, {
+        body: JSON.stringify({
+          orderId: `ORDER-${Date.now()}`,
+          grossAmount: parseInt(String(studentData.amount).replace(/\D/g, "")),
+          customerDetails: {
+            name: studentData?.studentName || "Student",
+            school_class: studentData?.className || "Unknown Class",
+          },
+          studentId: studentData?.studentId || null,
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Response from backend:', data);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      if (data && data.data && data.data.token) {
+        console.log('Token received:', data.token);
+        if (window.snap) {
+          window.snap.pay(data.data.token, {
             onSuccess: function (result) {
-              alert("Pembayaran berhasil!");
               console.log("Success:", result);
+              alert("Pembayaran berhasil!");
               onClose();
             },
             onPending: function (result) {
-              alert("Pembayaran tertunda.");
               console.log("Pending:", result);
+              alert("Pembayaran tertunda.");
             },
             onError: function (result) {
+              console.error("Payment Error:", result);
               alert("Pembayaran gagal.");
-              console.log("Error:", result);
             },
             onClose: function () {
               alert("Popup ditutup tanpa pembayaran.");
             },
           });
         } else {
-          alert("Gagal mendapatkan token transaksi.");
+          console.error('Snap is not initialized!');
+          alert("Terjadi kesalahan: Snap belum siap");
         }
-      })
-      .catch((err) => {
-        console.error("Error:", err);
-        alert("Terjadi kesalahan saat memproses pembayaran.");
-      });
+      } else {
+        console.error('No token in response:', data);
+        throw new Error('Token tidak ditemukan dalam response');
+      }
+    } catch (err) {
+      console.error("Payment Error:", err);
+      alert(err.message || "Terjadi kesalahan saat memproses pembayaran.");
+    }
   };
 
+  // Rest of the component remains the same...
   if (!isOpen) return null;
 
   return (
@@ -98,16 +117,18 @@ export default function PaymentSppModal({ isOpen, onClose, studentData }) {
         {/* Content */}
         <div className="mb-6">
           <p className="text-gray-700">
-            <strong className="block mb-1">NIS:</strong>
-            {studentData?.nis || "-"}
+            <strong className="block mb-1">Nama:</strong>
+            {studentData?.studentName || "-"}
           </p>
           <p className="text-gray-700">
             <strong className="block mb-1">Kelas:</strong>
-            {studentData?.kelas || "-"}
+            {studentData?.className || "-"}
           </p>
           <p className="text-gray-700">
             <strong className="block mb-1">Jumlah:</strong>
-            Rp{studentData?.jumlah || "-"}
+            {studentData?.amount
+              ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(studentData.amount)
+              : "-"}
           </p>
           <p className="text-gray-700">
             <strong className="block mb-1">Bulan:</strong>

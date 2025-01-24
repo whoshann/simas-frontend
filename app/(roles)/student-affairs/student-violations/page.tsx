@@ -5,75 +5,257 @@ import "@/app/styles/globals.css";
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { authApi } from "@/app/api/auth";
+import { getUserIdFromToken } from "@/app/utils/tokenHelper";
+import FormModal from '@/app/components/DataTable/FormModal';
+import { useViolation } from "@/app/hooks/useViolationData";
+
+interface User {
+    id: number;
+    name: string;
+    username: string;
+}
 
 
 export default function StudentAffairsViolationsPage() {
+    const {
+        violations,
+        loading: violationLoading,
+        error,
+        fetchViolations,
+    } = useViolation();
+
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["StudentAffairs"]);
+        const initializePage = async () => {
+            try {
+                // Cek role dengan middleware
+                await roleMiddleware(["StudentAffairs", "SuperAdmin"]);
+                await fetchViolations();
+                setIsAuthorized(true);
+
+                // Fetch user data
+                const userId = getUserIdFromToken();
+                if (userId) {
+                    await fetchUserData(Number(userId));
+                }
+
+            } catch (error) {
+                console.error("Error initializing page:", error);
+                setError("Terjadi kesalahan saat memuat halaman");
+                setIsAuthorized(false);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initializePage();
     }, []);
 
-    const [isPanelOpen, setIsPanelOpen] = useState(false);
+    const fetchUserData = async (userId: number) => {
+        try {
+            const response = await authApi.getUserLogin(userId);
+            setUser(prev => ({
+                ...prev,
+                ...response.data
+            }));
+        } catch (err) {
+            console.error("Error fetching user data:", err);
+            setError("Gagal memuat data pengguna");
+        }
+    };
+
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+    // const [error, setError] = useState("");
+    const [user, setUser] = useState<User>({
+        id: 0,
+        name: '',
+        username: '',
+    });
+
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+    const [formData, setFormData] = useState({
+        name: '',
+        // classSchool: '',
+        violations: '',
+        category: '',
+        punishment: '',
+        // document: null,
+        date: ''
+    });
 
-    const data = [
-        { no: 1, name: "Ilham Kurniawan", classSchool: "X PH A", violations: "Merokok", category: "Ringan", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "21/01/2024" },
-        { no: 2, name: "Adi Kurniawan", classSchool: "X PH B", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: null, date: "22/01/2024" },
-        { no: 3, name: "Imam Kurniawan", classSchool: "XI IPA A", violations: "Bongkar Lab 1", category: "Berat", punishment:"Skors 1 Minggu", document: null, date: "23/01/2024" },
-        { no: 4, name: "Fawas Kurniawan", classSchool: "XI IPA B", violations: "Menyembunyikan HP", category: "Sedang", punishment:"Skors 1 Minggu", document: null, date: "24/01/2024" },
-        { no: 5, name: "Obing Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 6, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Ringan", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 7, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 8, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 9, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 10, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 11, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 12, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 13, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 14, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 15, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 16, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 17, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 18, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 19, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 20, name: "Ilham Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment:"Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+    // data tabel dummy
+    // const data = [
+    //     { no: 1, name: "Ilham Kurniawan", classSchool: "X PH A", violations: "Merokok", category: "Ringan", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "21/01/2024" },
+    //     { no: 2, name: "Adi Kurniawan", classSchool: "X PH B", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "22/01/2024" },
+    //     { no: 3, name: "Imam Kurniawan", classSchool: "XI IPA A", violations: "Bongkar Lab 1", category: "Berat", punishment: "Skors 1 Minggu", document: null, date: "23/01/2024" },
+    //     { no: 4, name: "Fawas Kurniawan", classSchool: "XI IPA B", violations: "Menyembunyikan HP", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "24/01/2024" },
+    //     { no: 5, name: "Obing Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
+    // ];
 
+    // form untuk modal add dan edit
+    const formFields = [
+        {
+            name: 'name',
+            label: 'Nama Siswa',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Masukkan nama siswa'
+        },
+        {
+            name: 'classSchool',
+            label: 'Kelas',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Contoh: X PH A'
+        },
+        {
+            name: 'violations',
+            label: 'Pelanggaran',
+            type: 'textarea' as const,
+            required: true,
+            placeholder: 'Deskripsikan pelanggaran',
+            rows: 3
+        },
+        {
+            name: 'category',
+            label: 'Kategori',
+            type: 'select' as const,
+            options: [
+                { value: 'Ringan', label: 'Ringan' },
+                { value: 'Sedang', label: 'Sedang' },
+                { value: 'Berat', label: 'Berat' }
+            ],
+            required: true
+        },
+        {
+            name: 'punishment',
+            label: 'Hukuman',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Masukkan hukuman'
+        },
+        {
+            name: 'document',
+            label: 'Bukti Foto',
+            type: 'file' as const,
+            accept: 'image/*',
+            preview: true,
+            helperText: 'Format: JPG, PNG, JPEG. Max: 2MB' //opsional
+        },
+        {
+            name: 'date',
+            label: 'Tanggal',
+            type: 'date' as const,
+            required: true
+        }
     ];
 
-    // Search item tabel
-    const filteredData = data.filter(item =>
+    //handle untuk memunculkan modal add dan edit
+    const handleOpenModal = (mode: 'add' | 'edit', data?: any) => {
+        setModalMode(mode);
+        if (mode === 'edit' && data) {
+            const [day, month, year] = data.date.split('/');
+            const formattedDate = `${year}-${month}-${day}`;
+            
+            setFormData({
+                name: data.name,
+                // classSchool: data.classSchool,
+                violations: data.violations,
+                category: data.name,
+                punishment: data.punishment,
+                // document: data.document,
+                date: formattedDate
+            });
+        } else {
+            setFormData({
+                name: '',
+                // classSchool: '',
+                violations: '',
+                category: '',
+                punishment: '',
+                // document: null,
+                date: ''
+            });
+        }
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setFormData({
+            name: '',
+            // classSchool: '',
+            violations: '',
+            category: '',
+            punishment: '',
+            // document: null,
+            date: ''
+        });
+    };
+
+    const handleSubmit = async (formData: any) => {
+        try {
+            if (modalMode === 'add') {
+                console.log('Adding new data:', formData);
+            } else {
+                console.log('Updating data:', formData);
+            }
+            handleCloseModal();
+        } catch (error) {
+            console.error('Error submitting form:', error);
+        }
+    };
+
+    // const handleDelete = 
+
+    // fungsi untuk search
+    const filteredData = violations.filter(item =>
+        item.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        // item.classSchool.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.classSchool.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.violations.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.violationPoint.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.punishment.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.date.includes(searchTerm)
     );
 
+    // fungsi untuk pagination tabel
     const totalEntries = filteredData.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    const togglePanel = () => {
-        setIsPanelOpen(!isPanelOpen);
-    };
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (error) {
+        return <p className="text-red-500">{error}</p>;
+    }
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Point Pelanggaran Siswa</h1>
                     <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
                 </div>
 
-
-                {/* Filtering Bulanan */}
                 <div className="mt-4 sm:mt-0">
-                    <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
+                    <div className="bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
                         <i className='bx bx-search text-[var(--text-semi-bold-color)] text-lg mr-0 sm:mr-2 ml-2 sm:ml-0'></i>
                         <input
                             type="text"
@@ -104,18 +286,14 @@ export default function StudentAffairsViolationsPage() {
                             <label className="ml-2">Entri</label>
                         </div>
 
-                        {/* 3 button*/}
-
                         <div className="flex space-x-2 mt-5 sm:mt-0">
-                            {/* Button Tambah Data */}
                             <button
-                                onClick={() => console.log("Tambah Data")}
+                                onClick={() => handleOpenModal('add')}
                                 className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
                             >
                                 Tambah Data
                             </button>
 
-                            {/* Button Import CSV */}
                             <button
                                 onClick={() => console.log("Import CSV")}
                                 className="bg-[var(--second-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#de881f]"
@@ -123,7 +301,6 @@ export default function StudentAffairsViolationsPage() {
                                 Import Dari Excel
                             </button>
 
-                            {/* Dropdown Export */}
                             <div className="relative">
                                 <button
                                     onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -136,8 +313,7 @@ export default function StudentAffairsViolationsPage() {
                                         viewBox="0 0 24 24"
                                         strokeWidth={2}
                                         stroke="currentColor"
-                                        className={`w-4 h-4 ml-2 transform transition-transform ${dropdownOpen ? 'rotate-90' : 'rotate-0'
-                                            }`}
+                                        className={`w-4 h-4 ml-2 transform transition-transform ${dropdownOpen ? 'rotate-90' : 'rotate-0'}`}
                                     >
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                     </svg>
@@ -159,10 +335,7 @@ export default function StudentAffairsViolationsPage() {
                                     </div>
                                 )}
                             </div>
-
                         </div>
-
-
                     </div>
 
                     <div className="overflow-x-auto">
@@ -171,33 +344,39 @@ export default function StudentAffairsViolationsPage() {
                                 <tr>
                                     <th className="py-2 px-4 border-b text-left">No</th>
                                     <th className="py-2 px-4 border-b text-left">Nama</th>
-                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
+                                    {/* <th className="py-2 px-4 border-b text-left">Kelas</th> */}
                                     <th className="py-2 px-4 border-b text-left">Pelanggaran</th>
                                     <th className="py-2 px-4 border-b text-left">Kategori</th>
                                     <th className="py-2 px-4 border-b text-left">Hukuman</th>
-                                    <th className="py-2 px-4 border-b text-left">Bukti Foto</th>
+                                    {/* <th className="py-2 px-4 border-b text-left">Bukti Foto</th> */}
                                     <th className="py-2 px-4 border-b text-left">Tanggal</th>
                                     <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.name}</td>
-                                        <td className="py-2 px-4 border-b">{item.classSchool}</td>
-                                        <td className="py-2 px-4 border-b">{item.violations}</td>
+                                {currentEntries.map((violations, index) => (
+                                    <tr key={violations.id} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
+                                        <td className="py-2 px-4 border-b">{index + 1}</td>
+                                        <td className="py-2 px-4 border-b">{violations.student.name}</td>
+                                        {/* <td className="py-2 px-4 border-b">{violations.classSchool}</td> */}
+                                        <td className="py-2 px-4 border-b">{violations.name}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${item.category === 'Ringan' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.category === 'Sedang' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.category === 'Berat' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : ''}`}>
-                                                {item.category}
+                                            <span className={`inline-block px-3 py-1 rounded-full ${
+                                                violations.violationPoint.name === 'Ringan' 
+                                                    ? 'bg-[#0a97b028] text-[var(--third-color)]' 
+                                                    : violations.violationPoint.name === 'Sedang' 
+                                                    ? 'bg-[#e88e1f29] text-[var(--second-color)]' 
+                                                    : 'bg-[#bd000025] text-[var(--fourth-color)]'
+                                            }`}>
+                                                {violations.violationPoint.name}
                                             </span>
                                         </td>
-                                        <td className="py-2 px-4 border-b">{item.punishment}</td>
-                                        <td className="py-2 px-4 border-b">
+                                        <td className="py-2 px-4 border-b">{violations.punishment}</td>
+                                        {/* <td className="py-2 px-4 border-b">
                                             <div className="w-16 h-16 overflow-hidden rounded">
-                                                {item.document ? (
+                                                {violations.document ? (
                                                     <Image
-                                                        src={item.document}
+                                                        src={violations.document}
                                                         alt="Bukti Surat"
                                                         className="w-full h-full object-cover"
                                                         width={256}
@@ -207,22 +386,18 @@ export default function StudentAffairsViolationsPage() {
                                                     '-'
                                                 )}
                                             </div>
-                                        </td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
+                                        </td> */}
+                                        <td className="py-2 px-4 border-b">{formatDate(violations.date)}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
-                                                {/* Edit Button */}
                                                 <button
+                                                    onClick={() => handleOpenModal('edit', violations)}
                                                     className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-
                                                 >
                                                     <i className="bx bxs-edit text-lg"></i>
                                                 </button>
-
-                                                {/* Delete Button */}
                                                 <button
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-
                                                 >
                                                     <i className="bx bxs-trash-alt text-lg"></i>
                                                 </button>
@@ -235,7 +410,9 @@ export default function StudentAffairsViolationsPage() {
                     </div>
 
                     <div className="flex justify-between items-center mt-5">
-                        <span className="text-xs sm:text-base">Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri</span>
+                        <span className="text-xs sm:text-base">
+                            Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri
+                        </span>
 
                         <div className="flex items-center">
                             <button
@@ -252,7 +429,11 @@ export default function StudentAffairsViolationsPage() {
                                         <button
                                             key={pageNumber}
                                             onClick={() => setCurrentPage(pageNumber)}
-                                            className={`rounded-md px-3 py-1 ${currentPage === pageNumber ? 'bg-[var(--main-color)] text-white' : 'text-[var(--main-color)]'}`}
+                                            className={`rounded-md px-3 py-1 ${
+                                                currentPage === pageNumber 
+                                                    ? 'bg-[var(--main-color)] text-white' 
+                                                    : 'text-[var(--main-color)]'
+                                            }`}
                                         >
                                             {pageNumber}
                                         </button>
@@ -270,6 +451,18 @@ export default function StudentAffairsViolationsPage() {
                     </div>
                 </div>
             </main>
+
+            <FormModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onSubmit={handleSubmit}
+                title={modalMode === 'add' ? 'Tambah Data Pelanggaran' : 'Edit Data Pelanggaran'}
+                mode={modalMode}
+                fields={formFields}
+                formData={formData}
+                setFormData={setFormData}
+                size="lg"
+            />
         </div>
     );
 }

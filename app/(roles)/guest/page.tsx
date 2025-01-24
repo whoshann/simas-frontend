@@ -1,10 +1,9 @@
 import "@/app/styles/globals.css";
 import Image from 'next/image';
-import RootLayout from "@/app/layout";
 
 export default function GuestDashboard() {
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9">
                 <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
                 <p className="text-sm text-gray-600">Halo, selamat datang di website kami</p>

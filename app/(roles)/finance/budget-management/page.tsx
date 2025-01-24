@@ -1,333 +1,233 @@
 "use client";
-
-import React, { useState } from "react";
 import "@/app/styles/globals.css";
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import Image from 'next/image';
-import RabModal from "@/app/components/RabModal.js";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import DataTable from "@/app/components/DataTable/TableData";
+import PageHeader from "@/app/components/DataTable/TableHeader";
 
-type Rab = {
+// Enum untuk status
+enum DispensationStatus {
+    Pending = 'Menunggu',
+    Approved = 'Disetujui',
+    Rejected = 'Ditolak'
+}
+
+// Interface untuk data dispensasi
+interface BudgetProposal {
     no: number;
+    id: number;
+    name: string;
+    role: string;
     title: string;
     description: string;
     amount: number;
-    status: "Disetujui" | "Revisi" | "Ditolak";
-    date: string;
     document: string;
-};
+    date: string;
+    status: DispensationStatus;
+}
 
-export default function BudgetManagementPage() {
-    useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-        roleMiddleware(["Finance"]);
-    }, []);
-
-    const [isPanelOpen, setIsPanelOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [entriesPerPage, setEntriesPerPage] = useState(5);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedRab, setSelectedRab] = useState<Rab | null>(null);
-
-    const data = [
-    { 
-        no: 1, 
-        title: "Renovation of Computer Lab", 
-        description: "Repair of lab facilities", 
-        amount: 20000000, 
-        status: "Ditolak", 
-        date: "15/12/2024", 
-        document: "Proposal_Renovation_Lab.pdf" 
+// Data dummy
+const staticBudgetProposal: BudgetProposal[] = [
+    {
+        no: 1,
+        id: 1,
+        name: "John Doe",
+        role: "Kesiswaan",
+        title: "Renovation of Computer Lab",
+        amount: 20000000,
+        description: "Repair of lab facilities",
+        document: "Proposal_Renovation_Lab.pdf",
+        date: "15/12/2024",
+        status: DispensationStatus.Pending,
     },
-    { 
-        no: 2, 
-        title: "Sports Equipment", 
-        description: "Procurement of balls and nets", 
-        amount: 5000000, 
-        status: "Disetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Sports.pdf" 
+    {
+        no: 2,
+        id: 2,
+        name: "John Doe",
+        role: "Kesiswaan",
+        title: "Sports Equipment",
+        amount: 5000000,
+        description: "Procurement of balls and nets",
+        document: "Proposal_Sports.pdf",
+        date: "15/12/2024",
+        status: DispensationStatus.Pending,
     },
-    { 
-        no: 3, 
-        title: "Student Workshop", 
-        description: "Robotics training for students", 
-        amount: 15000000, 
-        status: "Disetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Workshop.pdf" 
+    {
+        no: 3,
+        id: 3,
+        name: "John Doe",
+        role: "Kesiswaan",
+        title: "Student Workshop",
+        amount: 15000000,
+        description: "Robotics training for students",
+        document: "Proposal_Workshop.pdf",
+        date: "15/12/2024",
+        status: DispensationStatus.Pending,
     },
-    { 
-        no: 4, 
-        title: "Book Procurement", 
-        description: "Library reference books", 
-        amount: 3000000, 
-        status: "Disetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Books.pdf" 
+    {
+        no: 4,
+        id: 4,
+        name: "John Doe",
+        role: "Sarpras",
+        title: "Book Procurement",
+        amount: 3000000,
+        description: "Library reference books",
+        document: "Proposal_Books.pdf",
+        date: "15/12/2024",
+        status: DispensationStatus.Approved,
     },
-    { 
-        no: 5, 
-        title: "Building Maintenance", 
-        description: "Repair of classroom ceiling", 
-        amount: 10000000, 
-        status: "DIsetujui", 
-        date: "15/12/2024", 
-        document: "Proposal_Maintenance.pdf" 
+    {
+        no: 5,
+        id: 5,
+        name: "John Doe",
+        role: "Guru",
+        title: "Building Maintenance",
+        amount: 10000000,
+        description: "Repair of classroom ceiling",
+        document: "Proposal_Maintenance.pdf",
+        date: "15/12/2024",
+        status: DispensationStatus.Rejected,
     }
 ];
 
+export default function FinanceDispensationPage() {
+    const [loading, setLoading] = useState<boolean>(true);
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [entriesPerPage, setEntriesPerPage] = useState(5);
+    const [budgetProposal, setBudgetProposal] = useState<BudgetProposal[]>(staticBudgetProposal);
 
-    // Search item tabel
-    const filteredData = data.filter(item =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchTerm.toLowerCase()) 
-    );
+    // Fetch data saat komponen dimount
+    useEffect(() => {
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["Finance","SuperAdmin"]);
+                setIsAuthorized(true);
+            } catch (error) {
+                console.error("Auth error:", error);
+                setIsAuthorized(false);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const totalEntries = filteredData.length;
-    const totalPages = Math.ceil(totalEntries / entriesPerPage);
-    const startIndex = (currentPage - 1) * entriesPerPage;
-    const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+        initializePage();
+    }, []);
 
-    const togglePanel = () => {
-        setIsPanelOpen(!isPanelOpen);
-    };
-
-    const handleAddClick = () => {
-        setSelectedRab(null);
-        setIsModalOpen(true);
-    };
-
-    const handleEditClick = (rab: Rab) => {
-        setSelectedRab(rab);
-        setIsModalOpen(true);
-    };
-
-    const handleModalSubmit = (data: Rab) => {
-        if (selectedRab) {
-            // Update data
-            console.log("Edit Data", data);
+    const handleExport = (type: 'pdf' | 'excel') => {
+        if (type === 'pdf') {
+            console.log('Exporting to PDF...');
+            // Implementasi export PDF
         } else {
-            // Tambah data baru
-            console.log("Tambah Data", data);
+            console.log('Exporting to Excel...');
+            // Implementasi export Excel
         }
     };
 
-    const handleAccClick = (rab: Rab) => {
-        const updatedData = data.map(item =>
-            item.no === rab.no ? { ...item, status: "Disetujui" } : item
+    // Fungsi untuk handle konfirmasi
+    const handleConfirm = (id: number) => {
+        setBudgetProposal(prevData =>
+            prevData.map(item =>
+                item.id === id
+                    ? { ...item, status: DispensationStatus.Approved }
+                    : item
+            )
         );
-        console.log("Acc Data", rab); // Log data yang di-acc
     };
-    
+
+    // Fungsi untuk handle penolakan
+    const handleReject = (id: number) => {
+        setBudgetProposal(prevData =>
+            prevData.map(item =>
+                item.id === id
+                    ? { ...item, status: DispensationStatus.Rejected }
+                    : item
+            )
+        );
+    };
+
+    // Konfigurasi header tabel
+    const tableHeaders = [
+        { key: 'no', label: 'No' },
+        { key: 'name', label: 'Nama' },
+        { key: 'role', label: 'Peran' },
+        { key: 'title', label: 'Rencana RAB' },
+        { key: 'amount', label: 'Dana' },
+        { key: 'description', label: 'Alasan Pengajuan' },
+        { key: 'document', label: 'Dokumen Pendukung' },
+        { key: 'date', label: 'Tanggal' },
+        {
+            key: 'status',
+            label: 'Status',
+            render: (value: DispensationStatus) => {
+                const statusStyles = {
+                    [DispensationStatus.Pending]: 'bg-[#e88e1f29] text-[var(--second-color)]',
+                    [DispensationStatus.Approved]: 'bg-[#0a97b022] text-[var(--third-color)]',
+                    [DispensationStatus.Rejected]: 'bg-red-100 text-[var(--fourth-color)]',
+                };
+                return (
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyles[value]}`}>
+                        {value}
+                    </span>
+                );
+            }
+        },
+        {
+            key: 'actions',
+            label: 'Aksi',
+            render: (_: any, row: BudgetProposal) => {
+                if (row.status === DispensationStatus.Pending) {
+                    return (
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => handleConfirm(row.id)}
+                                className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+                            >
+                                <i className='bx bxs-check-circle text-lg'></i>
+                            </button>
+                            <button
+                                onClick={() => handleReject(row.id)}
+                                className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
+                            >
+                                <i className='bx bxs-x-circle text-lg'></i>
+                            </button>
+                        </div>
+                    );
+                }
+                return (
+                    <span className="text-gray-400 text-xs">
+                        -
+                    </span>
+                );
+            }
+        }
+    ];
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (!isAuthorized) {
+        return <div>Anda tidak memiliki akses ke halaman ini</div>;
+    }
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-            <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Pengajuan RAB</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Sarpras, selamat datang kembali</p>
-                </div>
+        <div className="flex-1 flex px-9 flex-col overflow-hidden bg-[#F2F2F2]">
+            <PageHeader
+                title="Data Pengajuan RAB"
+                greeting="Halo admin keuangan, selamat datang di halaman Data Pengajuan RAB"
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+            />
 
-
-                {/* Filtering Bulanan */}
-                <div className="mt-4 sm:mt-0">
-                    <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
-                        <i className='bx bx-search text-[var(--text-semi-bold-color)] text-lg mr-0 sm:mr-2 ml-2 sm:ml-0'></i>
-                        <input
-                            type="text"
-                            placeholder="Cari data..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="border-0 focus:outline-none text-base w-40"
-                        />
-                    </div>
-                </div>
-            </header>
-
-            <main className="px-9 pb-6">
-                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-                    <div className="mb-4 flex justify-between flex-wrap sm:flex-nowrap">
-                        <div className="text-xs sm:text-base">
-                            <label className="mr-2">Tampilkan</label>
-                            <select
-                                value={entriesPerPage}
-                                onChange={(e) => setEntriesPerPage(Number(e.target.value))}
-                                className="border border-gray-300 rounded-lg p-1 text-xs sm:text-sm w-12 sm:w-16"
-                            >
-                                <option value={5}>5</option>
-                                <option value={10}>10</option>
-                                <option value={15}>15</option>
-                                <option value={20}>20</option>
-                            </select>
-                            <label className="ml-2">Entri</label>
-                        </div>
-
-                        {/* 3 button*/}
-
-                        <div className="flex space-x-2 mt-5 sm:mt-0">
-                            {/* Button Tambah Data */}
-                            <button
-                                onClick={handleAddClick}
-                                className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
-                            >
-                                Tambah Data
-                            </button>
-
-                            {/* Button Import CSV */}
-                            <button
-                                onClick={() => console.log("Import CSV")}
-                                className="bg-[var(--second-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#de881f]"
-                            >
-                                Import Dari Excel
-                            </button>
-
-                            {/* Dropdown Export */}
-                            <div className="relative">
-                                <button
-                                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                                    className="bg-[var(--third-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#09859a] flex items-center"
-                                >
-                                    Export Data
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth={2}
-                                        stroke="currentColor"
-                                        className={`w-4 h-4 ml-2 transform transition-transform ${dropdownOpen ? 'rotate-90' : 'rotate-0'
-                                            }`}
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
-                                {dropdownOpen && (
-                                    <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-                                        <button
-                                            onClick={() => console.log("Export PDF")}
-                                            className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
-                                        >
-                                            Export PDF
-                                        </button>
-                                        <button
-                                            onClick={() => console.log("Export Excel")}
-                                            className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
-                                        >
-                                            Export Excel
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-
-                        </div>
-
-
-                    </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full rounded-lg overflow-hidden">
-                            <thead className="text-[var(--text-semi-bold-color)]">
-                                <tr>
-                                    <th className="py-2 px-4 border-b text-left">No</th>
-                                    <th className="py-2 px-4 border-b text-left">Judul</th>
-                                    <th className="py-2 px-4 border-b text-left">Keterangan</th>
-                                    <th className="py-2 px-4 border-b text-left">Total</th>
-                                    <th className="py-2 px-4 border-b text-left">Dokumen</th>
-                                    <th className="py-2 px-4 border-b text-left">Status</th>
-                                    <th className="py-2 px-4 border-b text-left">Date</th>
-                                    <th className="py-2 px-4 border-b text-left">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.title}</td>
-                                        <td className="py-2 px-4 border-b">{item.description}</td>
-                                        <td className="py-2 px-4 border-b">Rp. {item.amount.toLocaleString()}</td>
-                                        <td className="py-2 px-4 border-b">{item.document}</td>
-                                        <td className="py-2 px-4 border-b">
-                                            <span className={`px-2 py-1 rounded-full text-xs ${item.status === "Ditolak" ? 'bg-red-100 text-red-600' : item.status === "Revisi" ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'}`}>
-                                                {item.status}
-                                            </span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
-                                        <td className="py-2 px-4 border-b">
-                                        <div className="flex space-x-2">
-                                            {/* Edit Button */}
-                                            <button
-                                                onClick={() => handleEditClick(item)}
-                                                className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-                                            >
-                                                <i className="bx bxs-edit text-lg"></i>
-                                            </button>
-
-                                            {/* Delete Button */}
-                                            <button
-                                                className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-                                            >
-                                                <i className="bx bxs-trash-alt text-lg"></i>
-                                            </button>
-
-                                            {/* Acc Button */}
-                                            <button
-                                                onClick={() => handleAccClick(item)}
-                                                className="w-8 h-8 rounded-full bg-[#28a7452b] flex items-center justify-center text-green-700"
-                                            >
-                                                <i className="bx bx-check text-lg"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div className="flex justify-between items-center mt-5">
-                        <span className="text-xs sm:text-base">Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri</span>
-
-                        <div className="flex items-center">
-                            <button
-                                onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-                                disabled={currentPage === 1}
-                                className="px-4 py-2 text-[var(--main-color)]"
-                            >
-                                &lt;
-                            </button>
-                            <div className="flex space-x-1">
-                                {Array.from({ length: Math.min(totalPages - (currentPage - 1), 2) }, (_, index) => {
-                                    const pageNumber = currentPage + index;
-                                    return (
-                                        <button
-                                            key={pageNumber}
-                                            onClick={() => setCurrentPage(pageNumber)}
-                                            className={`rounded-md px-3 py-1 ${currentPage === pageNumber ? 'bg-[var(--main-color)] text-white' : 'text-[var(--main-color)]'}`}
-                                        >
-                                            {pageNumber}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                            <button
-                                onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
-                                disabled={currentPage === totalPages}
-                                className="px-4 py-2 text-[var(--main-color)]"
-                            >
-                                &gt;
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </main>
-            <RabModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-                rabData={selectedRab}
+            <DataTable
+                headers={tableHeaders}
+                data={budgetProposal}
+                searchTerm={searchTerm}
+                entriesPerPage={entriesPerPage}
+                setEntriesPerPage={setEntriesPerPage}
+                onExport={handleExport}
             />
         </div>
     );

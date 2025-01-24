@@ -5,28 +5,37 @@ import { useState } from 'react';
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
-import Cookies from "js-cookie";
-import axios from "axios";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 
 export default function StudentAbsencePage() {
-    useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-        roleMiddleware(["Student", "SuperAdmin"]);
 
-        // Panggil fungsi fetch data
-        fetchData();
+    useEffect(() => {
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["Student","SuperAdmin"]);
+                setIsAuthorized(true);
+            } catch (error) {
+                console.error("Auth error:", error);
+                setIsAuthorized(false);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        initializePage();
     }, []);
 
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
     const [selectedMonth, setSelectedMonth] = useState('Januari');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-    
-    const [user, setUser] = useState<any>({});
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
+    const [student, setStudent] = useState<any>({});
+    const [isAuthorized, setIsAuthorized] = useState(false);
+
 
     const months = [
         'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -75,35 +84,17 @@ export default function StudentAbsencePage() {
         setIsPanelOpen(!isPanelOpen);
     }
 
-    const token = Cookies.get("token");
-    // console.log("Token:", token);
-
-    const fetchData = async () => {
-        try {
-            // Set default Authorization header dengan Bearer token
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-            // Fetch data user dari endpoint API
-            const response = await axios.get("http://localhost:3333/student");
-            setUser(response.data); // Simpan data user ke dalam state
-        } catch (err: any) {
-            console.error("Error saat fetching data:", err);
-            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-        } finally {
-            setLoading(false); // Set loading selesai
-        }
-    };
-
     if (loading) {
-        return <p>Memuat data...</p>;
+        return <LoadingSpinner />;
     }
 
     if (error) {
         return <p className="text-red-500">{error}</p>;
     }
 
+
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
 
 
             {/* Start Header */}
