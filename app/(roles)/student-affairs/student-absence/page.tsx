@@ -138,13 +138,6 @@ export default function StudentAffairsAbsencePage() {
                         {/* 3 button*/}
 
                         <div className="flex space-x-2 mt-5 sm:mt-0">
-                            {/* Button Tambah Data */}
-                            <button
-                                onClick={() => console.log("Tambah Data")}
-                                className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
-                            >
-                                Tambah Data
-                            </button>
 
                             {/* Button Import CSV */}
                             <button

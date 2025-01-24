@@ -103,7 +103,7 @@ export default function ExpensesPage() {
     }
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
+        <div className="flex-1 flex flex-col px-9 overflow-hidden bg-[#F2F2F2]">
             <PageHeader
                 title="Data Pengeluaran"
                 greeting="Halo role Keuangan, selamat datang kembali"

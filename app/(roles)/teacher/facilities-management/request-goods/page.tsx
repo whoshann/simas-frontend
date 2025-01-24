@@ -181,14 +181,14 @@ export default function TeacherRequestGoodsPage() {
                   Nama Barang
                 </label>
                 <input
-                    type="text"
-                    id="itemName"
-                    name="itemName"
-                    value={formData.itemName}
-                    onChange={(e) => setFormData({ ...formData, itemName: e.target.value })}
-                    placeholder="Laptop Lenovo Yoga 7i"
-                    className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
-                  />
+                  type="text"
+                  id="itemName"
+                  name="itemName"
+                  value={formData.itemName}
+                  onChange={(e) => setFormData({ ...formData, itemName: e.target.value })}
+                  placeholder="Laptop Lenovo Yoga 7i"
+                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
+                />
               </div>
 
               <div>
@@ -199,15 +199,15 @@ export default function TeacherRequestGoodsPage() {
                   Jumlah Barang
                 </label>
                 <input
-                    type="number"
-                    id="quantity"
-                    name="quantity"
-                    value={formData.quantity}
-                    onChange={handlePriceChange}
-                    placeholder="3"
-                    min="1"
-                    className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
-                  />
+                  type="number"
+                  id="quantity"
+                  name="quantity"
+                  value={formData.quantity}
+                  onChange={handlePriceChange}
+                  placeholder="3"
+                  min="1"
+                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -310,6 +310,6 @@ export default function TeacherRequestGoodsPage() {
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>
+  );
 }

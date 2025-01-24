@@ -59,7 +59,7 @@ const Sidebar: React.FC = () => {
         setIsLoading(false);
 
         // Cek apakah active menu adalah bagian dari submenu Kesiswaan
-        if (['Absensi', 'Pelanggaran', 'Achievement', 'Klaim Asuransi'].includes(activeMenuName || '')) {
+        if (['Absensi', 'Pelanggaran', 'Achievement', 'Klaim Asuransi', "Surat Dispensasi"].includes(activeMenuName || '')) {
             setIsDropdownOpenKesiswaan(true);
         }
 
@@ -263,8 +263,8 @@ const Sidebar: React.FC = () => {
 
                                     <a
                                         href="/student/student-affairs/dispensation-letter"
-                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Surat Disensasi' ? 'text-blue-900' : ''}`}
-                                        onClick={() => handleSubMenuClick('Surat Disensasi')}
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Surat Dispensasi' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Surat Dispensasi')}
                                     >
                                         <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Surat Dispensasi' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
                                         Surat Dispensasi
@@ -345,7 +345,14 @@ const Sidebar: React.FC = () => {
                                 <i className='bx bxs-hdd mr-2 font-medium'></i> {/* Ikon untuk Peminjaman Barang */}
                                 Peminjaman Barang
                             </a>
-
+                            <a
+                                href="/teacher/facilities-management/request-goods"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Request Goods' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Request Goods')}
+                            >
+                                <i className='bx bxs-hdd mr-2 font-medium'></i> {/* Ikon untuk Peminjaman Barang */}
+                                Pengajuan Barang
+                            </a>
                         </div>
                     )}
 

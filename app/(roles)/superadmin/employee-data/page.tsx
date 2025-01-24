@@ -284,7 +284,7 @@ export default function EmployeePage() {
     if (loading) return <LoadingSpinner />;
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
+        <div className="flex-1 px-9 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <PageHeader
                 title={pageContent.title}
                 greeting={pageContent.greeting}

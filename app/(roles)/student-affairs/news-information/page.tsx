@@ -6,45 +6,54 @@ import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import { useNewsInformation } from "@/app/hooks/useNewsInformation";
-import { getUserIdFromToken } from "@/app/utils/tokenHelper";
+import Cookies from "js-cookie";
+import axios from "axios";
+
+
 
 export default function StudentAffairsNewsInformationPage() {
+    useEffect(() => {
+        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
+        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
+        fetchData();
+    }, []);
 
-    const [isAuthorized, setIsAuthorized] = useState(false);
-    const [userId, setUserId] = useState<string>('');
+    const [user, setUser] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
+    const token = Cookies.get("token");
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-    const { newsInformation, loading, error, fetchNewsInformation } = useNewsInformation();
 
-    useEffect(() => {
-       const initializePage = async () => {
-            try {
-                await roleMiddleware(["StudentAffairs"]);
-                setIsAuthorized(true);
-                await fetchNewsInformation();   
-                const id = getUserIdFromToken();
-                if (id) {
-                    setUserId(id);
-                }
-            } catch (error) {
-                console.error("Error initializing page:", error);
-                setIsAuthorized(false);
-            }
-        };
+    const data = [
+        { no: 1, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "21/01/2024" },
+        { no: 2, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "22/01/2024" },
+        { no: 3, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "23/01/2024" },
+        { no: 4, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "24/01/2024" },
+        { no: 5, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "25/01/2024" },
+        { no: 6, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "25/01/2024" },
+        { no: 7, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 8, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 9, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 10, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 11, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 12, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 13, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 14, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 15, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 16, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 17, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 18, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 19, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
+        { no: 20, document: "/images/Berita1.jpg", title: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
 
-        initializePage();
-    }, []);
-
-    const formatDate = (date: string) => {
-        return new Date(date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-    };
+    ];
 
     // Search item tabel
-    const filteredData = newsInformation.filter(item =>
-        item.activity.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const filteredData = data.filter(item =>
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.date.includes(searchTerm)
     );
@@ -57,6 +66,23 @@ export default function StudentAffairsNewsInformationPage() {
 
     const togglePanel = () => {
         setIsPanelOpen(!isPanelOpen);
+    };
+
+    
+    const fetchData = async () => {
+        try {
+            // Set default Authorization header dengan Bearer token
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            // Fetch data user dari endpoint API
+            const response = await axios.get("http://localhost:3333/student");
+            setUser(response.data); // Simpan data user ke dalam state
+        } catch (err: any) {
+            console.error("Error saat fetching data:", err);
+            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+        } finally {
+            setLoading(false); // Set loading selesai
+        }
     };
 
     if (loading) {
@@ -180,19 +206,18 @@ export default function StudentAffairsNewsInformationPage() {
                                     <th className="py-2 px-4 border-b text-left">Judul</th>
                                     <th className="py-2 px-4 border-b text-left">Deskripsi</th>
                                     <th className="py-2 px-4 border-b text-left">Tanggal</th>
-                                    <th className="py-2 px-4 border-b text-left">Catatan</th>
                                     <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {currentEntries.map((item) => (
-                                    <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.id}</td>
+                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
+                                        <td className="py-2 px-4 border-b">{item.no}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="w-16 h-16 overflow-hidden rounded">
-                                                {item.photo ? (
-                                                    <img
-                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/student-information/${item.photo.split('/').pop()}`}
+                                                {item.document ? (
+                                                    <Image
+                                                        src={item.document}
                                                         alt="Bukti Surat"
                                                         className="w-full h-full object-cover"
                                                         width={256}
@@ -203,10 +228,9 @@ export default function StudentAffairsNewsInformationPage() {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="py-2 px-4 border-b">{item.activity}</td>
+                                        <td className="py-2 px-4 border-b">{item.title}</td>
                                         <td className="py-2 px-4 border-b">{item.description}</td>
-                                        <td className="py-2 px-4 border-b">{formatDate(item.date)}</td>
-                                        <td className="py-2 px-4 border-b">{item.note}</td>
+                                        <td className="py-2 px-4 border-b">{item.date}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 {/* Edit Button */}

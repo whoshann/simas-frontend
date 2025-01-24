@@ -213,7 +213,7 @@ export default function FinanceDispensationPage() {
     }
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
+        <div className="flex-1 flex px-9 flex-col overflow-hidden bg-[#F2F2F2]">
             <PageHeader
                 title="Data Pengajuan RAB"
                 greeting="Halo admin keuangan, selamat datang di halaman Data Pengajuan RAB"

@@ -1,49 +1,27 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import "@/app/styles/globals.css";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import PageHeader from "@/app/components/DataTable/TableHeader";
-import DataTable from "@/app/components/DataTable/TableData";
-import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import Image from 'next/image';
 import { useStudents } from "@/app/hooks/useStudent";
 import { Student } from "@/app/api/student/types";
-import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 
-interface FormData {
-    [key: string]: any;
-}
-
-export default function StudentPage() {
-    const [isPageLoading, setIsPageLoading] = useState(true);
-    const {
-        students,
-        loading,
-        fetchStudents,
-        createStudent,
-        updateStudent,
-        deleteStudent
-    } = useStudents();
-
-    // State declarations
+export default function StudentDataPage() {
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-    const [isAuthorized, setIsAuthorized] = useState(false);
-    const [userId, setUserId] = useState<string>('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const { students, loading, error, fetchStudents } = useStudents();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    // Fetch data saat komponen dimount
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["StudentAffairs"]);
                 setIsAuthorized(true);
-                await fetchStudents();
-                const id = getUserIdFromToken();
-                if (id) {
-                    setUserId(id);
-                }
+                await fetchStudents(); // Fetch data siswa
             } catch (error) {
                 console.error("Error initializing page:", error);
                 setIsAuthorized(false);
@@ -51,247 +29,251 @@ export default function StudentPage() {
         };
 
         initializePage();
-        initializePage();
     }, []);
 
-    const handleExport = (type: 'pdf' | 'excel') => {
-        if (type === 'pdf') {
-            console.log("Exporting to PDF...");
-        } else {
-            console.log("Exporting to Excel...");
-        }
-    };
+    const filteredData = students.filter(item =>
+        Object.values(item).some(
+            value => value && value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    );
 
-    // Fungsi untuk memformat tanggal
     const formatDate = (date: string) => {
-        return new Date(date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+        return new Date(date).toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
     };
 
+    if (loading) {
+        return <LoadingSpinner />;
+    }
 
-    // Table headers configuration
-    const headers = [
-        { key: "id", label: "No" },
-        { key: "name", label: "Nama" },
-        { key: "nis", label: "NIS" },
-        { key: "nisn", label: "NISN" },
-        {
-            key: "Class",
-            label: "Kelas",
-            render: (student: Student) => student.Class?.name || '-'
-        },
-        {
-            key: "Major",
-            label: "Jurusan",
-            render: (student: Student) => student.Major?.name || '-'
-        },
-        {
-            key: "birthDate",
-            label: "Tanggal Lahir",
-            render: (student: Student) => formatDate(student.birthDate)
-        },
-        { key: "birthPlace", label: "Tempat Lahir" },
-        {
-            key: "gender",
-            label: "Jenis Kelamin",
-            render: (student: Student) => student.gender === 'L' ? 'Laki-laki' : 'Perempuan'
-        },
-        { key: "address", label: "Alamat" },
-        { key: "phone", label: "Nomor" },
-        { key: "parentPhone", label: "Nomor Orang Tua" },
-        {
-            key: "religion",
-            label: "Agama",
-            render: (value: string) => {
-                const religions = {
-                    'ISLAM': 'Islam',
-                    'CHRISTIANITY': 'Kristen',
-                    'HINDUISM': 'Hindu',
-                    'BUDDHISM': 'Buddha',
-                    'CONFUCIANISM': 'Konghucu',
-                    'CATHOLICISM': 'Katolik'
-                };
-                return religions[value as keyof typeof religions];
-            }
-        },
-        { key: "motherName", label: "Nama Ibu" },
-        { key: "fatherName", label: "Nama Ayah" },
-        { key: "guardian", label: "Nama Wali" }
-    ];
+    if (error) {
+        return <div className="text-red-500">{error}</div>;
+    }
 
-    // Page content configuration
-    const pageContent = {
-        title: "Data Siswa",
-        greeting: "Halo Admin Kesiswaan, selamat datang kembali"
-    };
-
-    // Form fields configuration
-    const studentFields = [
-        { name: 'name', label: 'Nama Lengkap', type: 'text' as const, required: true },
-        {
-            name: 'classId',
-            label: 'Kelas',
-            type: 'select' as const,
-            required: true,
-            options: [
-                { value: '1', label: 'X RPL A' },
-                { value: '2', label: 'X RPL B' },
-                { value: '3', label: 'X RPL C' },
-                { value: '4', label: 'X TKJ A' },
-                { value: '5', label: 'X TKJ B' },
-                { value: '6', label: 'X TKJ C' },
-            ]
-        },
-        {
-            name: 'majorId',
-            label: 'Jurusan',
-            type: 'select' as const,
-            required: true,
-            options: [
-                { value: '1', label: 'Rekayasa Perangkat Lunak' },
-                { value: '2', label: 'Teknik Komputer dan Jaringan ' },
-            ]
-        },
-        { name: 'nis', label: 'NIS', type: 'text' as const, required: true },
-        { name: 'nisn', label: 'NISN', type: 'text' as const, required: true },
-        {
-            name: 'gender',
-            label: 'Jenis Kelamin',
-            type: 'select' as const,
-            required: true,
-            options: [
-                { value: 'L', label: 'Laki-laki' },
-                { value: 'P', label: 'Perempuan' }
-            ]
-        },
-        {
-            name: 'birthDate',
-            label: 'Tanggal Lahir',
-            type: 'date' as const,
-            required: true,
-            valueFormat: (value: string) => value ? value.split('T')[0] : ''
-        },
-        { name: 'birthPlace', label: 'Tempat Lahir', type: 'text' as const, required: true },
-        { name: 'address', label: 'Alamat', type: 'textarea' as const, required: true, colSpan: 2 },
-        { name: 'phone', label: 'Nomor Telepon', type: 'tel' as const, required: true },
-        { name: 'parentPhone', label: 'Nomor Telepon Orang Tua', type: 'tel' as const, required: true },
-        {
-            name: 'religion',
-            label: 'Agama',
-            type: 'select' as const,
-            required: true,
-            options: [
-                { value: 'Islam', label: 'Islam' },
-                { value: 'Kristen', label: 'Kristen' },
-                { value: 'Katolik', label: 'Katolik' },
-                { value: 'Hindu', label: 'Hindu' },
-                { value: 'Buddha', label: 'Buddha' },
-                { value: 'Konghucu', label: 'Konghucu' }
-            ]
-        },
-        { name: 'motherName', label: 'Nama Ibu', type: 'text' as const, required: true },
-        { name: 'fatherName', label: 'Nama Ayah', type: 'text' as const, required: true },
-        { name: 'guardian', label: 'Nama Wali (Opsional)', type: 'text' as const }
-    ];
-
-    // Handler untuk edit data
-    const handleEdit = (id: number) => {
-        const student = students.find(s => s.id === id);
-        if (student) {
-            const formattedStudent = {
-                ...student,
-                classId: student.Class?.id,
-                majorId: student.Major?.id,
-                birthDate: student.birthDate ? student.birthDate.split('T')[0] : ''
-            };
-            setSelectedStudent(formattedStudent);
-            setIsModalOpen(true);
-        }
-    };
-
-    // Handler untuk delete data
-    const handleDelete = async (id: number) => {
-        if (window.confirm("Apakah Anda yakin ingin menghapus data ini?")) {
-            try {
-                await deleteStudent(id);
-            } catch (error) {
-                console.error("Error deleting student:", error);
-            }
-        }
-    };
-
-
-    // Handler untuk submit form (add/edit)
-    const handleSubmit = async (formData: FormData): Promise<void> => {
-        try {
-            const studentData = {
-                name: formData.name,
-                classId: parseInt(formData.classId),
-                majorId: parseInt(formData.majorId),
-                nis: formData.nis,
-                nisn: formData.nisn,
-                gender: formData.gender,
-                birthDate: formData.birthDate,
-                birthPlace: formData.birthPlace,
-                address: formData.address,
-                phone: formData.phone,
-                parentPhone: formData.parentPhone,
-                religion: formData.religion,
-                motherName: formData.motherName,
-                fatherName: formData.fatherName,
-                guardian: formData.guardian || null,
-            };
-
-            if (selectedStudent) {
-                await updateStudent(selectedStudent.id, studentData);
-            } else {
-                await createStudent(studentData);
-            }
-            setIsModalOpen(false);
-            setSelectedStudent(null);
-        } catch (error) {
-            console.error("Error submitting data:", error);
-        }
-    };
-
-    if (isPageLoading) return <LoadingSpinner />;
+    if (!isAuthorized) {
+        return null;
+    }
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
-            <PageHeader
-                title={pageContent.title}
-                greeting={pageContent.greeting}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-            />
+            <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                <div>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Siswa</h1>
+                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
+                </div>
 
-            <DataTable
-                headers={headers}
-                data={students}
-                searchTerm={searchTerm}
-                entriesPerPage={entriesPerPage}
-                setEntriesPerPage={setEntriesPerPage}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onAdd={() => {
-                    setSelectedStudent(null);
-                    setIsModalOpen(true);
-                }}
-                onImport={() => console.log("Import")}
-                onExport={handleExport}
-            />
+                {/* Search */}
+                <div className="mt-4 sm:mt-0">
+                    <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
+                        <i className='bx bx-search text-[var(--text-semi-bold-color)] text-lg mr-0 sm:mr-2 ml-2 sm:ml-0'></i>
+                        <input
+                            type="text"
+                            placeholder="Cari data..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="border-0 focus:outline-none text-base w-40"
+                        />
+                    </div>
+                </div>
+            </header>
 
-            <DynamicModal
-                isOpen={isModalOpen}
-                onClose={() => {
-                    setIsModalOpen(false);
-                    setSelectedStudent(null);
-                }}
-                onSubmit={handleSubmit}
-                title={selectedStudent ? "Edit Data Siswa" : "Tambah Data Siswa"}
-                fields={studentFields}
-                initialData={selectedStudent || undefined}
-                width="w-[40rem]"
-            />
+            <main className="px-9 pb-6">
+                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+                    <div className="mb-4 flex justify-between flex-wrap sm:flex-nowrap">
+                        <div className="text-xs sm:text-base">
+                            <label className="mr-2">Tampilkan</label>
+                            <select
+                                value={entriesPerPage}
+                                onChange={(e) => setEntriesPerPage(Number(e.target.value))}
+                                className="border rounded px-2 py-1"
+                            >
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <label className="ml-2">entri</label>
+                        </div>
+                        {/* 3 button*/}
+
+                        <div className="flex space-x-2 mt-5 sm:mt-0">
+                            {/* Button Tambah Data */}
+                            <button
+                                onClick={() => console.log("Tambah Data")}
+                                className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
+                            >
+                                Tambah Data
+                            </button>
+
+                            {/* Button Import CSV */}
+                            <button
+                                onClick={() => console.log("Import CSV")}
+                                className="bg-[var(--second-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#de881f]"
+                            >
+                                Import Dari Excel
+                            </button>
+
+                            {/* Dropdown Export */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                                    className="bg-[var(--third-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#09859a] flex items-center"
+                                >
+                                    Export Data
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth={2}
+                                        stroke="currentColor"
+                                        className={`w-4 h-4 ml-2 transform transition-transform ${dropdownOpen ? 'rotate-90' : 'rotate-0'
+                                            }`}
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                {dropdownOpen && (
+                                    <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                                        <button
+                                            onClick={() => console.log("Export PDF")}
+                                            className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
+                                        >
+                                            Export PDF
+                                        </button>
+                                        <button
+                                            onClick={() => console.log("Export Excel")}
+                                            className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
+                                        >
+                                            Export Excel
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                        </div>
+                    </div>
+
+                    {/* Table */}
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full rounded-lg overflow-hidden">
+                            <thead className="text-[var(--text-semi-bold-color)]">
+                                <tr>
+                                    <th className="py-2 px-4 border-b text-left">No</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama</th>
+                                    <th className="py-2 px-4 border-b text-left">NIS</th>
+                                    <th className="py-2 px-4 border-b text-left">NISN</th>
+                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
+                                    <th className="py-2 px-4 border-b text-left">Jurusan</th>
+                                    <th className="py-2 px-4 border-b text-left">Tanggal Lahir</th>
+                                    <th className="py-2 px-4 border-b text-left">Tempat Lahir</th>
+                                    <th className="py-2 px-4 border-b text-left">Jenis Kelamin</th>
+                                    <th className="py-2 px-4 border-b text-left">Alamat</th>
+                                    <th className="py-2 px-4 border-b text-left">No. Telepon</th>
+                                    <th className="py-2 px-4 border-b text-left">No. Telepon Ortu</th>
+                                    <th className="py-2 px-4 border-b text-left">Agama</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Ibu</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Ayah</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Wali</th>
+                                    <th className="py-2 px-4 border-b text-left">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredData
+                                    .slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage)
+                                    .map((student, index) => (
+                                        <tr key={student.id} className="hover:bg-gray-100">
+                                            <td className="py-2 px-4 border-b">{index + 1}</td>
+                                            <td className="py-2 px-4 border-b">{student.name}</td>
+                                            <td className="py-2 px-4 border-b">{student.nis}</td>
+                                            <td className="py-2 px-4 border-b">{student.nisn}</td>
+                                            <td className="py-2 px-4 border-b">{student.class?.name || '-'}</td>
+                                            <td className="py-2 px-4 border-b">{student.major?.name || '-'}</td>
+                                            <td className="py-2 px-4 border-b">{formatDate(student.birthDate)}</td>
+                                            <td className="py-2 px-4 border-b">{student.birthPlace}</td>
+                                            <td className="py-2 px-4 border-b">
+                                                {student.gender === 'L' ? 'Laki-laki' : 'Perempuan'}
+                                            </td>
+                                            <td className="py-2 px-4 border-b">{student.address}</td>
+                                            <td className="py-2 px-4 border-b">{student.phone}</td>
+                                            <td className="py-2 px-4 border-b">{student.parentPhone}</td>
+                                            <td className="py-2 px-4 border-b">{student.religion}</td>
+                                            <td className="py-2 px-4 border-b">{student.motherName}</td>
+                                            <td className="py-2 px-4 border-b">{student.fatherName}</td>
+                                            <td className="py-2 px-4 border-b">{student.guardian || '-'}</td>
+                                            <td className="py-2 px-4 border-b">
+                                                <div className="flex space-x-2">
+                                                    <button
+                                                        className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+                                                        onClick={() => console.log("Edit", student.id)}
+                                                    >
+                                                        <i className="bx bxs-edit text-lg"></i>
+                                                    </button>
+                                                    <button
+                                                        className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
+                                                        onClick={() => console.log("Delete", student.id)}
+                                                    >
+                                                        <i className="bx bxs-trash-alt text-lg"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="flex justify-between items-center mt-4">
+                        <span className="text-sm">
+                            Menampilkan {Math.min((currentPage - 1) * entriesPerPage + 1, filteredData.length)} hingga{' '}
+                            {Math.min(currentPage * entriesPerPage, filteredData.length)} dari {filteredData.length} entri
+                        </span>
+                        <div className="flex items-center space-x-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1 border rounded-md text-[var(--main-color)]"
+                            >
+                                &lt;
+                            </button>
+                            {Array.from({ length: Math.ceil(filteredData.length / entriesPerPage) }, (_, i) => i + 1)
+                                .filter(pageNum =>
+                                    pageNum === 1 ||
+                                    pageNum === Math.ceil(filteredData.length / entriesPerPage) ||
+                                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                                )
+                                .map((pageNum, index, array) => (
+                                    <React.Fragment key={pageNum}>
+                                        {index > 0 && array[index - 1] !== pageNum - 1 && (
+                                            <span className="px-2">...</span>
+                                        )}
+                                        <button
+                                            onClick={() => setCurrentPage(pageNum)}
+                                            className={`px-3 py-1 rounded-md ${currentPage === pageNum
+                                                ? 'bg-[var(--main-color)] text-white'
+                                                : 'text-[var(--main-color)]'
+                                                }`}
+                                        >
+                                            {pageNum}
+                                        </button>
+                                    </React.Fragment>
+                                ))}
+                            <button
+                                onClick={() => setCurrentPage(prev =>
+                                    Math.min(prev + 1, Math.ceil(filteredData.length / entriesPerPage))
+                                )}
+                                disabled={currentPage === Math.ceil(filteredData.length / entriesPerPage)}
+                                className="px-3 py-1  text-[var(--main-color)]"
+                            >
+                                &gt;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     );
 }

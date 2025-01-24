@@ -232,7 +232,7 @@ export default function StudentAffairsDispensationPage() {
     }
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
+        <div className="flex-1 flex px-9 flex-col overflow-hidden bg-[#F2F2F2]">
             <PageHeader
                 title="Dispensasi Siswa"
                 greeting="Selamat datang di halaman Dispensasi Siswa"
