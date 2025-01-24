@@ -6,84 +6,59 @@ import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import Cookies from "js-cookie";
-import axios from "axios";
-
+import { useAchievements } from "@/app/hooks/useAchievement";
+import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 
 export default function StudentAffairsAchievementPage() {
-    useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
-        fetchData();
-    }, []);
-    const [user, setUser] = useState<any>({});
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
-    const token = Cookies.get("token");
-    const [isPanelOpen, setIsPanelOpen] = useState(false);
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [userId, setUserId] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
+    const { achievements, loading, error, fetchAchievements } = useAchievements();
 
-    const data = [
-        { no: 1, name: "Ilham Kurniawan", classSchool: "X PH A", achievement: "Juara 1 Taekwondo", category: "Non Akademik", document: "/images/Berita1.jpg", date: "21/01/2024" },
-        { no: 2, name: "Adi Kurniawan", classSchool: "X PH B", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "22/01/2024" },
-        { no: 3, name: "Imam Kurniawan", classSchool: "XI IPA A", achievement: "Juara 1 Menangkap Belut", category: "Non Akademik", document: "/images/Berita1.jpg", date: "23/01/2024" },
-        { no: 4, name: "Fawas Kurniawan", classSchool: "XI IPA B", achievement: "Juara 1 Olimpiade IPA", category: "Akademik", document: "/images/Berita1.jpg", date: "24/01/2024" },
-        { no: 5, name: "Obing Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 6, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Balap Karung", category: "Non Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 7, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 8, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 9, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 10, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 11, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 12, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 13, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 14, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 15, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 16, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 17, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 18, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 19, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
-        { no: 20, name: "Ilham Kurniawan", classSchool: "XII IPS A", achievement: "Juara 1 Olimpiade Sains", category: "Akademik", document: "/images/Berita1.jpg", date: "25/01/2024" },
+    useEffect(() => {
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["StudentAffairs"]);
+                setIsAuthorized(true);
+                await fetchAchievements();
+                const id = getUserIdFromToken();
+                if (id) {
+                    setUserId(id);
+                }
+            } catch (error) {
+                console.error("Error initializing page:", error);
+                setIsAuthorized(false);
+            }
+        };
 
-    ];
+        initializePage();
+    }, []);
 
     // Search item tabel
-    const filteredData = data.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.classSchool.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.achievement.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.date.includes(searchTerm)
+    const filteredData = achievements.filter(item =>
+        item.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.class.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.achievementName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.competitionName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.typeOfAchievement.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.achievementDate.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
 
     const totalEntries = filteredData.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-
-    const togglePanel = () => {
-        setIsPanelOpen(!isPanelOpen);
-    };
-
-
-    const fetchData = async () => {
-        try {
-            // Set default Authorization header dengan Bearer token
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-            // Fetch data user dari endpoint API
-            const response = await axios.get("http://localhost:3333/student");
-            setUser(response.data); // Simpan data user ke dalam state
-        } catch (err: any) {
-            console.error("Error saat fetching data:", err);
-            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-        } finally {
-            setLoading(false); // Set loading selesai
-        }
-    };
 
     if (loading) {
         return <LoadingSpinner />;
@@ -139,22 +114,6 @@ export default function StudentAffairsAchievementPage() {
                         {/* 3 button*/}
 
                         <div className="flex space-x-2 mt-5 sm:mt-0">
-                            {/* Button Tambah Data */}
-                            <button
-                                onClick={() => console.log("Tambah Data")}
-                                className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
-                            >
-                                Tambah Data
-                            </button>
-
-                            {/* Button Import CSV */}
-                            <button
-                                onClick={() => console.log("Import CSV")}
-                                className="bg-[var(--second-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#de881f]"
-                            >
-                                Import Dari Excel
-                            </button>
-
                             {/* Dropdown Export */}
                             <div className="relative">
                                 <button
@@ -204,7 +163,8 @@ export default function StudentAffairsAchievementPage() {
                                     <th className="py-2 px-4 border-b text-left">No</th>
                                     <th className="py-2 px-4 border-b text-left">Nama</th>
                                     <th className="py-2 px-4 border-b text-left">Kelas</th>
-                                    <th className="py-2 px-4 border-b text-left">Prestasi</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Prestasi</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Kompetisi</th>
                                     <th className="py-2 px-4 border-b text-left">Kategori</th>
                                     <th className="py-2 px-4 border-b text-left">Bukti Foto</th>
                                     <th className="py-2 px-4 border-b text-left">Tanggal</th>
@@ -212,23 +172,28 @@ export default function StudentAffairsAchievementPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.name}</td>
-                                        <td className="py-2 px-4 border-b">{item.classSchool}</td>
-                                        <td className="py-2 px-4 border-b">{item.achievement}</td>
+                                {currentEntries.map((item, index) => (
+                                    <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
+                                        <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
+                                        <td className="py-2 px-4 border-b">{item.student?.name || '-'}</td>
+                                        <td className="py-2 px-4 border-b">{item.class?.name || '-'}</td>
+                                        <td className="py-2 px-4 border-b">{item.achievementName}</td>
+                                        <td className="py-2 px-4 border-b">{item.competitionName}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${item.category === 'Non Akademik' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.category === 'Akademik' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : ''}`}>
-                                                {item.category}
+                                            <span className={`inline-block px-3 py-1 rounded-full ${
+                                                item.typeOfAchievement === 'Non_Academic'
+                                                ? 'bg-[#0a97b028] text-[var(--third-color)]'
+                                                : 'bg-[#e88e1f29] text-[var(--second-color)]'
+                                                }`}>
+                                                {item.typeOfAchievement === 'Non_Academic' ? 'Non_Akademik' : item.typeOfAchievement === 'academic' ? 'Akademik' : ''}
                                             </span>
                                         </td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="w-16 h-16 overflow-hidden rounded">
-                                                {item.document ? (
+                                                {item.picture ? (
                                                     <Image
-                                                        src={item.document}
-                                                        alt="Bukti Surat"
+                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/achievement/${item.picture}`}
+                                                        alt="Bukti Prestasi"
                                                         className="w-full h-full object-cover"
                                                         width={256}
                                                         height={256}
@@ -238,21 +203,17 @@ export default function StudentAffairsAchievementPage() {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
+                                        <td className="py-2 px-4 border-b">{formatDate(item.achievementDate)}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <div className="flex space-x-2">
-                                                {/* Edit Button */}
+                                        <div className="flex space-x-2">
                                                 <button
+                                                    // onClick={() => handleOpenModal('edit', item)}
                                                     className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-
                                                 >
                                                     <i className="bx bxs-edit text-lg"></i>
                                                 </button>
-
-                                                {/* Delete Button */}
                                                 <button
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-
                                                 >
                                                     <i className="bx bxs-trash-alt text-lg"></i>
                                                 </button>
