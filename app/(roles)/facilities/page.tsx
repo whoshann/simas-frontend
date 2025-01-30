@@ -7,8 +7,15 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import React from 'react';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
-import axios from "axios";
+import { useDashboardFacilities } from "@/app/hooks/useDashboardFacilities";
+import { authApi } from "@/app/api/auth";
+import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 
+interface User {
+    id: number;
+    name: string;
+    username: string;
+}
 
 interface CircleProgressBarProps {
     percentage: number;
@@ -24,63 +31,115 @@ export default function FacilitiesDashboardPage() {
             try {
                 await roleMiddleware(["Facilities"]);
                 setIsAuthorized(true);
+                
+                const userId = getUserIdFromToken();
+                if (userId) {
+                    fetchUserData(Number(userId));
+                }
+                
             } catch (error) {
                 console.error("Error initializing page:", error);
                 setIsAuthorized(false);
             }
         };
-        initializePage()
+
+        initializePage();
     }, []);
+
+    const fetchUserData = async (userId: number) => {
+        try {
+            const response = await authApi.getUserLogin(userId);
+            setUser(prev => ({
+                ...prev,
+                ...response.data
+            }));
+        } catch (err) {
+            console.error("Error fetching user data:", err);
+        }
+    };
 
     const [isAuthorized, setIsAuthorized] = useState(false);
     const token = Cookies.get("token");
-    const [setUser] = useState<any>({});
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
+    const [user, setUser] = useState<User>({
+        id: 0,
+        name: '',
+        username: '',
+    });
+    const months = [
+        'Semua', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const [selectedMonth, setSelectedMonth] = useState('Januari');
+    const [selectedMonth, setSelectedMonth] = useState(months[new Date().getMonth()]);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [entriesPerPage, setEntriesPerPage] = useState(5);
+    const [entriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
 
-    const months = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
+    const { dashboardData, loading, error, refreshData } = useDashboardFacilities();
 
     // Data statis untuk tabel perbaikan
-    const repairData = [
-        { no: 1, jenis: "Perbaikan Ruang Kelas", tanggal: "15/12/24", status: "Sedang Berlangsung", statusColor: "bg-[#1f509a27] text-[#1f509a] rounded-full px-4 py-1 min-w-[180px] text-center" },
-        { no: 2, jenis: "Perbaikan CCTV", tanggal: "15/12/24", status: "Pending", statusColor: "bg-[#e88e1f29] text-[#e88d1f] rounded-full px-4 py-1 min-w-[180px] text-center" },
-        { no: 3, jenis: "Perbaikan Toilet", tanggal: "15/12/24", status: "Selesai", statusColor: "bg-[#0a97b02a] text-[#0a97b0] rounded-full px-4 py-1 min-w-[180px] text-center" },
-        { no: 4, jenis: "Perbaikan AC", tanggal: "9/12/24", status: "Selesai", statusColor: "bg-[#0a97b02a] text-[#0a97b0] rounded-full px-4 py-1 min-w-[180px] text-center" },
-        { no: 5, jenis: "Perbaikan Pintu", tanggal: "2/12/24", status: "Selesai", statusColor: "bg-[#0a97b02a] text-[#0a97b0] rounded-full px-4 py-1 min-w-[180px] text-center" },
-        { no: 6, jenis: "Perbaikan Ventilasi", tanggal: "1/12/24", status: "Selesai", statusColor: "bg-[#0a97b02a] text-[#0a97b0] rounded-full px-4 py-1 min-w-[180px] text-center" },
-        { no: 7, jenis: "Perbaikan Gazebo", tanggal: "28/11/24", status: "Selesai", statusColor: "bg-[#0a97b02a] text-[#0a97b0] rounded-full px-4 py-1 min-w-[180px] text-center" },
-    ];
+    const repairData = dashboardData.repairs;
 
-    // Search item tabel
-    const filteredData = repairData.filter(item =>
-        item.jenis.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.tanggal.includes(searchTerm)
-    );
+    // Pindahkan fungsi filterDataByMonth ke sini
+    const filterDataByMonth = (date: string) => {
+        if (!date) return false;
+        if (selectedMonth === 'Semua') return true; // Tampilkan semua data jika 'Semua' dipilih
 
-    const totalEntries = filteredData.length;
+        const itemDate = new Date(date);
+        return itemDate.getMonth() === months.indexOf(selectedMonth) - 1 && // Kurangi 1 karena ada 'Semua' di index 0
+            itemDate.getFullYear() === selectedYear;
+    };
+
+    // Filter data
+    const filteredRepairs = dashboardData.repairs
+        .filter(item => filterDataByMonth(item.date))
+        .filter(item => item.category.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    // Hitung total entries dan pagination
+    const totalEntries = filteredRepairs.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
-    const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
+    const endIndex = startIndex + entriesPerPage;
+
+    // Slice data untuk halaman saat ini
+    const currentEntries = filteredRepairs.slice(startIndex, endIndex);
+
+    // Filter data untuk card summary
+    const filteredDashboardData = {
+        incomingGoods: selectedMonth === 'Semua'
+            ? dashboardData.incomingGoods.length
+            : dashboardData.incomingGoods.filter(item => filterDataByMonth(item.formattedDate)).length,
+        outgoingGoods: selectedMonth === 'Semua'
+            ? dashboardData.outgoingGoods.length
+            : dashboardData.outgoingGoods.filter(item => filterDataByMonth(item.formattedDate)).length,
+        totalInventory: selectedMonth === 'Semua'
+            ? dashboardData.totalInventory.length
+            : dashboardData.totalInventory.filter(item => filterDataByMonth(item.formattedDate)).length,
+        totalRooms: selectedMonth === 'Semua'
+            ? dashboardData.totalRooms.length
+            : dashboardData.totalRooms.filter(item => filterDataByMonth(item.formattedDate)).length,
+        latestBorrowings: selectedMonth === 'Semua'
+            ? dashboardData.latestBorrowings
+            : dashboardData.latestBorrowings.filter(item => filterDataByMonth(item.date)),
+        repairs: selectedMonth === 'Semua'
+            ? dashboardData.repairs
+            : dashboardData.repairs.filter(item => filterDataByMonth(item.date)),
+        latestProcurements: selectedMonth === 'Semua'
+            ? dashboardData.latestProcurements
+            : dashboardData.latestProcurements.filter(item => filterDataByMonth(item.date)),
+    };
 
     const togglePanel = () => {
         setIsPanelOpen(!isPanelOpen);
     };
 
-    // if (loading) {
-    //     return (
-    //         <LoadingSpinner />
-    //     );
-    // }
+    if (loading) {
+        return (
+            <LoadingSpinner />
+        );
+    }
 
     if (error) {
         return (
@@ -102,7 +161,9 @@ export default function FacilitiesDashboardPage() {
             <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Sarpras, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">
+                        Halo {user.username || 'User'}, selamat datang kembali
+                    </p>
                 </div>
 
 
@@ -150,7 +211,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-package text-[#1f509a] text-4xl'></i> {/* Ikon untuk Barang Masuk */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">100</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{filteredDashboardData.incomingGoods}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Barang Masuk</p>
                         </div>
                     </div>
@@ -159,7 +220,8 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-package text-[#e88d1f] text-4xl'></i> {/* Ikon untuk Barang Keluar */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">80</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{filteredDashboardData.outgoingGoods}</p>
+
                             <p className="text-sm text-[var(--text-regular-color)]">Barang Keluar</p>
                         </div>
                     </div>
@@ -168,7 +230,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-store text-[#0a97b0] text-3xl'></i> {/* Ikon untuk Stok Barang */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">200</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{filteredDashboardData.totalInventory}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Stok Barang</p>
                         </div>
                     </div>
@@ -177,7 +239,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-door-open text-[#bd0000] text-4xl'></i> {/* Ikon untuk Total Ruang */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">50</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{filteredDashboardData.totalRooms}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Total Ruang</p>
                         </div>
                     </div>
@@ -192,45 +254,21 @@ export default function FacilitiesDashboardPage() {
                             <button className="bg-[var(--main-color)] text-white px-4 py-2 rounded-full">Lihat Detail</button>
                         </div>
                         <div className="flex flex-col">
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Peminjaman barang baru: Proyektor.</p>
-                                    <span className="text-[var(--text-regular-color)]">19/12/2024</span>
+                            {filteredDashboardData.latestBorrowings.map((borrowing, index) => (
+                                <div key={index} className="flex items-center mb-2">
+                                    <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
+                                    <div>
+                                        <p>Peminjaman barang: {borrowing.name}.</p>
+                                        <span className="text-[var(--text-regular-color)]">{borrowing.date}</span>
+                                    </div>
                                 </div>
-                            </div>
+                            ))}
 
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Peminjaman barang baru: Kursi.</p>
-                                    <span className="text-[var(--text-regular-color)]">18/12/2024</span>
+                            {filteredDashboardData.latestBorrowings.length === 0 && (
+                                <div className="text-center text-gray-500">
+                                    Tidak ada data peminjaman
                                 </div>
-                            </div>
-
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Peminjaman barang baru: Meja.</p>
-                                    <span className="text-[var(--text-regular-color)]">18/12/2024</span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Peminjaman barang baru: Kabel Olor.</p>
-                                    <span className="text-[var(--text-regular-color)]">15/12/2024</span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Peminjaman barang baru: Kabel HDMI.</p>
-                                    <span className="text-[var(--text-regular-color)]">15/12/2024</span>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     </div>
 
@@ -243,45 +281,21 @@ export default function FacilitiesDashboardPage() {
                         </div>
 
                         <div className="flex flex-col">
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Pengajuan barang baru: Proyektor.</p>
-                                    <span className="text-[var(--text-regular-color)]">20/12/2024</span>
+                            {filteredDashboardData.latestProcurements.map((procurement, index) => (
+                                <div key={index} className="flex items-center mb-2">
+                                    <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
+                                    <div>
+                                        <p>Pengajuan barang baru: {procurement.name}.</p>
+                                        <span className="text-[var(--text-regular-color)]">{procurement.date}</span>
+                                    </div>
                                 </div>
-                            </div>
+                            ))}
 
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Pengajuan barang baru: Papan Tulis.</p>
-                                    <span className="text-[var(--text-regular-color)]">19/12/2024</span>
+                            {filteredDashboardData.latestProcurements.length === 0 && (
+                                <div className="text-center text-gray-500">
+                                    Tidak ada data pengajuan barang
                                 </div>
-                            </div>
-
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Pengajuan barang baru: AC.</p>
-                                    <span className="text-[var(--text-regular-color)]">18/12/2024</span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Pengajuan barang baru: Kipas Angin.</p>
-                                    <span className="text-[var(--text-regular-color)]">17/12/2024</span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center mb-2">
-                                <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
-                                <div>
-                                    <p>Pengajuan barang baru: TV.</p>
-                                    <span className="text-[var(--text-regular-color)]">16/12/2024</span>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -327,18 +341,28 @@ export default function FacilitiesDashboardPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {repairData.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
-                                        <td className="py-1 px-2 border-b">{item.no}</td>
-                                        <td className="py-1 px-2 border-b">{item.jenis}</td>
-                                        <td className="py-1 px-2 border-b">{item.tanggal}</td>
+                                {currentEntries.map((item, index: number) => (
+                                    <tr key={index} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
+                                        <td className="py-1 px-2 border-b">{startIndex + index + 1}</td>
+                                        <td className="py-1 px-2 border-b">{item.category}</td>
+                                        <td className="py-1 px-2 border-b">{item.date}</td>
                                         <td className="py-1 px-2 border-b">
                                             <span className={`inline-block px-3 py-1 rounded-full ${item.statusColor}`}>
-                                                {item.status}
+                                                {item.status === 'Completed'
+                                                    ? 'Selesai'
+                                                    : item.status === 'InProgress'
+                                                        ? 'Sedang Dikerjakan'
+                                                        : 'Pending'}
                                             </span>
                                         </td>
                                     </tr>
                                 ))}
+
+                                {currentEntries.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="text-center text-gray-500 py-4">Tidak ada data perbaikan</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>

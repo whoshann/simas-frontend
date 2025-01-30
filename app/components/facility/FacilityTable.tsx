@@ -1,5 +1,4 @@
 import { Facility } from '@/app/api/facilities/types';
-import { getStatusInIndonesian, statusMapping } from '../../utils/statusConverter';
 
 interface FacilityTableProps {
     facilities: Facility[];

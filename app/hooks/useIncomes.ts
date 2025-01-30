@@ -20,7 +20,7 @@ export const useIncome = () => {
       return response.data; // Tambahkan return untuk mengembalikan data
     } catch (err) {
       setError("Gagal mengambil data pendapatan");
-      console.error("Error fetching incoming goods:", err);
+      console.error("Error fetching incomes:", err);
       return []; // Return array kosong jika terjadi error
     } finally {
       setLoading(false);

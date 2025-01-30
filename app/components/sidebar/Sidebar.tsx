@@ -393,7 +393,7 @@ const Sidebar: React.FC = () => {
                             </a>
                             <div>
                                 <button
-                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${isDropdownOpenFasilitas || ['Data Fasilitas', 'Data Ruang', 'Data Barang'].includes(activeMenu)
+                                    className={`flex items-center w-full text-left py-3 pl-4 pr-0 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${isDropdownOpenFasilitas || ['Data Fasilitas', 'Data Ruang'].includes(activeMenu)
                                         ? 'active'
                                         : ''
                                         }`}
@@ -402,7 +402,7 @@ const Sidebar: React.FC = () => {
                                     <i className='bx bxs-book mr-3'></i>
                                     <a href="#" className='font-medium'> Fasilitas Sekolah</a>
                                     <svg
-                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFasilitas ? 'rotate' : ''}  ${isDropdownOpenFasilitas || ['Data Fasilitas', 'Data Ruang', 'Data Barang'].includes(activeMenu)
+                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFasilitas ? 'rotate' : ''}  ${isDropdownOpenFasilitas || ['Data Fasilitas', 'Data Ruang'].includes(activeMenu)
                                             ? 'text-white'
                                             : 'text-[var(--text-thin-color)]'
                                             }`}
@@ -429,14 +429,6 @@ const Sidebar: React.FC = () => {
                                     >
                                         <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Ruang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
                                         Data Ruang
-                                    </a>
-                                    <a
-                                        href="/facilities/school-facilities/item-data"
-                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Data Barang' ? 'text-blue-900' : ''}`}
-                                        onClick={() => handleSubMenuClick('Data Barang')}
-                                    >
-                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Data Barang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                        Data Barang
                                     </a>
                                 </div>
                             </div>
@@ -615,6 +607,14 @@ const Sidebar: React.FC = () => {
                                 Data Guru
                             </a>
                             <a
+                                href="/superadmin/position-data"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Posisi Jabatan' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Posisi Jabatan')}
+                            >
+                                <i className='bx bxs-user-rectangle mr-2 font-medium'></i>
+                                Posisi Jabatan
+                            </a>
+                            <a
                                 href="/superadmin/employee-data"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Data Karyawan' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Data Karyawan')}
@@ -622,13 +622,30 @@ const Sidebar: React.FC = () => {
                                 <i className='bx bxs-id-card mr-2 font-medium'></i>
                                 Data Karyawan
                             </a>
+
                             <a
-                                href="/superadmin/budget-management"
+                                href="/superadmin/subject-data"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Mapel' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Mapel')}
+                            >
+                                <i className='bx bxs-book mr-2 font-medium'></i>
+                                Data Mapel
+                            </a>
+                            <a
+                                href="/superadmin/school-class-data"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Kelas' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Kelas')}
+                            >
+                                <i className='bx bxs-school mr-2 font-medium'></i>
+                                Data Kelas
+                            </a>
+                            <a
+                                href="/superadmin/major-data"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Jurusan' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Jurusan')}
                             >
                                 <i className='bx bxs-chalkboard mr-2 font-medium'></i>
-                                Jurusan
+                                Data Jurusan
                             </a>
                         </div>
                     )}

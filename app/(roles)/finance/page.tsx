@@ -128,10 +128,6 @@ if (loading) {
     return <LoadingSpinner />;
 }
 
-if (error) {
-    return <p className="text-red-500">{error}</p>;
-}
-
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
       <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row justify-between items-center">

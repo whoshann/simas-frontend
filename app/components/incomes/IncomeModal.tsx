@@ -20,27 +20,40 @@ export const IncomesModal: React.FC<IncomeModalProps> = ({
     if (!isOpen) return null;
 
     const [formData, setFormData] = useState<Income>(incomeData || {
-        description: '',
         monthlyFinanceId: 0,
-        amount: 0,
-        incomeDate: Date.now(),
         source: '',
+        description: '',
+        amount: '0.00',
+        incomeDate: new Date().toISOString(),
     });
 
     const [monthlyFinanceDetails, setMonthlyFinanceDetails] = useState<MonthlyFinance | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        const newValue = name === 'amount' || name === 'monthlyFinanceId'
-            ? parseInt(value, 10)
-            : value;
+        
+        if (name === 'amount') {
+            const formattedValue = parseFloat(value).toFixed(2);
+            setFormData({
+                ...formData,
+                [name]: formattedValue,
+            });
+            return;
+        }
+
+        if (name === 'monthlyFinanceId') {
+            setFormData({
+                ...formData,
+                [name]: parseInt(value, 10),
+            });
+            return;
+        }
 
         setFormData({
             ...formData,
-            [name]: newValue,
+            [name]: value,
         });
 
-        // Fetch data ketika bulan dipilih
         if (name === 'monthlyFinanceId' && value) {
             fetchMonthlyFinanceDetails(parseInt(value, 10));
         }
@@ -48,7 +61,6 @@ export const IncomesModal: React.FC<IncomeModalProps> = ({
 
     const fetchMonthlyFinanceDetails = async (monthlyFinanceId: number) => {
         try {
-            // Simulasi fetch API, sesuaikan URL sesuai kebutuhan
             const response = await fetch(`/api/monthly-finances/${monthlyFinanceId}`);
             const data: MonthlyFinance = await response.json();
             setMonthlyFinanceDetails(data);
@@ -57,22 +69,36 @@ export const IncomesModal: React.FC<IncomeModalProps> = ({
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const { 
-            id, 
-            createdAt, 
-            updatedAt, 
-            monthlyFinanceId,
-            ...submitData 
-        } = formData;
+        try {
+            const submitData = {
+                monthlyFinanceId: formData.monthlyFinanceId,
+                source: formData.source,
+                description: formData.description,
+                amount: formData.amount,
+                incomeDate: new Date(formData.incomeDate).toISOString(),
+            };
 
-        onSubmit({
-            ...submitData,
-            monthlyFinanceId,
-        });
-        onClose();
+            const response = await fetch('/api/incomes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(submitData),
+            });
+
+            if (!response.ok) {
+                throw new Error('Gagal menambahkan data pemasukan');
+            }
+
+            const data = await response.json();
+            onSubmit(data.data);
+            onClose();
+        } catch (error) {
+            console.error('Error submitting income:', error);
+        }
     };
 
     return (
@@ -89,6 +115,23 @@ export const IncomesModal: React.FC<IncomeModalProps> = ({
                 <div className="overflow-y-auto max-h-[70vh] p-4">
                     <form onSubmit={handleSubmit}>
                         <div className="mb-4">
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Pilih Bulan</label>
+                            <select
+                                name="monthlyFinanceId"
+                                value={formData.monthlyFinanceId}
+                                onChange={handleChange}
+                                className="border p-2 w-full rounded-lg"
+                                required
+                            >
+                                <option value="">Pilih Bulan</option>
+                                {monthlyFinances.map((finance) => (
+                                    <option key={finance.id} value={finance.id}>
+                                        {new Date(finance.month).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="mb-4">
                             <label className="block mb-1 text-[var(--text-semi-bold-color)]">Sumber</label>
                             <input
                                 type="text"
@@ -100,14 +143,13 @@ export const IncomesModal: React.FC<IncomeModalProps> = ({
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Deskripsi</label>
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Deskripsi (Opsional)</label>
                             <input
                                 type="text"
                                 name="description"
-                                value={formData.description}
+                                value={formData.description || ''}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
-                                required
                             />
                         </div>
                         <div className="mb-4">
@@ -117,6 +159,8 @@ export const IncomesModal: React.FC<IncomeModalProps> = ({
                                 name="amount"
                                 value={formData.amount}
                                 onChange={handleChange}
+                                step="0.01"
+                                min="0"
                                 className="border p-2 w-full rounded-lg"
                                 required
                             />
@@ -124,9 +168,9 @@ export const IncomesModal: React.FC<IncomeModalProps> = ({
                         <div className="mb-4">
                             <label className="block mb-1 text-[var(--text-semi-bold-color)]">Tanggal Pemasukan</label>
                             <input
-                                type="date"
+                                type="datetime-local"
                                 name="incomeDate"
-                                value={formData.incomeDate ? new Date(formData.incomeDate).toISOString().split('T')[0] : ''}
+                                value={formData.incomeDate.slice(0, 16)}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required

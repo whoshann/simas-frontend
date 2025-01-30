@@ -4,155 +4,301 @@ import React, { useState, useEffect } from "react";
 import "@/app/styles/globals.css";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import ClaimModal from '@/app/components/insurance-modal/ClaimModal';
+import { ClaimData, StatusInsurance } from '@/app/api/insurance-modal/types';
 import Cookies from "js-cookie";
+import { InsuranceClaimCategory } from "@/app/utils/enums";
+import { InsuranceClaimStatus } from "@/app/utils/enums";
 import axios from "axios";
-
-
-// Mendefinisikan tipe status klaim
-type Status = "Pending" | "Disetujui" | "Ditolak";
+import { InsuranceClaimCategoryLabel } from "@/app/utils/enumHelpers";
 
 export default function StudentAffairsClaimInsurancePage() {
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
-        fetchData();
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["StudentAffairs"]);
+                setIsAuthorized(true);
+                await fetchInsuranceClaim();
+            } catch (error) {
+                console.error("Error initializing page:", error);
+                setIsAuthorized(false);
+                setError('Anda tidak memiliki akses ke halaman ini');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        initializePage();
     }, []);
 
-    const [user, setUser] = useState<any>({});
     const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
-    const token = Cookies.get("token");
-    const [status, setStatus] = useState<Status>("Pending");
-    
-    // Data dummy untuk klaim asuransi
-    const claims = [
-        { id: 1, name: "Ilham", date: "20/01/2024", status: "Pending", icon: "bx bxs-id-card" },
-        { id: 2, name: "Imron", date: "20/01/2024", status: "Pending", icon: "bx bxs-id-card" },
-        { id: 3, name: "Ilham", date: "20/01/2024", status: "Pending", icon: "bx bxs-id-card" },
-        { id: 4, name: "Rina", date: "20/01/2024", status: "Pending", icon: "bx bxs-id-card" },
-        { id: 5, name: "Toni", date: "20/01/2024", status: "Pending", icon: "bx bxs-id-card" },
-        
-        { id: 6, name: "Budi", date: "21/01/2024", status: "Disetujui", icon: "bx bxs-id-card" },
-        { id: 7, name: "Siti", date: "21/01/2024", status: "Disetujui", icon: "bx bxs-id-card" },
-        { id: 8, name: "Eka", date: "21/01/2024", status: "Disetujui", icon: "bx bxs-id-card" },
-        { id: 9, name: "Wawan", date: "21/01/2024", status: "Disetujui", icon: "bx bxs-id-card" },
-        
-        { id: 10, name: "Joko", date: "22/01/2024", status: "Ditolak", icon: "bx bxs-id-card" },
-        { id: 11, name: "Nina", date: "22/01/2024", status: "Ditolak", icon: "bx bxs-id-card" },
-        { id: 12, name: "Rosa", date: "22/01/2024", status: "Ditolak", icon: "bx bxs-id-card" },
-    ];
-    
-    const filteredClaims = claims.filter((claim) => claim.status === status);
-    // Filter klaim berdasarkan status breadcrumb
+    const [statusInsurance, setStatusInsurance] = useState<string>("");
+    const [selectedClaim, setSelectedClaim] = useState<ClaimData | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [insuranceClaims, setInsuranceClaims] = useState<InsuranceClaim[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Mengatur warna background dan teks berdasarkan status
-    const getStatusStyle = (status: Status) => {
-        switch (status) {
-            case "Pending":
-                return { textColor: "text-[var(--second-color)]", bgColor: "bg-[#e88e1f29]" }; // warna untuk pending
-            case "Disetujui":
-                return { textColor: "text-[var(--third-color)]", bgColor: "bg-[#0a97b028]" }; // warna untuk disetujui
-            case "Ditolak":
-                return { textColor: "text-[var(--fourth-color)]", bgColor: "bg-[#bd00002a]" }; // warna untuk ditolak
-            default:
-                return { textColor: "text-gray-600", bgColor: "bg-gray-100" }; // default warna
-        }
-    };
+    interface InsuranceClaim {
+        id: number;
+        studentId: number;
+        student?: {
+            name?: string;
+            nis?: string;
+            class?: {
+                name?: string,
+            }
+        };
+        category: InsuranceClaimCategory;
+        claimDate: string;
+        fatherName: string;
+        motherName: string;
+        reason: string;
+        photo: string;
+        statusInsurance: InsuranceClaimStatus;
+    }
 
-    
-    const fetchData = async () => {
+    const fetchInsuranceClaim = async () => {
         try {
-            // Set default Authorization header dengan Bearer token
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            setIsLoading(true);
+            const token = Cookies.get("token");
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/insurance-claim`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
 
-            // Fetch data user dari endpoint API
-            const response = await axios.get("http://localhost:3333/student");
-            setUser(response.data); // Simpan data user ke dalam state
-        } catch (err: any) {
-            console.error("Error saat fetching data:", err);
-            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-        } finally {
-            setLoading(false); // Set loading selesai
+            if (response.data && response.data.data) {
+                setInsuranceClaims(response.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching insurance claims:', error);
+            setInsuranceClaims([]);
         }
     };
 
-    if (loading) {
-        return <LoadingSpinner />;
-    }
+    const handleCardClick = (claim: ClaimData) => {
+        setSelectedClaim(claim);
+        setIsModalOpen(true);
+    };
 
-    if (error) {
-        return <p className="text-red-500">{error}</p>;
-    }
+    const handleConfirm = async (claimId: number) => {
+        try {
+            // Implementasi logika konfirmasi dengan API
+            console.log("Klaim dikonfirmasi:", claimId);
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error("Error saat mengkonfirmasi klaim:", error);
+        }
+    };
 
+    const handleReject = async (claimId: number) => {
+        try {
+            // Implementasi logika penolakan dengan API
+            console.log("Klaim ditolak:", claimId);
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error("Error saat menolak klaim:", error);
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedClaim(null);
+    };
+
+    const getStatusStyle = (statusInsurance: string) => {
+        switch (statusInsurance) {
+            case "Pending":
+                return { textColor: "text-[var(--second-color)]", bgColor: "bg-[#e88e1f29]" };
+            case "Approved":
+                return { textColor: "text-[var(--third-color)]", bgColor: "bg-[#0a97b028]" };
+            case "Rejected":
+                return { textColor: "text-[var(--fourth-color)]", bgColor: "bg-[#bd00002a]" };
+            default:
+                return { textColor: "text-gray-600", bgColor: "bg-gray-100" };
+        }
+    };
+
+    const getStatusLabel = (status: string) => {
+        switch (status) {
+            case 'Approved':
+                return 'Disetujui';
+            case 'Rejected':
+                return 'Ditolak';
+            default:
+                return 'Pending';
+        }
+    };
+
+    const filteredClaims = insuranceClaims.filter((claim) => {
+        // Filter berdasarkan status
+        if (statusInsurance) {
+            const statusMatch = statusInsurance === 'Disetujui' ? claim.statusInsurance === 'Approved' :
+                statusInsurance === 'Ditolak' ? claim.statusInsurance === 'Rejected' :
+                    claim.statusInsurance === 'Pending';
+            if (!statusMatch) return false;
+        }
+
+        // Filter berdasarkan pencarian
+        if (searchQuery) {
+            const searchLower = searchQuery.toLowerCase();
+            return (
+                claim.student?.name?.toLowerCase().includes(searchLower) ||
+                claim.student?.nis?.toLowerCase().includes(searchLower) ||
+                claim.student?.class?.name?.toLowerCase().includes(searchLower) ||
+                InsuranceClaimCategoryLabel[claim.category]?.toLowerCase().includes(searchLower)
+            );
+        }
+
+        return true;
+    });
+
+    useEffect(() => {
+        fetchInsuranceClaim();
+    }, []); // Fetch saat komponen dimount
+
+    // Helper function untuk format tanggal
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        });
+    };
+
+    const refreshData = async () => {
+        try {
+            setIsLoading(true);
+            await fetchInsuranceClaim();
+        } catch (error) {
+            console.error('Error refreshing data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (isLoading) return <LoadingSpinner />;
+    if (error) return <p className="text-red-500">{error}</p>;
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pengajuan Klaim Asuransi Siswa</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">
+                        Pengajuan Klaim Asuransi Siswa
+                    </h1>
+                    <p className="text-sm text-gray-600">
+                        Halo Admin Kesiswaan, selamat datang kembali
+                    </p>
                 </div>
 
-                {/* Filtering Bulanan */}
                 <div className="mt-4 sm:mt-0">
-                    <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
+                    <div className="bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
                         <i className='bx bx-search text-[var(--text-semi-bold-color)] text-lg mr-0 sm:mr-2 ml-2 sm:ml-0'></i>
                         <input
                             type="text"
                             placeholder="Cari data..."
                             className="border-0 focus:outline-none text-base w-40"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                 </div>
             </header>
 
             <main className="px-9 pb-6 mt-5">
-                {/* Breadcrumbs */}
                 <div className="flex items-center space-x-2 text-sm sm:text-lg mb-6">
                     <button
-                        className={`text-[var(--text-semi-bold-color)] ${status === "Pending" ? "font-semibold" : ""}`}
-                        onClick={() => setStatus("Pending" as Status)} // Pastikan menggunakan 'as Status'
+                        className={`text-[var(--text-semi-bold-color)] ${statusInsurance === "" ? "font-semibold" : ""}`}
+                        onClick={() => setStatusInsurance("")}
+                    >
+                        Semua
+                    </button>
+                    <span>/</span>
+                    <button
+                        className={`text-[var(--text-semi-bold-color)] ${statusInsurance === "Pending" ? "font-semibold" : ""}`}
+                        onClick={() => setStatusInsurance("Pending")}
                     >
                         Pending
                     </button>
                     <span>/</span>
                     <button
-                        className={`text-[var(--text-semi-bold-color)] ${status === "Disetujui" ? "font-semibold" : ""}`}
-                        onClick={() => setStatus("Disetujui" as Status)} // Pastikan menggunakan 'as Status'
+                        className={`text-[var(--text-semi-bold-color)] ${statusInsurance === "Disetujui" ? "font-semibold" : ""}`}
+                        onClick={() => setStatusInsurance("Disetujui")}
                     >
                         Disetujui
                     </button>
                     <span>/</span>
                     <button
-                        className={`text-[var(--text-semi-bold-color)] ${status === "Ditolak" ? "font-semibold" : ""}`}
-                        onClick={() => setStatus("Ditolak" as Status)} // Pastikan menggunakan 'as Status'
+                        className={`text-[var(--text-semi-bold-color)] ${statusInsurance === "Ditolak" ? "font-semibold" : ""}`}
+                        onClick={() => setStatusInsurance("Ditolak")}
                     >
                         Ditolak
                     </button>
                 </div>
 
                 <div className="space-y-8">
-                    {/* Menampilkan Card Berdasarkan Status */}
-                    {filteredClaims.map((claim) => {
-                        const { textColor, bgColor } = getStatusStyle(claim.status);
-                        return (
-                            <div key={claim.id} className="flex justify-between items-center bg-white shadow rounded-lg px-4 py-6 mb-4">
-                                <div className="flex items-center">
-                                    <div className="bg-[#e88e1f2a] rounded-full w-10 h-10 p-2 mr-4">
-                                        <i className={`bx ${claim.icon} text-[var(--second-color)] text-2xl`}></i> {/* Ikon status */}
+                    {filteredClaims.length > 0 ? (
+                        filteredClaims.map((claim) => {
+                            const { textColor, bgColor } = getStatusStyle(claim.statusInsurance);
+                            return (
+                                <div
+                                    key={claim.id}
+                                    className="flex justify-between items-center bg-white shadow rounded-lg px-4 py-6 mb-4 cursor-pointer hover:shadow-md transition-shadow"
+                                    onClick={() => handleCardClick(claim)}
+                                >
+                                    <div className="flex items-center">
+                                        <div className="bg-[#e88e1f2a] rounded-full w-10 h-10 p-2 mr-4 flex items-center justify-center">
+                                            <i className="bx bxs-id-card text-[var(--second-color)] text-2xl"></i>
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-sm text-[var(--text-semi-bold-color)]">
+                                                {claim.student?.name}
+                                            </p>
+                                            <p className="text-xs sm:text-sm text-[var(--text-thin-color)]">
+                                                NIS: {claim.student?.nis} | Kelas: {claim.student?.class?.name} | {InsuranceClaimCategoryLabel[claim.category]}
+                                            </p>
+                                            <p className="text-xs sm:text-sm text-[var(--text-thin-color)]">
+                                                Tanggal Pengajuan: {formatDate(claim.claimDate)}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="font-semibold text-sm text-[var(--text-semi-bold-color)]">{claim.name}</p>
-                                        <p className="text-xs sm:text-sm text-[var(--text-thin-color)]">Tanggal Pengajuan: {claim.date}</p>
+                                    <div className={`px-4 flex justify-center items-center py-1 rounded-full ${bgColor}`}>
+                                        <span className={`text-xs ${textColor}`}>
+                                            {claim.statusInsurance === 'Pending' ? 'Pending' :
+                                                claim.statusInsurance === 'Approved' ? 'Disetujui' : 'Ditolak'}
+                                        </span>
                                     </div>
                                 </div>
-                                <div className={`px-4 flex justify-center items-center py-1 rounded-full ${bgColor}`}>
-                                    <span className={`text-xs ${textColor}`}>{claim.status}</span>
-                                </div>
+                            );
+                        })
+                    ) : (
+                        <div className="text-center py-8">
+                            <div className="mb-4">
+                                <i className='bx bx-search text-gray-400 text-5xl'></i>
                             </div>
-                        );
-                    })}
+                            <h3 className="text-lg font-medium text-gray-600 mb-2">
+                                Data Tidak Ditemukan
+                            </h3>
+                            <p className="text-gray-500">
+                                Tidak ada data yang sesuai dengan pencarian Anda
+                            </p>
+                        </div>
+                    )}
                 </div>
+
+                {isModalOpen && (
+                    <ClaimModal
+                        selectedClaim={selectedClaim}
+                        onClose={handleCloseModal}
+                        refreshData={refreshData}
+                    />
+                )}
             </main>
         </div>
     );

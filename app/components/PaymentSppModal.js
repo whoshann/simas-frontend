@@ -25,7 +25,7 @@ export default function PaymentSppModal({ isOpen, onClose, studentData }) {
         },
       });
 
-      const response = await fetch("http://localhost:3333/school-payment/create-transaction", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/school-payment/create-transaction`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

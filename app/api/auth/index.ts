@@ -38,4 +38,40 @@ export const authApi = {
       throw error;
     }
   },
+
+  getStudentLogin: async (id: number) => {
+    try {
+      const response = await axios.get(`${API_URL}/student/${id}`, {
+        headers: getHeaders(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching student:", error);
+      throw error;
+    }
+  },
+
+  getUserLogin: async (id: number) => {
+    try {
+      const response = await axios.get(`${API_URL}/users/${id}`, {
+        headers: getHeaders(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      throw error;
+    }
+  },
+
+  getTeacherLogin: async (id: number) => {
+    try {
+      const response = await axios.get(`${API_URL}/teachers/${id}`, {
+        headers: getHeaders(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching student:", error);
+      throw error;
+    }
+  },
 };

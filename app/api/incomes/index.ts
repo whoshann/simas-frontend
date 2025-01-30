@@ -8,7 +8,7 @@ import {
   IncomesResponses,
 } from "./types";
 
-const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/incoming-item`;
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/income-details`;
 
 const getHeaders = () => ({
   Authorization: `Bearer ${Cookies.get("token")}`,
@@ -28,11 +28,26 @@ export const incomeApi = {
     return response.data;
   },
 
-  create: async (
-    data: IncomesRequest
-  ): Promise<IncomesResponse> => {
-    const response = await axios.post(API_URL, data, { headers: getHeaders() });
-    return response.data;
+  create: async (data: IncomesRequest): Promise<IncomesResponse> => {
+    try {
+      // Pastikan format data sesuai
+      const formattedData = {
+        monthlyFinanceId: data.monthlyFinanceId,
+        source: data.source,
+        description: data.description,
+        amount: data.amount,
+        incomeDate: data.incomeDate
+      };
+
+      const response = await axios.post(API_URL, formattedData, { 
+        headers: getHeaders(),
+        withCredentials: true // Tambahkan ini untuk mengirim cookies
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating income:', error);
+      throw error;
+    }
   },
 
   update: async (
@@ -44,7 +59,7 @@ export const incomeApi = {
       id: _id,
       createdAt,
       updatedAt,
-      inventory,
+      monthlyFinanceId,
       ...updateData
     } = data as any;
 

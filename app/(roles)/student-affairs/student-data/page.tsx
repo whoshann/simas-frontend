@@ -6,7 +6,7 @@ import PageHeader from "@/app/components/superadmin/DataTable/TableHeader";
 import DataTable from "@/app/components/superadmin/DataTable/TableData";
 import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import { studentsApi } from "@/app/api/student-data";
+import { useStudents } from "@/app/hooks/useStudentData";
 import { Student } from "@/app/api/student-data/types";
 
 interface FormData {
@@ -14,13 +14,37 @@ interface FormData {
 }
 
 export default function StudentPage() {
+    const [isPageLoading, setIsPageLoading] = useState(true);
+    const {
+        students,
+        loading,
+        fetchStudents,
+        createStudent,
+        updateStudent,
+        deleteStudent
+    } = useStudents();
+
     // State declarations
-    const [students, setStudents] = useState<Student[]>([]);
-    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+
+    // Fetch data saat komponen dimount
+    useEffect(() => {
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["StudentAffairs"]);
+                await fetchStudents();
+            } catch (error) {
+                console.error("Error:", error);
+            } finally {
+                setIsPageLoading(false);
+            }
+        };
+
+        initializePage();
+    }, []);
 
     const handleExport = (type: 'pdf' | 'excel') => {
         if (type === 'pdf') {
@@ -30,21 +54,63 @@ export default function StudentPage() {
         }
     };
 
+    // Fungsi untuk memformat tanggal
+    const formatDate = (dateString: string) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    };
+
+
     // Table headers configuration
     const headers = [
         { key: "id", label: "No" },
         { key: "name", label: "Nama" },
         { key: "nis", label: "NIS" },
-        { key: "classSchool", label: "Kelas" },
-        { key: "major", label: "Jurusan" },
         { key: "nisn", label: "NISN" },
-        { key: "gender", label: "Jenis Kelamin" },
-        { key: "birthDate", label: "Tanggal Lahir" },
+        {
+            key: "classSchool",
+            label: "Kelas",
+            render: (value: string) => value || '-'
+        },
+        {
+            key: "major",
+            label: "Jurusan",
+            render: (value: string) => value || '-'
+        },
+        {
+            key: "birthDate",
+            label: "Tanggal Lahir",
+            render: (value: string) => formatDate(value)
+        },
         { key: "birthPlace", label: "Tempat Lahir" },
+        {
+            key: "gender",
+            label: "Jenis Kelamin",
+            render: (value: string) => value === 'L' ? 'Laki-laki' : 'Perempuan'
+        },
         { key: "address", label: "Alamat" },
         { key: "phone", label: "Nomor" },
         { key: "parentPhone", label: "Nomor Orang Tua" },
-        { key: "religion", label: "Agama" },
+        {
+            key: "religion",
+            label: "Agama",
+            render: (value: string) => {
+                const religions = {
+                    'ISLAM': 'Islam',
+                    'CHRISTIANITY': 'Kristen',
+                    'HINDUISM': 'Hindu',
+                    'BUDDHISM': 'Buddha',
+                    'CONFUCIANISM': 'Konghucu',
+                    'CATHOLICISM': 'Katolik'
+                };
+                return religions[value as keyof typeof religions];
+            }
+        },
         { key: "motherName", label: "Nama Ibu" },
         { key: "fatherName", label: "Nama Ayah" },
         { key: "guardian", label: "Nama Wali" }
@@ -53,33 +119,34 @@ export default function StudentPage() {
     // Page content configuration
     const pageContent = {
         title: "Data Siswa",
-        greeting: "Halo Super Admin, selamat datang kembali"
+        greeting: "Halo Admin Kesiswaan, selamat datang kembali"
     };
 
     // Form fields configuration
     const studentFields = [
         { name: 'name', label: 'Nama Lengkap', type: 'text' as const, required: true },
         {
-            name: 'classSchool',
+            name: 'classId',
             label: 'Kelas',
             type: 'select' as const,
             required: true,
             options: [
-                { value: '10', label: '10' },
-                { value: '11', label: '11' },
-                { value: '12', label: '12' }
+                { value: '1', label: 'X RPL A' },
+                { value: '2', label: 'X RPL B' },
+                { value: '3', label: 'X RPL C' },
+                { value: '4', label: 'X TKJ A' },
+                { value: '5', label: 'X TKJ B' },
+                { value: '6', label: 'X TKJ C' },
             ]
         },
         {
-            name: 'major',
+            name: 'majorId',
             label: 'Jurusan',
             type: 'select' as const,
             required: true,
             options: [
-                { value: 'RPL', label: 'RPL' },
-                { value: 'TKJ', label: 'TKJ' },
-                { value: 'ANIMASI', label: 'ANIMASI' },
-                { value: 'PH', label: 'PH' }
+                { value: '1', label: 'Rekayasa Perangkat Lunak' },
+                { value: '2', label: 'Teknik Komputer dan Jaringan ' },
             ]
         },
         { name: 'nis', label: 'NIS', type: 'text' as const, required: true },
@@ -90,11 +157,17 @@ export default function StudentPage() {
             type: 'select' as const,
             required: true,
             options: [
-                { value: 'Laki-laki', label: 'Laki-laki' },
-                { value: 'Perempuan', label: 'Perempuan' }
+                { value: 'L', label: 'Laki-laki' },
+                { value: 'P', label: 'Perempuan' }
             ]
         },
-        { name: 'birthDate', label: 'Tanggal Lahir', type: 'date' as const, required: true },
+        {
+            name: 'birthDate',
+            label: 'Tanggal Lahir',
+            type: 'date' as const,
+            required: true,
+            valueFormat: (value: string) => value ? value.split('T')[0] : ''
+        },
         { name: 'birthPlace', label: 'Tempat Lahir', type: 'text' as const, required: true },
         { name: 'address', label: 'Alamat', type: 'textarea' as const, required: true, colSpan: 2 },
         { name: 'phone', label: 'Nomor Telepon', type: 'tel' as const, required: true },
@@ -118,41 +191,31 @@ export default function StudentPage() {
         { name: 'guardian', label: 'Nama Wali (Opsional)', type: 'text' as const }
     ];
 
-    // Fetch data saat komponen dimount
-    useEffect(() => {
-        const initializePage = async () => {
-            try {
-                await roleMiddleware(["SuperAdmin"]);
-                const response = await studentsApi.getAll();
-                setStudents(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.error("Error:", error);
-                setLoading(false);
-            }
-        };
-
-        initializePage();
-    }, []);
-
     // Handler untuk edit data
     const handleEdit = (id: number) => {
         const student = students.find(s => s.id === id);
-        setSelectedStudent(student || null);
-        setIsModalOpen(true);
+        if (student) {
+            // Format tanggal sebelum menampilkan di form
+            const formattedStudent = {
+                ...student,
+                birthDate: student.birthDate ? student.birthDate.split('T')[0] : ''
+            };
+            setSelectedStudent(formattedStudent);
+            setIsModalOpen(true);
+        }
     };
 
     // Handler untuk delete data
     const handleDelete = async (id: number) => {
         if (window.confirm("Apakah Anda yakin ingin menghapus data ini?")) {
             try {
-                await studentsApi.delete(id);
-                setStudents(students.filter(student => student.id !== id));
+                await deleteStudent(id);
             } catch (error) {
                 console.error("Error deleting student:", error);
             }
         }
     };
+
 
     // Handler untuk submit form (add/edit)
     const handleSubmit = async (formData: FormData): Promise<void> => {
@@ -177,14 +240,10 @@ export default function StudentPage() {
 
             if (selectedStudent) {
                 // Update existing student
-                const response = await studentsApi.update(selectedStudent.id!, studentData);
-                setStudents(students.map(student => 
-                    student.id === selectedStudent.id ? response.data : student
-                ));
+                await updateStudent(selectedStudent.id!, studentData);
             } else {
                 // Add new student
-                const response = await studentsApi.create(studentData);
-                setStudents([...students, response.data]);
+                await createStudent(studentData);
             }
             setIsModalOpen(false);
             setSelectedStudent(null);
@@ -193,7 +252,7 @@ export default function StudentPage() {
         }
     };
 
-    if (loading) return <LoadingSpinner />;
+    if (isPageLoading) return <LoadingSpinner />;
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">

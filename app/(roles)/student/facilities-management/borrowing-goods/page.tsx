@@ -3,38 +3,152 @@
 import React from 'react';
 import "@/app/styles/globals.css";
 import Image from 'next/legacy/image';
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import Cookies from "js-cookie";
-import axios from "axios";
+import { getTokenData } from '@/app/utils/tokenHelper';
+import { authApi } from '@/app/api/auth';
+import { useInventory } from '@/app/hooks/useInventory';
+import { outgoingGoodsApi } from "@/app/api/outgoing-goods";
+import { OutgoingGoodsRequest } from '@/app/api/outgoing-goods/types';
+import { GuaranteeOutgoingGoods } from '@/app/utils/enums';
+import { GuaranteeOutgoingGoodsLabel, getGuaranteeOutgoingGoodsLabel } from '@/app/utils/enumHelpers';
 
 export default function StudentBorrowingGoodsPage() {
-  useEffect(() => {
-    // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-    roleMiddleware(["Student", "SuperAdmin"]);
-
-    // Panggil fungsi fetch data
-    fetchData();
-  }, []);
-  const [user, setUser] = useState<any>({});
+  
+  const [student, setStudent] = useState<any>({});
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
-  const token = Cookies.get("token");
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const { 
+        inventories, 
+        fetchInventories 
+    } = useInventory();
+  const { inventories: allInventories } = useInventory();
 
-  const fetchData = async () => {
+  useEffect(() => {
+    const initializePage = async () => {
+      try {
+        await roleMiddleware(["Student"]);
+        setIsAuthorized(true);
+        await fetchInventories();
+      } catch (error) {
+        console.error("Auth error:", error);
+        setIsAuthorized(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializePage();
+
+    const tokenData = getTokenData();
+    if (tokenData) {
+      fetchStudentData(tokenData.id);
+      setStudent(prev => ({
+        ...prev,
+        role: tokenData.role
+      }));
+    }
+  }, []);
+
+  const fetchStudentData = async (userId: number) => {
     try {
-      // Set default Authorization header dengan Bearer token
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      const response = await authApi.getStudentLogin(userId);
+      setStudent(prev => ({
+        ...prev,
+        ...response.data
+      }));
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+      setError("Failed to fetch user data");
+    }
+  };
 
-      // Fetch data user dari endpoint API
-      const response = await axios.get("http://localhost:3333/student");
-      setUser(response.data); // Simpan data user ke dalam state
+  const [formData, setFormData] = useState({
+    role: '',
+    borrowerName: '',
+    inventoryId: 0,
+    quantity: 1,
+    borrowDate: '',
+    returnDate: '',
+    reason: '',
+    guarantee: GuaranteeOutgoingGoods.StudentCard
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
+    if (name === 'quantity') {
+      const selectedInventory = inventories.find(
+        inv => inv.id === parseInt(formData.inventoryId)
+      );
+      
+      if (selectedInventory && parseInt(value) > selectedInventory.stock) {
+        alert(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
+        setFormData(prev => ({
+          ...prev,
+          quantity: selectedInventory.stock.toString()
+        }));
+        return;
+      }
+    }
+
+    if (name === 'guarantee') {
+      console.log('Selected guarantee:', value); // Debug
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const selectedInventory = inventories.find(
+      inv => inv.id === parseInt(formData.inventoryId)
+    );
+    
+    if (selectedInventory && parseInt(formData.quantity) > selectedInventory.stock) {
+      alert(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const borrowingData = {
+        role: student?.role || '',
+        inventoryId: parseInt(formData.inventoryId),
+        borrowerName: student?.name || '',
+        borrowDate: formData.borrowDate,
+        returnDate: formData.returnDate,
+        quantity: parseInt(formData.quantity),
+        reason: formData.reason,
+        guarantee: formData.guarantee
+      };
+
+      await outgoingGoodsApi.create(borrowingData as OutgoingGoodsRequest);
+      
+      setFormData({
+        inventoryId: 0,
+        quantity: 1,
+        borrowDate: '',
+        returnDate: '',
+        reason: '',
+        guarantee: GuaranteeOutgoingGoods.StudentCard,
+      });
+
+      alert('Peminjaman berhasil diajukan!');
+      
     } catch (err: any) {
-      console.error("Error saat fetching data:", err);
-      setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+      console.error('Error submitting form:', err);
+      setError(err.response?.data?.message || 'Gagal mengajukan peminjaman');
     } finally {
-      setLoading(false); // Set loading selesai
+      setLoading(false);
     }
   };
 
@@ -49,7 +163,7 @@ export default function StudentBorrowingGoodsPage() {
     <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9">
         <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Peminjaman Barang</h1>
-        <p className="text-sm text-[var(--text-thin-color)]">Halo, selamat datang di halaman Peminjaman Barang</p>
+        <p className="text-sm text-[var(--text-thin-color)]">Halo {student.name}, selamat datang di halaman Peminjaman Barang</p>
       </header>
 
       <main className="px-9 pb-6">
@@ -71,88 +185,137 @@ export default function StudentBorrowingGoodsPage() {
 
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <Image src="/images/icon-lending.png" alt="Ikon Informasi" className="mr-2 w-6 h-6" width={24} height={24} />
+              <i className="bx bx-box text-2xl text-orange-600 mr-2"></i>
               <span className="ml-2 text-[var(--text-semi-bold-color)]">Informasi Detail Peminjaman</span>
             </h2>
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="nama" className="block text-sm font-medium text-gray-700">
-                  Masukkan nama peminjam
-                </label>
+                <input
+                  type="text" 
+                  id="name"
+                  name="name"
+                  value={student.name}
+                  className="mt-2 block w-full hidden rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
+                />
+              </div>
+              <div>
                 <input
                   type="text"
-                  id="nama"
-                  name="nama"
-                  placeholder="Revina Okta Safitri"
-                  className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
+                  id="role"
+                  name="role"
+                  value={student.role}
+                  className="mt-2 block w-full hidden rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
                 />
               </div>
 
               <div>
-                <label htmlFor="barang" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="inventoryId" className="block text-sm font-medium text-gray-700">
                   Pilih Barang yang dipinjam
                 </label>
                 <select
-                  id="barang"
-                  name="barang"
+                  id="inventoryId"
+                  name="inventoryId"
+                  value={formData.inventoryId}
+                  onChange={handleChange}
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 pr-10"
                 >
-                  <option>Proyektor</option>
-                  <option>Laptop</option>
-                  <option>Speaker</option>
+                  <option value="">Pilih Barang</option>
+                  {allInventories.map((inventory) => (
+                    <option key={inventory.id} value={inventory.id}>
+                      {inventory.name} - Stok: {inventory.stock}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
-                <label htmlFor="jumlah" className="block text-sm font-medium text-gray-700">
-                  Masukkan Jumlah Barang
+                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
+                  Jumlah
                 </label>
                 <input
                   type="number"
-                  id="jumlah"
-                  name="jumlah"
-                  placeholder="1"
-                  className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
+                  id="quantity"
+                  name="quantity"
+                  value={formData.quantity}
+                  onChange={handleChange}
+                  min="1"
+                  className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="borrowDate" className="block text-sm font-medium text-gray-700">
+                    Tanggal Peminjaman
+                  </label>
+                  <input
+                    type="date"
+                    id="borrowDate"
+                    name="borrowDate"
+                    value={formData.borrowDate}
+                    onChange={handleChange}
+                    className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="returnDate" className="block text-sm font-medium text-gray-700">
+                    Tanggal Pengembalian
+                  </label>
+                  <input
+                    type="date"
+                    id="returnDate"
+                    name="returnDate"
+                    value={formData.returnDate}
+                    onChange={handleChange}
+                    className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
+                  Alasan Peminjaman
+                </label>
+                <textarea
+                  id="reason"
+                  name="reason"
+                  value={formData.reason}
+                  onChange={handleChange}
+                  className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700"
                 />
               </div>
 
               <div>
-                <label htmlFor="jaminan" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="guarantee" className="block text-sm font-medium text-gray-700">
                   Pilih jaminan
                 </label>
                 <select
-                  id="jaminan"
-                  name="jaminan"
+                  id="guarantee"
+                  name="guarantee"
+                  value={formData.guarantee}
+                  onChange={handleChange}
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 pr-10"
                 >
-                  <option>KTP</option>
-                  <option>Handphone</option>
-                  <option>Kartu Pelajar</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="kelas" className="block text-sm font-medium text-gray-700">
-                  Masukkan Kelas
-                </label>
-                <select
-                  id="kelas"
-                  name="kelas"
-                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 pr-10"
-                >
-                  <option>X RPL</option>
-                  <option>XI RPL</option>
-                  <option>XII RPL</option>
-
+                  <option value={GuaranteeOutgoingGoods.KTP}>
+                    {getGuaranteeOutgoingGoodsLabel(GuaranteeOutgoingGoods.KTP)}
+                  </option>
+                  <option value={GuaranteeOutgoingGoods.Handphone}>
+                    {getGuaranteeOutgoingGoodsLabel(GuaranteeOutgoingGoods.Handphone)}
+                  </option>
+                  <option value={GuaranteeOutgoingGoods.StudentCard}>
+                    {getGuaranteeOutgoingGoodsLabel(GuaranteeOutgoingGoods.StudentCard)}
+                  </option>
                 </select>
               </div>
 
               <div className="mb-4">
                 <button
                   type="submit"
-                  className="w-full bg-[#1f509a] text-white font-semibold py-2 px-4 rounded-md shadow hover:bg-[#1f509a]/80 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  disabled={loading}
+                  className="w-full bg-[var(--main-color)] text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-500 disabled:opacity-50"
                 >
-                  Kirim
+                  {loading ? 'Memproses...' : 'Ajukan Peminjaman'}
                 </button>
               </div>
             </form>

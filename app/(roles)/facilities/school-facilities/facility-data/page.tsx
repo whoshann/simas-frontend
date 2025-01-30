@@ -1,6 +1,9 @@
 "use client";
 import "@/app/styles/globals.css";
+<<<<<<< HEAD
 import { Facility } from '@/app/api/facilities/types';
+=======
+>>>>>>> 825f99a99acd33c24649de547fec64feb277d544
 import { FacilityHeader } from '@/app/components/facility/FacilityHeader';
 import { FacilityActions } from '@/app/components/facility/FacilityActions';
 import { FacilityTable } from '@/app/components/facility/FacilityTable';
@@ -10,6 +13,7 @@ import { useFacilities } from '@/app/hooks/useFacilities';
 import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
 import { useState, useEffect } from 'react';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { Facility } from "@/app/api/facilities/types";
 
 
 export default function FacilityDataPage() {
@@ -22,13 +26,25 @@ export default function FacilityDataPage() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     const { facilities, loading, error, fetchFacilities, createFacility, updateFacility, deleteFacility } = useFacilities();
 
     useEffect(() => {
-        roleMiddleware(["Facilities"]);
-        
-        fetchFacilities();
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["Facilities"]);
+                setIsAuthorized(true);
+                await fetchFacilities();
+            } catch (error) {
+                console.error("Auth error:", error);
+                setIsAuthorized(false);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        initializePage();
     }, []);
 
     // Calculations
@@ -65,7 +81,7 @@ export default function FacilityDataPage() {
         }
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <LoadingSpinner />
         );

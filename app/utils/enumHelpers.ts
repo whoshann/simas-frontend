@@ -1,4 +1,12 @@
-import { Condition, RepairStatus, RepairCategory } from "./enums";
+import {
+  Condition,
+  RepairStatus,
+  RepairCategory,
+  GuaranteeOutgoingGoods,
+  InsuranceClaimStatus,
+  InsuranceClaimCategory,
+  ProcurementStatus,
+} from "./enums";
 
 export const ConditionLabel = {
   Good: "Baik",
@@ -27,4 +35,54 @@ export const getRepairCategoryLabel = (category: RepairCategory): string => {
 
 export const getRepairStatusLabel = (status: RepairStatus): string => {
   return RepairStatusLabel[status] || status;
+};
+
+export const GuaranteeOutgoingGoodsLabel = {
+  KTP: "KTP",
+  StudentCard: "Kartu Pelajar",
+  Handphone: "Handphone",
+};
+
+export const getGuaranteeOutgoingGoodsLabel = (
+  guarantee: GuaranteeOutgoingGoods
+): string => {
+  return GuaranteeOutgoingGoodsLabel[guarantee] || guarantee;
+};
+
+export const InsuranceClaimStatusLabel = {
+  Pending: "Menunggu",
+  Approved: "Disetujui",
+  Rejected: "Ditolak",
+};
+
+export const InsuranceClaimCategoryLabel = {
+  Accident: "Kecelakaan",
+  DeathDuetoIllness: "Meninggal Dunia Akibat Penyakit",
+  DeathDuetoAccident: "Meninggal Dunia Akibat Kecelakaan",
+  ParentalDeath: "Kematian Orang Tua",
+  DisabilityDuetoAccident: "Cacat Akibat Kecelakaan",
+};
+
+export const getInsuranceClaimStatusLabel = (
+  status: InsuranceClaimStatus
+): string => {
+  return InsuranceClaimStatusLabel[status] || status;
+};
+
+export const getInsuranceClaimCategoryLabel = (
+  category: InsuranceClaimCategory
+): string => {
+  return InsuranceClaimCategoryLabel[category] || category;
+};
+
+export const ProcurementStatusLabel = {
+  Pending: "Menunggu",
+  Approved: "Disetujui",
+  Rejected: "Ditolak",
+};
+
+export const getProcurementStatusLabel = (
+  status: ProcurementStatus
+): string => {
+  return ProcurementStatusLabel[status] || status;
 };

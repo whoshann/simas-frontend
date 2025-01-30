@@ -14,3 +14,29 @@ export enum RepairStatus {
   InProgress = "InProgress",
   Pending = "Pending",
 }
+
+export enum GuaranteeOutgoingGoods {
+  KTP = "KTP",
+  StudentCard = "StudentCard",
+  Handphone = "Handphone",
+}
+
+export enum InsuranceClaimStatus {
+  Pending = "Pending",
+  Approved = "Approved",
+  Rejected = "Rejected",
+}
+
+export enum InsuranceClaimCategory {
+  Accident = "Accident",
+  DeathDuetoIllness = "DeathDuetoIllness",
+  DeathDuetoAccident = "DeathDuetoAccident",
+  ParentalDeath = "ParentalDeath",
+  DisabilityDuetoAccident = "DisabilityDuetoAccident",
+}
+
+export enum ProcurementStatus {
+  Pending = "Pending",
+  Approved = "Approved",
+  Rejected = "Rejected",
+}

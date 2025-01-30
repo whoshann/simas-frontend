@@ -1,12 +1,11 @@
-
 import { MonthlyFinance } from "../monthly-finances/types";
 export interface Income {
     id?: number;
+    monthlyFinanceId: number;
     source: string;
-    description: string;
-    amount: number ;
-    incomeDate: number;
-    monthlyFinanceId?: number;
+    description?: string;
+    amount: string;
+    incomeDate: string;
     createdAt?: string;
     updatedAt?: string;
   }
@@ -15,6 +14,8 @@ export interface Income {
     monthlyFinanceId: number;
     amount: number;
     incomeDate: string;
+    source: string;
+    description?: string;
   }
   
 

@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { Facility, FacilityResponse, FacilitiesResponse } from "./types";
+import { Facility, FacilitiesResponse, FacilityResponse } from "./types";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/facility`;
 
