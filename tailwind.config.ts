@@ -18,6 +18,9 @@ export default {
       maxWidth: {
         '272px': '272px', 
       },
+      height: {
+        'h-100' : '500px'
+      }
     },
   },
   plugins: [],

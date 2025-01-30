@@ -225,7 +225,10 @@ const Sidebar: React.FC = () => {
                                 </button>
                                 <div className={` ${isDropdownOpenKesiswaan ? '' : 'hidden'}`}>
                                     <a
-                                        href="/student/student-affairs/absence"
+                                        href={
+                                            role === "Student" ? "/student/student-affairs/absence" :
+                                                "/login"
+                                        }
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Absensi' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Absensi')}
                                     >
@@ -234,7 +237,10 @@ const Sidebar: React.FC = () => {
                                     </a>
 
                                     <a
-                                        href="/student/student-affairs/violations"
+                                        href={
+                                            role === "Student" ? "/student/student-affairs/violations" :
+                                                "/login"
+                                        }
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Pelanggaran' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Pelanggaran')}
                                     >
@@ -243,7 +249,7 @@ const Sidebar: React.FC = () => {
                                     </a>
 
                                     <a
-                                        href="/student/student-affairs/achievement"
+                                        href={role === "Student" ? "/student/student-affairs/achievement" : "/login"}
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Achievement' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Achievement')}
                                     >
@@ -253,7 +259,7 @@ const Sidebar: React.FC = () => {
 
 
                                     <a
-                                        href="/student/student-affairs/claim-insurance"
+                                        href={ role === "Student" ? "/student/student-affairs/claim-insurance" : "/login"}
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Klaim Asuransi' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Klaim Asuransi')}
                                     >
@@ -262,7 +268,7 @@ const Sidebar: React.FC = () => {
                                     </a>
 
                                     <a
-                                        href="/student/student-affairs/dispensation-letter"
+                                        href={ role === "Student" ? "/student/student-affairs/dispensation-letter":"/login"}
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Surat Dispensasi' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Surat Dispensasi')}
                                     >
