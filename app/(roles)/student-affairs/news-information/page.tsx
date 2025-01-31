@@ -10,33 +10,32 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { useNewsInformation } from "@/app/hooks/useNewsInformation";
 import FormModal from '@/app/components/DataTable/FormModal';
+import { NewsInformation } from "@/app/api/news-information/types";
 
 
 
 export default function StudentAffairsNewsInformationPage() {
+    const { newsInformation, loading, error, fetchNewsInformation, createNewsInformation, updateNewsInformation, deleteNewsInformation, } = useNewsInformation();
     const [user, setUser] = useState<any>({});
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const formatDate = (date: string) => {
-        return new Date(date).toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        });
+        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(date).toLocaleDateString('id-ID', options);
     };
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<NewsInformation>({
         activity: '',
         description: '',
         note: '',
-        photo: null,
-        date: ''
+        photo: '',
+        date: '',
     });
+    const [selectedNews, setSelectedNews] = useState<NewsInformation | null>(null);
 
-    const { newsInformation, loading, error, fetchNewsInformation } = useNewsInformation();
 
     // Form fields untuk modal
     const formFields = [
@@ -79,42 +78,21 @@ export default function StudentAffairsNewsInformationPage() {
     ];
 
     // Handle buka modal
-    const handleOpenModal = (mode: 'add' | 'edit', data?: any) => {
+    const handleOpenModal = (
+        event: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>,
+        mode: 'add' | 'edit',
+        data?: NewsInformation
+    ) => {
+        event.preventDefault(); // Mencegah default behavior
+    
         setModalMode(mode);
+        
         if (mode === 'edit' && data) {
-            try {
-                // Konversi tanggal ke format YYYY-MM-DD
-                let formattedDate = '';
-
-                if (data.date) {
-                    const dateObj = new Date(data.date);
-                    if (dateObj instanceof Date && !isNaN(dateObj.getTime())) {
-                        formattedDate = dateObj.toISOString().split('T')[0];
-                    } else {
-                        // Jika format tanggal tidak sesuai, gunakan tanggal hari ini
-                        formattedDate = new Date().toISOString().split('T')[0];
-                    }
-                }
-
-                setFormData({
-                    activity: data.activity || '',
-                    description: data.description || '',
-                    note: data.note || '',
-                    photo: data.photo || null,
-                    date: formattedDate
-                });
-            } catch (error) {
-                console.error('Error formatting date:', error);
-                setFormData({
-                    activity: data.activity || '',
-                    description: data.description || '',
-                    note: data.note || '',
-                    photo: data.photo || null,
-                    date: ''
-                });
-            }
+            setFormData({
+                ...data,
+                date: new Date().toISOString().split('T')[0],
+            });
         } else {
-            // Reset form untuk mode add
             setFormData({
                 activity: '',
                 description: '',
@@ -125,6 +103,7 @@ export default function StudentAffairsNewsInformationPage() {
         }
         setIsModalOpen(true);
     };
+    
 
     // Handle tutup modal
     const handleCloseModal = () => {
@@ -133,30 +112,30 @@ export default function StudentAffairsNewsInformationPage() {
             activity: '',
             description: '',
             note: '',
-            photo: null,
+            photo: '',
             date: ''
         });
     };
 
     // Handle submit form
-    const handleSubmit = async (formData: any) => {
+    const handleSubmit = async (formData: Omit<NewsInformation, "id" | "createdAt" | "updatedAt">) => {
         try {
-            if (modalMode === 'add') {
-                // Logika add data
-                console.log('Adding new data:', formData);
-                // Implementasi API call untuk menambah data
-                // await addNewsInformation(formData);
-            } else {
-                // Logika edit data
-                console.log('Updating data:', formData);
-                // Implementasi API call untuk update data
-                // await updateNewsInformation(formData);
+            if (modalMode === "add") {
+                await createNewsInformation(formData);
+            } else if (modalMode === "edit" && selectedNews?.id) {
+                await updateNewsInformation(selectedNews.id!, formData);
             }
             handleCloseModal();
-            // Refresh data setelah submit
-            await fetchNewsInformation();
-        } catch (error) {
-            console.error('Error submitting form:', error);
+        } catch (err) {
+            console.error("Error submitting news information:", err);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        try {
+            await deleteNewsInformation(id);
+        } catch (err) {
+            console.error("Error deleting news information:", err);
         }
     };
 
@@ -249,7 +228,7 @@ export default function StudentAffairsNewsInformationPage() {
                         <div className="flex space-x-2 mt-5 sm:mt-0">
                             {/* Button Tambah Data */}
                             <button
-                                onClick={() => handleOpenModal('add')}
+                                onClick={(e) => handleOpenModal(e, 'add')}
                                 className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
                             >
                                 Tambah Data
@@ -345,7 +324,7 @@ export default function StudentAffairsNewsInformationPage() {
                                             <div className="flex space-x-2">
                                                 {/* Edit Button */}
                                                 <button
-                                                    onClick={() => handleOpenModal('edit', newsInformation)}
+                                                    onClick={(e) => handleOpenModal(e, 'edit', newsInformation)}
                                                     className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
 
                                                 >
@@ -353,7 +332,8 @@ export default function StudentAffairsNewsInformationPage() {
                                                 </button>
 
                                                 {/* Delete Button */}
-                                                <button
+                                                <button 
+                                                    onClick={() => handleDelete(newsInformation.id!)}
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
 
                                                 >

@@ -11,8 +11,14 @@ export const useNewsInformation = () => {
     try {
       setLoading(true);
       const response = await newsInformationApi.getAll();
-      setNewsInformation(response.data);
-      setError(null);
+      // Pastikan photo tidak null dengan memberikan nilai default ""
+    const processedData = response.data.map((news: NewsInformation) => ({
+      ...news,
+      photo: news.photo ?? "", // Gunakan string kosong jika null
+    }));
+
+    setNewsInformation(processedData);
+    setError(null);
     } catch (err) {
       setError("Failed to fetch news information");
       console.error("Error fetching news information:", err);
@@ -43,7 +49,7 @@ export const useNewsInformation = () => {
       }
     };
   
-    const deleteRepair = async (id: number) => {
+    const deleteNewsInformation = async (id: number) => {
       try {
         await newsInformationApi.delete(id);
         await fetchNewsInformation();
@@ -53,5 +59,5 @@ export const useNewsInformation = () => {
       }
     };
 
-  return { newsInformation, createNewsInformation, updateNewsInformation, deleteRepair, loading, error, fetchNewsInformation };
+  return { newsInformation, createNewsInformation, updateNewsInformation, deleteNewsInformation, loading, error, fetchNewsInformation };
 };
