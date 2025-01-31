@@ -4,18 +4,96 @@ import "@/app/styles/globals.css";
 import { useState } from 'react';
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import Image from 'next/image';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { toast } from "react-hot-toast";
+import { ViolationPoint } from "@/app/api/violation-point/types";
+
+interface CustomJwtPayload {
+    sub: number;
+}
+
+interface Student {
+    id: number;
+}
+
+export interface Violation {
+    id: number;
+    studentId: number;
+    name: string;
+    punishment: string;
+    violationPointId: number;
+    date: string;
+    student: Student;
+    violationPoint: ViolationPoint;
+}
 
 export default function StudentViolationsPage() {
-    // Panggil middleware dan hooks di awal komponen
+    const [studentId, setStudentId] = useState<number | null>(null);
+    const [studentData, setStudentData] = useState<Student | null>(null);
+    const [violations, setviolations] = useState<Violation[]>([]);
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [entriesPerPage, setEntriesPerPage] = useState(5);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const fetchViolations = async (studentId: number) => {
+        try {
+            const token = Cookies.get("token");
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/violations/student/${studentId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.data && response.data.data) {
+                setviolations(response.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching achievements:', error);
+            toast.error('Gagal mengambil data prestasi');
+        }
+    };
+
     useEffect(() => {
         const initializePage = async () => {
             try {
-                await roleMiddleware(["Student","SuperAdmin"]);
+                await roleMiddleware(["Student", "SuperAdmin"]);
                 setIsAuthorized(true);
+
+                const token = Cookies.get("token");
+                if (token) {
+                    try {
+                        const decodedToken = jwtDecode<CustomJwtPayload>(token);
+                        const studentId = decodedToken.sub;
+                        setStudentId(studentId);
+
+                        const response = await axios.get(
+                            `${process.env.NEXT_PUBLIC_API_URL}/student/${studentId}`,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            }
+                        );
+
+                        const student = response.data.data;
+                        setStudentData(student);
+
+                        await fetchViolations(studentId);
+
+                    } catch (error) {
+                        console.error("Error fetching student data:", error);
+                        toast.error("Gagal mendapatkan data siswa");
+                    }
+                }
             } catch (error) {
                 console.error("Auth error:", error);
                 setIsAuthorized(false);
@@ -23,41 +101,28 @@ export default function StudentViolationsPage() {
                 setLoading(false);
             }
         };
-    
+
         initializePage();
     }, []);
 
-    const [isAuthorized, setIsAuthorized] = useState(false);
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
-
-    const token = Cookies.get("token");
-    const [isPanelOpen, setIsPanelOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [entriesPerPage, setEntriesPerPage] = useState(5);
-    const [currentPage, setCurrentPage] = useState(1);
-
-    // Data statis tabel absensi
-    const data = [
-        { no: 1, violation: "Merokok", category: "Ringan", punishment: "Skors 2 tahun", document: "/images/Berita1.jpg", date: "22/01/2024" },
-        { no: 2, violation: "Membongkar perpustakaan", category: "Berat", punishment: "SP 3", document: "/images/Berita1.jpg", date: "23/01/2024" },
-        { no: 3, violation: "Menjambak satpam", category: "Sedang", punishment: "Penjara 1 tahun", document: "/images/Berita1.jpg", date: "23/01/2024" },
-
-
-    ];
-
-    // Search item tabel
-    const filteredData = data.filter(item =>
-        item.violation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.punishment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.date.includes(searchTerm)
+    const filteredData = violations.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.violationPoint.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.punishment.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const totalEntries = filteredData.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
+
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
 
     if (loading) {
         return <LoadingSpinner />;
@@ -67,29 +132,24 @@ export default function StudentViolationsPage() {
         return <p className="text-red-500">{error}</p>;
     }
 
+    if (!isAuthorized) {
+        return null;
+    }
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
-
-
-            {/* Start Header */}
             <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Point Pelanggaran</h1>
-                    <p className="text-sm text-gray-600">Halo James, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo, selamat datang kembali</p>
                 </div>
             </header>
-            {/* End Header */}
 
             <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 mt-6">
-
-
                 {/* Start 3 Cards */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                    {/* Kolom Kedua: Card 1, Card 2, dan Card 3 */}
                     <div className="grid grid-cols-1 gap-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
                             {/* Card 1 */}
                             <div className="bg-white shadow-md rounded-lg px-2 py-7 flex items-center justify-center">
                                 <div className="bg-[#1f509a27] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center">
@@ -125,7 +185,7 @@ export default function StudentViolationsPage() {
                         </div>
                     </div>
 
-                    {/* Kolom Pertama: Card Besar */}
+                    {/* Total Point Card */}
                     <div className="bg-[var(--main-color)] shadow-md rounded-lg col-span-1 flex items-center justify-center h-64">
                         <div className="flex flex-col sm:flex-row items-center">
                             <div className="bg-[#ffffff38] rounded-full p-3 mb-2 mr-0 sm:mr-5 w-20 h-20 flex items-center justify-center">
@@ -140,14 +200,10 @@ export default function StudentViolationsPage() {
                         </div>
                     </div>
                 </div>
-                {/* End Cards */}
 
-
-                {/* Card for Table */}
-                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+                {/* Table Card */}
+                <div className="bg-white shadow-md rounded-lg p-6">
                     <div className="mb-4 flex justify-between">
-
-                        {/* Start Showing entries */}
                         <div className="text-xs sm:text-xs">
                             <label className="mr-2">Tampilkan</label>
                             <select
@@ -161,11 +217,8 @@ export default function StudentViolationsPage() {
                             </select>
                             <label className="ml-2">Entri</label>
                         </div>
-                        {/* End Showing entries */}
 
-
-                        {/*Start Search */}
-                        <div className="border border-gray-300 rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-24 sm:w-56" >
+                        <div className="border border-gray-300 rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-24 sm:w-56">
                             <i className='bx bx-search text-[var(--text-semi-bold-color)] text-xs sm:text-lg mr-2'></i>
                             <input
                                 type="text"
@@ -175,63 +228,49 @@ export default function StudentViolationsPage() {
                                 className="border-0 focus:outline-none text-xs sm:text-base w-16 sm:w-40"
                             />
                         </div>
-                        {/*End Search */}
                     </div>
 
-
-                    {/* Start Table */}
                     <div className="overflow-x-auto">
                         <table className="min-w-full rounded-lg overflow-hidden">
                             <thead className="text-[var(--text-semi-bold-color)]">
                                 <tr>
                                     <th className="py-2 px-4 border-b text-left">No</th>
                                     <th className="py-2 px-4 border-b text-left">Pelanggaran</th>
-                                    <th className="py-2 px-4 border-b text-left">Bukti Foto</th>
                                     <th className="py-2 px-4 border-b text-left">Kategori</th>
                                     <th className="py-2 px-4 border-b text-left">Hukuman</th>
+                                    <th className="py-2 px-4 border-b text-left">Point</th>
                                     <th className="py-2 px-4 border-b text-left">Tanggal</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.violation}</td>
+                                {currentEntries.map((item, index) => (
+                                    <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
+                                        <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
+                                        <td className="py-2 px-4 border-b">{item.name}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <div className=" w-16 h-16 overflow-hidden rounded">
-                                                {item.document ? (
-                                                    <Image
-                                                        src={item.document}
-                                                        alt="Bukti Foto"
-                                                        className="w-full h-full object-cover"
-                                                        width={256}
-                                                        height={256}
-                                                    />
-                                                ) : (
-                                                    '-'
-                                                )}
-                                            </div></td>
-                                        <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${item.category === 'Ringan' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.category === 'Sedang' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.category === 'Berat' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : ''}`}>
-                                                {item.category}
+                                            <span className={`inline-block px-3 py-1 rounded-full ${item.violationPoint.name === 'Ringan'
+                                                ? 'bg-[#0a97b028] text-[var(--third-color)]'
+                                                : item.violationPoint.name === 'Sedang'
+                                                    ? 'bg-[#e88e1f29] text-[var(--second-color)]'
+                                                    : 'bg-[#bd000025] text-[var(--fourth-color)]'
+                                                }`}>
+                                                {item.violationPoint.name}
                                             </span>
                                         </td>
                                         <td className="py-2 px-4 border-b">{item.punishment}</td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
+                                        <td className="py-2 px-4 border-b">{item.violationPoint.points}</td>
+                                        <td className="py-2 px-4 border-b">{formatDate(item.date)}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                    {/* End Table */}
 
-
-
-                    {/*Start Pagination and showing entries */}
                     <div className="flex justify-between items-center mt-5">
-                        <span className="text-xs sm:text-xs" >Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri</span>
+                        <span className="text-xs sm:text-xs">
+                            Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri
+                        </span>
 
-                        {/* Pagination */}
                         <div className="flex items-center">
                             <button
                                 onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
@@ -240,7 +279,6 @@ export default function StudentViolationsPage() {
                             >
                                 &lt;
                             </button>
-                            {/* Pagination Numbers */}
                             <div className="flex space-x-1">
                                 {Array.from({ length: Math.min(totalPages - (currentPage - 1), 2) }, (_, index) => {
                                     const pageNumber = currentPage + index;
@@ -248,7 +286,10 @@ export default function StudentViolationsPage() {
                                         <button
                                             key={pageNumber}
                                             onClick={() => setCurrentPage(pageNumber)}
-                                            className={` rounded-md px-3 py-1 ${currentPage === pageNumber ? ' bg-[var(--main-color)] text-white ' : 'text-[var(--main-color)]'}`}>
+                                            className={`rounded-md px-3 py-1 ${currentPage === pageNumber
+                                                ? 'bg-[var(--main-color)] text-white'
+                                                : 'text-[var(--main-color)]'
+                                                }`}>
                                             {pageNumber}
                                         </button>
                                     );
@@ -263,9 +304,6 @@ export default function StudentViolationsPage() {
                             </button>
                         </div>
                     </div>
-                    {/*End Pagination and showing entries */}
-
-
                 </div>
             </main>
         </div>

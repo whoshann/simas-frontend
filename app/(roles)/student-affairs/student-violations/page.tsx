@@ -22,9 +22,9 @@ export default function StudentAffairsViolationsPage() {
     const {
         violations,
         loading: violationLoading,
-        error,
         fetchViolations,
     } = useViolation();
+    const [error, setError] = useState<string>("");
 
     useEffect(() => {
         const initializePage = async () => {
@@ -96,15 +96,6 @@ export default function StudentAffairsViolationsPage() {
         // document: null,
         date: ''
     });
-
-    // data tabel dummy
-    // const data = [
-    //     { no: 1, name: "Ilham Kurniawan", classSchool: "X PH A", violations: "Merokok", category: "Ringan", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "21/01/2024" },
-    //     { no: 2, name: "Adi Kurniawan", classSchool: "X PH B", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "22/01/2024" },
-    //     { no: 3, name: "Imam Kurniawan", classSchool: "XI IPA A", violations: "Bongkar Lab 1", category: "Berat", punishment: "Skors 1 Minggu", document: null, date: "23/01/2024" },
-    //     { no: 4, name: "Fawas Kurniawan", classSchool: "XI IPA B", violations: "Menyembunyikan HP", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "24/01/2024" },
-    //     { no: 5, name: "Obing Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-    // ];
 
     // form untuk modal add dan edit
     const formFields = [
@@ -348,7 +339,7 @@ export default function StudentAffairsViolationsPage() {
                                     <th className="py-2 px-4 border-b text-left">Pelanggaran</th>
                                     <th className="py-2 px-4 border-b text-left">Kategori</th>
                                     <th className="py-2 px-4 border-b text-left">Hukuman</th>
-                                    {/* <th className="py-2 px-4 border-b text-left">Bukti Foto</th> */}
+                                    <th className="py-2 px-4 border-b text-left">Point</th>
                                     <th className="py-2 px-4 border-b text-left">Tanggal</th>
                                     <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
@@ -372,6 +363,7 @@ export default function StudentAffairsViolationsPage() {
                                             </span>
                                         </td>
                                         <td className="py-2 px-4 border-b">{violations.punishment}</td>
+                                        <td className="py-2 px-4 border-b">{violations.violationPoint.points}</td>
                                         {/* <td className="py-2 px-4 border-b">
                                             <div className="w-16 h-16 overflow-hidden rounded">
                                                 {violations.document ? (
