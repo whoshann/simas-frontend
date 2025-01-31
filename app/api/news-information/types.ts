@@ -6,7 +6,7 @@ export interface NewsInformation {
   date: string;
   note: string;
   createdAt?: string;
-  updatedAt:? string;
+  updatedAt?: string;
 }
 
 export interface NewsInformationResponse {
