@@ -23,11 +23,12 @@ const Sidebar: React.FC = () => {
     const [isDropdownOpenFinance, setIsDropdownOpenFinance] = useState(false);
     const [isDropdownOpenFasilitas, setIsDropdownOpenFasilitas] = useState(false);
     const [isDropdownOpenPengelolaBarang, setIsDropdownOpenPengelolaBarang] = useState(false);
-
     const [activeMenu, setActiveMenu] = useState<string>(() => {
+
         // Mengambil activeMenu dari localStorage saat inisialisasi
         if (typeof window !== 'undefined') {
-            return localStorage.getItem('activeMenu') || 'Beranda';
+            const storedMenu = localStorage.getItem('activeMenu');
+            return storedMenu || 'Beranda'; // Default ke 'Beranda' jika tidak ada
         }
         return 'Beranda';
     });
@@ -35,10 +36,30 @@ const Sidebar: React.FC = () => {
 
     useEffect(() => {
 
+        const token = Cookies.get("token");
+        setIsLoggedIn(!!token);
+
         const activeMenuName = localStorage.getItem('activeMenu');
 
+        if (token && !activeMenuName) {
+            setActiveMenu('Beranda');
+            localStorage.setItem('activeMenu', 'Beranda');
+        }
+
+        if (token) {
+            try {
+                const decoded = jwtDecode<DecodedToken>(token); // Menggunakan jwtDecode
+                setRole(decoded.role);
+                // console.log("Role set to:", decoded.role);
+            } catch (error) {
+                // console.error("Error decoding token:", error);
+            }
+        }
+
+        setIsLoading(false);
+
         // Cek apakah active menu adalah bagian dari submenu Kesiswaan
-        if (['Absensi', 'Pelanggaran', 'Achievement', 'Klaim Asuransi'].includes(activeMenuName || '')) {
+        if (['Absensi', 'Pelanggaran', 'Achievement', 'Klaim Asuransi', "Surat Dispensasi"].includes(activeMenuName || '')) {
             setIsDropdownOpenKesiswaan(true);
         }
 
@@ -48,28 +69,13 @@ const Sidebar: React.FC = () => {
         }
 
         // Cek apakah active menu adalah bagian dari submenu Pengelolaan Barang
-        if (['Barang Masuk', 'Barang Keluar', 'Inventaris', 'Pengajuan Barang'].includes(activeMenuName || '')) {
+        if (['Barang Masuk', 'Peminjaman Barang', 'Inventaris', 'Pengajuan Barang'].includes(activeMenuName || '')) {
             setIsDropdownOpenPengelolaBarang(true);
         }
         // Cek apakah active menu adalah bagian dari submenu Keuangan
         if (['Pengeluaran', 'Pemasukan', 'Keuangan Bulanan'].includes(activeMenuName || '')) {
             setIsDropdownOpenFinance(true);
         }
-
-        const token = Cookies.get("token");
-        setIsLoggedIn(!!token);
-
-        if (token) {
-            try {
-                const decoded = jwtDecode<DecodedToken>(token); // Menggunakan jwtDecode
-                // console.log("Decoded token:", decoded);
-                setRole(decoded.role);
-                // console.log("Role set to:", decoded.role);
-            } catch (error) {
-                // console.error("Error decoding token:", error);
-            }
-        }
-        setIsLoading(false);
 
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -147,14 +153,29 @@ const Sidebar: React.FC = () => {
 
     return (
         (<div>
+
             {/* Tombol Hamburger di luar sidebar */}
-            <button onClick={toggleSidebar} className="fixed top-4 left-4 z-50 text-gray-600 focus:outline-none">
-                <i className={`bx ${isSidebarOpen ? 'bx-x' : 'bx-menu'}`}></i>
-            </button>
+            <div className={`h-screen bg-white w-16 z-40 transition-all duration-300 ${isSidebarOpen ? 'hidden' : 'block'}`}>
+                <button
+                    onClick={toggleSidebar}
+                    className="w-full pt-4 pb-2 px-4 text-gray-600 focus:outline-none"
+                >
+                    <i className='bx bx-menu text-xl'></i>
+                </button>
+            </div>
+
             <aside className={`bg-white w-64 h-screen space-y-6 py-7 px-4 z-1 fixed md:sticky inset-y-0 left-0 transition duration-300 ease-in-out ${isSidebarOpen ? 'block' : 'hidden'}`}>
 
                 {/* Sidebar Title */}
-                <h2 className="text-[var(--text-semi-bold-color)] text-3xl font-semibold pl-4">Lorem</h2>
+                <div className="flex items-center justify-between px-4">
+                    <h2 className="text-[var(--text-semi-bold-color)] text-3xl font-semibold">Lorem</h2>
+                    <button
+                        onClick={toggleSidebar}
+                        className="text-gray-600 mt-2 focus:outline-none"
+                    >
+                        <i className='bx bx-x text-2xl'></i>
+                    </button>
+                </div>
 
                 {/* Start Sidebar menu navigation */}
                 <nav>
@@ -171,13 +192,13 @@ const Sidebar: React.FC = () => {
                         className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Beranda' ? 'active' : ''}`}
                         onClick={() => handleMenuClick('Beranda')}
                     >
-                        <i className='bx bxs-grid-alt mr-2 font-medium'></i> {/* Ikon untuk Beranda */}
+                        <i className='bx bxs-dashboard mr-2 font-medium'></i> {/* Ikon untuk Beranda */}
                         Beranda
                     </a>
 
 
                     {/*Start Role Student and Teacher menu */}
-                    {(role === "Student" || role === "Teacher" || !isLoggedIn) && (
+                    {(role === "Student" || !isLoggedIn) && (
                         <div>
                             <div>
                                 <button
@@ -204,11 +225,7 @@ const Sidebar: React.FC = () => {
                                 </button>
                                 <div className={` ${isDropdownOpenKesiswaan ? '' : 'hidden'}`}>
                                     <a
-                                        href={
-                                            role === "Student" ? "/student/student-affairs/absence" :
-                                                role === "Teacher" ? "/teacher" :
-                                                    "/login"
-                                        }
+                                        href="/student/student-affairs/absence"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Absensi' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Absensi')}
                                     >
@@ -217,11 +234,7 @@ const Sidebar: React.FC = () => {
                                     </a>
 
                                     <a
-                                        href={
-                                            role === "Student" ? "/student/student-affairs/violations" :
-                                                role === "Teacher" ? "/teacher" :
-                                                    "/login"
-                                        }
+                                        href="/student/student-affairs/violations"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Pelanggaran' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Pelanggaran')}
                                     >
@@ -230,11 +243,7 @@ const Sidebar: React.FC = () => {
                                     </a>
 
                                     <a
-                                        href={
-                                            role === "Student" ? "/student/student-affairs/achievement" :
-                                                role === "Teacher" ? "/teacher" :
-                                                    "/login"
-                                        }
+                                        href="/student/student-affairs/achievement"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Achievement' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Achievement')}
                                     >
@@ -244,16 +253,21 @@ const Sidebar: React.FC = () => {
 
 
                                     <a
-                                        href={
-                                            role === "Student" ? "/student/student-affairs/claim-insurance" :
-                                                role === "Teacher" ? "/teacher" :
-                                                    "/login"
-                                        }
+                                        href="/student/student-affairs/claim-insurance"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Klaim Asuransi' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Klaim Asuransi')}
                                     >
                                         <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Klaim Asuransi' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
                                         Klaim Asuransi
+                                    </a>
+
+                                    <a
+                                        href="/student/student-affairs/dispensation-letter"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Surat Dispensasi' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Surat Dispensasi')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Surat Dispensasi' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Surat Dispensasi
                                     </a>
                                 </div>
                             </div>
@@ -278,8 +292,7 @@ const Sidebar: React.FC = () => {
                             <a
                                 href={
                                     role === "Student" ? "/student/finance/payment-status" :
-                                        role === "Teacher" ? "/teacher" :
-                                            "/login"
+                                        "/login"
                                 }
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Keuangan' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Keuangan')}
@@ -287,7 +300,6 @@ const Sidebar: React.FC = () => {
                                 <i className='bx bxs-wallet mr-2 font-medium'></i>
                                 Keuangan
                             </a>
-
 
 
                             <a
@@ -300,10 +312,8 @@ const Sidebar: React.FC = () => {
                             </a>
 
                             <a
-                                href={
-                                    role === "Student" ? "/student/facilities-management/borrowing-goods" :
-                                        role === "Teacher" ? "/teacher" :
-                                            "/login"
+                                href={role === "Student" ? "/student/facilities-management/borrowing-goods" :
+                                    "/login"
                                 }
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Facilities' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Facilities')}
@@ -315,7 +325,38 @@ const Sidebar: React.FC = () => {
                         </div>
                     )}
 
+                    {/* Start Role Teacher Sidebar Menu */}
 
+                    {role === "Teacher" && (
+                        <div>
+                            <a
+                                href="/teacher/finance/budget-proposal"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Budget Proposal' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Budget Proposal')}
+                            >
+                                <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk Usulan Anggaran */}
+                                Usulan Anggaran RAB
+                            </a>
+                            <a
+                                href="/teacher/facilities-management/borrowing-goods"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Borrowing Goods' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Borrowing Goods')}
+                            >
+                                <i className='bx bxs-hdd mr-2 font-medium'></i> {/* Ikon untuk Peminjaman Barang */}
+                                Peminjaman Barang
+                            </a>
+                            <a
+                                href="/teacher/facilities-management/request-goods"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Request Goods' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Request Goods')}
+                            >
+                                <i className='bx bxs-hdd mr-2 font-medium'></i> {/* Ikon untuk Peminjaman Barang */}
+                                Pengajuan Barang
+                            </a>
+                        </div>
+                    )}
+
+                    {/* End Role Teacher Sidebar Menu */}
 
                     {/* Start Role Student Affairs Sidebar Menu */}
                     {role === "StudentAffairs" && (
@@ -343,6 +384,14 @@ const Sidebar: React.FC = () => {
                             >
                                 <i className='bx bxs-error-alt mr-2 font-medium'></i> {/* Ikon untuk Pelanggaran Siswa */}
                                 Pelanggaran Siswa
+                            </a>
+                            <a
+                                href="/student-affairs/dispensation-letter"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Dispense Letter' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Dispense Letter')}
+                            >
+                                <i className='bx bxs-envelope mr-2 font-medium'></i> {/* Ikon untuk Surat Dispen */}
+                                Surat Dispen
                             </a>
                             <a
                                 href="/student-affairs/student-claim-insurance"
@@ -375,6 +424,14 @@ const Sidebar: React.FC = () => {
                             >
                                 <i className='bx bxs-user-badge mr-2 font-medium'></i> {/* Ikon untuk Data Guru */}
                                 Data Guru
+                            </a>
+                            <a
+                                href="/student-affairs/budget-proposal"
+                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Student Affairs Finance' ? 'active' : ''}`}
+                                onClick={() => handleMenuClick('Student Affairs Finance')}
+                            >
+                                <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk Student Affairs Finance */}
+                                Usulan Anggaran RAB
                             </a>
                         </div>
                     )}
@@ -465,11 +522,11 @@ const Sidebar: React.FC = () => {
                                     </a>
                                     <a
                                         href="/facilities/goods-management/outgoing-goods"
-                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Barang Keluar' ? 'text-blue-900' : ''}`}
-                                        onClick={() => handleSubMenuClick('Barang Keluar')}
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Peminjaman Barang' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Peminjaman Barang')}
                                     >
-                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Barang Keluar' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                        Barang Keluar
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Peminjaman Barang' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Peminjaman Barang
                                     </a>
                                     <a
                                         href="/facilities/goods-management/inventory"
@@ -496,16 +553,14 @@ const Sidebar: React.FC = () => {
                                 onClick={() => handleMenuClick('Keuangan')}
                             >
                                 <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk Keuangan */}
-                                Usulan Anggaran
+                                Usulan Anggaran RAB
                             </a>
                         </div>
                     )}
                     {/* End Role Facilities Sidebar Menu */}
 
 
-
                     {/* Start Role Finance sidebar menu */}
-
                     {role === "Finance" && ( //bersifat sementara
                         <div>
                             <a
@@ -611,7 +666,7 @@ const Sidebar: React.FC = () => {
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Posisi Jabatan' ? 'active' : ''}`}
                                 onClick={() => handleMenuClick('Posisi Jabatan')}
                             >
-                                <i className='bx bxs-user-rectangle mr-2 font-medium'></i>
+                                <i className='bx bxs-user-detail mr-2 font-medium'></i>
                                 Posisi Jabatan
                             </a>
                             <a
@@ -656,8 +711,8 @@ const Sidebar: React.FC = () => {
                 {/* End Sidebar menu navigation  */}
 
                 {/* Login Button */}
-                <a href={isLoggedIn ? "/user-profile" : "/login"} className="absolute bottom-5 left-2 right-2 px-3">
-                    <button className="flex items-center justify-center w-full py-3 rounded-xl border border-[var(--text-semi-bold-color)] bg-white text-[var(--text-semi-bold-color)] hover:opacity-90 transition">
+                <a href={isLoggedIn ? "/user-profile" : "/login"} className="fixed bottom-5 left-2 right-2 px-3">
+                    <button className="flex items-center justify-center w-52 py-3 rounded-xl border border-[var(--text-semi-bold-color)] bg-white text-[var(--text-semi-bold-color)] hover:opacity-90 transition">
                         <i className={`bx ${isLoggedIn ? 'bx-user' : 'bx-power-off'} mr-2 font-medium`}></i>
                         {isLoggedIn ? "Profile Anda" : "Login / Masuk"}
                     </button>

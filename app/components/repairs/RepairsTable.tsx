@@ -71,10 +71,10 @@ export const RepairsTable: React.FC<RepairsTableProps> = ({ repairs, onEdit, onD
                             <td className="py-2 px-4 border-b">
                                 <span className={`px-2 py-1 rounded-full text-sm ${
                                     item.status === 'Completed' 
-                                        ? 'bg-green-100 text-green-800'
+                                        ? 'bg-green-100 text-[var(--third-color)]'
                                         : item.status === 'InProgress'
-                                        ? 'bg-yellow-100 text-yellow-800'
-                                        : 'bg-red-100 text-red-800'
+                                        ? 'bg-yellow-100 text-[var(--second-color)]'
+                                        : 'bg-red-100 text-[var(--fourth-color)]'
                                 }`}>
                                     {item.status === 'Completed' 
                                         ? 'Selesai'

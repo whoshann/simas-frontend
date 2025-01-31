@@ -6,7 +6,6 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import { Chart, registerables } from "chart.js";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
-import axios from "axios";
 
 Chart.register(...registerables);
 
@@ -26,30 +25,14 @@ const data = [
 ];
 
 export default function FinanceDashboardPage() {
-  const fetchData = async () => {
-    try {
-      // Set default Authorization header dengan Bearer token
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      // Fetch data user dari endpoint API
-      const response = await axios.get("http://localhost:3333/users");
-      setUser(response.data); // Simpan data user ke dalam state
-    } catch (err: any) {
-      console.error("Error saat fetching data:", err);
-      setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-    } finally {
-      setLoading(false); // Set loading selesai
-    }
-  };
-
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedMonth, setSelectedMonth] = useState("Januari");
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const token = Cookies.get("token");
-  const [user, setUser] = useState<any>({});
-  const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const chartRef = useRef<HTMLCanvasElement | null>(null);
 
   const months = [
     "Januari",
@@ -70,13 +53,19 @@ export default function FinanceDashboardPage() {
     setIsPanelOpen(!isPanelOpen);
   };
 
-  useEffect(() => {
-    roleMiddleware(["Finance", "SuperAdmin"]);
-    fetchData()
 
-    const ctx = canvasRef.current?.getContext("2d");
+  const [chart, setChart] = useState<Chart | null>(null);
+
+  useEffect(() => {
+    // Hapus chart lama jika ada
+    if (chart) {
+      chart.destroy();
+    }
+
+    const ctx = chartRef.current?.getContext("2d");
+    console.log("Canvas context:", ctx);
     if (ctx) {
-      new Chart(ctx, {
+      const newChart = new Chart(ctx, {
         type: "bar",
         data: {
           labels: data.map((item) => item.month),
@@ -91,6 +80,7 @@ export default function FinanceDashboardPage() {
           ],
         },
         options: {
+          maintainAspectRatio: false,
           responsive: true,
           plugins: {
             legend: {
@@ -115,18 +105,40 @@ export default function FinanceDashboardPage() {
           },
         },
       });
+      setChart(newChart);
+    } else {
+      console.error("Canvas context is null");
     }
 
+    // Cleanup function
     return () => {
-      if (ctx) {
-        Chart.getChart(ctx)?.destroy();
+      if (chart) {
+        chart.destroy();
       }
     };
+  }, [data]);
+
+
+  useEffect(() => {
+
+    const initializePage = async () => {
+      try {
+        await roleMiddleware(["Finance"]);
+        setIsAuthorized(true);
+        setLoading(false)
+
+      } catch (error) {
+        console.error("Error initializing page:", error);
+        setIsAuthorized(false);
+      }
+    };
+
+    initializePage();
   }, []);
 
-if (loading) {
+  if (loading) {
     return <LoadingSpinner />;
-}
+  }
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
@@ -192,6 +204,7 @@ if (loading) {
       <main className="flex-1 overflow-x-hidden overflow-y-auto px-9 mt-6">
         {/* Start Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+
           <div className="bg-white shadow-md rounded-lg p-6 flex flex-col justify-between">
             <div className="flex flex-col items-start">
               <div className="bg-[#1f509a27] rounded-full p-3 mb-2 w-12 h-12 flex items-center justify-center">
@@ -200,13 +213,14 @@ if (loading) {
               <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
                 Total Keuangan
               </h3>
-              <p className="text-2xl font-bold">Rp.150.000.000,00</p>
+              <p className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Rp.150.000.000,00</p>
             </div>
             <p className="text-sm text-gray-600 mt-4">
               Terakhir Diperbarui pada Tanggal:
             </p>
             <p className="text-sm text-gray-600">25/12/2024</p>
           </div>
+
           <div className="bg-white shadow-md rounded-lg p-6 flex flex-col justify-between">
             <div className="flex flex-col items-start">
               <div className="bg-[#e88e1f29] rounded-full p-3 mb-2 w-12 h-12 flex items-center justify-center">
@@ -215,13 +229,14 @@ if (loading) {
               <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
                 Total Pemasukan
               </h3>
-              <p className="text-2xl font-bold">Rp.150.000.000,00</p>
+              <p className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Rp.150.000.000,00</p>
             </div>
             <p className="text-sm text-gray-600 mt-4">
               Terakhir Diperbarui pada Tanggal:
             </p>
             <p className="text-sm text-gray-600">25/12/2024</p>
           </div>
+
           <div className="bg-white shadow-md rounded-lg p-6 flex flex-col justify-between">
             <div className="flex flex-col items-start">
               <div className="bg-[#bd000025] rounded-full p-3 mb-2 w-12 h-12 flex items-center justify-center">
@@ -230,21 +245,44 @@ if (loading) {
               <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
                 Total Pengeluaran
               </h3>
-              <p className="text-2xl font-bold">Rp.150.000.000,00</p>
+              <p className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Rp.150.000.000,00</p>
             </div>
             <p className="text-sm text-gray-600 mt-4">
               Terakhir Diperbarui pada Tanggal:
             </p>
             <p className="text-sm text-gray-600">25/12/2024</p>
           </div>
+
         </div>
         {/* End Cards */}
 
         {/* Start Chart */}
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-          <h3 className="text-lg font-semibold">Keuangan Bulanan</h3>
-          <canvas ref={canvasRef} className="w-full h-60" />
+
+        {/* Start Chart Card */}
+        <div className="grid grid-cols-1 gap-4 pb-8">
+          <div className="bg-white shadow-md rounded-lg p-6">
+            <div className="flex flex-col items-start mb-4">
+              <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
+                Grafik Keuangan Bulanan
+              </h3>
+            </div>
+
+            <div style={{ position: 'relative', height: '400px', width: '100%' }}>
+              <canvas
+                ref={chartRef}
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  maxHeight: '400px'
+                }}
+              />
+            </div>
+          </div>
         </div>
+        {/* End Chart Card */}
+
+
         {/* End Chart */}
       </main>
     </div>

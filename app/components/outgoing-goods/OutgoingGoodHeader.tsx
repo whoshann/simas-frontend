@@ -6,7 +6,7 @@ interface OutgoingGoodsHeaderProps {
 export const OutgoingGoodsHeader: React.FC<OutgoingGoodsHeaderProps> = ({ searchTerm, onSearchChange }) => (
     <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
-            <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Barang Keluar</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Peminjaman Barang</h1>
             <p className="text-sm text-gray-600">Halo Admin Sarpras, selamat datang kembali</p>
         </div>
         <div className="mt-4 sm:mt-0">

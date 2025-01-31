@@ -7,8 +7,7 @@ import Script from 'next/script';
 import { Chart, registerables } from 'chart.js';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Image from 'next/image';
-import { authApi } from "@/app/api/auth";
-import { getTokenData } from "@/app/utils/tokenHelper";
+
 
 // Daftarkan semua komponen yang diperlukan
 Chart.register(...registerables);
@@ -22,40 +21,20 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     const initializePage = async () => {
-      try {
-        await roleMiddleware(["Student"]);
-        setIsAuthorized(true);
-      } catch (error) {
-        console.error("Auth error:", error);
-        setIsAuthorized(false);
-      } finally {
-        setLoading(false);
-      }
+        try {
+            await roleMiddleware(["Student","SuperAdmin"]);
+            setIsAuthorized(true);
+        } catch (error) {
+            console.error("Auth error:", error);
+            setIsAuthorized(false);
+        } finally {
+            setLoading(false);
+        }
     };
 
     initializePage();
-
-    const tokenData = getTokenData();
-    if (tokenData) {
-      // Gunakan tokenData.id (dari sub) untuk fetch data user
-      fetchStudentData(tokenData.id);
-      setStudent(prev => ({
-        ...prev,
-        role: tokenData.role
-      }));
-    }
   }, []);
-
-  const fetchStudentData = async (userId: number) => {
-    try {
-      const response = await authApi.getStudentLogin(userId);
-      setStudent(response.data); // Asumsi response.data sudah sesuai dengan tipe Student
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-      setError("Failed to fetch user data");
-    }
-  };
-
+  
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   if (loading) {

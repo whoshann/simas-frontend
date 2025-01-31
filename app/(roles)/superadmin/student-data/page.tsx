@@ -1,254 +1,219 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import "@/app/styles/globals.css";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import PageHeader from "@/app/components/superadmin/DataTable/TableHeader";
-import DataTable from "@/app/components/superadmin/DataTable/TableData";
-import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import { useStudents } from "@/app/hooks/useStudentData";
-import { Student } from "@/app/api/student-data/types";
+import Image from 'next/image';
+import { useStudents } from "@/app/hooks/useStudent";
+import { Student } from "@/app/api/student/types";
 
-
-interface FormData {
-    [key: string]: any;
-}
-
-export default function StudentPage() {
-    const [isPageLoading, setIsPageLoading] = useState(true);
-    const {
-        students,
-        loading,
-        fetchStudents,
-        createStudent,
-        updateStudent,
-        deleteStudent
-    } = useStudents();
-
-    // State declarations
+export default function SuperAdminStudentDataPage() {
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const { students, loading, error, fetchStudents } = useStudents();
 
-    // Fetch data saat komponen dimount
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["SuperAdmin"]);
-                await fetchStudents();
+                setIsAuthorized(true);
+                await fetchStudents(); // Fetch data siswa
             } catch (error) {
-                console.error("Error:", error);
-            } finally {
-                setIsPageLoading(false);
+                console.error("Error initializing page:", error);
+                setIsAuthorized(false);
             }
         };
 
         initializePage();
     }, []);
 
-    const handleExport = (type: 'pdf' | 'excel') => {
-        if (type === 'pdf') {
-            console.log("Exporting to PDF...");
-        } else {
-            console.log("Exporting to Excel...");
-        }
+    const filteredData = students.filter(item =>
+        Object.values(item).some(
+            value => value && value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    );
+
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
     };
 
-    // Table headers configuration
-    const headers = [
-        { key: "id", label: "No" },
-        { key: "name", label: "Nama" },
-        { key: "nis", label: "NIS" },
-        { key: "classSchool", label: "Kelas" },
-        { key: "major", label: "Jurusan" },
-        { key: "nisn", label: "NISN" },
-        { key: "gender", label: "Jenis Kelamin" },
-        { key: "birthDate", label: "Tanggal Lahir" },
-        { key: "birthPlace", label: "Tempat Lahir" },
-        { key: "address", label: "Alamat" },
-        { key: "phone", label: "Nomor" },
-        { key: "parentPhone", label: "Nomor Orang Tua" },
-        { key: "religion", label: "Agama" },
-        { key: "motherName", label: "Nama Ibu" },
-        { key: "fatherName", label: "Nama Ayah" },
-        { key: "guardian", label: "Nama Wali" }
-    ];
+    if (loading) {
+        return <LoadingSpinner />;
+    }
 
-    // Page content configuration
-    const pageContent = {
-        title: "Data Siswa",
-        greeting: "Halo Super Admin, selamat datang kembali"
-    };
+    if (error) {
+        return <div className="text-red-500">{error}</div>;
+    }
 
-    // Form fields configuration
-    const studentFields = [
-        { name: 'name', label: 'Nama Lengkap', type: 'text' as const, required: true },
-        {
-            name: 'classSchool',
-            label: 'Kelas',
-            type: 'select' as const,
-            required: true,
-            options: [
-                { value: '10', label: 'Kelas 10' },
-                { value: '11', label: 'Kelas 11' },
-                { value: '12', label: 'Kelas 12' }
-            ]
-        },
-        {
-            name: 'major',
-            label: 'Jurusan',
-            type: 'select' as const,
-            required: true,
-            options: [
-                { value: 'IPA 1', label: 'IPA 1' },
-                { value: 'IPA 2', label: 'IPA 2' },
-                { value: 'IPS 1', label: 'IPS 1' },
-                { value: 'IPS 2', label: 'IPS 2' }
-            ]
-        },
-        { name: 'nis', label: 'NIS', type: 'text' as const, required: true },
-        { name: 'nisn', label: 'NISN', type: 'text' as const, required: true },
-        {
-            name: 'gender',
-            label: 'Jenis Kelamin',
-            type: 'select' as const,
-            required: true,
-            options: [
-                { value: 'Laki-laki', label: 'Laki-laki' },
-                { value: 'Perempuan', label: 'Perempuan' }
-            ]
-        },
-        {
-            name: 'birthDate',
-            label: 'Tanggal Lahir',
-            type: 'date' as const,
-            required: true,
-            valueFormat: (value: string) => value ? value.split('T')[0] : '' // Format tanggal
-        },
-        { name: 'birthPlace', label: 'Tempat Lahir', type: 'text' as const, required: true },
-        { name: 'address', label: 'Alamat', type: 'textarea' as const, required: true, colSpan: 2 },
-        { name: 'phone', label: 'Nomor Telepon', type: 'tel' as const, required: true },
-        { name: 'parentPhone', label: 'Nomor Telepon Orang Tua', type: 'tel' as const, required: true },
-        {
-            name: 'religion',
-            label: 'Agama',
-            type: 'select' as const,
-            required: true,
-            options: [
-                { value: 'Islam', label: 'Islam' },
-                { value: 'Kristen', label: 'Kristen' },
-                { value: 'Katolik', label: 'Katolik' },
-                { value: 'Hindu', label: 'Hindu' },
-                { value: 'Buddha', label: 'Buddha' },
-                { value: 'Konghucu', label: 'Konghucu' }
-            ]
-        },
-        { name: 'motherName', label: 'Nama Ibu', type: 'text' as const, required: true },
-        { name: 'fatherName', label: 'Nama Ayah', type: 'text' as const, required: true },
-        { name: 'guardian', label: 'Nama Wali (Opsional)', type: 'text' as const }
-    ];
-
-    // Handler untuk edit data
-    const handleEdit = (id: number) => {
-        const student = students.find(s => s.id === id);
-        if (student) {
-            // Format tanggal sebelum menampilkan di form
-            const formattedStudent = {
-                ...student,
-                birthDate: student.birthDate ? student.birthDate.split('T')[0] : ''
-            };
-            setSelectedStudent(formattedStudent);
-            setIsModalOpen(true);
-        }
-    };
-
-    // Handler untuk delete data
-    const handleDelete = async (id: number) => {
-        if (window.confirm("Apakah Anda yakin ingin menghapus data ini?")) {
-            try {
-                await deleteStudent(id);
-            } catch (error) {
-                console.error("Error deleting student:", error);
-            }
-        }
-    };
-
-
-    // Handler untuk submit form (add/edit)
-    const handleSubmit = async (formData: FormData): Promise<void> => {
-        try {
-            const studentData = {
-                name: formData.name,
-                classSchool: formData.classSchool,
-                major: formData.major,
-                nis: formData.nis,
-                nisn: formData.nisn,
-                gender: formData.gender,
-                birthDate: formData.birthDate,
-                birthPlace: formData.birthPlace,
-                address: formData.address,
-                phone: formData.phone,
-                parentPhone: formData.parentPhone,
-                religion: formData.religion,
-                motherName: formData.motherName,
-                fatherName: formData.fatherName,
-                guardian: formData.guardian || null,
-            };
-
-            if (selectedStudent) {
-                // Update existing student
-                await updateStudent(selectedStudent.id!, studentData);
-            } else {
-                // Add new student
-                await createStudent(studentData);
-            }
-            setIsModalOpen(false);
-            setSelectedStudent(null);
-        } catch (error) {
-            console.error("Error submitting data:", error);
-        }
-    };
-
-    if (isPageLoading) return <LoadingSpinner />;
+    if (!isAuthorized) {
+        return null;
+    }
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
-            <PageHeader
-                title={pageContent.title}
-                greeting={pageContent.greeting}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-            />
+            <header className="py-6 px-9">
+                <div>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Siswa</h1>
+                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
+                </div>
+            </header>
 
-            <DataTable
-                headers={headers}
-                data={students}
-                searchTerm={searchTerm}
-                entriesPerPage={entriesPerPage}
-                setEntriesPerPage={setEntriesPerPage}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onAdd={() => {
-                    setSelectedStudent(null);
-                    setIsModalOpen(true);
-                }}
-                onImport={() => console.log("Import")}
-                onExport={handleExport}
-            />
+            <main className="px-9 pb-6">
+                <div className="bg-white shadow-md rounded-lg p-6">
+                    {/* Search and Entries Controls */}
+                    <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+                        <div className="flex items-center mb-4 sm:mb-0">
+                            <span className="mr-2">Tampilkan</span>
+                            <select
+                                value={entriesPerPage}
+                                onChange={(e) => setEntriesPerPage(Number(e.target.value))}
+                                className="border rounded px-2 py-1"
+                            >
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <span className="ml-2">entri</span>
+                        </div>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Cari..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-8 pr-4 py-2 border rounded-lg"
+                            />
+                            <i className='bx bx-search absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400'></i>
+                        </div>
+                    </div>
 
-            <DynamicModal
-                isOpen={isModalOpen}
-                onClose={() => {
-                    setIsModalOpen(false);
-                    setSelectedStudent(null);
-                }}
-                onSubmit={handleSubmit}
-                title={selectedStudent ? "Edit Data Siswa" : "Tambah Data Siswa"}
-                fields={studentFields}
-                initialData={selectedStudent || undefined}
-                width="w-[40rem]"
-            />
+                    {/* Table */}
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full bg-white">
+                            <thead>
+                                <tr className="bg-gray-50">
+                                    <th className="py-2 px-4 border-b text-left">No</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama</th>
+                                    <th className="py-2 px-4 border-b text-left">NIS</th>
+                                    <th className="py-2 px-4 border-b text-left">NISN</th>
+                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
+                                    <th className="py-2 px-4 border-b text-left">Jurusan</th>
+                                    <th className="py-2 px-4 border-b text-left">Tanggal Lahir</th>
+                                    <th className="py-2 px-4 border-b text-left">Tempat Lahir</th>
+                                    <th className="py-2 px-4 border-b text-left">Jenis Kelamin</th>
+                                    <th className="py-2 px-4 border-b text-left">Alamat</th>
+                                    <th className="py-2 px-4 border-b text-left">No. Telepon</th>
+                                    <th className="py-2 px-4 border-b text-left">No. Telepon Ortu</th>
+                                    <th className="py-2 px-4 border-b text-left">Agama</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Ibu</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Ayah</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Wali</th>
+                                    <th className="py-2 px-4 border-b text-left">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredData
+                                    .slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage)
+                                    .map((student, index) => (
+                                        <tr key={student.id} className="hover:bg-gray-100">
+                                            <td className="py-2 px-4 border-b">{index + 1}</td>
+                                            <td className="py-2 px-4 border-b">{student.name}</td>
+                                            <td className="py-2 px-4 border-b">{student.nis}</td>
+                                            <td className="py-2 px-4 border-b">{student.nisn}</td>
+                                            <td className="py-2 px-4 border-b">{student.class?.name || '-'}</td>
+                                            <td className="py-2 px-4 border-b">{student.major?.name || '-'}</td>
+                                            <td className="py-2 px-4 border-b">{formatDate(student.birthDate)}</td>
+                                            <td className="py-2 px-4 border-b">{student.birthPlace}</td>
+                                            <td className="py-2 px-4 border-b">
+                                                {student.gender === 'L' ? 'Laki-laki' : 'Perempuan'}
+                                            </td>
+                                            <td className="py-2 px-4 border-b">{student.address}</td>
+                                            <td className="py-2 px-4 border-b">{student.phone}</td>
+                                            <td className="py-2 px-4 border-b">{student.parentPhone}</td>
+                                            <td className="py-2 px-4 border-b">{student.religion}</td>
+                                            <td className="py-2 px-4 border-b">{student.motherName}</td>
+                                            <td className="py-2 px-4 border-b">{student.fatherName}</td>
+                                            <td className="py-2 px-4 border-b">{student.guardian || '-'}</td>
+                                            <td className="py-2 px-4 border-b">
+                                                <div className="flex space-x-2">
+                                                    <button
+                                                        className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+                                                        onClick={() => console.log("Edit", student.id)}
+                                                    >
+                                                        <i className="bx bxs-edit text-lg"></i>
+                                                    </button>
+                                                    <button
+                                                        className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
+                                                        onClick={() => console.log("Delete", student.id)}
+                                                    >
+                                                        <i className="bx bxs-trash-alt text-lg"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="flex justify-between items-center mt-4">
+                        <span className="text-sm">
+                            Menampilkan {Math.min((currentPage - 1) * entriesPerPage + 1, filteredData.length)} hingga{' '}
+                            {Math.min(currentPage * entriesPerPage, filteredData.length)} dari {filteredData.length} entri
+                        </span>
+                        <div className="flex items-center space-x-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1 border rounded-md text-[var(--main-color)]"
+                            >
+                                &lt;
+                            </button>
+                            {Array.from({ length: Math.ceil(filteredData.length / entriesPerPage) }, (_, i) => i + 1)
+                                .filter(pageNum => 
+                                    pageNum === 1 || 
+                                    pageNum === Math.ceil(filteredData.length / entriesPerPage) || 
+                                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                                )
+                                .map((pageNum, index, array) => (
+                                    <React.Fragment key={pageNum}>
+                                        {index > 0 && array[index - 1] !== pageNum - 1 && (
+                                            <span className="px-2">...</span>
+                                        )}
+                                        <button
+                                            onClick={() => setCurrentPage(pageNum)}
+                                            className={`px-3 py-1 rounded-md ${
+                                                currentPage === pageNum
+                                                    ? 'bg-[var(--main-color)] text-white'
+                                                    : 'text-[var(--main-color)]'
+                                            }`}
+                                        >
+                                            {pageNum}
+                                        </button>
+                                    </React.Fragment>
+                                ))}
+                            <button
+                                onClick={() => setCurrentPage(prev => 
+                                    Math.min(prev + 1, Math.ceil(filteredData.length / entriesPerPage))
+                                )}
+                                disabled={currentPage === Math.ceil(filteredData.length / entriesPerPage)}
+                                className="px-3 py-1 border rounded-md text-[var(--main-color)]"
+                            >
+                                &gt;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     );
 }

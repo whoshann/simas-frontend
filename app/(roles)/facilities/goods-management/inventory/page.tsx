@@ -9,6 +9,7 @@ import { InventoryActions } from "@/app/components/inventories/InventoryActions"
 import { InventoryTable } from "@/app/components/inventories/InventoryTable";
 import { InventoryPagination } from "@/app/components/inventories/InventoryPagination";
 import { InventoryModal } from "@/app/components/inventories/InventoryModal";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
     
 export default function InventoryPage() {
     const { inventories, loading, error, fetchInventories, addInventory, updateInventory, deleteInventory } = useInventory();
@@ -42,9 +43,7 @@ export default function InventoryPage() {
         initializePage();
     }, []);
 
-    if (isLoading) {
-        return <div>Loading...</div>; // atau komponen loading yang lebih bagus
-    }
+    if (loading) return <LoadingSpinner />;
 
     if (!isAuthorized) {
         return null;

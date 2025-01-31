@@ -8,6 +8,9 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import { error } from "console";
+import TableData2 from "@/app/components/TableWithoutAction/TableData2";
+import { InsuranceClaimStatus } from '@/app/utils/enums';
+
 
 const formatRupiah = (angka: string) => {
   const number = angka.replace(/[^,\d]/g, '').toString();
@@ -26,18 +29,90 @@ const formatRupiah = (angka: string) => {
 };
 
 interface FormData {
-    userId: number;
-    title: string;
-    description: string;
-    total_budget: number;
-    document_path?: File;
+  userId: number;
+  title: string;
+  description: string;
+  total_budget: number;
+  document_path?: File;
 }
+
+// Data statis untuk tabel
+const staticBudgetProposalData = [
+  {
+    no: 1,
+    id: 1,
+    title: "Pengajuan Dana Gelar Karya Pembelajaran",
+    total_budget: 5000000,
+    document_path: "proposal_gkp.pdf",
+    description: "Dana untuk pelaksanaan gelar karya pembelajaran semester genap",
+    date: "2024-01-15",
+    status: InsuranceClaimStatus.Pending
+  },
+  {
+    no: 2,
+    id: 2,
+    title: "Pengajuan Dana Lomba Robotik",
+    total_budget: 3500000,
+    document_path: "proposal_robotik.pdf",
+    description: "Dana untuk persiapan tim robotik dalam kompetisi nasional",
+    date: "2024-01-10",
+    status: InsuranceClaimStatus.Approved
+  },
+  {
+    no: 3,
+    id: 3,
+    title: "Pengajuan Dana Pelatihan Guru",
+    total_budget: 2500000,
+    document_path: "proposal_pelatihan.pdf",
+    description: "Dana untuk workshop pengembangan kompetensi guru",
+    date: "2024-01-05",
+    status: InsuranceClaimStatus.Rejected
+  }
+];
+
+const tableHeaders = [
+  { key: 'no', label: 'No' },
+  { key: 'title', label: 'Nama RAB' },
+  {
+    key: 'total_budget',
+    label: 'Jumlah Dana',
+    render: (value: number) => formatRupiah(value.toString())
+  },
+  { key: 'document_path', label: 'Dokumen Pendukung' },
+  { key: 'description', label: 'Alasan Pengajuan' },
+  { key: 'date', label: 'Tanggal Pengajuan' },
+  {
+    key: 'status',
+    label: 'Status',
+    render: (value: InsuranceClaimStatus) => {
+      const statusStyles = {
+        [InsuranceClaimStatus.Pending]: 'bg-[#e88e1f29] text-[var(--second-color)]',
+        [InsuranceClaimStatus.Approved]: 'bg-[#0a97b022] text-[var(--third-color)]',
+        [InsuranceClaimStatus.Rejected]: 'bg-red-100 text-[var(--fourth-color)]',
+      };
+
+      const statusText = {
+        [InsuranceClaimStatus.Pending]: 'Menunggu',
+        [InsuranceClaimStatus.Approved]: 'Disetujui',
+        [InsuranceClaimStatus.Rejected]: 'Ditolak',
+      };
+
+      return (
+        <span className={`px-3 py-1 rounded-full text-sm ${statusStyles[value]}`}>
+          {statusText[value]}
+        </span>
+      );
+    }
+  }
+];
 
 export default function FacilitiesBudgetProposalPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string>('');
   const [jumlahDana, setJumlahDana] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [formData, setFormData] = useState<FormData>({
     userId: 0,
     title: '',
@@ -51,7 +126,7 @@ export default function FacilitiesBudgetProposalPage() {
       try {
         await roleMiddleware(["Facilities"]);
         setIsAuthorized(true);
-        
+
         const id = getUserIdFromToken();
         if (id) {
           setUserId(id);
@@ -70,10 +145,10 @@ export default function FacilitiesBudgetProposalPage() {
   }, []);
 
   if (loading) {
-        return (
-            <LoadingSpinner />
-        );
-    }
+    return (
+      <LoadingSpinner />
+    );
+  }
 
   if (!isAuthorized) {
     return null;
@@ -136,23 +211,23 @@ export default function FacilitiesBudgetProposalPage() {
         }
       );
       if (response.status === 201) { // Menggunakan HTTP status code 201 Created
-            // Reset semua input
-            setFormData({
-                userId: formData.userId,
-                title: '',
-                description: '',
-                total_budget: 0
-            });
-            setSelectedFile(null);
-            setJumlahDana('');
+        // Reset semua input
+        setFormData({
+          userId: formData.userId,
+          title: '',
+          description: '',
+          total_budget: 0
+        });
+        setSelectedFile(null);
+        setJumlahDana('');
 
-            // Reset file input
-            const fileInput = document.getElementById('document_path') as HTMLInputElement;
-            if (fileInput) fileInput.value = '';
+        // Reset file input
+        const fileInput = document.getElementById('document_path') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
 
-            alert('Pengajuan RAB berhasil dikirim!');
-        }
-      
+        alert('Pengajuan RAB berhasil dikirim!');
+      }
+
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('Gagal mengirim pengajuan RAB');
@@ -165,15 +240,6 @@ export default function FacilitiesBudgetProposalPage() {
         <h1 className="text-2xl font-bold text-gray-800">Pengajuan RAB</h1>
         <p className="text-sm text-gray-600">Halo, selamat datang di halaman Pengajuan RAB</p>
       </header>
-
-      {/* Breadcrumb Section */}
-      <div className="px-9 mb-6">
-        <nav className="flex text-sm font-medium text-gray-600">
-          <a href="/" className="text-gray-400 hover:text-blue-600">Home</a>
-          <span className="mx-2">/</span>
-          <a href="/sarpras-pengajuan" className="text-gray-800 font-semibold hover:text-blue-600">Pengajuan RAB</a>
-        </nav>
-      </div>
 
       {/* Alert Section */}
       <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-6 py-4 mx-9 flex items-start mb-6">
@@ -250,9 +316,9 @@ export default function FacilitiesBudgetProposalPage() {
                     name="document_path"
                     accept=".pdf"
                     onChange={handleFileChange}
-                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="block w-full text-gray-700 border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#1F509A] hover:file:bg-blue-100"
                     required
-                />
+                  />
                 </div>
               </div>
 
@@ -264,12 +330,12 @@ export default function FacilitiesBudgetProposalPage() {
                   Alasan Pengajuan Rencana Anggaran Biaya
                 </label>
                 <textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
-                    required
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2"
+                  required
                 ></textarea>
               </div>
 
@@ -281,6 +347,15 @@ export default function FacilitiesBudgetProposalPage() {
               </button>
             </form>
           </div>
+          {/* Tabel Riwayat */}
+          <TableData2
+            headers={tableHeaders}
+            data={staticBudgetProposalData}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            entriesPerPage={entriesPerPage}
+            setEntriesPerPage={setEntriesPerPage}
+          />
         </div>
       </main>
     </div>

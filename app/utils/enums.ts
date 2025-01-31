@@ -27,6 +27,12 @@ export enum InsuranceClaimStatus {
   Rejected = "Rejected",
 }
 
+export enum DispenseStatus {
+  Pending = "Pending",
+  Approved = "Download Letter",
+  Rejected = "Rejected",
+}
+
 export enum InsuranceClaimCategory {
   Accident = "Accident",
   DeathDuetoIllness = "DeathDuetoIllness",
@@ -39,4 +45,36 @@ export enum ProcurementStatus {
   Pending = "Pending",
   Approved = "Approved",
   Rejected = "Rejected",
+}
+
+export enum AbsenceStatus {
+  Present = "Present",
+  Permission = "Permission",
+  Sick = "Sick",
+  Alpha = "Alpha",
+}
+
+export enum Religion {
+  ISLAM = "ISLAM",
+  CHRISTIANITY = "CHRISTIANITY",
+  HINDUISM = "HINDUISM",
+  BUDDHISM = "BUDDHISM",
+  CONFUCIANISM = "CONFUCIANISM",
+  CATHOLICISM = "CATHOLICISM",
+}
+
+export enum AchievementCategory{
+  academic = "academic",
+  Non_Academic = "Non_Academic"
+}
+
+export enum Gender {
+  Male = "L",
+  Female = "P",
+}
+
+export enum Grade {
+  X = "X",
+  XI = "XI",
+  XII = "XII",
 }

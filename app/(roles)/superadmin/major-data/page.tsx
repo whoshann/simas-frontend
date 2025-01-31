@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import PageHeader from "@/app/components/superadmin/DataTable/TableHeader";
-import DataTable from "@/app/components/superadmin/DataTable/TableData";
-import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
+import PageHeader from "@/app/components/DataTable/TableHeader";
+import DataTable from "@/app/components/DataTable/TableData";
+import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useMajors } from '@/app/hooks/useMajorData';
 
@@ -92,7 +92,7 @@ export default function MajorPage() {
                 await createMajor(majorData);
                 alert('Data jurusan berhasil ditambahkan!');
             }
-            
+
             await fetchMajors();
             setIsModalOpen(false);
             setSelectedMajor(null);
@@ -106,7 +106,7 @@ export default function MajorPage() {
         try {
             await deleteMajor(id);
         } catch (error) {
-            console.error("Error deleting major:", error);
+            console.error("Error deleting subject:", error);
         }
     };
 
@@ -122,7 +122,7 @@ export default function MajorPage() {
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
+        <div className="flex-1 px-9 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <PageHeader
                 title={pageContent.title}
                 greeting={pageContent.greeting}

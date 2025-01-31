@@ -12,12 +12,22 @@ import axios from "axios";
 export default function StudentViolationsPage() {
     // Panggil middleware dan hooks di awal komponen
     useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-        roleMiddleware(["Student", "SuperAdmin"]);
-        fetchData();
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["Student","SuperAdmin"]);
+                setIsAuthorized(true);
+            } catch (error) {
+                console.error("Auth error:", error);
+                setIsAuthorized(false);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        initializePage();
     }, []);
 
-    const [user, setUser] = useState<any>({});
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -48,22 +58,6 @@ export default function StudentViolationsPage() {
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
-
-    const fetchData = async () => {
-        try {
-            // Set default Authorization header dengan Bearer token
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-            // Fetch data user dari endpoint API
-            const response = await axios.get("http://localhost:3333/student");
-            setUser(response.data); // Simpan data user ke dalam state
-        } catch (err: any) {
-            console.error("Error saat fetching data:", err);
-            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-        } finally {
-            setLoading(false); // Set loading selesai
-        }
-    };
 
     if (loading) {
         return <LoadingSpinner />;

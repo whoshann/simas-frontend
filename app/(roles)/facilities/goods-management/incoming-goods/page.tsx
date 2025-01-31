@@ -10,6 +10,7 @@ import { IncomingGoodTable } from '@/app/components/incoming-goods/IncomingGoodT
 import { IncomingGoodPagination } from '@/app/components/incoming-goods/IncomingGoodPagination';
 import { useIncomingGoods } from '@/app/hooks/useIncomingGoods';
 import { useInventory } from '@/app/hooks/useInventory';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 
 
 export default function IncomingGoodDataPage() {
@@ -45,9 +46,7 @@ export default function IncomingGoodDataPage() {
         initializePage();
     }, []);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    if (loading) return <LoadingSpinner />;
 
     if (!isAuthorized) {
         return null;
