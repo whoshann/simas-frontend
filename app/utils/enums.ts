@@ -63,6 +63,11 @@ export enum Religion {
   CATHOLICISM = "CATHOLICISM",
 }
 
+export enum AchievementCategory{
+  academic = "academic",
+  Non_Academic = "Non_Academic"
+}
+
 export enum Gender {
   Male = "L",
   Female = "P",
@@ -72,9 +77,4 @@ export enum Grade {
   X = "X",
   XI = "XI",
   XII = "XII",
-}
-
-export enum AchievementType {
-  academic = "academic",
-  Non_Academic = "Non_Academic",
 }

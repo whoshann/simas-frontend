@@ -17,7 +17,7 @@ interface CustomJwtPayload {
     sub: number;
 }
 
-interface InsuranceClaim {
+export interface InsuranceClaim {
     id: number;
     studentId: number;
     category: InsuranceClaimCategory;
@@ -265,7 +265,7 @@ export default function StudentClaimInsurancePage() {
 
 
                     {/* Start Form Input */}
-                    <div className="bg-white rounded-lg shadow p-6">
+                    <div className="bg-white rounded-lg shadow p-6 h-max">
 
                         <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)] mb-4 flex items-center">
                             <div className="bg-[#e88e1f29] flex justify-center items-center rounded-full h-7 w-7 p-2">
@@ -395,7 +395,7 @@ export default function StudentClaimInsurancePage() {
 
 
                     {/* Start History Card */}
-                    <div className="bg-white rounded-lg shadow p-6">
+                    <div className="bg-white rounded-lg shadow p-6 overflow-hidden overflow-y-auto h-[670px]">
                         <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)] mb-4">Riwayat Klaim</h2>
                         <div className="space-y-8">
                             {Array.isArray(insuranceClaims) && insuranceClaims.map((claim) => {
