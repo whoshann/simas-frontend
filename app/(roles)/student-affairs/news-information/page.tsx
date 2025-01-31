@@ -9,16 +9,13 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { useNewsInformation } from "@/app/hooks/useNewsInformation";
+import FormModal from '@/app/components/DataTable/FormModal';
 
 
 
 export default function StudentAffairsNewsInformationPage() {
     const [user, setUser] = useState<any>({});
     const [isAuthorized, setIsAuthorized] = useState(false);
-    // const [error, setError] = useState<string>("");
-    // const [loading, setLoading] = useState<boolean>(true);
-    const token = Cookies.get("token");
-    const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
@@ -29,9 +26,139 @@ export default function StudentAffairsNewsInformationPage() {
             year: 'numeric'
         });
     };
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+    const [formData, setFormData] = useState({
+        activity: '',
+        description: '',
+        note: '',
+        photo: null,
+        date: ''
+    });
 
     const { newsInformation, loading, error, fetchNewsInformation } = useNewsInformation();
 
+    // Form fields untuk modal
+    const formFields = [
+        {
+            name: 'activity',
+            label: 'Judul',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Masukkan judul aktivitas'
+        },
+        {
+            name: 'description',
+            label: 'Deskripsi',
+            type: 'textarea' as const,
+            required: true,
+            placeholder: 'Masukkan deskripsi',
+            rows: 3
+        },
+        {
+            name: 'note',
+            label: 'Catatan',
+            type: 'textarea' as const,
+            placeholder: 'Masukkan catatan (opsional)',
+            rows: 2
+        },
+        {
+            name: 'photo',
+            label: 'Gambar',
+            type: 'file' as const,
+            accept: 'image/*',
+            preview: true,
+            helperText: 'Upload gambar (PNG, JPG, JPEG)'
+        },
+        {
+            name: 'date',
+            label: 'Tanggal',
+            type: 'date' as const,
+            required: true
+        }
+    ];
+
+    // Handle buka modal
+    const handleOpenModal = (mode: 'add' | 'edit', data?: any) => {
+        setModalMode(mode);
+        if (mode === 'edit' && data) {
+            try {
+                // Konversi tanggal ke format YYYY-MM-DD
+                let formattedDate = '';
+
+                if (data.date) {
+                    const dateObj = new Date(data.date);
+                    if (dateObj instanceof Date && !isNaN(dateObj.getTime())) {
+                        formattedDate = dateObj.toISOString().split('T')[0];
+                    } else {
+                        // Jika format tanggal tidak sesuai, gunakan tanggal hari ini
+                        formattedDate = new Date().toISOString().split('T')[0];
+                    }
+                }
+
+                setFormData({
+                    activity: data.activity || '',
+                    description: data.description || '',
+                    note: data.note || '',
+                    photo: data.photo || null,
+                    date: formattedDate
+                });
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                setFormData({
+                    activity: data.activity || '',
+                    description: data.description || '',
+                    note: data.note || '',
+                    photo: data.photo || null,
+                    date: ''
+                });
+            }
+        } else {
+            // Reset form untuk mode add
+            setFormData({
+                activity: '',
+                description: '',
+                note: '',
+                photo: null,
+                date: ''
+            });
+        }
+        setIsModalOpen(true);
+    };
+
+    // Handle tutup modal
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setFormData({
+            activity: '',
+            description: '',
+            note: '',
+            photo: null,
+            date: ''
+        });
+    };
+
+    // Handle submit form
+    const handleSubmit = async (formData: any) => {
+        try {
+            if (modalMode === 'add') {
+                // Logika add data
+                console.log('Adding new data:', formData);
+                // Implementasi API call untuk menambah data
+                // await addNewsInformation(formData);
+            } else {
+                // Logika edit data
+                console.log('Updating data:', formData);
+                // Implementasi API call untuk update data
+                // await updateNewsInformation(formData);
+            }
+            handleCloseModal();
+            // Refresh data setelah submit
+            await fetchNewsInformation();
+        } catch (error) {
+            console.error('Error submitting form:', error);
+        }
+    };
 
     useEffect(() => {
         const initializePage = async () => {
@@ -53,30 +180,6 @@ export default function StudentAffairsNewsInformationPage() {
         initializePage();
     }, []);
 
-    const data = [
-        { no: 1, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "21/01/2024" },
-        { no: 2, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "22/01/2024" },
-        { no: 3, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "23/01/2024" },
-        { no: 4, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "24/01/2024" },
-        { no: 5, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "25/01/2024" },
-        { no: 6, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "Siswa dan siswi kelas X dan XI pulang lebih awal", date: "25/01/2024" },
-        { no: 7, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 8, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 9, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 10, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 11, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 12, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 13, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 14, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 15, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 16, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 17, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 18, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 19, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-        { no: 20, document: "/images/Berita1.jpg", activity: "Rapat Bapak Ibu Guru", description: "XII IPS A", date: "25/01/2024" },
-
-    ];
-
     // Search item tabel
     const filteredData = newsInformation.filter(item =>
         item.activity.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -89,27 +192,6 @@ export default function StudentAffairsNewsInformationPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-
-    const togglePanel = () => {
-        setIsPanelOpen(!isPanelOpen);
-    };
-
-
-    // const fetchData = async () => {
-    //     try {
-    //         // Set default Authorization header dengan Bearer token
-    //         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-    //         // Fetch data user dari endpoint API
-    //         const response = await axios.get("http://localhost:3333/student");
-    //         setUser(response.data); // Simpan data user ke dalam state
-    //     } catch (err: any) {
-    //         console.error("Error saat fetching data:", err);
-    //         setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-    //     } finally {
-    //         setLoading(false); // Set loading selesai
-    //     }
-    // };
 
     if (loading) {
         return <LoadingSpinner />;
@@ -130,9 +212,6 @@ export default function StudentAffairsNewsInformationPage() {
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Informasi Berita</h1>
                     <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
                 </div>
-
-
-                {/* Filtering Bulanan */}
                 <div className="mt-4 sm:mt-0">
                     <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
                         <i className='bx bx-search text-[var(--text-semi-bold-color)] text-lg mr-0 sm:mr-2 ml-2 sm:ml-0'></i>
@@ -170,7 +249,7 @@ export default function StudentAffairsNewsInformationPage() {
                         <div className="flex space-x-2 mt-5 sm:mt-0">
                             {/* Button Tambah Data */}
                             <button
-                                onClick={() => console.log("Tambah Data")}
+                                onClick={() => handleOpenModal('add')}
                                 className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
                             >
                                 Tambah Data
@@ -234,6 +313,7 @@ export default function StudentAffairsNewsInformationPage() {
                                     <th className="py-2 px-4 border-b text-left">Gambar</th>
                                     <th className="py-2 px-4 border-b text-left">Judul</th>
                                     <th className="py-2 px-4 border-b text-left">Deskripsi</th>
+                                    <th className="py-2 px-4 border-b text-left">Catatan</th>
                                     <th className="py-2 px-4 border-b text-left">Tanggal</th>
                                     <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
@@ -259,11 +339,13 @@ export default function StudentAffairsNewsInformationPage() {
                                         </td>
                                         <td className="py-2 px-4 border-b">{newsInformation.activity}</td>
                                         <td className="py-2 px-4 border-b">{newsInformation.description}</td>
+                                        <td className="py-2 px-4 border-b">{newsInformation.note}</td>
                                         <td className="py-2 px-4 border-b">{formatDate(newsInformation.date)}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 {/* Edit Button */}
                                                 <button
+                                                    onClick={() => handleOpenModal('edit', newsInformation)}
                                                     className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
 
                                                 >
@@ -321,6 +403,19 @@ export default function StudentAffairsNewsInformationPage() {
                     </div>
                 </div>
             </main>
-        </div>
+
+            {/* Modal Component */}
+            <FormModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onSubmit={handleSubmit}
+                title={modalMode === 'add' ? 'Tambah Informasi Berita' : 'Edit Informasi Berita'}
+                mode={modalMode}
+                fields={formFields}
+                formData={formData}
+                setFormData={setFormData}
+                size="lg"
+            />
+        </div >
     );
 }

@@ -101,18 +101,12 @@ export default function StudentAffairsViolationsPage() {
     const formFields = [
         {
             name: 'name',
-            label: 'Nama Siswa',
+            label: 'Nama Pelanggaran',
             type: 'text' as const,
             required: true,
-            placeholder: 'Masukkan nama siswa'
+            placeholder: 'Masukkan Pelanggaran Siswa',
         },
-        {
-            name: 'classSchool',
-            label: 'Kelas',
-            type: 'text' as const,
-            required: true,
-            placeholder: 'Contoh: X PH A'
-        },
+
         {
             name: 'violations',
             label: 'Pelanggaran',
@@ -139,14 +133,7 @@ export default function StudentAffairsViolationsPage() {
             required: true,
             placeholder: 'Masukkan hukuman'
         },
-        {
-            name: 'document',
-            label: 'Bukti Foto',
-            type: 'file' as const,
-            accept: 'image/*',
-            preview: true,
-            helperText: 'Format: JPG, PNG, JPEG. Max: 2MB' //opsional
-        },
+
         {
             name: 'date',
             label: 'Tanggal',

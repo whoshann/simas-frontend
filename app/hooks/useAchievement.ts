@@ -51,8 +51,8 @@ export const useAchievements = (studentId?: number) => {
         achievements,
         loading,
         error,
-      fetchAchievements,
-      createAchievement,
+        fetchAchievements,
+        createAchievement,
         deleteAchievement
     };
 };
