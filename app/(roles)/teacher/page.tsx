@@ -1,7 +1,7 @@
 "use client";
 
 import "@/app/styles/globals.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from "next/image";
 import Calendar from "react-calendar";
@@ -12,6 +12,7 @@ export default function TeacherDashboardPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const initializePage = async () => {
@@ -27,6 +28,19 @@ export default function TeacherDashboardPage() {
     };
 
     initializePage();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (carouselRef.current) {
+        const next = carouselRef.current.querySelector('.carousel-item:nth-child(2)');
+        if (next) {
+          next.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }, 5000); // Ganti 3000 dengan waktu dalam milidetik sesuai kebutuhan
+
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
@@ -78,9 +92,7 @@ export default function TeacherDashboardPage() {
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
       <header className="py-6 px-9">
         <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
-        <p className="text-sm text-gray-600">
-          Halo James, selamat datang kembali
-        </p>
+        <p className="text-sm text-gray-600">Halo James, selamat datang kembali</p>
       </header>
 
       <main className="px-9 pb-6">
@@ -97,38 +109,61 @@ export default function TeacherDashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Event */}
           <div className="col-span-2 flex flex-col">
-            <div className="bg-white shadow rounded-lg overflow-hidden flex-1">
-              <div className="p-4">
-                <Image
-                  src="/images/Berita1.jpg"
-                  alt="Sosialisasi Prakerin Orang Tua"
-                  width={500}
-                  height={400}
-                  className="w-full h-[360px] object-cover rounded-lg"
-                />
-              </div>
-
-
-              <div className="p-4 flex">
-                <div className="flex flex-col items-center justify-center pr-8 pl-4">
-                  <span className="text-3xl font-bold text-[var(--main-color)]">8</span>
-                  <span className="text-3xl font-semibold text-[var(--third-color)]">
-                    {new Date().toLocaleString("default", { month: "short" })}
-                  </span>
+            <div className="bg-white shadow-md rounded-lg overflow-hidden lg:col-span-2" ref={carouselRef}>
+              <div className="carousel rounded-box w-full">
+                <div className="carousel-item w-full flex flex-col items-center">
+                  <div className="p-4">
+                  <Image
+                      src="/images/Berita1.jpg"
+                      alt="Sosialisasi Prakerin Orang Tua"
+                      width={800}
+                      height={400}
+                      className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
+                  />
+                  </div>
+                  <div className="p-6 text-center flex justify-between items-center">
+                    <div className="flex flex-col items-center">
+                      <span className="text-4xl font-bold text-[var(--main-color)]">27</span>
+                      <span className="text-4xl font-bold text-[var(--third-color)]">01</span>
+                    </div>
+                    <div className="text-left ml-4">
+                      <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
+                        Sosialisasi Prakerin Orang Tua
+                      </h2>
+                      <p className="text-sm text-gray-600 mt-2">
+                        Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa
+                        yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-xl text-[var(--text-semi-bold-color)] font-semibold">
-                    Sosialisasi Prakerin Orang Tua
-                  </h4>
-                  <p className="text-md text-[var(--text-thin-color)]">
-                    Sosialisasi terkait pemberangkatan prakerin untuk orang tua
-                    siswa yang dilaksanakan di Home Theater jam 9 pagi tanggal
-                    8 bulan Januari.
-                  </p>
+                <div className="carousel-item w-full flex flex-col items-center">
+                  <div className="p-4">
+                  <Image
+                      src="/images/Berita2.jpg"
+                      alt="Sosialisasi Prakerin Orang Tua"
+                      width={800}
+                      height={400}
+                      className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
+                  />
+                  </div>
+                  <div className="p-6 text-center flex justify-between items-center">
+                    <div className="flex flex-col items-center">
+                      <span className="text-4xl font-bold text-[var(--main-color)]">18</span>
+                      <span className="text-4xl font-bold text-[var(--third-color)]">01</span>
+                    </div>
+                    <div className="text-left ml-4">
+                      <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
+                        Rapart Orang Tua
+                      </h2>
+                      <p className="text-sm text-gray-600 mt-2">
+                        Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa
+                        yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-
             </div>
           </div>
 

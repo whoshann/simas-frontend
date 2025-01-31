@@ -62,14 +62,7 @@ export default function FacilitiesDashboardPage() {
         name: '',
         username: '',
     });
-    const months = [
-        'Semua', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const [selectedMonth, setSelectedMonth] = useState(months[new Date().getMonth()]);
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-    const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [entriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
@@ -79,57 +72,19 @@ export default function FacilitiesDashboardPage() {
     // Data statis untuk tabel perbaikan
     const repairData = dashboardData.repairs;
 
-    // Pindahkan fungsi filterDataByMonth ke sini
-    const filterDataByMonth = (date: string) => {
-        if (!date) return false;
-        if (selectedMonth === 'Semua') return true; // Tampilkan semua data jika 'Semua' dipilih
-
-        const itemDate = new Date(date);
-        return itemDate.getMonth() === months.indexOf(selectedMonth) - 1 && // Kurangi 1 karena ada 'Semua' di index 0
-            itemDate.getFullYear() === selectedYear;
-    };
-
-    // Filter data
+    // Filter data hanya berdasarkan search term
     const filteredRepairs = dashboardData.repairs
-        .filter(item => filterDataByMonth(item.date))
         .filter(item => item.category.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    // Hitung total entries dan pagination
-    const totalEntries = filteredRepairs.length;
-    const totalPages = Math.ceil(totalEntries / entriesPerPage);
-    const startIndex = (currentPage - 1) * entriesPerPage;
-    const endIndex = startIndex + entriesPerPage;
-
-    // Slice data untuk halaman saat ini
-    const currentEntries = filteredRepairs.slice(startIndex, endIndex);
-
-    // Filter data untuk card summary
-    const filteredDashboardData = {
-        incomingGoods: selectedMonth === 'Semua'
-            ? dashboardData.incomingGoods.length
-            : dashboardData.incomingGoods.filter(item => filterDataByMonth(item.formattedDate)).length,
-        outgoingGoods: selectedMonth === 'Semua'
-            ? dashboardData.outgoingGoods.length
-            : dashboardData.outgoingGoods.filter(item => filterDataByMonth(item.formattedDate)).length,
-        totalInventory: selectedMonth === 'Semua'
-            ? dashboardData.totalInventory.length
-            : dashboardData.totalInventory.filter(item => filterDataByMonth(item.formattedDate)).length,
-        totalRooms: selectedMonth === 'Semua'
-            ? dashboardData.totalRooms.length
-            : dashboardData.totalRooms.filter(item => filterDataByMonth(item.formattedDate)).length,
-        latestBorrowings: selectedMonth === 'Semua'
-            ? dashboardData.latestBorrowings
-            : dashboardData.latestBorrowings.filter(item => filterDataByMonth(item.date)),
-        repairs: selectedMonth === 'Semua'
-            ? dashboardData.repairs
-            : dashboardData.repairs.filter(item => filterDataByMonth(item.date)),
-        latestProcurements: selectedMonth === 'Semua'
-            ? dashboardData.latestProcurements
-            : dashboardData.latestProcurements.filter(item => filterDataByMonth(item.date)),
-    };
-
-    const togglePanel = () => {
-        setIsPanelOpen(!isPanelOpen);
+    // Hapus filtered dashboard data, gunakan data asli
+    const dashboardSummary = {
+        incomingGoods: dashboardData.incomingGoods.length,
+        outgoingGoods: dashboardData.outgoingGoods.length,
+        totalInventory: dashboardData.totalInventory.length,
+        totalRooms: dashboardData.totalRooms.length,
+        latestBorrowings: dashboardData.latestBorrowings,
+        repairs: dashboardData.repairs,
+        latestProcurements: dashboardData.latestProcurements,
     };
 
     if (loading) {
@@ -160,38 +115,6 @@ export default function FacilitiesDashboardPage() {
                         Halo {user.username || 'User'}, selamat datang kembali
                     </p>
                 </div>
-
-                {/* Filtering Bulanan */}
-                <div className="relative mt-4 sm:mt-0 w-full sm:w-72 ">
-                    <div className="bg-white shadow-md rounded-lg py-4 px-7 flex items-center justify-center cursor-pointer" onClick={togglePanel}>
-                        <div className="bg-[#1f509a27] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center">
-                            <i className='bx bxs-calendar text-[#1f509a] text-3xl'></i>
-                        </div>
-                        <div className="flex-1" >
-                            <span className="text-lg font-semibold text-[var(--text-semi-bold-color)] ">Filter Bulan</span>
-                            <p className="text-sm text-gray-600">{selectedMonth} {selectedYear}</p>
-                        </div>
-                        <svg className={`ml-7 h-4 w-4 transform transition-transform ${isPanelOpen ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </div>
-                    {isPanelOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-10">
-                            {months.map((month) => (
-                                <div
-                                    key={month}
-                                    className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                                    onClick={() => {
-                                        setSelectedMonth(month);
-                                        setIsPanelOpen(false);
-                                    }}
-                                >
-                                    {month} {selectedYear}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
             </header>
             {/* End Header */}
 
@@ -203,7 +126,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-user text-[#1f509a] text-4xl'></i> {/* Ikon untuk Jumlah Siswa */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{filteredDashboardData.incomingGoods}</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{dashboardSummary.incomingGoods}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Jumlah Siswa</p>
                         </div>
                     </div>
@@ -212,7 +135,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-chalkboard text-[#e88d1f] text-4xl'></i> {/* Ikon untuk Jumlah Guru */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{filteredDashboardData.outgoingGoods}</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{dashboardSummary.outgoingGoods}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Jumlah Guru</p>
                         </div>
                     </div>
@@ -221,7 +144,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-briefcase text-[#0a97b0] text-3xl'></i> {/* Ikon untuk Jumlah Karyawan */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{filteredDashboardData.totalInventory}</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{dashboardSummary.totalInventory}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Jumlah Karyawan</p>
                         </div>
                     </div>
@@ -230,7 +153,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-graduation text-[#bd0000] text-4xl'></i> {/* Ikon untuk Jumlah Jurusan */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{filteredDashboardData.totalRooms}</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{dashboardSummary.totalRooms}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Jumlah Jurusan</p>
                         </div>
                     </div>
@@ -294,15 +217,15 @@ export default function FacilitiesDashboardPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((item, index: number) => (
+                                {filteredRepairs.map((item, index: number) => (
                                     <tr key={index} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
-                                        <td className="py-1 px-2 border-b">{startIndex + index + 1}</td>
+                                        <td className="py-1 px-2 border-b">{index + 1}</td>
                                         <td className="py-1 px-2 border-b">{item.category}</td>
                                         <td className="py-1 px-2 border-b">{item.type}</td>
                                     </tr>
                                 ))}
 
-                                {currentEntries.length === 0 && (
+                                {filteredRepairs.length === 0 && (
                                     <tr>
                                         <td colSpan={4} className="text-center text-gray-500 py-4">Belum ada data Posisi Jabatan</td>
                                     </tr>
