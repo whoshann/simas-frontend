@@ -8,7 +8,7 @@ import {
   ExpensesResponses,
 } from "./types";
 
-const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/incoming-item`;
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/expense-details`;
 
 const getHeaders = () => ({
   Authorization: `Bearer ${Cookies.get("token")}`,
@@ -29,7 +29,7 @@ export const expensesApi = {
   },
 
   create: async (
-    data: ExpensesRequest
+    data: Omit<Expense, "id">
   ): Promise<ExpensesResponse> => {
     const response = await axios.post(API_URL, data, { headers: getHeaders() });
     return response.data;

@@ -1,5 +1,5 @@
 import { Expense } from '@/app/api/expenses/types';
-import { getStatusInIndonesian, statusMapping } from '../../utils/statusConverter';
+import { formatDateDisplay, formatDate, formatRupiah } from '@/app/utils/helper';
 
 interface ExpenseTableProps {
     expenses: Expense[];
@@ -14,6 +14,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({ expenses, onEdit, on
             <thead>
                 <tr>
                 <th className="py-2 px-4 border-b text-left">No</th>
+                <th className="py-2 px-4 border-b text-left">Bulan</th>
                 <th className="py-2 px-4 border-b text-left">Deskripsi</th>
                 <th className="py-2 px-4 border-b text-left">Jumlah</th>
                 <th className="py-2 px-4 border-b text-left">Tanggal Pengeluaran</th>
@@ -24,9 +25,10 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({ expenses, onEdit, on
                 {expenses.map((expense) => (
                     <tr key={expense.id}>
                         <td className="py-2 px-4 border-b">{startIndex + expenses.indexOf(expense) + 1}</td>
+                        <td className="py-2 px-4 border-b">{formatDateDisplay(expense.MonthlyFinance.month)}</td>
                         <td className="py-2 px-4 border-b">{expense.description}</td>
-                        <td className="py-2 px-4 border-b">{expense.amount}</td>
-                        <td className="py-2 px-4 border-b">{expense.expenseDate}</td>
+                        <td className="py-2 px-4 border-b">{formatRupiah(expense.amount)}</td>
+                        <td className="py-2 px-4 border-b">{formatDate(expense.expenseDate)}</td>
                         <td className="py-2 px-4 border-b">
                             <div className="flex space-x-2">
                                 <button

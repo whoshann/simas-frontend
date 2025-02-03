@@ -1,19 +1,21 @@
-
 import { MonthlyFinance } from "../monthly-finances/types";
+
 export interface Expense {
     id?: number;
     description: string;
     amount: number ;
     expenseDate: number;
     monthlyFinanceId?: number;
+    MonthlyFinance: MonthlyFinance;
     createdAt?: string;
     updatedAt?: string;
   }
   
-  export interface ExpensesRequest {
+  export interface ExpenseRequest {
     monthlyFinanceId: number;
-    amount: number;
-    expensedate: string;
+    amount: string;
+    expenseDate: string;
+    description: string;
   }
   
 

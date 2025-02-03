@@ -1,6 +1,6 @@
 "use client";
 import "@/app/styles/globals.css";
-import { Expense } from '@/app/api/expenses/types';
+import { Expense, ExpenseRequest } from '@/app/api/expenses/types';
 import { ExpensesHeader } from '@/app/components/expenses/ExpenseHeader';
 import { ExpenseActions } from '@/app/components/expenses/ExpenseAction';
 import { ExpenseTable } from '@/app/components/expenses/ExpenseTable';
@@ -9,9 +9,7 @@ import ExpenseModal from '@/app/components/expenses/ExpenseModal';
 import { useExpenses } from '@/app/hooks/useExpenses';
 import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
 import { useState, useEffect } from 'react';
-import { useMonthlyFinances } from '@/app/hooks/useMonthlyFinances';
-
-
+import { useMonthlyFinance } from "@/app/hooks/useMonthlyFinances";
 
 export default function ExpensePage() {
     // State
@@ -21,14 +19,14 @@ export default function ExpensePage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedExpenses, setSelectedExpenses] = useState<Expense | null>(null);
+    const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
 
     // Hooks
     const { Expenses, loading, error, fetchExpenses, createExpense, updateExpense, deleteExpense } = useExpenses();
     const { 
         monthlyFinances, 
         fetchMonthlyFinances 
-    } = useMonthlyFinances();
+    } = useMonthlyFinance();
 
     useEffect(() => {
         const initializePage = async () => {
@@ -66,25 +64,32 @@ export default function ExpensePage() {
 
     // Handlers
     const handleAddClick = () => {
-        setSelectedExpenses(null);
+        setSelectedExpense(null);
         setIsModalOpen(true);
     };
 
     const handleEditClick = (expenses: Expense) => {
-        setSelectedExpenses(expenses);
+        setSelectedExpense(expenses);
         setIsModalOpen(true);
     };
 
-    const handleModalSubmit = async (data: Expense) => {
+    const handleSubmit = async (data: Expense) => {
         try {
-            if (selectedExpenses) {
-                await updateExpense(selectedExpenses.id!, data);
+            const requestData: ExpenseRequest = {
+                description: data.description,
+                monthlyFinanceId: data.monthlyFinanceId!,
+                amount: data.amount,  // Pastikan format decimal string
+                expenseDate: data.expenseDate
+            };
+    
+            if (selectedExpense) {
+                await updateExpense(selectedExpense.id!, requestData);
             } else {
-                await createExpense({ ...data, monthlyFinanceId: data.monthlyFinanceId!, expensedate: data.expenseDate.toString() });
+                await createExpense(requestData);
             }
-            setIsModalOpen(false);
+            // Refresh data
         } catch (error) {
-            console.error('Error handling incoming goods:', error);
+            console.error('Error:', error);
         }
     };
 
@@ -125,8 +130,8 @@ export default function ExpensePage() {
             <ExpenseModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-                expenseData={selectedExpenses}
+                onSubmit={handleSubmit}
+                expenseData={selectedExpense}
                 monthlyFinances={monthlyFinances}
             />
         </div>
