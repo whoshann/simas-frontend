@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { NewsInformation, NewsInformationResponse,  } from "./types";
+import { NewsInformation, NewsInformationResponse } from "./types";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/student-information`;
 
@@ -11,9 +11,7 @@ const getHeaders = () => ({
 
 export const newsInformationApi = {
   getAll: async (): Promise<NewsInformationResponse> => {
-    const response = await axios.get(API_URL, {
-      headers: getHeaders(),
-    });
+    const response = await axios.get(API_URL);
     return response.data;
   },
 
@@ -47,7 +45,7 @@ export const newsInformationApi = {
       // console.error('Error updating news information:', err); // Log error
       throw err; // Re-throw error jika perlu
     }
-  },  
+  },
 
   delete: async (id: number): Promise<NewsInformationResponse> => {
     const response = await axios.delete(`${API_URL}/${id}`, {
