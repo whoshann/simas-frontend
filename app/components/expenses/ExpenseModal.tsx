@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { MonthlyFinance } from '@/app/api/monthly-finances/types';
-import { MonthlyFinanceChart } from '../monthly-finances/MonthlyFinance.Chart';
 import { Expense } from '@/app/api/expenses/types';
 
 interface ExpenseModalProps {
@@ -24,40 +23,61 @@ export const ExpensesModal: React.FC<ExpenseModalProps> = ({
         description: '',
         monthlyFinanceId: 0,
         amount: 0,
-        expenseDate: Date.now(),
+        expenseDate: new Date().toISOString(),
     });
+
+    const [displayAmount, setDisplayAmount] = useState(
+        formatRupiah(expenseData?.amount || 0)
+    );
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        const newValue = name === 'amount' || name === 'monthlyFinanceId' 
-            ? parseInt(value, 10) 
-            : value;
+        
+        if (name === 'amount') {
+            const numericValue = parseRupiah(value);
+            setDisplayAmount(formatRupiah(numericValue));
+            setFormData(prev => ({
+                ...prev,
+                amount: numericValue
+            }));
+            return;
+        }
 
-        setFormData({
-            ...formData,
-            [name]: newValue
-        });
+        if (name === 'monthlyFinanceId') {
+            setFormData(prev => ({
+                ...prev,
+                monthlyFinanceId: parseInt(value, 10)
+            }));
+            return;
+        }
+
+        if (name === 'expenseDate') {
+            setFormData(prev => ({
+                ...prev,
+                expenseDate: new Date(value).toISOString()
+            }));
+            return;
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
-        const { 
-            id, 
-            createdAt, 
-            updatedAt, 
-            monthlyFinanceId,
-            ...submitData 
-        } = formData;
+        const submitData = {
+            description: formData.description,
+            monthlyFinanceId: formData.monthlyFinanceId,
+            amount: formData.amount,
+            expenseDate: formData.expenseDate
+        };
         
-        onSubmit({
-            ...submitData,
-            monthlyFinanceId,
-        });
+        onSubmit(submitData);
         onClose();
     };
-
-    console.log(monthlyFinances);
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -67,12 +87,32 @@ export const ExpensesModal: React.FC<ExpenseModalProps> = ({
                         <i className="bx bx-x text-2xl"></i>
                     </button>
                     <h2 className="text-xl mb-2 font-semibold text-[var(--text-semi-bold-color)]">
-                        {expenseData ? 'Edit Data Pengeluaran' : 'Tambah Data Pengeluaran'}
+                        {expenseData ? 'Edit Pengeluaran' : 'Tambah Pengeluaran'}
                     </h2>
                 </div>
                 <div className="overflow-y-auto max-h-[70vh] p-4">
-                <form onSubmit={handleSubmit}>
-                <div className="mb-4">
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-4">
+                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Bulan</label>
+                            <select
+                                name="monthlyFinanceId"
+                                value={formData.monthlyFinanceId}
+                                onChange={handleChange}
+                                className="border p-2 w-full rounded-lg"
+                                required
+                            >
+                                <option value="">Pilih Bulan</option>
+                                {monthlyFinances.map((finance) => (
+                                    <option key={finance.id} value={finance.id}>
+                                        {new Date(finance.month).toLocaleDateString('id-ID', {
+                                            year: 'numeric',
+                                            month: 'long'
+                                        })}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="mb-4">
                             <label className="block mb-1 text-[var(--text-semi-bold-color)]">Deskripsi</label>
                             <input
                                 type="text"
@@ -84,30 +124,14 @@ export const ExpensesModal: React.FC<ExpenseModalProps> = ({
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block mb-1 text-[var(--text-semi-bold-color)]">Bulan</label>
-                            <select
-                                name="monthlyFinanceId"
-                                value={formData.monthlyFinanceId}
-                                onChange={handleChange}
-                                className="border p-2 w-full rounded-lg"
-                                required
-                            >
-                                <option value="">Pilih Bulan</option>
-                                {monthlyFinances.map((monthlyFinance) => (
-                                    <option key={monthlyFinance.id} value={monthlyFinance.id}>
-                                        {monthlyFinance.month} 
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="mb-4">
                             <label className="block mb-1 text-[var(--text-semi-bold-color)]">Jumlah</label>
                             <input
-                                type="number"
+                                type="text"
                                 name="amount"
-                                value={formData.amount}
+                                value={displayAmount}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
+                                placeholder="Rp 0"
                                 required
                             />
                         </div>
@@ -116,7 +140,7 @@ export const ExpensesModal: React.FC<ExpenseModalProps> = ({
                             <input
                                 type="date"
                                 name="expenseDate"
-                                value={formData.expenseDate ? new Date(formData.expenseDate).toISOString().split('T')[0] : ''}
+                                value={new Date(formData.expenseDate).toISOString().split('T')[0]}
                                 onChange={handleChange}
                                 className="border p-2 w-full rounded-lg"
                                 required
@@ -127,7 +151,7 @@ export const ExpensesModal: React.FC<ExpenseModalProps> = ({
                                 type="submit"
                                 className="bg-[var(--main-color)] text-white px-8 py-2 rounded-lg hover:bg-[#1a4689] min-w-[8rem]"
                             >
-                                {expenseData ? 'Update' : 'Kirim'}
+                                {expenseData ? 'Update' : 'Simpan'}
                             </button>
                         </div>
                     </form>
@@ -135,6 +159,20 @@ export const ExpensesModal: React.FC<ExpenseModalProps> = ({
             </div>
         </div>
     );
+};
+
+const formatRupiah = (value: number): string => {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(value);
+};
+
+const parseRupiah = (value: string): number => {
+    const numericValue = value.replace(/[^0-9]/g, '');
+    return parseInt(numericValue, 10) || 0;
 };
 
 export default ExpensesModal;

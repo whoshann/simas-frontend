@@ -3,8 +3,6 @@ import Cookies from "js-cookie";
 import {
   MonthlyFinanceResponse,
   MonthlyFinancesResponse,
-  UpdateMonthlyFinanceDto,
-  CreateMonthlyFinanceDto,
   MonthlyFinance,
 } from "./types";
 
