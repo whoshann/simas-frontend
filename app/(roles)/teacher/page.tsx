@@ -6,13 +6,17 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from "next/image";
 import Calendar from "react-calendar";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { NewsInformation } from "@/app/api/news-information/types";
+import { useNewsInformation } from "@/app/hooks/useNewsInformation";
 
 export default function TeacherDashboardPage() {
   const [date, setDate] = useState(new Date());
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState("");
+  // const [loading, setLoading] = useState(true);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const { newsInformation, loading, error, fetchNewsInformation } = useNewsInformation();
+  const [news, setNews] = useState<NewsInformation[]>([]);
 
   useEffect(() => {
     const initializePage = async () => {
@@ -22,8 +26,6 @@ export default function TeacherDashboardPage() {
       } catch (error) {
         console.error("Auth error:", error);
         setIsAuthorized(false);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -43,33 +45,17 @@ export default function TeacherDashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  useEffect(() => {
+    // Panggil API untuk mengambil data berita
+    fetchNewsInformation();
+  }, [fetchNewsInformation]);
 
-  if (error) {
-    return <p className="text-red-500">{error}</p>;
-  }
-
-  // Tambahkan data berita sebagai konstanta
-  const newsData = [
-    {
-      id: 1,
-      image: "/images/Berita1.jpg",
-      title: "Sosialisasi Prakerin Orang Tua",
-      date: { day: "27", month: "01" },
-      description: "Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.",
-      note: "Catatan: babababa."
-    },
-    {
-      id: 2,
-      image: "/images/Berita1.jpg",
-      title: "Rapart Orang Tua",
-      date: { day: "18", month: "01" },
-      description: "Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.",
-      note: "Catatan: babababa."
+  useEffect(() => {
+    // Jika data berita berhasil diambil, set ke state newsData
+    if (newsInformation && newsInformation.length > 0) {
+      setNews(newsInformation);
     }
-  ];
+  }, [newsInformation]);
 
   // Tambahkan data agenda sebagai konstanta
   const agenda = [
@@ -108,6 +94,18 @@ export default function TeacherDashboardPage() {
     );
   };
 
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <p className="text-red-500">{error}</p>;
+  }
+
+  if (!isAuthorized) {
+    return null;
+  }
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
       <header className="py-6 px-9">
@@ -131,30 +129,38 @@ export default function TeacherDashboardPage() {
           <div className="col-span-2 flex flex-col">
             <div className="bg-white shadow-md rounded-lg overflow-hidden lg:col-span-2" ref={carouselRef}>
               <div className="carousel rounded-box w-full">
-                {newsData.map((news) => (
+                {news.map((news) => (
                   <div key={news.id} className="carousel-item w-full flex flex-col items-center">
                     <div className="p-4">
-                      <Image
-                        src={news.image}
-                        alt={news.title}
-                        width={800}
-                        height={400}
-                        className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
-                      />
+                      {news.photo ? (
+                        <Image
+                          src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/student-information/${news.photo.split('/').pop()}`}
+                          alt={news.activity}
+                          width={800}
+                          height={400}
+                          className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
+                        />
+                      ) : (
+                        '-'
+                      )}
                     </div>
                     <div className="p-6 text-center flex justify-between items-center">
                       <div className="flex flex-col items-center">
-                        <span className="text-4xl font-bold text-[var(--main-color)]">{news.date.day}</span>
-                        <span className="text-4xl font-bold text-[var(--third-color)]">{news.date.month}</span>
+                        {news.date && (
+                          <>
+                            <span className="text-4xl font-bold text-[var(--main-color)]"> {new Date(news.date).getDate()}</span>
+                            <span className="text-4xl font-bold text-[var(--third-color)]">{new Date(news.date).getMonth() + 1}</span>
+                          </>
+                        )}
                       </div>
                       <div className="text-left ml-4">
                         <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
-                          {news.title}
+                          {news.activity}
                         </h2>
                         <p className="text-sm text-gray-600 mt-2">
                           {news.description}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">{news.note}</p>
+                        <p className="text-xs text-gray-400 mt-1">Catatan: {news.note}</p>
                       </div>
                     </div>
                   </div>

@@ -20,15 +20,21 @@ export const schoolClassesApi = {
         return response.data;
     },
 
-    update: async (
-        id: number,
-        data: Partial<SchoolClass>
-      ): Promise<SchoolClassResponse> => {
-        const response = await axios.patch(`${API_URL}/${id}`, data, {
-          headers: getHeaders(),
+    update: async (id: number, data: Partial<SchoolClass>): Promise<SchoolClassResponse> => {
+        // Pastikan data yang dikirim sesuai dengan yang diharapkan backend
+        const dataToSend = {
+            name: data.name,
+            code: data.code,
+            grade: data.grade,
+            majorId: data.majorId,
+            homeroomTeacherId: data.homeroomTeacherId
+        };
+        
+        const response = await axios.put(`${API_URL}/${id}`, dataToSend, {
+            headers: getHeaders(),
         });
         return response.data;
-      },
+    },
 
     delete: async (id: number): Promise<SchoolClassResponse> => {
         const response = await axios.delete(`${API_URL}/${id}`, {

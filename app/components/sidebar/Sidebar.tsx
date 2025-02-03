@@ -587,7 +587,7 @@ const Sidebar: React.FC = () => {
                                     <i className='bx bxs-book mr-3'></i>
                                     <a href="#" className='font-medium'> Keuangan Sekolah</a>
                                     <svg
-                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFinance ? 'rotate' : ''}  ${isDropdownOpenFinance || ['Pengeluaran', 'Pemasukan', 'Keuangan Bulanan'].includes(activeMenu)
+                                        className={`h-4 w-4 ml-4 transition-transform duration-200 ${isDropdownOpenFinance ? 'rotate' : ''}  ${isDropdownOpenFinance || ['Keuangan Utama', 'Pengeluaran', 'Pemasukan', 'Keuangan Bulanan'].includes(activeMenu)
                                             ? 'text-white'
                                             : 'text-[var(--text-thin-color)]'
                                             }`}
@@ -599,8 +599,16 @@ const Sidebar: React.FC = () => {
                                     </svg>
                                 </button>
                                 <div className={` ${isDropdownOpenFinance ? '' : 'hidden'}`}>
+                                <a
+                                        href="/finance/finance/finance-overview"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Keuangan Utama' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Keuangan Utama')}
+                                    >
+                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Keuangan Bulanan' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
+                                        Keuangan Utama
+                                    </a>
                                     <a
-                                        href="/finance/finance/expenses"
+                                        href="/finance/finance/expense"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Pengeluaran' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Pengeluaran')}
                                     >
@@ -616,7 +624,7 @@ const Sidebar: React.FC = () => {
                                         Pemasukan
                                     </a>
                                     <a
-                                        href="/finance/finance/monthly-finances"
+                                        href="/finance/finance/monthly-finance"
                                         className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Keuangan Bulanan' ? 'text-blue-900' : ''}`}
                                         onClick={() => handleSubMenuClick('Keuangan Bulanan')}
                                     >

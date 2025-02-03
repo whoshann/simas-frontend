@@ -1,5 +1,6 @@
 "use client";
 import "@/app/styles/globals.css";
+import { Facility } from '@/app/api/facilities/types';
 import { FacilityHeader } from '@/app/components/facility/FacilityHeader';
 import { FacilityActions } from '@/app/components/facility/FacilityActions';
 import { FacilityTable } from '@/app/components/facility/FacilityTable';
@@ -9,7 +10,6 @@ import { useFacilities } from '@/app/hooks/useFacilities';
 import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
 import { useState, useEffect } from 'react';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import { Facility } from "@/app/api/facilities/types";
 
 
 export default function FacilityDataPage() {

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from "react";
@@ -9,7 +10,7 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
-import { useSchoolClasses } from "@/app/hooks/useSchoolClassData";
+import { useTeachers } from "@/app/hooks/useTeacher";
 
 export default function SuperAdminTeacherDataPage() {
 
@@ -20,7 +21,7 @@ export default function SuperAdminTeacherDataPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-    const { teachers, loading, error, fetchTeachers } = useSchoolClasses();
+    const { teachers, loading, error, fetchTeachers } = useTeachers();
 
     useEffect(() => {
         const initializePage = async () => {
@@ -79,7 +80,7 @@ export default function SuperAdminTeacherDataPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Guru</h1>
-                    <p className="text-sm text-gray-600">Halo SuperAdmin, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
                 </div>
 
 

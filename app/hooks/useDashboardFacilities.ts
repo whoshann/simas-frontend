@@ -6,6 +6,7 @@ import { repairsApi } from "@/app/api/repairs";
 import { inventoryApi } from "@/app/api/inventories";
 import { roomsApi } from "@/app/api/rooms";
 import { procurementsApi } from "@/app/api/procurement";
+import { ProcurementStatus } from "../utils/enums";
 
 interface DashboardData {
   incomingGoods: Array<{ formattedDate: string; [key: string]: any }>;
@@ -28,8 +29,12 @@ interface DashboardData {
     date: string;
   }>;
   latestProcurements: Array<{
-    name: string;
+    inventory: {
+      name: string;
+    };
     date: string;
+    quantity: string;
+    procurementStatus: ProcurementStatus;
   }>;
 }
 
@@ -136,8 +141,12 @@ export const useDashboardFacilities = () => {
           })) || [],
         latestProcurements:
           procurementsRes.data?.slice(0, 5).map((item) => ({
-            name: item.itemName || "",
+            inventory: {
+              name: item.inventory?.name || "",
+            },
             date: formatDate(item.procurementDate),
+            quantity: item.quantity,
+            procurementStatus: item.procurementStatus as ProcurementStatus,
           })) || [],
       });
 

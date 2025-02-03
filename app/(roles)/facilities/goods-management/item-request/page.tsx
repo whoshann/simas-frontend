@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import "@/app/styles/globals.css";
 import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import Image from 'next/image';
-import ItemModal from "@/app/components/ItemModal.js";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import { Procurement } from "@/app/api/procurement/types";
@@ -13,6 +11,7 @@ import { useProcurements } from "@/app/hooks/useProcurements";
 import { getProcurementStatusLabel } from "@/app/utils/enumHelpers";
 import { ProcurementStatus } from "@/app/utils/enums";
 import { procurementsApi } from "@/app/api/procurement";
+import { Viewer, Worker } from "@react-pdf-viewer/core";
 
 interface TableProps {
     procurement: Procurement[];
@@ -50,11 +49,11 @@ export default function ItemRequestPage() {
     const { procurements, fetchProcurements } = useProcurements();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-  
+    const [isAvailable, setIsAvailable] = useState(false);
+
     // Search item tabel
     const filteredData = procurements.filter((item: Procurement) =>
-        item.itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.supplier.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.inventory.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.procurementName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -82,52 +81,96 @@ export default function ItemRequestPage() {
         try {
             setLoading(true);
             setError("");
-            
+
+            const updateData = {
+                procurementStatus: "Approved",
+                updateMessage: "Pengajuan disetujui oleh Admin Sarpras"
+            };
+
             await procurementsApi.updateStatus(
-                item.id.toString(), 
-                "Approved"
+                item.id.toString(),
+                updateData
             );
-            
-            // Refresh data setelah update
-            await fetchProcurements(); // Pastikan Anda memiliki fungsi untuk fetch ulang data
-            
-            alert("Status pengajuan berhasil diubah menjadi Approved");
-        } catch (error) {
-            alert("Gagal mengubah status pengajuan");
-        } finally {
-            setLoading(false);
-        }
-    };
-    
-    const handleCancelClick = async (item: Procurement) => {
-        try {
-            setLoading(true);
-            setError("");
-            
-            await procurementsApi.updateStatus(
-                item.id.toString(), 
-                "Rejected"
-            );
-            
-            // Refresh data setelah update
+
             await fetchProcurements();
-            
-            alert("Status pengajuan berhasil diubah menjadi Rejected");
+            alert("Status pengajuan berhasil diubah menjadi Disetujui");
         } catch (error) {
-            alert("Gagal mengubah status pengajuan");
+            if (error.response?.data?.message) {
+                alert(error.response.data.message);
+            } else {
+                alert("Gagal mengubah status pengajuan");
+            }
+            console.error("Error updating status:", error);
         } finally {
             setLoading(false);
         }
     };
 
-     if (isLoading) {
+    const handleCancelClick = async (item: Procurement) => {
+        try {
+            setLoading(true);
+            setError("");
+
+            const updateData = {
+                procurementStatus: "Rejected",
+                updateMessage: "Pengajuan ditolak oleh Admin Sarpras"
+            };
+
+            await procurementsApi.updateStatus(
+                item.id.toString(),
+                updateData
+            );
+
+            await fetchProcurements();
+            alert("Status pengajuan berhasil diubah menjadi Ditolak");
+        } catch (error) {
+            if (error.response?.data?.message) {
+                alert(error.response.data.message);
+            } else {
+                alert("Gagal mengubah status pengajuan");
+            }
+            console.error("Error updating status:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleViewPDF = async (filename: string) => {
+        try {
+            console.log('Mencoba mengakses file:', filename);
+            const blob = await procurementsApi.getDocument(filename);
+            const url = window.URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        } catch (error) {
+            alert('Gagal mengambil file PDF: ' + (error.response?.data?.message || 'File tidak ditemukan'));
+            console.error('Error fetching PDF:', error);
+        }
+    };
+
+    const handleDownloadPDF = async (filename: string) => {
+        try {
+            const blob = await procurementsApi.getDocument(filename);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            alert('Gagal mengunduh file PDF');
+            console.error('Error downloading PDF:', error);
+        }
+    };
+
+    if (isLoading) {
         return <LoadingSpinner />;
     }
 
     if (!isAuthorized) {
         return null;
     }
-    
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
@@ -236,13 +279,13 @@ export default function ItemRequestPage() {
                         <table className="min-w-full rounded-lg overflow-hidden">
                             <thead className="text-[var(--text-semi-bold-color)]">
                                 <tr>
-                                <th className="py-2 px-4 border-b text-left">No</th>
+                                    <th className="py-2 px-4 border-b text-left">No</th>
                                     <th className="py-2 px-4 border-b text-left">Nama Barang</th>
-                                    <th className="py-2 px-4 border-b text-left">Harga Satuan</th>
-                                    <th className="py-2 px-4 border-b text-left">Total Harga</th>
-                                    <th className="py-2 px-4 border-b text-left">Pemasok</th>
-                                    <th className="py-2 px-4 border-b text-left">Tanggal Pengajuan</th>
-                                    <th className="py-2 px-4 border-b text-left">Pengaju</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Pengaju</th>
+                                    <th className="py-2 px-4 border-b text-left">Role Pengaju</th>
+                                    <th className="py-2 px-4 border-b text-left">Jumlah</th>
+                                    <th className="py-2 px-4 border-b text-left">Dokumen Pengajuan</th>
+                                    <th className="py-2 px-4 border-b text-left">Tanggal</th>
                                     <th className="py-2 px-4 border-b text-left">Status</th>
                                     <th className="py-2 px-4 border-b text-left">Aksi</th>
                                 </tr>
@@ -251,12 +294,26 @@ export default function ItemRequestPage() {
                                 {currentEntries.map((item: Procurement, index: number) => (
                                     <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
                                         <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
-                                        <td className="py-2 px-4 border-b">{item.itemName}</td>
-                                        <td className="py-2 px-4 border-b">{item.unitPrice}</td>
-                                        <td className="py-2 px-4 border-b">{item.totalPrice}</td>
-                                        <td className="py-2 px-4 border-b">{item.supplier}</td>
-                                        <td className="py-2 px-4 border-b">{formatDate(item.procurementDate)}</td>
+                                        <td className="py-2 px-4 border-b">{item.inventory.name}</td>
                                         <td className="py-2 px-4 border-b">{item.procurementName}</td>
+                                        <td className="py-2 px-4 border-b">{item.role}</td>
+                                        <td className="py-2 px-4 border-b">{item.quantity}</td>
+                                        <td className="py-2 px-4 border-b">
+                                            <button
+                                                onClick={() => handleViewPDF(item.documentPath)}
+                                                className="text-blue-500 underline mr-2"
+                                            >
+                                                Lihat PDF
+                                            </button>
+                                            {' | '}
+                                            <button
+                                                onClick={() => handleDownloadPDF(item.documentPath)}
+                                                className="text-blue-500 underline"
+                                            >
+                                                Unduh PDF
+                                            </button>
+                                        </td>
+                                        <td className="py-2 px-4 border-b">{formatDate(item.procurementDate)}</td>
                                         <td className="py-2 px-4 border-b">{getProcurementStatusLabel(item.procurementStatus as ProcurementStatus)}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
