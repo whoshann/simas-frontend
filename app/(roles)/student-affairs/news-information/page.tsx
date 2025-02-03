@@ -189,9 +189,11 @@ export default function StudentAffairsNewsInformationPage() {
         return <LoadingSpinner />;
     }
 
-    if (error) {
-        return <p className="text-red-500">{error}</p>;
-    }
+    // Page content configuration
+    const pageContent = {
+        title: "Berita Sekolah",
+        greeting: "Halo Super Admin, selamat datang kembali"
+    };
 
     if (!isAuthorized) {
         return null;

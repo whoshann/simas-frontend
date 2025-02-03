@@ -23,6 +23,57 @@ interface StudentState {
 // Daftarkan semua komponen yang diperlukan
 Chart.register(...registerables);
 
+const newsData = [
+  {
+    id: 1,
+    image: "/images/Berita1.jpg",
+    title: "Sosialisasi Prakerin Orang Tua",
+    date: { day: "27", month: "01" },
+    description: "Kegiatan ekstrakurikuler akan dilaksanakan pada tanggal 15 Februari.Kegiatan ekstrakurikuler akan dilaksanakan pada tanggal 15 Februari.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+  {
+    id: 2,
+    image: "/images/Berita2.jpg",
+    title: "Kegiatan Ekstrakurikuler",
+    date: { day: "15", month: "02" },
+    description: "Kegiatan ekstrakurikuler akan dilaksanakan pada tanggal 15 Februari.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+  {
+    id: 3,
+    image: "/images/Berita3.jpg",
+    title: "Pendaftaran Siswa Baru",
+    date: { day: "01", month: "03" },
+    description: "Pendaftaran siswa baru akan dibuka mulai tanggal 1 Maret.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+  {
+    id: 4,
+    image: "/images/Berita4.jpg",
+    title: "Kegiatan Olahraga",
+    date: { day: "10", month: "03" },
+    description: "Kegiatan olahraga akan dilaksanakan pada tanggal 10 Maret.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+  {
+    id: 5,
+    image: "/images/Berita1.jpg",
+    title: "Pameran Seni",
+    date: { day: "20", month: "04" },
+    description: "Pameran seni akan dilaksanakan pada tanggal 20 April.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+  {
+    id: 6,
+    image: "/images/Berita3.jpg",
+    title: "Workshop Teknologi",
+    date: { day: "05", month: "05" },
+    description: "Workshop teknologi akan dilaksanakan pada tanggal 5 Mei.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+];
+
 export default function StudentDashboard() {
   // Panggil middleware dan hooks di awal komponen
   const [student, setStudent] = useState<any>({});
