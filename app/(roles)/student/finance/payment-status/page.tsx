@@ -12,6 +12,12 @@ interface CustomJwtPayload {
   sub: number;
 }
 
+interface Student {
+  id: number;
+  classId: number;
+  name: string;
+}
+
 interface SchoolPayment {
   studentName: string;
   className: string;
@@ -23,15 +29,40 @@ interface SchoolPayment {
 
 export default function StudentPaymentStatusPage() {
   const [studentId, setStudentId] = useState<string | null>(null);
+  const [studentData, setStudentData] = useState<Student | null>(null);
   const [payments, setPayments] = useState<SchoolPayment[]>([]);
   const [user, setUser] = useState<any>({});
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [entriesPerPage, setEntriesPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedMonth, setSelectedMonth] = useState('Januari');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDetail, setSelectedDetail] = useState(null);
+
+  const fetchStudentData = async (studentId: number) => {
+    try {
+      const token = Cookies.get("token");
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/student/${studentId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      setStudentData(response.data.data);
+    } catch (error) {
+      console.error("Error fetching student data:", error);
+    }
+  };
 
   useEffect(() => {
     // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
     roleMiddleware(["Student", "SuperAdmin"]);
-    
+
     fetchData();
 
     const token = Cookies.get("token");
@@ -40,6 +71,8 @@ export default function StudentPaymentStatusPage() {
         const decodedToken = jwtDecode<CustomJwtPayload>(token);
         const studentId = decodedToken.sub;
         setStudentId(studentId.toString());
+
+        // fetchStudentData(studentId);
 
         // Fetch data dari backend
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/school-payment/${studentId}`)
@@ -59,14 +92,6 @@ export default function StudentPaymentStatusPage() {
       }
     }
   }, []);
-
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [entriesPerPage, setEntriesPerPage] = useState(5);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedMonth, setSelectedMonth] = useState('Januari');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDetail, setSelectedDetail] = useState(null);
 
   const months = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -98,35 +123,36 @@ export default function StudentPaymentStatusPage() {
   const token = Cookies.get("token");
 
   const fetchData = async () => {
-      try {
-          // Set default Authorization header dengan Bearer token
-          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    try {
+      // Set default Authorization header dengan Bearer token
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-          // Fetch data user dari endpoint API
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/student`);
-          setUser(response.data); // Simpan data user ke dalam state
-      } catch (err: any) {
-          console.error("Error saat fetching data:", err);
-          setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-      } finally {
-          setLoading(false);
-      }
+      // Fetch data user dari endpoint API
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/student`);
+      setUser(response.data); // Simpan data user ke dalam state
+    } catch (err: any) {
+      console.error("Error saat fetching data:", err);
+      setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
-      return <LoadingSpinner />;
+    return <LoadingSpinner />;
   }
 
   if (error) {
-      return <p className="text-red-500">{error}</p>;
+    return <p className="text-red-500">{error}</p>;
   }
 
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
       <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Pembayaran SPP</h1>
-        <div className="relative mt-4 sm:mt-0 w-full sm:w-72">
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pembayaran SPP</h1>
+          <p className="text-sm text-gray-600">Halo {studentData?.name}, selamat datang kembali</p>
         </div>
       </header>
       <main className="px-6 pb-6">

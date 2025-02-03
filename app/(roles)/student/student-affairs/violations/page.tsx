@@ -12,6 +12,12 @@ interface CustomJwtPayload {
     sub: number;
 }
 
+interface Student {
+    id: number;
+    classId: number;
+    name: string;
+}
+
 interface ViolationPoint {
     id: number;
     name: string;
@@ -34,6 +40,7 @@ interface ViolationResponse {
 
 export default function StudentViolationPage() {
     const [studentId, setStudentId] = useState<number | null>(null);
+    const [studentData, setStudentData] = useState<Student | null>(null);
     const [violations, setViolations] = useState<ViolationData[]>([]);
     const [totalPoints, setTotalPoints] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(true);
@@ -107,6 +114,24 @@ export default function StudentViolationPage() {
         }
     };
 
+    const fetchStudentData = async (studentId: number) => {
+        try {
+            const token = Cookies.get("token");
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/student/${studentId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+            setStudentData(response.data.data);
+        } catch (error) {
+            console.error("Error fetching student data:", error);
+            toast.error("Gagal mendapatkan data siswa");
+        }
+    };
+
     useEffect(() => {
         const initializePage = async () => {
             try {
@@ -118,6 +143,8 @@ export default function StudentViolationPage() {
                     const decodedToken = jwtDecode<CustomJwtPayload>(token);
                     const studentId = decodedToken.sub;
                     setStudentId(studentId);
+
+                    await fetchStudentData(studentId);
                     await fetchViolations(studentId);
                 }
             } catch (error) {
@@ -161,7 +188,7 @@ export default function StudentViolationPage() {
             <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Point Pelanggaran</h1>
-                    <p className="text-sm text-gray-600">Halo James, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo {studentData?.name}, selamat datang kembali</p>
                 </div>
             </header>
             {/* End Header */}

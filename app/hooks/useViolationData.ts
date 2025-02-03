@@ -21,11 +21,21 @@ export const useViolation = () => {
       setLoading(false);
     }
   };
-
+  const deleteViolation = async (id: number) => {
+    try {
+      await violationApi.delete(id);
+      await fetchViolations();
+    } catch (err) {
+      console.error("Error deleting repair:", err);
+      throw err;
+    }
+  };
+  
   return {
     violations,
     loading,
     error,
     fetchViolations,
+    deleteViolation
   };
 };

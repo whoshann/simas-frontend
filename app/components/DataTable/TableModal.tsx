@@ -4,7 +4,7 @@ import Image from 'next/image';
 interface FieldConfig {
     name: string;
     label: string;
-    type: 'text' | 'number' | 'select' | 'date' | 'tel' | 'email' | 'textarea' | 'file';
+    type: 'text' | 'number' | 'select' | 'date' | 'tel' | 'email' | 'textarea' | 'file' | 'datetime-local';
     required?: boolean;
     options?: { value: string; label: string }[];
     colSpan?: number;
@@ -209,11 +209,24 @@ export default function DynamicModal({
                         disabled={isSubmitting}
                     />
                 );
+
+            case 'datetime-local':
+                return (
+                    <input
+                        type="datetime-local"
+                        name={field.name}
+                        value={formData[field.name] || ''}
+                        onChange={handleChange}
+                        className={baseInputClass}
+                        required={field.required}
+                        disabled={isSubmitting}
+                    />
+                );
         }
     };
 
     return (
-        <div 
+        <div
             className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
             onClick={(e) => {
                 if (e.target === e.currentTarget && !isSubmitting) onClose();

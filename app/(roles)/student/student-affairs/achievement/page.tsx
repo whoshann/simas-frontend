@@ -11,9 +11,17 @@ import React from "react";
 import { SchoolClass } from "@/app/api/school-class/types";
 import { AchievementCategory } from '@/app/utils/enums';
 import Image from 'next/image';
+import { getTokenData } from '@/app/utils/tokenHelper';
+import { authApi } from '@/app/api/auth';
 
 interface CustomJwtPayload {
   sub: number;
+}
+
+interface StudentState {
+  role?: string;
+  name?: string;
+  [key: string]: any;
 }
 
 interface Student {
@@ -277,7 +285,7 @@ export default function StudentAchievementPage() {
     <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9">
         <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Prestasi</h1>
-        <p className="text-sm text-gray-600">Halo, selamat datang di halaman Prestasi</p>
+        <p className="text-sm text-gray-600">Halo {studentData?.name} selamat datang di halaman Prestasi</p>
       </header>
 
       <main className="px-9 pb-6">

@@ -23,6 +23,7 @@ export default function StudentAffairsViolationsPage() {
         violations,
         loading: violationLoading,
         fetchViolations,
+        deleteViolation
     } = useViolation();
     const [error, setError] = useState<string>("");
 
@@ -65,16 +66,25 @@ export default function StudentAffairsViolationsPage() {
         }
     };
 
+    const formatDateForInput = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toISOString().slice(0, 16);
+    };
+
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [loading, setLoading] = useState(true);
-    const formatDate = (date: string) => {
-        return new Date(date).toLocaleDateString('id-ID', {
-            day: '2-digit',
+    const formatDateDisplay = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleString('id-ID', {
+            year: 'numeric',
             month: 'long',
-            year: 'numeric'
-        });
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'UTC',
+            hour12: false
+        }) + 'UTC';
     };
-    // const [error, setError] = useState("");
     const [user, setUser] = useState<User>({
         id: 0,
         name: '',
@@ -101,10 +111,10 @@ export default function StudentAffairsViolationsPage() {
     const formFields = [
         {
             name: 'name',
-            label: 'Nama Pelanggaran',
+            label: 'Nama Siswa',
             type: 'text' as const,
             required: true,
-            placeholder: 'Masukkan Pelanggaran Siswa',
+            placeholder: 'Masukkan Nama Siswa',
         },
 
         {
@@ -112,12 +122,12 @@ export default function StudentAffairsViolationsPage() {
             label: 'Pelanggaran',
             type: 'textarea' as const,
             required: true,
-            placeholder: 'Deskripsikan pelanggaran',
+            placeholder: 'Masukkan Deskripsi Pelanggaran',
             rows: 3
         },
         {
             name: 'category',
-            label: 'Kategori',
+            label: 'Kategori Pelanggaran',
             type: 'select' as const,
             options: [
                 { value: 'Ringan', label: 'Ringan' },
@@ -137,7 +147,7 @@ export default function StudentAffairsViolationsPage() {
         {
             name: 'date',
             label: 'Tanggal',
-            type: 'date' as const,
+            type: 'datetime-local' as const,
             required: true
         }
     ];
@@ -146,17 +156,15 @@ export default function StudentAffairsViolationsPage() {
     const handleOpenModal = (mode: 'add' | 'edit', data?: any) => {
         setModalMode(mode);
         if (mode === 'edit' && data) {
-            const [day, month, year] = data.date.split('/');
-            const formattedDate = `${year}-${month}-${day}`;
-            
+            // edit data
             setFormData({
-                name: data.name,
+                name: data.student.name,
                 // classSchool: data.classSchool,
-                violations: data.violations,
-                category: data.name,
+                violations: data.name,
+                category: data.violationPoint.name,
                 punishment: data.punishment,
                 // document: data.document,
-                date: formattedDate
+                date: formatDateForInput(data.date)
             });
         } else {
             setFormData({
@@ -198,7 +206,19 @@ export default function StudentAffairsViolationsPage() {
         }
     };
 
-    // const handleDelete = 
+    const handleDelete = async (id: number) => {
+        try {
+            // Tambahkan konfirmasi sebelum menghapus
+            if (window.confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                await deleteViolation(id);
+                alert('Data posisi berhasil dihapus!');
+                await fetchViolations();
+            }
+        } catch (error: any) {
+            console.error("Error deleting position:", error);
+            alert('Gagal menghapus data posisi');
+        }
+    };
 
     // fungsi untuk search
     const filteredData = violations.filter(item =>
@@ -339,13 +359,12 @@ export default function StudentAffairsViolationsPage() {
                                         {/* <td className="py-2 px-4 border-b">{violations.classSchool}</td> */}
                                         <td className="py-2 px-4 border-b">{violations.name}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${
-                                                violations.violationPoint.name === 'Ringan' 
-                                                    ? 'bg-[#0a97b028] text-[var(--third-color)]' 
-                                                    : violations.violationPoint.name === 'Sedang' 
-                                                    ? 'bg-[#e88e1f29] text-[var(--second-color)]' 
+                                            <span className={`inline-block px-3 py-1 rounded-full ${violations.violationPoint.name === 'Ringan'
+                                                ? 'bg-[#0a97b028] text-[var(--third-color)]'
+                                                : violations.violationPoint.name === 'Sedang'
+                                                    ? 'bg-[#e88e1f29] text-[var(--second-color)]'
                                                     : 'bg-[#bd000025] text-[var(--fourth-color)]'
-                                            }`}>
+                                                }`}>
                                                 {violations.violationPoint.name}
                                             </span>
                                         </td>
@@ -366,7 +385,7 @@ export default function StudentAffairsViolationsPage() {
                                                 )}
                                             </div>
                                         </td> */}
-                                        <td className="py-2 px-4 border-b">{formatDate(violations.date)}</td>
+                                        <td className="py-2 px-4 border-b">{formatDateDisplay(violations.date)}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 <button
@@ -376,6 +395,7 @@ export default function StudentAffairsViolationsPage() {
                                                     <i className="bx bxs-edit text-lg"></i>
                                                 </button>
                                                 <button
+                                                    onClick={() => handleDelete(violations.id)}
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
                                                 >
                                                     <i className="bx bxs-trash-alt text-lg"></i>
@@ -408,11 +428,10 @@ export default function StudentAffairsViolationsPage() {
                                         <button
                                             key={pageNumber}
                                             onClick={() => setCurrentPage(pageNumber)}
-                                            className={`rounded-md px-3 py-1 ${
-                                                currentPage === pageNumber 
-                                                    ? 'bg-[var(--main-color)] text-white' 
-                                                    : 'text-[var(--main-color)]'
-                                            }`}
+                                            className={`rounded-md px-3 py-1 ${currentPage === pageNumber
+                                                ? 'bg-[var(--main-color)] text-white'
+                                                : 'text-[var(--main-color)]'
+                                                }`}
                                         >
                                             {pageNumber}
                                         </button>
