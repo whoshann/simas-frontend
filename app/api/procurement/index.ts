@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import axios from "axios";
-import { ProcurementResponse } from "./types";
+import { Procurement, ProcurementResponse } from "./types";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/procurements`;
 
@@ -42,6 +42,15 @@ export const procurementsApi = {
     const response = await axios.get(`${API_URL}/document/${filename}`, {
       headers: getHeaders(),
       responseType: "blob",
+    });
+    return response.data;
+  },
+  create: async (formData: FormData): Promise<ProcurementResponse> => {
+    const response = await axios.post(API_URL, formData, {
+      headers: {
+        ...getHeaders(),
+        'Content-Type': 'multipart/form-data',
+      },
     });
     return response.data;
   },
