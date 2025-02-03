@@ -7,6 +7,7 @@ import DataTable from "@/app/components/DataTable/TableData";
 import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useSubjects } from '@/app/hooks/useSubject';
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
 
 interface SubjectForm {
     id?: number;
@@ -92,8 +93,10 @@ export default function SubjectPage() {
     const handleDelete = async (id: number) => {
         try {
             await deleteSubject(id);
+            await showSuccessAlert('Berhasil', 'Mapel berhasil dihapus');
         } catch (error) {
             console.error("Error deleting subject:", error);
+            await showErrorAlert('Error', 'Gagal menghapus mapel');
         }
     };
 
@@ -109,10 +112,10 @@ export default function SubjectPage() {
 
             if (selectedSubject?.id) {
                 await updateSubject(selectedSubject.id, subjectData);
-                alert('Data mapel berhasil diperbarui!');
+                await showSuccessAlert('Berhasil', 'Mapel berhasil diperbarui');
             } else {
                 await createSubject(subjectData);
-                alert('Data mapel berhasil ditambahkan!');
+                await showSuccessAlert('Berhasil', 'Mapel berhasil ditambahkan');
             }
 
             await fetchSubjects();

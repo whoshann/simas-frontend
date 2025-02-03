@@ -10,7 +10,7 @@ import { useTeachers } from "@/app/hooks/useTeacher";
 import { Grade } from "@/app/utils/enums";
 import FormModal from "@/app/components/DataTable/FormModal";
 import { SchoolClass } from "@/app/api/school-class/types";
-import Swal from 'sweetalert2';
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
 
 export default function SuperAdminSchoolClassDataPage() {
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -143,63 +143,37 @@ export default function SuperAdminSchoolClassDataPage() {
             };
 
             if (modalMode === 'add') {
-                await createSchoolClass(dataToSubmit);
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: 'Kelas berhasil ditambahkan'
-                });
+                const response = await createSchoolClass(dataToSubmit);
+                console.log('Success create school class:', response);
+                await showSuccessAlert('Berhasil', 'Kelas berhasil ditambahkan');
             } else {
-                // Pastikan ID tersedia saat update
-                if (!formData.id) {
-                    throw new Error('ID tidak ditemukan');
-                }
-                await updateSchoolClass(formData.id, dataToSubmit);
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: 'Kelas berhasil diperbarui'
-                });
+                const response = await updateSchoolClass(formData.id!, dataToSubmit);
+                console.log('Success update school class:', response);
+                await showSuccessAlert('Berhasil', 'Kelas berhasil diperbarui');
             }
             handleCloseModal();
             await fetchSchoolClasses();
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error submitting form:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data'
-            });
+            await showErrorAlert('Error', 'Terjadi kesalahan saat menyimpan data');
         }
     };
 
     const handleDelete = async (id: number) => {
-        const result = await Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data yang dihapus tidak dapat dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        });
+        const isConfirmed = await showConfirmDelete(
+            'Hapus Kelas',
+            'Apakah Anda yakin ingin menghapus kelas ini?'
+        );
 
-        if (result.isConfirmed) {
+        if (isConfirmed) {
             try {
-                await deleteSchoolClass(id);
-                Swal.fire(
-                    'Terhapus!',
-                    'Kelas berhasil dihapus.',
-                    'success'
-                );
+                const response = await deleteSchoolClass(id);
+                console.log('Success delete school class:', response);
+                await showSuccessAlert('Berhasil', 'Kelas berhasil dihapus');
                 await fetchSchoolClasses();
             } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Terjadi kesalahan saat menghapus data'
-                });
+                console.error('Error deleting class:', error);
+                await showErrorAlert('Error', 'Gagal menghapus kelas');
             }
         }
     };
