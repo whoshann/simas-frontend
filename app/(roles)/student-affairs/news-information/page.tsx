@@ -2,12 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import PageHeader from "@/app/components/superadmin/DataTable/TableHeader";
-import DataTable from "@/app/components/superadmin/DataTable/TableData";
-import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
+import Image from 'next/image';
 import { useNewsInformation } from "@/app/hooks/useNewsInformation";
 import FormModal from '@/app/components/DataTable/FormModal';
 import { NewsInformation } from "@/app/api/news-information/types";

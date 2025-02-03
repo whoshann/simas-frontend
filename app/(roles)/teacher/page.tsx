@@ -2,7 +2,6 @@
 
 import "@/app/styles/globals.css";
 import { useEffect, useState, useRef } from "react";
-import { useEffect, useState, useRef } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from "next/image";
 import Calendar from "react-calendar";
