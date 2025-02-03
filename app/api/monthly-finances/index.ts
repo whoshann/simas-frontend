@@ -5,6 +5,7 @@ import {
   MonthlyFinancesResponse,
   UpdateMonthlyFinanceDto,
   CreateMonthlyFinanceDto,
+  MonthlyFinance,
 } from "./types";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/monthly-finance`;
@@ -20,13 +21,10 @@ export const monthlyFinanceApi = {
     return response.data;
   },
 
-  create: async (formData: FormData): Promise<MonthlyFinanceResponse> => {
-    const response = await axios.post(API_URL, formData, {
-      headers: {
-        ...getHeaders(),
-        "Content-Type": "multipart/form-data",
-      },
-    });
+  create: async (
+    data: Omit<MonthlyFinance, "id">
+  ): Promise<MonthlyFinanceResponse> => {
+    const response = await axios.post(API_URL, data, { headers: getHeaders() });
     return response.data;
   },
 

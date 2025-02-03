@@ -7,8 +7,8 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { authApi } from "@/app/api/auth";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import FormModal from '@/app/components/DataTable/FormModal';
-import Image from 'next/image';
 import { MonthlyFinance } from "@/app/api/monthly-finances/types";
+import { formatDateDisplay } from "@/app/utils/helper";
     
 // Perbaikan fungsi formatRupiah
 const formatRupiah = (angka: string | number) => {
@@ -346,10 +346,10 @@ export default function MonthlyFinancePage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((item) => (
+                                {currentEntries.map((item, index) => (
                                     <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
-                                        <td className="py-2 px-4 border-b">{item.id}</td>
-                                        <td className="py-2 px-4 border-b">{item.month}</td>
+                                        <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
+                                        <td className="py-2 px-4 border-b">{formatDateDisplay(item.month)}</td>
                                         <td className="py-2 px-4 border-b">{formatRupiah(item.income)}</td>
                                         <td className="py-2 px-4 border-b">{formatRupiah(item.expenses)}</td>
                                         <td className="py-2 px-4 border-b">{formatRupiah(item.remainingBalance)}</td>
