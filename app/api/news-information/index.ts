@@ -37,11 +37,17 @@ export const newsInformationApi = {
     id: number,
     data: Partial<NewsInformation>
   ): Promise<NewsInformationResponse> => {
-    const response = await axios.patch(`${API_URL}/${id}`, data, {
-      headers: getHeaders(),
-    });
-    return response.data;
-  },
+    try {
+      const response = await axios.patch(`${API_URL}/${id}`, data, {
+        headers: getHeaders(),
+      });
+      // console.log('Update response:', response.data); // Log respons API
+      return response.data;
+    } catch (err) {
+      // console.error('Error updating news information:', err); // Log error
+      throw err; // Re-throw error jika perlu
+    }
+  },  
 
   delete: async (id: number): Promise<NewsInformationResponse> => {
     const response = await axios.delete(`${API_URL}/${id}`, {

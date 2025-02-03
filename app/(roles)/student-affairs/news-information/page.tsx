@@ -84,15 +84,17 @@ export default function StudentAffairsNewsInformationPage() {
         data?: NewsInformation
     ) => {
         event.preventDefault(); // Mencegah default behavior
-    
+
         setModalMode(mode);
-        
+
         if (mode === 'edit' && data) {
+            setSelectedNews(data); // Simpan data yang dipilih ke state selectedNews
             setFormData({
                 ...data,
                 date: new Date().toISOString().split('T')[0],
             });
         } else {
+            setSelectedNews(null); // Reset selectedNews saat mode 'add'
             setFormData({
                 activity: '',
                 description: '',
@@ -103,11 +105,12 @@ export default function StudentAffairsNewsInformationPage() {
         }
         setIsModalOpen(true);
     };
-    
+
 
     // Handle tutup modal
     const handleCloseModal = () => {
         setIsModalOpen(false);
+        setSelectedNews(null); // Reset selectedNews
         setFormData({
             activity: '',
             description: '',
@@ -117,13 +120,21 @@ export default function StudentAffairsNewsInformationPage() {
         });
     };
 
-    // Handle submit form
-    const handleSubmit = async (formData: Omit<NewsInformation, "id" | "createdAt" | "updatedAt">) => {
+    const handleSubmit = async (formData: NewsInformation) => {
         try {
             if (modalMode === "add") {
+                // console.log("Submitting new news:", formData);
                 await createNewsInformation(formData);
             } else if (modalMode === "edit" && selectedNews?.id) {
-                await updateNewsInformation(selectedNews.id!, formData);
+                // console.log("Updating news with id:", selectedNews.id);
+
+                // 🔥 Hapus properti yang tidak diperbolehkan sebelum dikirim ke API
+                const { id, createdAt, updatedAt, ...validData } = formData;
+
+                // console.log("Sanitized Form Data:", validData);
+
+                const response = await updateNewsInformation(selectedNews.id, validData);
+                // console.log("Update success response:", response);
             }
             handleCloseModal();
         } catch (err) {
@@ -332,7 +343,7 @@ export default function StudentAffairsNewsInformationPage() {
                                                 </button>
 
                                                 {/* Delete Button */}
-                                                <button 
+                                                <button
                                                     onClick={() => handleDelete(newsInformation.id!)}
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
 
