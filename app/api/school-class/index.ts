@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { SchoolClass, SchoolClassResponse, UpdateSchoolClassDto } from "./types";
+import { SchoolClass, SchoolClassResponse} from "./types";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/school-class`;
 
@@ -20,26 +20,15 @@ export const schoolClassesApi = {
         return response.data;
     },
 
-    update: async (id: number, data: UpdateSchoolClassDto): Promise<SchoolClass> => {
-        try {
-            // Pastikan data sesuai dengan schema
-            const updateData = {
-                name: data.name,
-                code: data.code,
-                grade: data.grade,
-                homeroomTeacherId: Number(data.homeroomTeacherId),
-                majorId: Number(data.majorId)
-            };
-
-            const response = await axios.patch(`${API_URL}/${id}`, updateData, {
-                headers: getHeaders(),
-            });
-            return response.data;
-        } catch (error) {
-            console.error('Update error:', error);
-            throw error;
-        }
-    },
+    update: async (
+        id: number,
+        data: Partial<SchoolClass>
+      ): Promise<SchoolClassResponse> => {
+        const response = await axios.patch(`${API_URL}/${id}`, data, {
+          headers: getHeaders(),
+        });
+        return response.data;
+      },
 
     delete: async (id: number): Promise<SchoolClassResponse> => {
         const response = await axios.delete(`${API_URL}/${id}`, {

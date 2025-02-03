@@ -61,7 +61,7 @@ export default function SuperAdminStudentDataPage() {
             <header className="py-6 px-9">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Siswa</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo SuperAdmin, selamat datang kembali</p>
                 </div>
             </header>
 
