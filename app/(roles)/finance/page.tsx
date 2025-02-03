@@ -1,4 +1,3 @@
-
 "use client";
 
 import "@/app/styles/globals.css";
@@ -64,6 +63,7 @@ export default function FinanceDashboardPage() {
     }
 
     const ctx = chartRef.current?.getContext("2d");
+    console.log("Canvas context:", ctx);
     if (ctx) {
       const newChart = new Chart(ctx, {
         type: "bar",
@@ -80,7 +80,7 @@ export default function FinanceDashboardPage() {
           ],
         },
         options: {
-          maintainAspectRatio: false,  // Tambahkan ini
+          maintainAspectRatio: false,
           responsive: true,
           plugins: {
             legend: {
@@ -106,6 +106,8 @@ export default function FinanceDashboardPage() {
         },
       });
       setChart(newChart);
+    } else {
+      console.error("Canvas context is null");
     }
 
     // Cleanup function

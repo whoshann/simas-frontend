@@ -9,6 +9,7 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { authApi } from "@/app/api/auth";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import FormModal from '@/app/components/DataTable/FormModal';
+import { useViolation } from "@/app/hooks/useViolationData";
 
 interface User {
     id: number;
@@ -18,11 +19,19 @@ interface User {
 
 
 export default function StudentAffairsViolationsPage() {
+    const {
+        violations,
+        loading: violationLoading,
+        fetchViolations,
+    } = useViolation();
+    const [error, setError] = useState<string>("");
+
     useEffect(() => {
         const initializePage = async () => {
             try {
                 // Cek role dengan middleware
                 await roleMiddleware(["StudentAffairs", "SuperAdmin"]);
+                await fetchViolations();
                 setIsAuthorized(true);
 
                 // Fetch user data
@@ -58,7 +67,14 @@ export default function StudentAffairsViolationsPage() {
 
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+    // const [error, setError] = useState("");
     const [user, setUser] = useState<User>({
         id: 0,
         name: '',
@@ -73,22 +89,13 @@ export default function StudentAffairsViolationsPage() {
     const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
     const [formData, setFormData] = useState({
         name: '',
-        classSchool: '',
+        // classSchool: '',
         violations: '',
         category: '',
         punishment: '',
-        document: null,
+        // document: null,
         date: ''
     });
-
-    // data tabel dummy
-    const data = [
-        { no: 1, name: "Ilham Kurniawan", classSchool: "X PH A", violations: "Merokok", category: "Ringan", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "21/01/2024" },
-        { no: 2, name: "Adi Kurniawan", classSchool: "X PH B", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "22/01/2024" },
-        { no: 3, name: "Imam Kurniawan", classSchool: "XI IPA A", violations: "Bongkar Lab 1", category: "Berat", punishment: "Skors 1 Minggu", document: null, date: "23/01/2024" },
-        { no: 4, name: "Fawas Kurniawan", classSchool: "XI IPA B", violations: "Menyembunyikan HP", category: "Sedang", punishment: "Skors 1 Minggu", document: null, date: "24/01/2024" },
-        { no: 5, name: "Obing Kurniawan", classSchool: "XII IPS A", violations: "Merokok", category: "Sedang", punishment: "Skors 1 Minggu", document: "/images/Berita1.jpg", date: "25/01/2024" },
-    ];
 
     // form untuk modal add dan edit
     const formFields = [
@@ -157,21 +164,21 @@ export default function StudentAffairsViolationsPage() {
             
             setFormData({
                 name: data.name,
-                classSchool: data.classSchool,
+                // classSchool: data.classSchool,
                 violations: data.violations,
-                category: data.category,
+                category: data.name,
                 punishment: data.punishment,
-                document: data.document,
+                // document: data.document,
                 date: formattedDate
             });
         } else {
             setFormData({
                 name: '',
-                classSchool: '',
+                // classSchool: '',
                 violations: '',
                 category: '',
                 punishment: '',
-                document: null,
+                // document: null,
                 date: ''
             });
         }
@@ -182,11 +189,11 @@ export default function StudentAffairsViolationsPage() {
         setIsModalOpen(false);
         setFormData({
             name: '',
-            classSchool: '',
+            // classSchool: '',
             violations: '',
             category: '',
             punishment: '',
-            document: null,
+            // document: null,
             date: ''
         });
     };
@@ -204,12 +211,14 @@ export default function StudentAffairsViolationsPage() {
         }
     };
 
+    // const handleDelete = 
+
     // fungsi untuk search
-    const filteredData = data.filter(item =>
+    const filteredData = violations.filter(item =>
+        item.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        // item.classSchool.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.classSchool.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.violations.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.violationPoint.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.punishment.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.date.includes(searchTerm)
     );
@@ -326,39 +335,40 @@ export default function StudentAffairsViolationsPage() {
                                 <tr>
                                     <th className="py-2 px-4 border-b text-left">No</th>
                                     <th className="py-2 px-4 border-b text-left">Nama</th>
-                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
+                                    {/* <th className="py-2 px-4 border-b text-left">Kelas</th> */}
                                     <th className="py-2 px-4 border-b text-left">Pelanggaran</th>
                                     <th className="py-2 px-4 border-b text-left">Kategori</th>
                                     <th className="py-2 px-4 border-b text-left">Hukuman</th>
-                                    <th className="py-2 px-4 border-b text-left">Bukti Foto</th>
+                                    <th className="py-2 px-4 border-b text-left">Point</th>
                                     <th className="py-2 px-4 border-b text-left">Tanggal</th>
                                     <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.name}</td>
-                                        <td className="py-2 px-4 border-b">{item.classSchool}</td>
-                                        <td className="py-2 px-4 border-b">{item.violations}</td>
+                                {currentEntries.map((violations, index) => (
+                                    <tr key={violations.id} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
+                                        <td className="py-2 px-4 border-b">{index + 1}</td>
+                                        <td className="py-2 px-4 border-b">{violations.student.name}</td>
+                                        {/* <td className="py-2 px-4 border-b">{violations.classSchool}</td> */}
+                                        <td className="py-2 px-4 border-b">{violations.name}</td>
                                         <td className="py-2 px-4 border-b">
                                             <span className={`inline-block px-3 py-1 rounded-full ${
-                                                item.category === 'Ringan' 
+                                                violations.violationPoint.name === 'Ringan' 
                                                     ? 'bg-[#0a97b028] text-[var(--third-color)]' 
-                                                    : item.category === 'Sedang' 
+                                                    : violations.violationPoint.name === 'Sedang' 
                                                     ? 'bg-[#e88e1f29] text-[var(--second-color)]' 
                                                     : 'bg-[#bd000025] text-[var(--fourth-color)]'
                                             }`}>
-                                                {item.category}
+                                                {violations.violationPoint.name}
                                             </span>
                                         </td>
-                                        <td className="py-2 px-4 border-b">{item.punishment}</td>
-                                        <td className="py-2 px-4 border-b">
+                                        <td className="py-2 px-4 border-b">{violations.punishment}</td>
+                                        <td className="py-2 px-4 border-b">{violations.violationPoint.points}</td>
+                                        {/* <td className="py-2 px-4 border-b">
                                             <div className="w-16 h-16 overflow-hidden rounded">
-                                                {item.document ? (
+                                                {violations.document ? (
                                                     <Image
-                                                        src={item.document}
+                                                        src={violations.document}
                                                         alt="Bukti Surat"
                                                         className="w-full h-full object-cover"
                                                         width={256}
@@ -368,12 +378,12 @@ export default function StudentAffairsViolationsPage() {
                                                     '-'
                                                 )}
                                             </div>
-                                        </td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
+                                        </td> */}
+                                        <td className="py-2 px-4 border-b">{formatDate(violations.date)}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 <button
-                                                    onClick={() => handleOpenModal('edit', item)}
+                                                    onClick={() => handleOpenModal('edit', violations)}
                                                     className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
                                                 >
                                                     <i className="bx bxs-edit text-lg"></i>

@@ -193,6 +193,40 @@ export default function TeacherRequestGoodsPage() {
 
               <div>
                 <label
+                  htmlFor="role"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Posisi Sebagai
+                </label>
+                <input
+                  type="text"
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  placeholder="Guru"
+                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="procurementName"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Nama Peminjam
+                </label>
+                <input
+                  type="text"
+                  id="procurementName"
+                  name="procurementName"
+                  value={formData.procurementName}
+                  placeholder="John Doe"
+                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
+                />
+              </div>
+
+              <div>
+                <label
                   htmlFor="quantity"
                   className="block text-sm font-medium text-gray-700"
                 >
@@ -206,61 +240,6 @@ export default function TeacherRequestGoodsPage() {
                   onChange={handlePriceChange}
                   placeholder="3"
                   min="1"
-                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="unitPrice"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Harga Satuan
-                  </label>
-                  <input
-                    type="text"
-                    id="unitPrice"
-                    name="unitPrice"
-                    value={formData.unitPrice}
-                    onChange={handlePriceChange}
-                    placeholder="Rp 0"
-                    className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="totalPrice"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Total Harga
-                  </label>
-                  <input
-                    type="text"
-                    id="totalPrice"
-                    name="totalPrice"
-                    value={formData.totalPrice}
-                    readOnly
-                    className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="supplier"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Pemasok
-                </label>
-                <input
-                  type="text"
-                  id="supplier"
-                  name="supplier"
-                  value={formData.supplier}
-                  onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-                  placeholder="PT. Sinar Jaya"
                   className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
                 />
               </div>
@@ -280,6 +259,25 @@ export default function TeacherRequestGoodsPage() {
                   onChange={(e) => setFormData({ ...formData, procurementDate: e.target.value })}
                   className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 text-gray-700 bg-white"
                 />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="documentPath"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Document Pengajuan (PDF)
+                </label>
+                <div className="mt-1 relative rounded-md shadow-sm">
+                  <input
+                    type="file"
+                    id="documentPath"
+                    name="documentPath"
+                    accept=".pdf"
+                    className="block w-full text-gray-700 border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#1F509A] hover:file:bg-blue-100"
+                    required
+                  />
+                </div>
               </div>
 
               <button
