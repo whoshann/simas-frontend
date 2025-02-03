@@ -1,132 +1,95 @@
 "use client";
 
 import "@/app/styles/globals.css";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import { Chart, registerables } from "chart.js";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 
-Chart.register(...registerables);
-
-const data = [
-  { month: "Januari", quantity: 50000000 },
-  { month: "Februari", quantity: 40000000 },
-  { month: "Maret", quantity: 60000000 },
-  { month: "April", quantity: 30000000 },
-  { month: "Mei", quantity: 70000000 },
-  { month: "Juni", quantity: 20000000 },
-  { month: "Juli", quantity: 80000000 },
-  { month: "Agustus", quantity: 45000000 },
-  { month: "September", quantity: 35000000 },
-  { month: "Oktober", quantity: 55000000 },
-  { month: "November", quantity: 65000000 },
-  { month: "Desember", quantity: 75000000 },
-];
-
 export default function FinanceDashboardPage() {
-
-  const [selectedMonth, setSelectedMonth] = useState("Januari");
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const token = Cookies.get("token");
   const [loading, setLoading] = useState<boolean>(true);
-  const chartRef = useRef<HTMLCanvasElement | null>(null);
-
-  const months = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
-
-  const togglePanel = () => {
-    setIsPanelOpen(!isPanelOpen);
-  };
-
-
-  const [chart, setChart] = useState<Chart | null>(null);
+  const [currentEntries, setCurrentEntries] = useState<Array<{
+    no: number;
+    id: number;
+    name: string;
+    role: string;
+    title: string;
+    description: string;
+    amount: number;
+    document: string;
+    date: string;
+    status: string;
+  }>>([
+    {
+      no: 1,
+      id: 1,
+      name: "John Doe",
+      role: "Kesiswaan",
+      title: "Renovation of Computer Lab",
+      amount: 20000000,
+      description: "Repair of lab facilities",
+      document: "Proposal_Renovation_Lab.pdf",
+      date: "15/12/2024",
+      status: "Menunggu",
+    },
+    {
+      no: 2,
+      id: 2,
+      name: "John Doe",
+      role: "Kesiswaan",
+      title: "Sports Equipment",
+      amount: 5000000,
+      description: "Procurement of balls and nets",
+      document: "Proposal_Sports.pdf",
+      date: "15/12/2024",
+      status: "Menunggu",
+    },
+    {
+      no: 3,
+      id: 3,
+      name: "John Doe",
+      role: "Kesiswaan",
+      title: "Student Workshop",
+      amount: 15000000,
+      description: "Robotics training for students",
+      document: "Proposal_Workshop.pdf",
+      date: "15/12/2024",
+      status: "Menunggu",
+    },
+    {
+      no: 4,
+      id: 4,
+      name: "John Doe",
+      role: "Sarpras",
+      title: "Book Procurement",
+      amount: 3000000,
+      description: "Library reference books",
+      document: "Proposal_Books.pdf",
+      date: "15/12/2024",
+      status: "Disetujui",
+    },
+    {
+      no: 5,
+      id: 5,
+      name: "John Doe",
+      role: "Guru",
+      title: "Building Maintenance",
+      amount: 10000000,
+      description: "Repair of classroom ceiling",
+      document: "Proposal_Maintenance.pdf",
+      date: "15/12/2024",
+      status: "Ditolak",
+    }
+  ]);
 
   useEffect(() => {
-    // Hapus chart lama jika ada
-    if (chart) {
-      chart.destroy();
-    }
-
-    const ctx = chartRef.current?.getContext("2d");
-    console.log("Canvas context:", ctx);
-    if (ctx) {
-      const newChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: data.map((item) => item.month),
-          datasets: [
-            {
-              label: "Jumlah (Rp)",
-              data: data.map((item) => item.quantity),
-              backgroundColor: "#1F509A",
-              borderRadius: 5,
-              barThickness: 30,
-            },
-          ],
-        },
-        options: {
-          maintainAspectRatio: false,
-          responsive: true,
-          plugins: {
-            legend: {
-              display: true,
-              position: "top",
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: "Jumlah (Rp)",
-              },
-            },
-            x: {
-              title: {
-                display: true,
-                text: "Bulan",
-              },
-            },
-          },
-        },
-      });
-      setChart(newChart);
-    } else {
-      console.error("Canvas context is null");
-    }
-
-    // Cleanup function
-    return () => {
-      if (chart) {
-        chart.destroy();
-      }
-    };
-  }, [data]);
-
-
-  useEffect(() => {
-
     const initializePage = async () => {
       try {
         await roleMiddleware(["Finance"]);
         setIsAuthorized(true);
         setLoading(false)
-
       } catch (error) {
         console.error("Error initializing page:", error);
         setIsAuthorized(false);
@@ -142,7 +105,7 @@ export default function FinanceDashboardPage() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
-      <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row justify-between items-center">
+      <header className="pt-6 pb-0 px-9">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">
             Beranda
@@ -150,54 +113,6 @@ export default function FinanceDashboardPage() {
           <p className="text-sm text-gray-600">
             Halo role keuangan, selamat datang kembali
           </p>
-        </div>
-        <div className="relative mt-4 sm:mt-0 w-full sm:w-72">
-          <div
-            className="bg-white shadow-md rounded-lg py-4 px-7 flex items-center cursor-pointer"
-            onClick={togglePanel}
-          >
-            <div className="bg-[#1f509a27] rounded-full p-3 mr-4 w-12 h-12 flex items-center justify-center">
-              <i className="bx bxs-calendar text-[#1f509a] text-3xl"></i>
-            </div>
-            <div className="flex-1">
-              <span className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
-                Filter Bulan
-              </span>
-              <p className="text-sm text-gray-600">
-                {selectedMonth} {selectedYear}
-              </p>
-            </div>
-            <svg
-              className={`ml-7 h-4 w-4 transform transition-transform ${isPanelOpen ? "rotate-90" : ""
-                }`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </div>
-          {isPanelOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-10">
-              {months.map((month) => (
-                <div
-                  key={month}
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                  onClick={() => {
-                    setSelectedMonth(month);
-                    setIsPanelOpen(false);
-                  }}
-                >
-                  {month} {selectedYear}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </header>
 
@@ -256,34 +171,75 @@ export default function FinanceDashboardPage() {
         </div>
         {/* End Cards */}
 
-        {/* Start Chart */}
-
-        {/* Start Chart Card */}
-        <div className="grid grid-cols-1 gap-4 pb-8">
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <div className="flex flex-col items-start mb-4">
-              <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
-                Grafik Keuangan Bulanan
-              </h3>
+        {/* Tabel RAB */}
+        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+          <div className="mb-4 flex justify-between">
+            <div className="">
+              <span className="text-md sm:text-lg font-semibold text-[var(--text-semi-bold-color)]">Data RAB</span>
             </div>
 
-            <div style={{ position: 'relative', height: '400px', width: '100%' }}>
-              <canvas
-                ref={chartRef}
-                style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '100%',
-                  maxHeight: '400px'
-                }}
+            {/*Start Search */}
+            <div className="border border-gray-300 rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-24 sm:w-56">
+              <i className='bx bx-search text-[var(--text-semi-bold-color)] text-xs sm:text-lg mr-2'></i>
+              <input
+                type="text"
+                placeholder="Cari data..."
+                className="border-0 focus:outline-none text-xs sm:text-base w-16 sm:w-40"
               />
             </div>
           </div>
+
+          {/* Start Table */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full rounded-lg overflow-hidden">
+              <thead className="text-[var(--text-semi-bold-color)]">
+                <tr>
+                  <th className="py-2 px-4 border-b text-left">No</th>
+                  <th className="py-2 px-4 border-b text-left">Nama</th>
+                  <th className="py-2 px-4 border-b text-left">Peran</th>
+                  <th className="py-2 px-4 border-b text-left">Rencana RAB</th>
+                  <th className="py-2 px-4 border-b text-left">Dana</th>
+                  <th className="py-2 px-4 border-b text-left">Alasan Pengajuan</th>
+                  <th className="py-2 px-4 border-b text-left">Dokumen Pendukung</th>
+                  <th className="py-2 px-4 border-b text-left">Tanggal</th>
+                  <th className="py-2 px-4 border-b text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentEntries.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
+                    <td className="py-1 px-2 border-b">{item.no}</td>
+                    <td className="py-1 px-2 border-b">{item.name}</td>
+                    <td className="py-1 px-2 border-b">{item.role}</td>
+                    <td className="py-1 px-2 border-b">{item.title}</td>
+                    <td className="py-1 px-2 border-b">Rp.{item.amount.toLocaleString()}</td>
+                    <td className="py-1 px-2 border-b">{item.description}</td>
+                    <td className="py-1 px-2 border-b">{item.document}</td>
+                    <td className="py-1 px-2 border-b">{item.date}</td>
+                    <td className="py-1 px-2 border-b">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        item.status === 'Menunggu' ? 'bg-[#e88e1f29] text-[var(--second-color)]' :
+                        item.status === 'Disetujui' ? 'bg-[#0a97b022] text-[var(--third-color)]' :
+                        'bg-red-100 text-[var(--fourth-color)]'
+                      }`}>
+                        {item.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+
+                {currentEntries.length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="text-center text-gray-500 py-4">
+                      Belum ada data RAB
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-        {/* End Chart Card */}
-
-
-        {/* End Chart */}
+        {/* End Tabel RAB */}
       </main>
     </div>
   );

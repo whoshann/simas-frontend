@@ -6,7 +6,7 @@ const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/student-information`;
 
 const getHeaders = () => ({
   Authorization: `Bearer ${Cookies.get("token")}`,
-  "Content-Type": "application/json",
+  "Content-Type": "multipart/form-data",
 });
 
 export const newsInformationApi = {

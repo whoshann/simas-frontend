@@ -28,7 +28,7 @@ export default function LoginPage() {
     };
 
     const inputClassName = `w-full p-3 border ${loginError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-        } rounded-md focus:outline-none focus:ring-2 text-black`;
+        } rounded-md focus:outline-none focus:ring-2 text-black bg-white`;
 
     return (
         <div

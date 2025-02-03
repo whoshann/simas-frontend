@@ -1,9 +1,10 @@
 "use client";
 
 import "@/app/styles/globals.css";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import { Chart, registerables } from "chart.js";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 
 Chart.register(...registerables);
 
@@ -23,11 +24,24 @@ const data = [
 ];
 
 export default function MonthlyFinancesPage() {
-  useEffect(() => {
-    // Panggil middleware untuk memeriksa role, hanya izinkan 'StudentAffairs'
-    roleMiddleware(["Finance","SuperAdmin"]);
-}, []);
 
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const initializePage = async () => {
+      try {
+        await roleMiddleware(["Finance","SuperAdmin"]);
+        setIsAuthorized(true);
+        setLoading(false)
+      } catch (error) {
+        console.error("Error initializing page:", error);
+        setIsAuthorized(false);
+      }
+    };
+
+    initializePage();
+  }, []);
   const chartRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -81,6 +95,7 @@ export default function MonthlyFinancesPage() {
     };
   }, []);
 
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -89,7 +104,7 @@ export default function MonthlyFinancesPage() {
             Keuangan Bulanan
           </h1>
           <p className="text-sm text-gray-600">
-            Halo role Keuangan, selamat datang kembali
+            Halo admin Keuangan, selamat datang kembali
           </p>
         </div>
       </header>

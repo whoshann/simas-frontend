@@ -6,13 +6,21 @@ import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { getTokenData } from '@/app/utils/tokenHelper';
+import { authApi } from '@/app/api/auth';
+
+interface StudentState {
+    role?: string;
+    name?: string;
+    [key: string]: any;
+  }  
 
 export default function StudentAbsencePage() {
 
     useEffect(() => {
         const initializePage = async () => {
             try {
-                await roleMiddleware(["Student","SuperAdmin"]);
+                await roleMiddleware(["Student", "SuperAdmin"]);
                 setIsAuthorized(true);
             } catch (error) {
                 console.error("Auth error:", error);
@@ -21,9 +29,31 @@ export default function StudentAbsencePage() {
                 setLoading(false);
             }
         };
-    
+
         initializePage();
+
+        const tokenData = getTokenData();
+        if (tokenData) {
+            fetchStudentData(tokenData.id);
+            setStudent((prev: StudentState) => ({
+                ...prev,
+                role: tokenData.role
+            }));
+        }
     }, []);
+
+    const fetchStudentData = async (userId: number) => {
+        try {
+            const response = await authApi.getStudentLogin(userId);
+            setStudent((prev: StudentState) => ({
+                ...prev,
+                ...response.data
+            }));
+        } catch (err) {
+            console.error("Error fetching user data:", err);
+            setError("Failed to fetch user data");
+        }
+    };
 
     const [error, setError] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
@@ -101,7 +131,7 @@ export default function StudentAbsencePage() {
             <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Absensi Anda</h1>
-                    <p className="text-sm text-gray-600">Halo James, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo {student.name} selamat datang kembali</p>
                 </div>
 
 
