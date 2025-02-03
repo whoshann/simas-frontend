@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import DatePicker from 'react-datepicker';
 
 interface FieldConfig {
     name: string;
@@ -10,6 +11,8 @@ interface FieldConfig {
     colSpan?: number;
     placeholder?: string;
     accept?: string;
+    dateFormat?: string;
+    showMonthYearPicker?: boolean;
 }
 
 interface FormData {
@@ -24,6 +27,7 @@ interface DynamicModalProps {
     fields: FieldConfig[];
     initialData?: FormData;
     width?: string;
+    children?: React.ReactNode;
 }
 
 export default function DynamicModal({
@@ -33,7 +37,8 @@ export default function DynamicModal({
     title,
     fields,
     initialData,
-    width = 'w-[40rem]'
+    width = 'w-[40rem]',
+    children
 }: DynamicModalProps) {
     const [formData, setFormData] = useState<FormData>({});
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -192,6 +197,24 @@ export default function DynamicModal({
                         className={`${baseInputClass} min-h-[100px]`}
                         required={field.required}
                         placeholder={field.placeholder}
+                        disabled={isSubmitting}
+                    />
+                );
+
+            case 'date':
+                return (
+                    <DatePicker
+                        name={field.name}
+                        selected={formData[field.name] ? new Date(formData[field.name]) : null}
+                        onChange={(date) => setFormData(prev => ({
+                            ...prev,
+                            [field.name]: date
+                        }))}
+                        dateFormat={field.dateFormat || "MM/dd/yyyy"}
+                        showMonthYearPicker={field.showMonthYearPicker}
+                        placeholderText={field.placeholder}
+                        className={baseInputClass}
+                        required={field.required}
                         disabled={isSubmitting}
                     />
                 );

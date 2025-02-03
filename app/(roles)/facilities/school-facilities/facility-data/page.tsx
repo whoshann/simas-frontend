@@ -1,5 +1,9 @@
 "use client";
 import "@/app/styles/globals.css";
+<<<<<<< HEAD
+import { Facility } from '@/app/api/facilities/types';
+=======
+>>>>>>> 825f99a99acd33c24649de547fec64feb277d544
 import { FacilityHeader } from '@/app/components/facility/FacilityHeader';
 import { FacilityActions } from '@/app/components/facility/FacilityActions';
 import { FacilityTable } from '@/app/components/facility/FacilityTable';

@@ -1,4 +1,5 @@
 "use client";
+"use client";
 import "@/app/styles/globals.css";
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import "@/app/styles/globals.css";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import Image from 'next/image';
+import PageHeader from "@/app/components/superadmin/DataTable/TableHeader";
+import DataTable from "@/app/components/superadmin/DataTable/TableData";
+import DynamicModal from "@/app/components/superadmin/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -13,6 +13,10 @@ import FormModal from '@/app/components/DataTable/FormModal';
 import { NewsInformation } from "@/app/api/news-information/types";
 
 
+
+interface FormData {
+    [key: string]: any;
+}
 
 export default function StudentAffairsNewsInformationPage() {
     const { newsInformation, loading, error, fetchNewsInformation, createNewsInformation, updateNewsInformation, deleteNewsInformation, } = useNewsInformation();

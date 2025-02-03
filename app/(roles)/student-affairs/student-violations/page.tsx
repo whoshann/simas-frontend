@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import "@/app/styles/globals.css";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import Image from 'next/image';
+import PageHeader from "@/app/components/DataTable/TableHeader";
+import DataTable from "@/app/components/DataTable/TableData";
+import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { authApi } from "@/app/api/auth";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
@@ -17,6 +17,9 @@ interface User {
     username: string;
 }
 
+interface FormData {
+    [key: string]: any;
+}
 
 export default function StudentAffairsViolationsPage() {
     const {
@@ -236,21 +239,33 @@ export default function StudentAffairsViolationsPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
 
-    if (loading) {
-        return <LoadingSpinner />;
-    }
+    // Table headers configuration
+    const headers = [
+        { key: "id", label: "No" },
+        { key: "name", label: "Nama" },
+        { key: "classSchool", label: "Kelas" },
+        { key: "violation", label: "JPelanggaran" },
+        { key: "category", label: "Kategori" },
+        { key: "punishment", label: "Hukuman" },
+        { key: "photo", label: "Bukti Foto" },
+        { key: "date", label: "Tanggal" },
+    ];
 
-    if (error) {
-        return <p className="text-red-500">{error}</p>;
-    }
+    // Page content configuration
+    const pageContent = {
+        title: "Pelanggaran Siswa",
+        greeting: "Halo Super Admin, selamat datang kembali"
+    };
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
-            <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Point Pelanggaran Siswa</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
-                </div>
+            <div>
+                <PageHeader
+                    title={pageContent.title}
+                    greeting={pageContent.greeting}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                />
 
                 <div className="mt-4 sm:mt-0">
                     <div className="bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
@@ -264,7 +279,7 @@ export default function StudentAffairsViolationsPage() {
                         />
                     </div>
                 </div>
-            </header>
+            </div>
 
             <main className="px-9 pb-6">
                 <div className="bg-white shadow-md rounded-lg p-6 mb-6">

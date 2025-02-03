@@ -89,6 +89,7 @@ export default function StudentDashboard() {
     initializePage();
   }, []);
 
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const swiperRef = useRef<any>(null);
 
