@@ -72,7 +72,7 @@ export default function StudentPaymentStatusPage() {
         const studentId = decodedToken.sub;
         setStudentId(studentId.toString());
 
-        // fetchStudentData(studentId);
+        fetchStudentData(studentId);
 
         // Fetch data dari backend
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/school-payment/${studentId}`)
