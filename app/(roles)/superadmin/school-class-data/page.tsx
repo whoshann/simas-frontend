@@ -1,34 +1,97 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@/app/styles/globals.css";
-import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import Image from 'next/image';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import Cookies from "js-cookie";
-import axios from "axios";
-import { getUserIdFromToken } from "@/app/utils/tokenHelper";
-import { useTeachers } from "@/app/hooks/useTeacher";
 import { useSchoolClasses } from "@/app/hooks/useSchoolClassData";
+import { useMajors } from "@/app/hooks/useMajorData";
+import { useTeachers } from "@/app/hooks/useTeacher";
 import { Grade } from "@/app/utils/enums";
+import FormModal from "@/app/components/DataTable/FormModal";
+import { SchoolClass } from "@/app/api/school-class/types";
+import Swal from 'sweetalert2';
 
-export default function SuperAdminTeacherDataPage() {
-
+export default function SuperAdminSchoolClassDataPage() {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+    const [formData, setFormData] = useState<Partial<SchoolClass>>({
+        name: '',
+        code: '',
+        grade: Grade.X,
+        majorId: undefined,
+        homeroomTeacherId: undefined
+    });
 
-    const { schoolClasses, loading, error, fetchSchoolClasses } = useSchoolClasses();
+    // Hooks
+    const { schoolClasses, loading, error, fetchSchoolClasses, createSchoolClass, updateSchoolClass, deleteSchoolClass } = useSchoolClasses();
+    const { majors, fetchMajors } = useMajors();
+    const { teachers, fetchTeachers } = useTeachers();
+
+    // Form fields configuration
+    const formFields = [
+        {
+            name: 'name',
+            label: 'Nama Kelas',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Masukkan nama kelas'
+        },
+        {
+            name: 'code',
+            label: 'Kode Kelas',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Masukkan kode kelas'
+        },
+        {
+            name: 'grade',
+            label: 'Tingkat',
+            type: 'select' as const,
+            required: true,
+            options: [
+                { value: Grade.X, label: 'X' },
+                { value: Grade.XI, label: 'XI' },
+                { value: Grade.XII, label: 'XII' }
+            ]
+        },
+        {
+            name: 'majorId',
+            label: 'Jurusan',
+            type: 'select' as const,
+            required: true,
+            options: majors.map(major => ({
+                value: major.id,
+                label: major.name
+            }))
+        },
+        {
+            name: 'homeroomTeacherId',
+            label: 'Wali Kelas',
+            type: 'select' as const,
+            required: true,
+            options: teachers.map(teacher => ({
+                value: teacher.id,
+                label: teacher.name
+            }))
+        }
+    ];
 
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["SuperAdmin"]);
                 setIsAuthorized(true);
-                await fetchSchoolClasses();
+                await Promise.all([
+                    fetchSchoolClasses(),
+                    fetchMajors(),
+                    fetchTeachers()
+                ]);
             } catch (error) {
                 console.error("Error initializing page:", error);
                 setIsAuthorized(false);
@@ -38,13 +101,116 @@ export default function SuperAdminTeacherDataPage() {
         initializePage();
     }, []);
 
-    // Search item tabel
-    const filteredData = schoolClasses.filter(schoolClass =>
-        (schoolClass.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (schoolClass.code?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (schoolClass.grade?.toString().toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (schoolClass.major?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (schoolClass.homeroomTeacher?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    const handleOpenModal = (mode: 'add' | 'edit', data?: SchoolClass) => {
+        setModalMode(mode);
+        if (mode === 'edit' && data) {
+            setFormData({
+                ...data,
+                majorId: data.majorId,
+                homeroomTeacherId: data.homeroomTeacherId
+            });
+        } else {
+            setFormData({
+                name: '',
+                code: '',
+                grade: Grade.X,
+                majorId: majors[0]?.id,
+                homeroomTeacherId: teachers[0]?.id
+            });
+        }
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setFormData({
+            name: '',
+            code: '',
+            grade: Grade.X,
+            majorId: undefined,
+            homeroomTeacherId: undefined
+        });
+    };
+
+    const handleSubmit = async (submittedData: Partial<SchoolClass>) => {
+        try {
+            const dataToSubmit = {
+                name: submittedData.name!,
+                code: submittedData.code!,
+                grade: submittedData.grade!,
+                majorId: Number(submittedData.majorId),
+                homeroomTeacherId: Number(submittedData.homeroomTeacherId)
+            };
+
+            if (modalMode === 'add') {
+                await createSchoolClass(dataToSubmit);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Kelas berhasil ditambahkan'
+                });
+            } else {
+                // Pastikan ID tersedia saat update
+                if (!formData.id) {
+                    throw new Error('ID tidak ditemukan');
+                }
+                await updateSchoolClass(formData.id, dataToSubmit);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Kelas berhasil diperbarui'
+                });
+            }
+            handleCloseModal();
+            await fetchSchoolClasses();
+        } catch (error: any) {
+            console.error('Error submitting form:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data'
+            });
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        const result = await Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await deleteSchoolClass(id);
+                Swal.fire(
+                    'Terhapus!',
+                    'Kelas berhasil dihapus.',
+                    'success'
+                );
+                await fetchSchoolClasses();
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Terjadi kesalahan saat menghapus data'
+                });
+            }
+        }
+    };
+
+    // Filtering logic
+    const filteredData = schoolClasses.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.grade.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.major.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.homeroomTeacher?.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const totalEntries = filteredData.length;
@@ -52,8 +218,14 @@ export default function SuperAdminTeacherDataPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
 
-    if (loading) return <LoadingSpinner />;
-    if (error) return <p className="text-red-500">{error}</p>;
+    if (!isAuthorized) {
+        return null;
+    }
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
@@ -102,10 +274,10 @@ export default function SuperAdminTeacherDataPage() {
                         <div className="flex space-x-2 mt-5 sm:mt-0">
                             {/* Button Tambah Data */}
                             <button
-                                onClick={() => console.log("Tambah Data")}
+                                onClick={() => handleOpenModal('add')}
                                 className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
                             >
-                                Tambah Data
+                                Tambah Kelas
                             </button>
 
                             {/* Button Import CSV */}
@@ -172,23 +344,29 @@ export default function SuperAdminTeacherDataPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((schoolClass, index) => (
+                                {currentEntries.map((item, index) => (
                                     <tr key={index} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
                                         <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
-                                        <td className="py-2 px-4 border-b">{schoolClass.name}</td>
-                                        <td className="py-2 px-4 border-b">{schoolClass.code}</td>
+                                        <td className="py-2 px-4 border-b">{item.name}</td>
+                                        <td className="py-2 px-4 border-b">{item.code}</td>
                                         <td className="py-2 px-4 border-b">
-                                            {schoolClass.grade === Grade.X ? "X" :
-                                                schoolClass.grade === Grade.XI ? "XI" : "XII"}
+                                            {item.grade === Grade.X ? "X" :
+                                                item.grade === Grade.XI ? "XI" : "XII"}
                                         </td>
-                                        <td className="py-2 px-4 border-b">{schoolClass.major.code}</td>
-                                        <td className="py-2 px-4 border-b">{schoolClass.homeroomTeacher.name}</td>
+                                        <td className="py-2 px-4 border-b">{item.major.code}</td>
+                                        <td className="py-2 px-4 border-b">{item.homeroomTeacher.name}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
-                                                <button className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]">
+                                                <button
+                                                    onClick={() => handleOpenModal('edit', item)}
+                                                    className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+                                                >
                                                     <i className="bx bxs-edit text-lg"></i>
                                                 </button>
-                                                <button className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]">
+                                                <button
+                                                    onClick={() => handleDelete(item.id!)}
+                                                    className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
+                                                >
                                                     <i className="bx bxs-trash-alt text-lg"></i>
                                                 </button>
                                             </div>
@@ -235,6 +413,16 @@ export default function SuperAdminTeacherDataPage() {
                     </div>
                 </div>
             </main>
+            <FormModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onSubmit={handleSubmit}
+                title={modalMode === 'add' ? 'Tambah Kelas' : 'Edit Kelas'}
+                mode={modalMode}
+                fields={formFields}
+                formData={formData}
+                setFormData={setFormData}
+            />
         </div>
     );
 }
