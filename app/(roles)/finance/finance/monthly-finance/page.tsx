@@ -46,7 +46,8 @@ export default function MonthlyFinancePage() {
         month: '',
         income: 0,
         expenses: 0,
-        remainingBalance: 0
+        remainingBalance: 0,
+        financeOverviewId: 1
     });
 
     // Tambahkan state untuk nilai yang diformat
@@ -108,7 +109,8 @@ export default function MonthlyFinancePage() {
                 month: item.month,
                 income: item.income,
                 expenses: item.expenses,
-                remainingBalance: item.remainingBalance
+                remainingBalance: item.remainingBalance,
+                financeOverviewId: item.financeOverviewId
             });
             setFormattedValues({
                 income: formatRupiah(item.income),
@@ -120,7 +122,8 @@ export default function MonthlyFinancePage() {
                 month: '',
                 income: 0,
                 expenses: 0,
-                remainingBalance: 0
+                remainingBalance: 0,
+                financeOverviewId: 1
             });
             setFormattedValues({
                 income: '',
@@ -137,7 +140,8 @@ export default function MonthlyFinancePage() {
             month: '',
             income: 0,
             expenses: 0,
-            remainingBalance: 0
+            remainingBalance: 0,
+            financeOverviewId: 1
         });
     };
 
@@ -177,7 +181,8 @@ export default function MonthlyFinancePage() {
         setFormData(prev => {
             const updatedData = {
                 ...prev,
-                [field]: Number(value)
+                [field]: Number(value),
+                financeOverviewId: 1
             };
 
             // Hitung remainingBalance secara otomatis
