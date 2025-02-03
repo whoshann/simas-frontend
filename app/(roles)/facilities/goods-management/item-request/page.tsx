@@ -82,17 +82,25 @@ export default function ItemRequestPage() {
             setLoading(true);
             setError("");
 
+            const updateData = {
+                procurementStatus: "Approved",
+                updateMessage: "Pengajuan disetujui oleh Admin Sarpras"
+            };
+
             await procurementsApi.updateStatus(
                 item.id.toString(),
-                "Approved"
+                updateData
             );
 
-            // Refresh data setelah update
-            await fetchProcurements(); // Pastikan Anda memiliki fungsi untuk fetch ulang data
-
-            alert("Status pengajuan berhasil diubah menjadi Approved");
+            await fetchProcurements();
+            alert("Status pengajuan berhasil diubah menjadi Disetujui");
         } catch (error) {
-            alert("Gagal mengubah status pengajuan");
+            if (error.response?.data?.message) {
+                alert(error.response.data.message);
+            } else {
+                alert("Gagal mengubah status pengajuan");
+            }
+            console.error("Error updating status:", error);
         } finally {
             setLoading(false);
         }
@@ -103,17 +111,25 @@ export default function ItemRequestPage() {
             setLoading(true);
             setError("");
 
+            const updateData = {
+                procurementStatus: "Rejected",
+                updateMessage: "Pengajuan ditolak oleh Admin Sarpras"
+            };
+
             await procurementsApi.updateStatus(
                 item.id.toString(),
-                "Rejected"
+                updateData
             );
 
-            // Refresh data setelah update
             await fetchProcurements();
-
-            alert("Status pengajuan berhasil diubah menjadi Rejected");
+            alert("Status pengajuan berhasil diubah menjadi Ditolak");
         } catch (error) {
-            alert("Gagal mengubah status pengajuan");
+            if (error.response?.data?.message) {
+                alert(error.response.data.message);
+            } else {
+                alert("Gagal mengubah status pengajuan");
+            }
+            console.error("Error updating status:", error);
         } finally {
             setLoading(false);
         }

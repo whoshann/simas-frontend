@@ -24,11 +24,14 @@ export const procurementsApi = {
   },
   updateStatus: async (
     id: string,
-    status: string
+    data: {
+      procurementStatus: string;
+      updateMessage: string;
+    }
   ): Promise<ProcurementResponse> => {
     const response = await axios.patch(
       `${API_URL}/${id}/status`,
-      { procurementStatus: status },
+      data,
       {
         headers: getHeaders(),
       }
