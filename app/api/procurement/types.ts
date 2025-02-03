@@ -1,13 +1,14 @@
+import { Inventory } from "../inventories/types";
+
 export interface Procurement {
   id: number;
+  inventoryId: number;
+  inventory: Inventory;
   role: string;
   procurementName: string;
-  itemName: string;
-  unitPrice: string;
   quantity: string;
-  totalPrice: string;
-  supplier: string;
   procurementDate: string;
+  documentPath: string;
   procurementStatus: string;
 }
 

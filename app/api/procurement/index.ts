@@ -35,4 +35,11 @@ export const procurementsApi = {
     );
     return response.data;
   },
+  getDocument: async (filename: string): Promise<Blob> => {
+    const response = await axios.get(`${API_URL}/document/${filename}`, {
+      headers: getHeaders(),
+      responseType: "blob",
+    });
+    return response.data;
+  },
 };
