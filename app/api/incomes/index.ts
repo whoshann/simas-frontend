@@ -1,12 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import {
-  Income,
-  IncomesRequest,
-  UpdateIncomesRequest,
-  IncomesResponse,
-  IncomesResponses,
-} from "./types";
+import { Income, IncomeResponse, IncomesResponse } from "./types";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/income-details`;
 
@@ -15,61 +9,33 @@ const getHeaders = () => ({
   "Content-Type": "application/json",
 });
 
-export const incomeApi = {
-  getAll: async (): Promise<IncomesResponses> => {
+export const IncomesApi = {
+  getAll: async (): Promise<IncomesResponse> => {
     const response = await axios.get(API_URL, { headers: getHeaders() });
     return response.data;
   },
 
-  getById: async (id: number): Promise<IncomesResponse> => {
+  getById: async (id: number): Promise<IncomeResponse> => {
     const response = await axios.get(`${API_URL}/${id}`, {
       headers: getHeaders(),
     });
     return response.data;
   },
 
-  create: async (data: IncomesRequest): Promise<IncomesResponse> => {
-    try {
-      // Pastikan format data sesuai
-      const formattedData = {
-        monthlyFinanceId: data.monthlyFinanceId,
-        source: data.source,
-        description: data.description,
-        amount: data.amount,
-        incomeDate: data.incomeDate
-      };
-
-      const response = await axios.post(API_URL, formattedData, { 
-        headers: getHeaders(),
-        withCredentials: true // Tambahkan ini untuk mengirim cookies
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error creating income:', error);
-      throw error;
-    }
+  create: async (data: Omit<Income, "id">): Promise<IncomeResponse> => {
+    const response = await axios.post(API_URL, data, { headers: getHeaders() });
+    return response.data;
   },
 
-  update: async (
-    id: number,
-    data: UpdateIncomesRequest
-  ): Promise<IncomesResponse> => {
-    // Bersihkan data yang tidak diperlukan
-    const {
-      id: _id,
-      createdAt,
-      updatedAt,
-      monthlyFinanceId,
-      ...updateData
-    } = data as any;
-
+  update: async (id: number, data: Partial<Income>): Promise<IncomeResponse> => {
+    const { id: _, createdAt, updatedAt, ...updateData } = data;
     const response = await axios.patch(`${API_URL}/${id}`, updateData, {
       headers: getHeaders(),
     });
     return response.data;
   },
 
-  delete: async (id: number): Promise<IncomesResponse> => {
+  delete: async (id: number): Promise<IncomeResponse> => {
     const response = await axios.delete(`${API_URL}/${id}`, {
       headers: getHeaders(),
     });

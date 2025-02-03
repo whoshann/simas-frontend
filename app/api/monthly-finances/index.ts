@@ -28,15 +28,10 @@ export const monthlyFinanceApi = {
     return response.data;
   },
 
-  update: async (
-    id: number,
-    formData: FormData
-  ): Promise<MonthlyFinanceResponse> => {
-    const response = await axios.patch(`${API_URL}/${id}`, formData, {
-      headers: {
-        ...getHeaders(),
-        "Content-Type": "multipart/form-data",
-      },
+  update: async (id: number, data: Partial<MonthlyFinance>): Promise<MonthlyFinanceResponse> => {
+    const { id: _, createdAt, updatedAt, ...updateData } = data;
+    const response = await axios.patch(`${API_URL}/${id}`, updateData, {
+      headers: getHeaders(),
     });
     return response.data;
   },
@@ -47,6 +42,7 @@ export const monthlyFinanceApi = {
     });
     return response.data;
   },
+
 
   getById: async (id: number): Promise<MonthlyFinanceResponse> => {
     const response = await axios.get(`${API_URL}/${id}`, {
