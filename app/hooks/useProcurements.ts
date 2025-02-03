@@ -21,10 +21,21 @@ export const useProcurements = () => {
     }
   }, []);
 
+  const createProcurement = async (formData: FormData) => {
+    try {
+      await procurementsApi.create(formData);
+      await fetchProcurements();
+    } catch (err) {
+      console.error("Error creating procurement:", err);
+      throw err;
+    }
+  };
+
   return {
     procurements,
     loading,
     error,
     fetchProcurements,
+    createProcurement,
   };
 };
