@@ -16,15 +16,15 @@ export default function TeacherDashboardPage() {
 
   useEffect(() => {
     const initializePage = async () => {
-        try {
-            await roleMiddleware(["Teacher","SuperAdmin"]);
-            setIsAuthorized(true);
-        } catch (error) {
-            console.error("Auth error:", error);
-            setIsAuthorized(false);
-        } finally {
-            setLoading(false);
-        }
+      try {
+        await roleMiddleware(["Teacher", "SuperAdmin"]);
+        setIsAuthorized(true);
+      } catch (error) {
+        console.error("Auth error:", error);
+        setIsAuthorized(false);
+      } finally {
+        setLoading(false);
+      }
     };
 
     initializePage();
@@ -43,7 +43,35 @@ export default function TeacherDashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Tambahkan data agenda
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <p className="text-red-500">{error}</p>;
+  }
+
+  // Tambahkan data berita sebagai konstanta
+  const newsData = [
+    {
+      id: 1,
+      image: "/images/Berita1.jpg",
+      title: "Sosialisasi Prakerin Orang Tua",
+      date: { day: "27", month: "01" },
+      description: "Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.",
+      note: "Catatan: babababa."
+    },
+    {
+      id: 2,
+      image: "/images/Berita1.jpg",
+      title: "Rapart Orang Tua",
+      date: { day: "18", month: "01" },
+      description: "Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.",
+      note: "Catatan: babababa."
+    }
+  ];
+
+  // Tambahkan data agenda sebagai konstanta
   const agenda = [
     {
       date: new Date(2025, 0, 24),
@@ -80,15 +108,6 @@ export default function TeacherDashboardPage() {
     );
   };
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  if (error) {
-    return <p className="text-red-500">{error}</p>;
-  }
-
-
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
       <header className="py-6 px-9">
@@ -112,58 +131,34 @@ export default function TeacherDashboardPage() {
           <div className="col-span-2 flex flex-col">
             <div className="bg-white shadow-md rounded-lg overflow-hidden lg:col-span-2" ref={carouselRef}>
               <div className="carousel rounded-box w-full">
-                <div className="carousel-item w-full flex flex-col items-center">
-                  <div className="p-4">
-                  <Image
-                      src="/images/Berita1.jpg"
-                      alt="Sosialisasi Prakerin Orang Tua"
-                      width={800}
-                      height={400}
-                      className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
-                  />
-                  </div>
-                  <div className="p-6 text-center flex justify-between items-center">
-                    <div className="flex flex-col items-center">
-                      <span className="text-4xl font-bold text-[var(--main-color)]">27</span>
-                      <span className="text-4xl font-bold text-[var(--third-color)]">01</span>
+                {newsData.map((news) => (
+                  <div key={news.id} className="carousel-item w-full flex flex-col items-center">
+                    <div className="p-4">
+                      <Image
+                        src={news.image}
+                        alt={news.title}
+                        width={800}
+                        height={400}
+                        className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
+                      />
                     </div>
-                    <div className="text-left ml-4">
-                      <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
-                        Sosialisasi Prakerin Orang Tua
-                      </h2>
-                      <p className="text-sm text-gray-600 mt-2">
-                        Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa
-                        yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="carousel-item w-full flex flex-col items-center">
-                  <div className="p-4">
-                  <Image
-                      src="/images/Berita2.jpg"
-                      alt="Sosialisasi Prakerin Orang Tua"
-                      width={800}
-                      height={400}
-                      className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
-                  />
-                  </div>
-                  <div className="p-6 text-center flex justify-between items-center">
-                    <div className="flex flex-col items-center">
-                      <span className="text-4xl font-bold text-[var(--main-color)]">18</span>
-                      <span className="text-4xl font-bold text-[var(--third-color)]">01</span>
-                    </div>
-                    <div className="text-left ml-4">
-                      <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
-                        Rapart Orang Tua
-                      </h2>
-                      <p className="text-sm text-gray-600 mt-2">
-                        Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa
-                        yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.
-                      </p>
+                    <div className="p-6 text-center flex justify-between items-center">
+                      <div className="flex flex-col items-center">
+                        <span className="text-4xl font-bold text-[var(--main-color)]">{news.date.day}</span>
+                        <span className="text-4xl font-bold text-[var(--third-color)]">{news.date.month}</span>
+                      </div>
+                      <div className="text-left ml-4">
+                        <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
+                          {news.title}
+                        </h2>
+                        <p className="text-sm text-gray-600 mt-2">
+                          {news.description}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">{news.note}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
