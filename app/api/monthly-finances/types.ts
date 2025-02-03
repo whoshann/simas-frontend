@@ -6,6 +6,7 @@ export interface MonthlyFinance {
     remainingBalance: number;
     financeOverviewId: number;
     createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface CreateMonthlyFinanceDto {

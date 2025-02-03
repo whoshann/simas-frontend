@@ -10,9 +10,59 @@ import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 
-
 // Daftarkan semua komponen yang diperlukan
 Chart.register(...registerables);
+
+const newsData = [
+  {
+    id: 1,
+    image: "/images/Berita1.jpg",
+    title: "Sosialisasi Prakerin Orang Tua",
+    date: { day: "27", month: "01" },
+    description: "Kegiatan ekstrakurikuler akan dilaksanakan pada tanggal 15 Februari.Kegiatan ekstrakurikuler akan dilaksanakan pada tanggal 15 Februari.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+  {
+    id: 2,
+    image: "/images/Berita2.jpg",
+    title: "Kegiatan Ekstrakurikuler",
+    date: { day: "15", month: "02" },
+    description: "Kegiatan ekstrakurikuler akan dilaksanakan pada tanggal 15 Februari.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+  {
+    id: 3,
+    image: "/images/Berita3.jpg",
+    title: "Pendaftaran Siswa Baru",
+    date: { day: "01", month: "03" },
+    description: "Pendaftaran siswa baru akan dibuka mulai tanggal 1 Maret.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+  {
+    id: 4,
+    image: "/images/Berita4.jpg",
+    title: "Kegiatan Olahraga",
+    date: { day: "10", month: "03" },
+    description: "Kegiatan olahraga akan dilaksanakan pada tanggal 10 Maret.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+  {
+    id: 5,
+    image: "/images/Berita1.jpg",
+    title: "Pameran Seni",
+    date: { day: "20", month: "04" },
+    description: "Pameran seni akan dilaksanakan pada tanggal 20 April.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+  {
+    id: 6,
+    image: "/images/Berita3.jpg",
+    title: "Workshop Teknologi",
+    date: { day: "05", month: "05" },
+    description: "Workshop teknologi akan dilaksanakan pada tanggal 5 Mei.",
+    note: "Catatan: Ini adalah catatan untuk kartu berita ini."
+  },
+];
 
 export default function StudentDashboard() {
   // Panggil middleware dan hooks di awal komponen
@@ -23,20 +73,20 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     const initializePage = async () => {
-        try {
-            await roleMiddleware(["Student","SuperAdmin"]);
-            setIsAuthorized(true);
-        } catch (error) {
-            console.error("Auth error:", error);
-            setIsAuthorized(false);
-        } finally {
-            setLoading(false);
-        }
+      try {
+        await roleMiddleware(["Student", "SuperAdmin"]);
+        setIsAuthorized(true);
+      } catch (error) {
+        console.error("Auth error:", error);
+        setIsAuthorized(false);
+      } finally {
+        setLoading(false);
+      }
     };
 
     initializePage();
   }, []);
-  
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const swiperRef = useRef<any>(null);
 
@@ -51,7 +101,7 @@ export default function StudentDashboard() {
   }, []);
 
   if (loading) {
-    return <LoadingSpinner/>;
+    return <LoadingSpinner />;
   }
 
   if (error) {
@@ -159,7 +209,6 @@ export default function StudentDashboard() {
                     <span className="text-gray-500">19/01/2024</span>
                   </div>
                 </li>
-                
               </ul>
             </div>
 
@@ -187,212 +236,70 @@ export default function StudentDashboard() {
 
         {/* Grid Berita */}
         <Swiper
-  ref={swiperRef}
-  pagination={{ clickable: true }}
-  autoplay={{ delay: 3000, disableOnInteraction: false }} 
-  style={{ marginTop: '20px' }}
-  slidesPerView={1}
-  slidesPerGroup={1}
-  centeredSlides={true}
-  loop={true}
-  effect={'slide'}
-  breakpoints={{
-    1024: {
-      slidesPerView: 3,
-      slidesPerGroup: 1,
-      centeredSlides: false,
-      spaceBetween: 20
-    },
-    768: {
-      slidesPerView: 2,
-      slidesPerGroup: 1,
-      centeredSlides: false,
-      spaceBetween: 15
-    },
-    0: { // Tambahkan ini untuk ponsel
-      slidesPerView: 1,
-      slidesPerGroup: 1,
-      centeredSlides: true,
-      spaceBetween: 10
-    }
-  }}
->
-
-          {/* Kartu Berita */}
-          <SwiperSlide>
-            <div className="bg-white shadow rounded-lg overflow-hidden w-full max-w-sm mx-auto">
-              <div className="relative h-48 md:h-56">
-                <Image
-                  src="/images/Berita1.jpg"
-                  alt="Sosialisasi Prakerin Orang Tua"
-                  className="rounded-t-lg object-cover"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-              </div>
-              <div className="p-4 flex">
-                <div className="flex flex-col items-center justify-center pr-4">
-                  <span className="text-2xl font-bold text-blue-700">27</span>
-                  <span className="text-xl font-semibold text-teal-600">01</span>
+          ref={swiperRef}
+          pagination={{ clickable: true }}
+          autoplay={{ delay: 3000, disableOnInteraction: false }}
+          style={{ marginTop: '20px' }}
+          slidesPerView={1}
+          slidesPerGroup={1}
+          centeredSlides={true}
+          loop={true}
+          effect={'slide'}
+          breakpoints={{
+            1024: {
+              slidesPerView: 3,
+              slidesPerGroup: 1,
+              centeredSlides: false,
+              spaceBetween: 20
+            },
+            768: {
+              slidesPerView: 2,
+              slidesPerGroup: 1,
+              centeredSlides: false,
+              spaceBetween: 15
+            },
+            0: { // Tambahkan ini untuk ponsel
+              slidesPerView: 1,
+              slidesPerGroup: 1,
+              centeredSlides: true,
+              spaceBetween: 10
+            }
+          }}
+        >
+          {newsData.map((news) => (
+            <SwiperSlide key={news.id}>
+              <div className="bg-white shadow rounded-lg overflow-hidden w-full max-w-sm mx-auto">
+                <div className="relative h-48 md:h-56">
+                  <Image
+                    src={news.image}
+                    alt={news.title}
+                    className="rounded-t-lg object-cover"
+                    fill
+                    style={{ objectFit: 'cover' }}
+                  />
                 </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-[var(--text-semi-bold-color)] line-clamp-2">
-                    Sosialisasi Prakerin Orang Tua
-                  </h4>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                    Kegiatan ekstrakurikuler akan dilaksanakan pada tanggal 15 Februari.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </SwiperSlide>
-
-          {/* Kartu Berita 2 */}
-          <SwiperSlide>
-            <div className="bg-white shadow rounded-lg overflow-hidden w-full max-w-sm mx-auto">
-              <div className="relative h-48 md:h-56">
-                <Image
-                  src="/images/Berita2.jpg"
-                  alt="Kegiatan Ekstrakurikuler"
-                  className="rounded-t-lg object-cover"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-              </div>
-              <div className="p-4 flex">
-                <div className="flex flex-col items-center justify-center pr-4">
-                  <span className="text-2xl font-bold text-blue-700">15</span>
-                  <span className="text-xl font-semibold text-teal-600">02</span>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-[var(--text-semi-bold-color)] line-clamp-2">
-                    Kegiatan Ekstrakurikuler
-                  </h4>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                    Kegiatan ekstrakurikuler akan dilaksanakan pada tanggal 15 Februari.
-                  </p>
+                <div className="p-4 flex flex-col">
+                  <div className="flex items-center justify-start pr-4">
+                    <div className="flex flex-col items-center mr-4">
+                      <span className="text-2xl font-bold text-blue-700">{news.date.day}</span>
+                      <span className="text-xl font-semibold text-teal-600">{news.date.month}</span>
+                    </div>
+                    <div className="flex-grow">
+                      <h4 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
+                        {news.title}
+                      </h4>
+                      <p className="text-sm text-gray-600 mt-1 whitespace-normal">
+                        {news.description}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">{news.note}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </SwiperSlide>
-
-          {/* Kartu Berita 3 */}
-          <SwiperSlide>
-            <div className="bg-white shadow rounded-lg overflow-hidden w-full max-w-sm mx-auto">
-              <div className="relative h-48 md:h-56">
-                <Image
-                  src="/images/Berita3.jpg"
-                  alt="Pendaftaran Siswa Baru"
-                  className="rounded-t-lg object-cover"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-              </div>
-              <div className="p-4 flex">
-                <div className="flex flex-col items-center justify-center pr-4">
-                  <span className="text-2xl font-bold text-blue-700">01</span>
-                  <span className="text-xl font-semibold text-teal-600">03</span>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-[var(--text-semi-bold-color)] line-clamp-2">
-                    Pendaftaran Siswa Baru
-                  </h4>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                    Pendaftaran siswa baru akan dibuka mulai tanggal 1 Maret.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </SwiperSlide>
-
-          {/* Kartu Berita 4 */}
-          <SwiperSlide>
-            <div className="bg-white shadow rounded-lg overflow-hidden w-full max-w-sm mx-auto">
-              <div className="relative h-48 md:h-56">
-                <Image
-                  src="/images/Berita4.jpg"
-                  alt="Kegiatan Olahraga"
-                  className="rounded-t-lg object-cover"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-              </div>
-              <div className="p-4 flex">
-                <div className="flex flex-col items-center justify-center pr-4">
-                  <span className="text-2xl font-bold text-blue-700">10</span>
-                  <span className="text-xl font-semibold text-teal-600">03</span>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-[var(--text-semi-bold-color)] line-clamp-2">
-                    Kegiatan Olahraga
-                  </h4>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                    Kegiatan olahraga akan dilaksanakan pada tanggal 10 Maret.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </SwiperSlide>
-
-          {/* Kartu Berita 5 */}
-          <SwiperSlide>
-            <div className="bg-white shadow rounded-lg overflow-hidden w-full max-w-sm mx-auto">
-              <div className="relative h-48 md:h-56">
-                <Image
-                  src="/images/Berita1.jpg"
-                  alt="Pameran Seni"
-                  className="rounded-t-lg object-cover"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-              </div>
-              <div className="p-4 flex">
-                <div className="flex flex-col items-center justify-center pr-4">
-                  <span className="text-2xl font-bold text-blue-700">20</span>
-                  <span className="text-xl font-semibold text-teal-600">04</span>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-[var(--text-semi-bold-color)] line-clamp-2">
-                    Pameran Seni
-                  </h4>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                    Pameran seni akan dilaksanakan pada tanggal 20 April.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </SwiperSlide>
-
-          {/* Kartu Berita 6 */}
-          <SwiperSlide>
-            <div className="bg-white shadow rounded-lg overflow-hidden w-full max-w-sm mx-auto">
-              <div className="relative h-48 md:h-56">
-                <Image
-                  src="/images/Berita3.jpg"
-                  alt="Workshop Teknologi"
-                  className="rounded-t-lg object-cover"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-              </div>
-              <div className="p-4 flex">
-                <div className="flex flex-col items-center justify-center pr-4">
-                  <span className="text-2xl font-bold text-blue-700">05</span>
-                  <span className="text-xl font-semibold text-teal-600">05</span>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-[var(--text-semi-bold-color)] line-clamp-2">
-                    Workshop Teknologi
-                  </h4>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                    Workshop teknologi akan dilaksanakan pada tanggal 5 Mei.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </SwiperSlide>
+            </SwiperSlide>
+          ))}
         </Swiper>
       </main>
-    </div>
-  );
+    </div>
+  );
 }

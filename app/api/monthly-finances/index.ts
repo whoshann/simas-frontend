@@ -14,7 +14,7 @@ const getHeaders = () => ({
   "Content-Type": "application/json",
 });
 
-export const MonthlyFinanceApi = {
+export const monthlyFinanceApi = {
   getAll: async (): Promise<MonthlyFinancesResponse> => {
     const response = await axios.get(API_URL, { headers: getHeaders() });
     return response.data;

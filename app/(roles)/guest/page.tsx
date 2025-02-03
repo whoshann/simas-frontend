@@ -6,6 +6,25 @@ import { useEffect, useRef } from 'react';
 export default function GuestDashboard() {
     const carouselRef = useRef<HTMLDivElement>(null);
 
+    const newsData = [
+        {
+            id: 1,
+            image: "/images/Berita1.jpg",
+            title: "Sosialisasi Prakerin Orang Tua",
+            date: { day: "27", month: "01" },
+            description: "Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.",
+            note: "Catatan: babababa."
+        },
+        {
+            id: 2,
+            image: "/images/Berita2.jpg",
+            title: "Rapart Orang Tua",
+            date: { day: "18", month: "01" },
+            description: "Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.",
+            note: "Catatan: babababa."
+        }
+    ];
+
     useEffect(() => {
         const interval = setInterval(() => {
             if (carouselRef.current) {
@@ -31,11 +50,12 @@ export default function GuestDashboard() {
                     {/* News Card */}
                     <div className="bg-white shadow-md rounded-lg overflow-hidden lg:col-span-2" ref={carouselRef}>
                         <div className="carousel rounded-box w-full">
+                            {/* Carousel Item 1 */}
                             <div className="carousel-item w-full flex flex-col items-center">
                                 <div className="p-4">
                                     <Image
-                                        src="/images/Berita1.jpg"
-                                        alt="Sosialisasi Prakerin Orang Tua"
+                                        src={newsData[0].image}
+                                        alt={newsData[0].title}
                                         width={800}
                                         height={400}
                                         className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
@@ -43,25 +63,26 @@ export default function GuestDashboard() {
                                 </div>
                                 <div className="p-6 text-center flex justify-between items-center">
                                     <div className="flex flex-col items-center">
-                                        <span className="text-4xl font-bold text-[var(--main-color)]">27</span>
-                                        <span className="text-4xl font-bold text-[var(--third-color)]">01</span>
+                                        <span className="text-4xl font-bold text-[var(--main-color)]">{newsData[0].date.day}</span>
+                                        <span className="text-4xl font-bold text-[var(--third-color)]">{newsData[0].date.month}</span>
                                     </div>
                                     <div className="text-left ml-4">
                                         <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
-                                            Sosialisasi Prakerin Orang Tua
+                                            {newsData[0].title}
                                         </h2>
                                         <p className="text-sm text-gray-600 mt-2">
-                                            Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa
-                                            yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.
+                                            {newsData[0].description}
                                         </p>
+                                        <p className="text-xs text-gray-400 mt-1">{newsData[0].note}</p>
                                     </div>
                                 </div>
                             </div>
+                            {/* Carousel Item 2 */}
                             <div className="carousel-item w-full flex flex-col items-center">
                                 <div className="p-4">
-                                <Image
-                                        src="/images/Berita2.jpg"
-                                        alt="Sosialisasi Prakerin Orang Tua"
+                                    <Image
+                                        src={newsData[1].image}
+                                        alt={newsData[1].title}
                                         width={800}
                                         height={400}
                                         className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
@@ -69,24 +90,24 @@ export default function GuestDashboard() {
                                 </div>
                                 <div className="p-6 text-center flex justify-between items-center">
                                     <div className="flex flex-col items-center">
-                                        <span className="text-4xl font-bold text-[var(--main-color)]">18</span>
-                                        <span className="text-4xl font-bold text-[var(--third-color)]">01</span>
+                                        <span className="text-4xl font-bold text-[var(--main-color)]">{newsData[1].date.day}</span>
+                                        <span className="text-4xl font-bold text-[var(--third-color)]">{newsData[1].date.month}</span>
                                     </div>
                                     <div className="text-left ml-4">
                                         <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
-                                            Rapart Orang Tua
+                                            {newsData[1].title}
                                         </h2>
                                         <p className="text-sm text-gray-600 mt-2">
-                                            Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa
-                                            yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.
+                                            {newsData[1].description}
                                         </p>
+                                        <p className="text-xs text-gray-400 mt-1">{newsData[1].note}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Card feture acces */}
+                    {/* Card fitur akses */}
                     <div className="bg-[var(--main-color)] text-white shadow-md rounded-lg flex flex-col justify-between p-6">
                         <h3 className="text-3xl font-semibold mt-8 max-w-272px ml-6">Silahkan masuk atau login untuk mengakses keseluruhan fitur fitur</h3>
                     </div>
