@@ -11,7 +11,6 @@ import React from "react";
 import { SchoolClass } from "@/app/api/school-class/types";
 import { AchievementCategory } from '@/app/utils/enums';
 import Image from 'next/image';
-import { showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 import { getTokenData } from '@/app/utils/tokenHelper';
 import { authApi } from '@/app/api/auth';
 

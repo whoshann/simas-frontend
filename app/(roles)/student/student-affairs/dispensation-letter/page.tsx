@@ -9,7 +9,9 @@ import { getTokenData } from '@/app/utils/tokenHelper';
 import { authApi } from '@/app/api/auth';
 import Cookies from "js-cookie";
 import axios from 'axios';
+import { getDispenseStatusLabel } from "@/app/utils/enumHelpers";
 import { showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
+import { generateDispensationPDF } from "@/app/utils/pdfTemplates";
 
 interface StudentState {
     role?: string;
@@ -171,6 +173,32 @@ export default function StudentDispensePage() {
                     await showErrorAlert('Error', 'Gagal mengajukan dispensasi. Silakan coba lagi.');
                 }
             }
+        }
+    };
+
+    const handleDownload = async (item: any) => {
+        try {
+            const dispensationData = {
+                studentName: item.student.name,
+                className: item.student.class.name,
+                reason: item.reason,
+                startTime: new Date(item.startTime).toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }),
+                endTime: new Date(item.endTime).toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }),
+                date: item.date
+            };
+    
+            const doc = generateDispensationPDF(dispensationData);
+            doc.save(`Surat_Dispensasi_${item.student.name}.pdf`);
+    
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            await showErrorAlert('Error', 'Gagal mengunduh surat dispensasi');
         }
     };
 
@@ -364,14 +392,23 @@ export default function StudentDispensePage() {
                                                 })}
                                             </td>
                                             <td className="py-2 px-4 border-b">
-                                                <span className={`inline-block px-3 py-1 rounded-full ${item.status === 'Pending'
-                                                    ? 'bg-[#e88e1f29] text-[var(--second-color)]'
-                                                    : item.status === 'Approved'
-                                                        ? 'bg-[#0a97b028] text-[var(--third-color)]'
-                                                        : 'bg-[#bd000025] text-[var(--fourth-color)]'
-                                                    }`}>
-                                                    {item.status}
-                                                </span>
+                                                {item.status === 'Approved' ? (
+                                                    <button
+                                                        onClick={() => handleDownload(item)}
+                                                        className="bg-[#1f509a26] text-[var(--main-color)] px-4 py-1 rounded-full"
+                                                    >
+                                                        Unduh Surat
+                                                    </button>
+                                                ) : (
+                                                    <span className={`inline-block px-3 py-1 rounded-full ${item.status === 'Pending'
+                                                        ? 'bg-[#e88e1f29] text-[var(--second-color)]'
+                                                        : item.status === 'Rejected'
+                                                            ? 'bg-[#bd000025] text-[var(--fourth-color)]'
+                                                            : ''
+                                                        }`}>
+                                                        {getDispenseStatusLabel(item.status)}
+                                                    </span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
