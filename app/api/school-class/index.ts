@@ -21,7 +21,6 @@ export const schoolClassesApi = {
     },
 
     update: async (id: number, data: Partial<SchoolClass>): Promise<SchoolClassResponse> => {
-        // Pastikan data yang dikirim sesuai dengan yang diharapkan backend
         const dataToSend = {
             name: data.name,
             code: data.code,

@@ -1,60 +1,85 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@/app/styles/globals.css";
-import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import Cookies from "js-cookie";
-import axios from "axios";
+import { useAbsence } from "@/app/hooks/useAbsence";
+import { Absence } from "@/app/api/absence/types";
+import { AbsenceStatus } from "@/app/utils/enums";
+import { getAbsenceStatusLabel } from '@/app/utils/enumHelpers';
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 
 export default function StudentAffairsAbsencePage() {
-    // Panggil middleware dan hooks di awal komponen
-    useEffect(() => {
-        // Panggil middleware untuk memeriksa role, hanya izinkan 'Student' dan 'SuperAdmin'
-        roleMiddleware(["StudentAffairs", "SuperAdmin"]);
-        fetchData();
-    }, []);
-
-    const [user, setUser] = useState<any>({});
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
-    const token = Cookies.get("token");
-    const [isPanelOpen, setIsPanelOpen] = useState(false);
+    // States
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [selectedData, setSelectedData] = useState<Absence | null>(null);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-    const data = [
-        { no: 1, name: "Ilham Kurniawan", class: "X PH A", status: "Hadir", document: null, date: "21/01/2024" },
-        { no: 2, name: "Adi Kurniawan", class: "X PH B", status: "Izin", document: "/images/Berita1.jpg", date: "22/01/2024" },
-        { no: 3, name: "Imam Kurniawan", class: "XI IPA A", status: "Sakit", document: "/images/Berita1.jpg", date: "23/01/2024" },
-        { no: 4, name: "Fawas Kurniawan", class: "XI IPA B", status: "Alpha", document: null, date: "24/01/2024" },
-        { no: 5, name: "Obing Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 6, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 7, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 8, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 9, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 10, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 11, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 12, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 13, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 14, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 15, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 16, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 17, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 18, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 19, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 20, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+    // Hooks
+    const { absence, loading, error, fetchAbsence, updateAbsence, deleteAbsence } = useAbsence();
 
-    ];
+    useEffect(() => {
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["StudentAffairs", "SuperAdmin"]);
+                setIsAuthorized(true);
+                await fetchAbsence();
+            } catch (error) {
+                console.error("Error initializing page:", error);
+                setIsAuthorized(false);
+            }
+        };
 
-    // Search item tabel
-    const filteredData = data.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.class.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        initializePage();
+    }, []);
+
+    // Handle delete
+    const handleDelete = async (id: number) => {
+        const isConfirmed = await showConfirmDelete(
+            'Hapus Data Absensi',
+            'Apakah Anda yakin ingin menghapus data absensi ini?'
+        );
+
+        if (isConfirmed) {
+            try {
+                await deleteAbsence(id);
+                console.log('Success delete absence data');
+                await showSuccessAlert('Berhasil', 'Data absensi berhasil dihapus');
+                await fetchAbsence();
+            } catch (error) {
+                console.error('Error deleting absence:', error);
+                await showErrorAlert('Error', 'Gagal menghapus data absensi');
+            }
+        }
+    };
+
+    // Handle image click
+    const handleImageClick = (imageUrl: string) => {
+        setSelectedImage(imageUrl);
+    };
+
+    const handleCloseImage = () => {
+        setSelectedImage(null);
+    };
+
+    // Format tanggal
+    const formatDate = (date: string) => {
+        return format(new Date(date), 'dd MMMM yyyy', { locale: id });
+    };
+
+
+    // Filter dan pagination
+    const filteredData = absence.filter(item =>
+        item.Student?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.date.includes(searchTerm)
     );
@@ -63,35 +88,9 @@ export default function StudentAffairsAbsencePage() {
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    const togglePanel = () => {
-        setIsPanelOpen(!isPanelOpen);
-    };
-
-    const fetchData = async () => {
-        try {
-            // Set default Authorization header dengan Bearer token
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-            // Fetch data user dari endpoint API
-            const response = await axios.get("http://localhost:3333/student");
-            setUser(response.data); // Simpan data user ke dalam state
-        } catch (err: any) {
-            console.error("Error saat fetching data:", err);
-            setError(err.response?.data?.message || "Terjadi kesalahan saat memuat data.");
-        } finally {
-            setLoading(false); // Set loading selesai
-        }
-    };
-
-    if (loading) {
-        return <LoadingSpinner />;
-    }
-
-    if (error) {
-        return <p className="text-red-500">{error}</p>;
-    }
+    if (loading) return <LoadingSpinner />;
+    if (error) return <p className="text-red-500">{error}</p>;
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
@@ -102,7 +101,7 @@ export default function StudentAffairsAbsencePage() {
                 </div>
 
 
-                {/* Filtering Bulanan */}
+                {/* search */}
                 <div className="mt-4 sm:mt-0">
                     <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
                         <i className='bx bx-search text-[var(--text-semi-bold-color)] text-lg mr-0 sm:mr-2 ml-2 sm:ml-0'></i>
@@ -195,54 +194,64 @@ export default function StudentAffairsAbsencePage() {
                                 <tr>
                                     <th className="py-2 px-4 border-b text-left">No</th>
                                     <th className="py-2 px-4 border-b text-left">Nama</th>
-                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
                                     <th className="py-2 px-4 border-b text-left">Keterangan</th>
                                     <th className="py-2 px-4 border-b text-left">Bukti Surat</th>
+                                    <th className="py-2 px-4 border-b text-left">Titik Koordinat</th>
                                     <th className="py-2 px-4 border-b text-left">Tanggal</th>
                                     <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.name}</td>
-                                        <td className="py-2 px-4 border-b">{item.class}</td>
+                                {currentEntries.map((item, index) => (
+                                    <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
+                                        <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
+                                        <td className="py-2 px-4 border-b">{item.Student?.name}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${item.status === 'Hadir' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.status === 'Sakit' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.status === 'Alpha' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : item.status === 'Izin' ? 'bg-[#1f509a26] text-[var(--main-color)] ' : ''}`}>
-                                                {item.status}
+                                            <span className={`inline-block px-3 py-1 rounded-full ${item.status === AbsenceStatus.Present
+                                                    ? 'bg-[#0a97b028] text-[var(--third-color)]'
+                                                    : item.status === AbsenceStatus.Sick
+                                                        ? 'bg-[#e88e1f29] text-[var(--second-color)]'
+                                                        : item.status === AbsenceStatus.Alpha
+                                                            ? 'bg-[#bd000025] text-[var(--fourth-color)]'
+                                                            : item.status === AbsenceStatus.Permission
+                                                                ? 'bg-[#1f509a26] text-[var(--main-color)]'
+                                                                : item.status === AbsenceStatus.Late
+                                                                    ? 'bg-[#0a97b028] text-[var(--third-color)]'
+                                                                    : 'bg-[#0a97b028] text-[var(--third-color)]'
+                                                }`}>
+                                                {getAbsenceStatusLabel(item.status)}
                                             </span>
                                         </td>
                                         <td className="py-2 px-4 border-b">
-                                            <div className="w-16 h-16 overflow-hidden rounded">
-                                                {item.document ? (
+                                            {item.photo ? (
+                                                <div
+                                                    className="w-16 h-16 overflow-hidden rounded cursor-pointer"
+                                                    onClick={() => handleImageClick(`${process.env.NEXT_PUBLIC_API_URL}/uploads/absence/${item.photo.split('/').pop()}`)}
+                                                >
                                                     <Image
-                                                        src={item.document}
+                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/absence/${item.photo.split('/').pop()}`}
                                                         alt="Bukti Surat"
-                                                        className="w-full h-full object-cover"
+                                                        className="w-full h-full object-cover hover:opacity-80 transition-opacity"
                                                         width={256}
                                                         height={256}
                                                     />
-                                                ) : (
-                                                    '-'
-                                                )}
-                                            </div>
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400">-</span>
+                                            )}
                                         </td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
+                                        <td className="py-2 px-4 border-b">
+                                            {item.latitude && item.longitude ?
+                                                `${item.latitude}, ${item.longitude}` :
+                                                <span className="text-gray-400">-</span>
+                                            }
+                                        </td>
+                                        <td className="py-2 px-4 border-b">{formatDate(item.date)}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
-                                                {/* Edit Button */}
                                                 <button
-                                                    className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-
-                                                >
-                                                    <i className="bx bxs-edit text-lg"></i>
-                                                </button>
-
-                                                {/* Delete Button */}
-                                                <button
+                                                    onClick={() => handleDelete(item.id!)}
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-
                                                 >
                                                     <i className="bx bxs-trash-alt text-lg"></i>
                                                 </button>
@@ -252,6 +261,30 @@ export default function StudentAffairsAbsencePage() {
                                 ))}
                             </tbody>
                         </table>
+                        {/* Image Modal */}
+                        {selectedImage && (
+                            <div
+                                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+                                onClick={handleCloseImage}
+                            >
+                                <div className="relative max-w-4xl max-h-[90vh] w-full">
+                                    <button
+                                        onClick={handleCloseImage}
+                                        className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center"
+                                    >
+                                        <i className="bx bx-x text-2xl"></i>
+                                    </button>
+                                    <Image
+                                        src={selectedImage}
+                                        alt="Bukti Surat"
+                                        className="w-full h-auto object-contain rounded-lg"
+                                        width={1024}
+                                        height={1024}
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex justify-between items-center mt-5">

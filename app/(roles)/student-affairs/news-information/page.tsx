@@ -130,7 +130,7 @@ export default function StudentAffairsNewsInformationPage() {
             } else if (modalMode === "edit" && selectedNews?.id) {
                 // console.log("Updating news with id:", selectedNews.id);
 
-                // 🔥 Hapus properti yang tidak diperbolehkan sebelum dikirim ke API
+                // Hapus properti yang tidak diperbolehkan sebelum dikirim ke API
                 const { id, createdAt, updatedAt, ...validData } = formData;
 
                 // console.log("Sanitized Form Data:", validData);
