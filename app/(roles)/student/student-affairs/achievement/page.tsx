@@ -11,6 +11,7 @@ import React from "react";
 import { SchoolClass } from "@/app/api/school-class/types";
 import { AchievementCategory } from '@/app/utils/enums';
 import Image from 'next/image';
+import { showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 import { getTokenData } from '@/app/utils/tokenHelper';
 import { authApi } from '@/app/api/auth';
 
@@ -133,6 +134,7 @@ export default function StudentAchievementPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    await showSuccessAlert('Berhasil', 'Prestasi berhasil ditambahkan!');
 
     if (!studentData) {
       toast.error("Data siswa tidak ditemukan");
