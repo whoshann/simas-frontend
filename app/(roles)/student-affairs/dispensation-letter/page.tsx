@@ -1,253 +1,254 @@
 "use client";
-import "@/app/styles/globals.css";
+
 import React, { useEffect, useState } from "react";
+import "@/app/styles/globals.css";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import DataTable from "@/app/components/DataTable/TableData";
-import PageHeader from "@/app/components/DataTable/TableHeader";
-
-// Enum untuk status
-enum DispensationStatus {
-    Pending = 'Menunggu',
-    Approved = 'Disetujui',
-    Rejected = 'Ditolak'
-}
-
-// Interface untuk data dispensasi
-interface DispensationData {
-    no: number;
-    id: number;
-    name: string;
-    class: string;
-    reason: string;
-    startTime: string;
-    endTime: string;
-    date: string;
-    status: DispensationStatus;
-}
-
-// Data dummy
-const staticDispensationData: DispensationData[] = [
-    {
-        no: 1,
-        id: 1,
-        name: "John Doe",
-        class: "XII RPL 1",
-        reason: "Mengikuti lomba programming",
-        startTime: "08:00",
-        endTime: "14:00",
-        date: "2024-01-15",
-        status: DispensationStatus.Pending
-    },
-    {
-        no: 2,
-        id: 2,
-        name: "Jane Smith",
-        class: "XII RPL 2",
-        reason: "Sakit gigi",
-        startTime: "10:00",
-        endTime: "12:00",
-        date: "2024-01-15",
-        status: DispensationStatus.Approved
-    },
-    {
-        no: 3,
-        id: 3,
-        name: "Mike Johnson",
-        class: "XII RPL 1",
-        reason: "Urusan keluarga",
-        startTime: "13:00",
-        endTime: "15:00",
-        date: "2024-01-15",
-        status: DispensationStatus.Rejected
-    },
-    {
-        no: 4,
-        id: 4,
-        name: "John Doe",
-        class: "XII RPL 1",
-        reason: "Mengikuti lomba programming",
-        startTime: "08:00",
-        endTime: "14:00",
-        date: "2024-01-15",
-        status: DispensationStatus.Pending
-    },
-    {
-        no: 5,
-        id: 5,
-        name: "Jane Smith",
-        class: "XII RPL 2",
-        reason: "Sakit gigi",
-        startTime: "10:00",
-        endTime: "12:00",
-        date: "2024-01-15",
-        status: DispensationStatus.Approved
-    },
-    {
-        no: 6,
-        id: 6,
-        name: "Mike Johnson",
-        class: "XII RPL 1",
-        reason: "Urusan keluarga",
-        startTime: "13:00",
-        endTime: "15:00",
-        date: "2024-01-15",
-        status: DispensationStatus.Rejected
-    },
-];
+import { useDispense } from "@/app/hooks/useDispense";
+import { DispenseStatus } from "@/app/utils/enums";
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
+import { getDispenseStatusLabel } from "@/app/utils/enumHelpers";
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 
 export default function StudentAffairsDispensationPage() {
-    const [isPageLoading, setIsPageLoading] = useState(true);
-    const [loading, setLoading] = useState<boolean>(true);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
-    const [dispensationData, setDispensationData] = useState<DispensationData[]>(staticDispensationData);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    // Fetch data saat komponen dimount
+    const {
+        dispenses,
+        loading,
+        fetchDispenses,
+        approveDispense,
+        rejectDispense
+    } = useDispense();
+
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["StudentAffairs", "SuperAdmin"]);
-            } catch (error) {
-                console.error("Error:", error);
-            } finally {
-                setIsPageLoading(false);
-            }
-        };
-
-        initializePage();
-    }, []);
-
-    const handleExport = (type: 'pdf' | 'excel') => {
-        if (type === 'pdf') {
-            console.log('Exporting to PDF...');
-            // Implementasi export PDF
-        } else {
-            console.log('Exporting to Excel...');
-            // Implementasi export Excel
-        }
-    };
-
-    // Fungsi untuk handle konfirmasi
-    const handleConfirm = (id: number) => {
-        setDispensationData(prevData =>
-            prevData.map(item =>
-                item.id === id
-                    ? { ...item, status: DispensationStatus.Approved }
-                    : item
-            )
-        );
-    };
-
-    // Fungsi untuk handle penolakan
-    const handleReject = (id: number) => {
-        setDispensationData(prevData =>
-            prevData.map(item =>
-                item.id === id
-                    ? { ...item, status: DispensationStatus.Rejected }
-                    : item
-            )
-        );
-    };
-
-    // Konfigurasi header tabel
-    const tableHeaders = [
-        { key: 'no', label: 'No' },
-        { key: 'name', label: 'Nama' },
-        { key: 'class', label: 'Kelas' },
-        { key: 'reason', label: 'Alasan' },
-        { key: 'startTime', label: 'Jam Keluar' },
-        { key: 'endTime', label: 'Jam Kembali' },
-        { key: 'date', label: 'Tanggal' },
-        {
-            key: 'status',
-            label: 'Status',
-            render: (value: DispensationStatus) => {
-                const statusStyles = {
-                    [DispensationStatus.Pending]: 'bg-[#e88e1f29] text-[var(--second-color)]',
-                    [DispensationStatus.Approved]: 'bg-[#0a97b022] text-[var(--third-color)]',
-                    [DispensationStatus.Rejected]: 'bg-red-100 text-[var(--fourth-color)]',
-                };
-                return (
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyles[value]}`}>
-                        {value}
-                    </span>
-                );
-            }
-        },
-        {
-            key: 'actions',
-            label: 'Aksi',
-            render: (_: any, row: DispensationData) => {
-                if (row.status === DispensationStatus.Pending) {
-                    return (
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => handleConfirm(row.id)}
-                                className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-                            >
-                                <i className='bx bxs-check-circle text-lg'></i>
-                            </button>
-                            <button
-                                onClick={() => handleReject(row.id)}
-                                className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-                            >
-                                <i className='bx bxs-x-circle text-lg'></i>
-                            </button>
-                        </div>
-                    );
-                }
-                return (
-                    <span className="text-gray-400 text-xs">
-                        -
-                    </span>
-                );
-            }
-        }
-    ];
-
-    useEffect(() => {
-        const initializePage = async () => {
-            try {
-                await roleMiddleware(["StudentAffairs"]);
+                await fetchDispenses();
                 setIsAuthorized(true);
             } catch (error) {
-                console.error("Auth error:", error);
+                console.error("Error:", error);
                 setIsAuthorized(false);
-            } finally {
-                setLoading(false);
             }
         };
 
         initializePage();
     }, []);
+
+    const handleConfirm = async (id: number) => {
+        try {
+            const isConfirmed = await showConfirmDelete(
+                'Konfirmasi Dispensasi',
+                'Apakah Anda yakin ingin menyetujui dispensasi ini?'
+            );
+
+            if (isConfirmed) {
+                await approveDispense(id);
+                await showSuccessAlert('Berhasil', 'Dispensasi berhasil disetujui');
+                await fetchDispenses(); // Refresh data setelah update
+            }
+        } catch (error) {
+            console.error('Error approving dispense:', error);
+            await showErrorAlert('Error', 'Gagal menyetujui dispensasi');
+        }
+    };
+
+    const handleReject = async (id: number) => {
+        try {
+            const isConfirmed = await showConfirmDelete(
+                'Tolak Dispensasi',
+                'Apakah Anda yakin ingin menolak dispensasi ini?'
+            );
+
+            if (isConfirmed) {
+                await rejectDispense(id);
+                await showSuccessAlert('Berhasil', 'Dispensasi berhasil ditolak');
+                await fetchDispenses(); // Refresh data setelah update
+            }
+        } catch (error) {
+            console.error('Error rejecting dispense:', error);
+            await showErrorAlert('Error', 'Gagal menolak dispensasi');
+        }
+    };
+
+
+
+    // Filtering logic
+    const filteredData = dispenses.filter(item =>
+        item.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.student.class.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.startTime.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.endTime.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.date.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const totalEntries = filteredData.length;
+    const totalPages = Math.ceil(totalEntries / entriesPerPage);
+    const startIndex = (currentPage - 1) * entriesPerPage;
+    const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
+
+    if (!isAuthorized) {
+        return null;
+    }
 
     if (loading) {
         return <LoadingSpinner />;
     }
 
-    if (!isAuthorized) {
-        return <div>Anda tidak memiliki akses ke halaman ini</div>;
-    }
-
     return (
-        <div className="flex-1 flex px-9 flex-col overflow-hidden bg-[#F2F2F2]">
-            <PageHeader
-                title="Dispensasi Siswa"
-                greeting="Selamat datang di halaman Dispensasi Siswa"
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-            />
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
+            <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                <div>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Dispensasi Siswa</h1>
+                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
+                </div>
 
-            <DataTable
-                headers={tableHeaders}
-                data={dispensationData}
-                searchTerm={searchTerm}
-                entriesPerPage={entriesPerPage}
-                setEntriesPerPage={setEntriesPerPage}
-                onExport={handleExport}
-            />
+                <div className="mt-4 sm:mt-0">
+                    <div className="bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
+                        <i className='bx bx-search text-[var(--text-semi-bold-color)] text-lg mr-0 sm:mr-2 ml-2 sm:ml-0'></i>
+                        <input
+                            type="text"
+                            placeholder="Cari data..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="border-0 focus:outline-none text-base w-40"
+                        />
+                    </div>
+                </div>
+            </header>
+
+            <main className="px-9 pb-6">
+                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+                    <div className="mb-4">
+                        <div className="text-xs sm:text-base">
+                            <label className="mr-2">Tampilkan</label>
+                            <select
+                                value={entriesPerPage}
+                                onChange={(e) => setEntriesPerPage(Number(e.target.value))}
+                                className="border border-gray-300 rounded-lg p-1 text-xs sm:text-sm w-12 sm:w-16"
+                            >
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={15}>15</option>
+                                <option value={20}>20</option>
+                            </select>
+                            <label className="ml-2">Entri</label>
+                        </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full rounded-lg overflow-hidden">
+                            <thead className="text-[var(--text-semi-bold-color)]">
+                                <tr>
+                                    <th className="py-2 px-4 border-b text-left">No</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Siswa</th>
+                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
+                                    <th className="py-2 px-4 border-b text-left">Alasan</th>
+                                    <th className="py-2 px-4 border-b text-left">Jam Keluar</th>
+                                    <th className="py-2 px-4 border-b text-left">Jam Kembali</th>
+                                    <th className="py-2 px-4 border-b text-left">Tanggal</th>
+                                    <th className="py-2 px-4 border-b text-left">Status</th>
+                                    <th className="py-2 px-4 border-b text-left">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentEntries.map((item, index) => {
+                                    return (
+                                        <tr key={index} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
+                                            <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
+                                            <td className="py-2 px-4 border-b">{item.student?.name || '-'}</td>
+                                            <td className="py-2 px-4 border-b">
+                                                {item.student?.class?.name || '-'}
+                                            </td>
+                                            <td className="py-2 px-4 border-b">{item.reason}</td>
+                                            <td className="py-2 px-4 border-b">
+                                                {format(new Date(item.startTime), 'HH:mm', { locale: id })}
+                                            </td>
+                                            <td className="py-2 px-4 border-b">
+                                                {format(new Date(item.endTime), 'HH:mm', { locale: id })}
+                                            </td>
+                                            <td className="py-2 px-4 border-b">
+                                                {format(new Date(item.date), 'dd MMMM yyyy', { locale: id })}
+                                            </td>
+                                            <td className="py-2 px-4 border-b">
+                                                <span className={`px-2 py-1 rounded-full text-xs ${item.status === DispenseStatus.Pending ? 'bg-[#e88e1f29] text-[var(--second-color)]' :
+                                                    item.status === DispenseStatus.Approved ? 'bg-[#1f509a26] text-[var(--main-color)]' :
+                                                        'bg-[#bd000025] text-[var(--fourth-color)]'
+                                                    }`}>
+                                                    {getDispenseStatusLabel(item.status)}
+                                                </span>
+                                            </td>
+                                            <td className="py-2 px-4 border-b">
+                                                {item.status === DispenseStatus.Pending && (
+                                                    <div className="flex space-x-2">
+                                                        <button
+                                                            onClick={() => handleConfirm(item.id)}
+                                                            className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+                                                        >
+                                                            <i className='bx bxs-check-circle text-lg'></i>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleReject(item.id)}
+                                                            className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
+                                                        >
+                                                            <i className='bx bxs-x-circle text-lg'></i>
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className="flex justify-between items-center mt-5">
+                        <span className="text-xs sm:text-base">
+                            Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri
+                        </span>
+
+                        <div className="flex items-center">
+                            <button
+                                onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="px-4 py-2 text-[var(--main-color)]"
+                            >
+                                &lt;
+                            </button>
+                            <div className="flex space-x-1">
+                                {Array.from({ length: Math.min(totalPages - (currentPage - 1), 2) }, (_, index) => {
+                                    const pageNumber = currentPage + index;
+                                    return (
+                                        <button
+                                            key={pageNumber}
+                                            onClick={() => setCurrentPage(pageNumber)}
+                                            className={`rounded-md px-3 py-1 ${currentPage === pageNumber ? 'bg-[var(--main-color)] text-white' : 'text-[var(--main-color)]'}`}
+                                        >
+                                            {pageNumber}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            <button
+                                onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="px-4 py-2 text-[var(--main-color)]"
+                            >
+                                &gt;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     );
 }

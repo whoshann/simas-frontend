@@ -10,6 +10,7 @@ import {
   Religion,
   Gender,
   AchievementCategory,
+  DispenseStatus
 } from "./enums";
 
 export const ConditionLabel = {
@@ -20,6 +21,16 @@ export const ConditionLabel = {
 
 export const getConditionLabel = (condition: Condition): string => {
   return ConditionLabel[condition] || condition;
+};
+
+export const DispenseStatusLabel = {
+  Pending: "Menunggu",
+  Approved: "Disetujui",
+  Rejected: "Ditolak",
+};
+
+export const getDispenseStatusLabel = (status: DispenseStatus): string => {
+  return DispenseStatusLabel[status] || status;
 };
 
 export const RepairCategoryLabel = {
@@ -92,10 +103,11 @@ export const getProcurementStatusLabel = (
 };
 
 export const AbsenceStatusLabel = {
-  Present: "Hadir",
-  Permission: "Izin",
-  Sick: "Sakit",
-  Alpha: "Alpha",
+  [AbsenceStatus.Present]: "Hadir",
+  [AbsenceStatus.Permission]: "Izin",
+  [AbsenceStatus.Sick]: "Sakit",
+  [AbsenceStatus.Alpha]: "Alpha",
+  [AbsenceStatus.Late]: "Terlambat"
 };
 
 export const getAbsenceStatusLabel = (status: AbsenceStatus): string => {
@@ -132,3 +144,4 @@ export const AchievementCategoryLabel = {
 export const getAchievementCategoryLabel = (category: AchievementCategory): string => {
   return AchievementCategory[category] || category;
 };
+
