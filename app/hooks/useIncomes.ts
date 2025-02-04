@@ -1,85 +1,65 @@
-import { useState, useEffect } from "react";
-import { IncomesApi } from "@/app/api/incomes";
-import {
-  Income,
-  CreateIncomeDto,
-  UpdateIncomeDto,
-} from "@/app/api/incomes/types";
+import { useState, useCallback } from "react";
+import { Income } from "../api/incomes/types";
+import { incomesApi } from "../api/incomes";
 
-export const useIncome = () => {
-  const [incomes, setIncomes] = useState<Income[]>([]);
+export const useIncomes = () => {
+  const [Incomes, setIncomes] = useState<Income[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchIncomes = async () => {
+  const fetchIncomes = useCallback(async (): Promise<{ amount: number }[]> => {
     try {
       setLoading(true);
-      const response = await IncomesApi.getAll();
+      const response = await incomesApi.getAll();
       setIncomes(response.data);
+      setError(null);
+      return response.data;
     } catch (err) {
-      setError("Gagal mengambil data income");
-      console.error(err);
+      setError("Failed to fetch Incomes");
+      console.error("Error fetching Incomes:", err);
+      return [];
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const addIncome = async (formData: Omit<Income, "id">) => {
+  const createIncome = async (data: Omit<Income, "id"> & { monthlyFinanceId: number; incomedate: string }) => {
     try {
-      const response = await IncomesApi.create(formData);
+      await incomesApi.create(data);
       await fetchIncomes();
-    } catch (error) {
-      console.error("Error adding income:", error);
-      throw error;
+    } catch (err) {
+      console.error("Error creating Incomes:", err);
+      throw err;
     }
   };
 
-  const updateIncome = async (id: number, formData: Partial<Income>) => {
+  const updateIncome = async (id: number, data: Partial<Income>) => {
     try {
-      await IncomesApi.update(id, formData);
+      await incomesApi.update(id, data);
       await fetchIncomes();
-    } catch (error) {
-      console.error("Error updating income:", error);
-      throw error;
+    } catch (err) {
+      console.error("Error updating Incomes:", err);
+      throw err;
     }
   };
 
   const deleteIncome = async (id: number) => {
     try {
-      await IncomesApi.delete(id);
+      await incomesApi.delete(id);
       await fetchIncomes();
     } catch (err) {
-      setError("Gagal menghapus income");
+      console.error("Error deleting Income:", err);
       throw err;
     }
   };
 
-  const getIncomeById = async (id: number) => {
-    try {
-      setLoading(true);
-      const response = await IncomesApi.getById(id);
-      return response.data;
-    } catch (error) {
-      console.error("Error getting income:", error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchIncomes();
-  }, []);
-
   return {
-    incomes,
+    Incomes,
     loading,
     error,
-    addIncome,
-    updateIncome,
     fetchIncomes,
+    createIncome,
+    updateIncome,
     deleteIncome,
-    refetch: fetchIncomes,
-    getIncomeById,
   };
 };

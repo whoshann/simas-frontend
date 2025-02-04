@@ -3,7 +3,7 @@ interface IncomesHeaderProps {
     onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const IncomesHeader: React.FC<IncomesHeaderProps> = ({ searchTerm, onSearchChange }) => (
+export const IncomeHeader: React.FC<IncomesHeaderProps> = ({ searchTerm, onSearchChange }) => (
     <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
             <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pemasukan</h1>

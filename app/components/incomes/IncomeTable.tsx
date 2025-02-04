@@ -1,5 +1,5 @@
 import { Income } from '@/app/api/incomes/types';
-import { getStatusInIndonesian, statusMapping } from '../../utils/statusConverter';
+import { formatDateDisplay, formatDate, formatRupiah } from '@/app/utils/helper';
 
 interface IncomeTableProps {
     incomes: Income[];
@@ -14,6 +14,7 @@ export const IncomeTable: React.FC<IncomeTableProps> = ({ incomes, onEdit, onDel
             <thead>
                 <tr>
                 <th className="py-2 px-4 border-b text-left">No</th>
+                <th className="py-2 px-4 border-b text-left">Bulan</th>
                 <th className="py-2 px-4 border-b text-left">Sumber</th>
                 <th className="py-2 px-4 border-b text-left">Deskripsi</th>
                 <th className="py-2 px-4 border-b text-left">Jumlah</th>
@@ -25,10 +26,11 @@ export const IncomeTable: React.FC<IncomeTableProps> = ({ incomes, onEdit, onDel
                 {incomes.map((income) => (
                     <tr key={income.id}>
                         <td className="py-2 px-4 border-b">{startIndex + incomes.indexOf(income) + 1}</td>
+                        <td className="py-2 px-4 border-b">{formatDateDisplay(income.MonthlyFinance.month)}</td>
                         <td className="py-2 px-4 border-b">{income.source}</td>
                         <td className="py-2 px-4 border-b">{income.description}</td>
-                        <td className="py-2 px-4 border-b">{income.amount}</td>
-                        <td className="py-2 px-4 border-b">{income.incomeDate}</td>
+                        <td className="py-2 px-4 border-b">{formatRupiah(income.amount)}</td>
+                        <td className="py-2 px-4 border-b">{formatDate(income.incomeDate)}</td>
                         <td className="py-2 px-4 border-b">
                             <div className="flex space-x-2">
                                 <button
