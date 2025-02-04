@@ -13,6 +13,7 @@ import { outgoingGoodsApi } from "@/app/api/outgoing-goods";
 import { OutgoingGoodsRequest } from '@/app/api/outgoing-goods/types';
 import { GuaranteeOutgoingGoods } from '@/app/utils/enums';
 import { GuaranteeOutgoingGoodsLabel, getGuaranteeOutgoingGoodsLabel } from '@/app/utils/enumHelpers';
+import { showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
 
 export default function StudentBorrowingGoodsPage() {
   
@@ -142,7 +143,7 @@ export default function StudentBorrowingGoodsPage() {
         guarantee: GuaranteeOutgoingGoods.StudentCard,
       });
 
-      alert('Peminjaman berhasil diajukan!');
+      await showSuccessAlert('Berhasil', 'Peminjaman berhasil di ajukan');
       
     } catch (err: any) {
       console.error('Error submitting form:', err);

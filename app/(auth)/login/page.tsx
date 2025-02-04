@@ -11,18 +11,24 @@ export default function LoginPage() {
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [loginError, setLoginError] = useState(false);
     const { login, error } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoginError(false);
         try {
             const redirectUrl = await login(identifier, password);
             window.location.href = redirectUrl;
         } catch (err) {
             // Error sudah ditangani di useAuth
             console.error(err);
+            setLoginError(true);
         }
     };
+
+    const inputClassName = `w-full p-3 border ${loginError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+        } rounded-md focus:outline-none focus:ring-2 text-black bg-white`;
 
     return (
         <div
@@ -53,9 +59,12 @@ export default function LoginPage() {
                         <input
                             type="text"
                             placeholder="Masukkan NIS / NIP"
-                            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                            className={inputClassName}
                             value={identifier}
-                            onChange={(e) => setIdentifier(e.target.value)}
+                            onChange={(e) => {
+                                setIdentifier(e.target.value);
+                                setLoginError(false);
+                            }}
                         />
                     </div>
 
@@ -63,9 +72,12 @@ export default function LoginPage() {
                         <input
                             type={showPassword ? "text" : "password"}
                             placeholder="Kata Sandi"
-                            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                            className={inputClassName}
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => {
+                                setPassword(e.target.value);
+                                setLoginError(false);
+                            }}
                             required
                         />
                         <span
@@ -80,11 +92,12 @@ export default function LoginPage() {
                         </span>
                     </div>
 
-                    {/* <div className="text-right">
-                        <a href="/changepassword" className="text-sm text-gray-500 hover:underline">
-                            Ubah Kata Sandi?
-                        </a>
-                    </div> */}
+                    {/* Pesan error */}
+                    {loginError && (
+                        <p className="text-red-500 text-sm mt-1">
+                            NIS/NIP atau kata sandi yang Anda masukkan salah
+                        </p>
+                    )}
 
                     <button
                         type="submit"

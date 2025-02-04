@@ -10,6 +10,11 @@ import { useAchievements } from "@/app/hooks/useAchievement";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 
 export default function StudentAffairsAchievementPage() {
+
+    const {
+        deleteAchievement
+    } = useAchievements();
+
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [userId, setUserId] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState("");
@@ -35,6 +40,20 @@ export default function StudentAffairsAchievementPage() {
 
         initializePage();
     }, []);
+
+    const handleDelete = async (id: number) => {
+        try {
+            // Tambahkan konfirmasi sebelum menghapus
+            if (window.confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                await deleteAchievement(id);
+                alert('Data posisi berhasil dihapus!');
+                await fetchAchievements();
+            }
+        } catch (error: any) {
+            console.error("Error deleting position:", error);
+            alert('Gagal menghapus data posisi');
+        }
+    };
 
     // Search item tabel
     const filteredData = achievements.filter(item =>
@@ -180,8 +199,7 @@ export default function StudentAffairsAchievementPage() {
                                         <td className="py-2 px-4 border-b">{item.achievementName}</td>
                                         <td className="py-2 px-4 border-b">{item.competitionName}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${
-                                                item.typeOfAchievement === 'Non_Academic'
+                                            <span className={`inline-block px-3 py-1 rounded-full ${item.typeOfAchievement === 'Non_Academic'
                                                 ? 'bg-[#0a97b028] text-[var(--third-color)]'
                                                 : 'bg-[#e88e1f29] text-[var(--second-color)]'
                                                 }`}>
@@ -190,9 +208,9 @@ export default function StudentAffairsAchievementPage() {
                                         </td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="w-16 h-16 overflow-hidden rounded">
-                                                {item.picture ? (
+                                                {item.photo ? (
                                                     <Image
-                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/achievement/${item.picture}`}
+                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/achievement/${item.photo.split('/').pop()}`}
                                                         alt="Bukti Prestasi"
                                                         className="w-full h-full object-cover"
                                                         width={256}
@@ -205,15 +223,10 @@ export default function StudentAffairsAchievementPage() {
                                         </td>
                                         <td className="py-2 px-4 border-b">{formatDate(item.achievementDate)}</td>
                                         <td className="py-2 px-4 border-b">
-                                        <div className="flex space-x-2">
+                                            <div className="flex space-x-2">
                                                 <button
-                                                    // onClick={() => handleOpenModal('edit', item)}
-                                                    className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-                                                >
-                                                    <i className="bx bxs-edit text-lg"></i>
-                                                </button>
-                                                <button
-                                                    className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
+                                                    onClick={() => handleDelete(item.id)}
+                                                    className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)] hover:bg-[#bd0000] hover:text-white transition-colors duration-200"
                                                 >
                                                     <i className="bx bxs-trash-alt text-lg"></i>
                                                 </button>

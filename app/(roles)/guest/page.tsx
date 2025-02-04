@@ -1,31 +1,30 @@
 "use client";
+"use client";
 import "@/app/styles/globals.css";
 import Image from 'next/image';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { NewsInformation } from "@/app/api/news-information/types";
+import { useNewsInformation } from "@/app/hooks/useNewsInformation";
 
 export default function GuestDashboard() {
     const carouselRef = useRef<HTMLDivElement>(null);
-
-    const newsData = [
-        {
-            id: 1,
-            image: "/images/Berita1.jpg",
-            title: "Sosialisasi Prakerin Orang Tua",
-            date: { day: "27", month: "01" },
-            description: "Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.",
-            note: "Catatan: babababa."
-        },
-        {
-            id: 2,
-            image: "/images/Berita2.jpg",
-            title: "Rapart Orang Tua",
-            date: { day: "18", month: "01" },
-            description: "Sosialisasi terkait pemberangkatan prakerin untuk orang tua siswa yang dilaksanakan di Home Teater jam 9 pagi tanggal 27 bulan Januari.",
-            note: "Catatan: babababa."
-        }
-    ];
+    const { newsInformation, loading, error, fetchNewsInformation } = useNewsInformation();
+    const [news, setNews] = useState<NewsInformation[]>([]);
 
     useEffect(() => {
+        // Panggil API untuk mengambil data berita
+        fetchNewsInformation();
+    }, [fetchNewsInformation]);
+
+    useEffect(() => {
+        // Jika data berita berhasil diambil, set ke state newsData
+        if (newsInformation && newsInformation.length > 0) {
+            setNews(newsInformation);
+        }
+    }, [newsInformation]);
+
+    useEffect(() => {
+        // Logic untuk carousel otomatis
         const interval = setInterval(() => {
             if (carouselRef.current) {
                 const next = carouselRef.current.querySelector('.carousel-item:nth-child(2)');
@@ -33,10 +32,13 @@ export default function GuestDashboard() {
                     next.scrollIntoView({ behavior: 'smooth' });
                 }
             }
-        }, 5000); // Ganti 3000 dengan waktu dalam milidetik sesuai kebutuhan
+        }, 5000); // Ganti 5000 dengan waktu dalam milidetik sesuai kebutuhan
 
         return () => clearInterval(interval);
     }, []);
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
@@ -50,60 +52,46 @@ export default function GuestDashboard() {
                     {/* News Card */}
                     <div className="bg-white shadow-md rounded-lg overflow-hidden lg:col-span-2" ref={carouselRef}>
                         <div className="carousel rounded-box w-full">
-                            {/* Carousel Item 1 */}
-                            <div className="carousel-item w-full flex flex-col items-center">
-                                <div className="p-4">
-                                    <Image
-                                        src={newsData[0].image}
-                                        alt={newsData[0].title}
-                                        width={800}
-                                        height={400}
-                                        className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
-                                    />
-                                </div>
-                                <div className="p-6 text-center flex justify-between items-center">
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-4xl font-bold text-[var(--main-color)]">{newsData[0].date.day}</span>
-                                        <span className="text-4xl font-bold text-[var(--third-color)]">{newsData[0].date.month}</span>
+                            {news.map((news, index) => (
+                                <div key={index} className="carousel-item w-full flex flex-col items-center">
+                                    <div className="p-4">
+                                        {news.photo ? (
+                                            <Image
+                                                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/student-information/${news.photo.split('/').pop()}`}
+                                                alt={news.activity}
+                                                width={800}
+                                                height={400}
+                                                className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
+                                            />
+                                        ) : (
+                                            '-'
+                                        )}
                                     </div>
-                                    <div className="text-left ml-4">
-                                        <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
-                                            {newsData[0].title}
-                                        </h2>
-                                        <p className="text-sm text-gray-600 mt-2">
-                                            {newsData[0].description}
-                                        </p>
-                                        <p className="text-xs text-gray-400 mt-1">{newsData[0].note}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Carousel Item 2 */}
-                            <div className="carousel-item w-full flex flex-col items-center">
-                                <div className="p-4">
-                                    <Image
-                                        src={newsData[1].image}
-                                        alt={newsData[1].title}
-                                        width={800}
-                                        height={400}
-                                        className="rounded-box w-[320px] sm:w-[600px] md:w-[800px] h-[200px] sm:h-[300px] md:h-[400px] object-cover"
-                                    />
-                                </div>
-                                <div className="p-6 text-center flex justify-between items-center">
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-4xl font-bold text-[var(--main-color)]">{newsData[1].date.day}</span>
-                                        <span className="text-4xl font-bold text-[var(--third-color)]">{newsData[1].date.month}</span>
-                                    </div>
-                                    <div className="text-left ml-4">
-                                        <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
-                                            {newsData[1].title}
-                                        </h2>
-                                        <p className="text-sm text-gray-600 mt-2">
-                                            {newsData[1].description}
-                                        </p>
-                                        <p className="text-xs text-gray-400 mt-1">{newsData[1].note}</p>
+                                    <div className="p-6 text-center flex justify-between items-center">
+                                        <div className="flex flex-col items-center">
+                                            {news.date && (
+                                                <>
+                                                    <span className="text-4xl font-bold text-[var(--main-color)]">
+                                                        {new Date(news.date).getDate()}
+                                                    </span>
+                                                    <span className="text-4xl font-bold text-[var(--third-color)]">
+                                                        {new Date(news.date).getMonth() + 1}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </div>
+                                        <div className="text-left ml-4">
+                                            <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
+                                                {news.activity}
+                                            </h2>
+                                            <p className="text-sm text-gray-600 mt-2">
+                                                {news.description}
+                                            </p>
+                                            <p className="text-xs text-gray-400 mt-1">Catatan: {news.note}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
 

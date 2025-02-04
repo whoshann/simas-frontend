@@ -1,12 +1,12 @@
 export interface NewsInformation {
-  id: number;
+  id?: number;
   activity: string;
   description: string;
-  photo: string;
+  photo?: string | null;
   date: string;
   note: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface NewsInformationResponse {

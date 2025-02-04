@@ -6,7 +6,14 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import TableData2 from "@/app/components/TableWithoutAction/TableData2";
 import { DispenseStatus } from '@/app/utils/enums';
+import { getTokenData } from '@/app/utils/tokenHelper';
+import { authApi } from '@/app/api/auth';
 
+interface StudentState {
+    role?: string;
+    name?: string;
+    [key: string]: any;
+}
 
 // Fungsi untuk mengunduh PDF
 const handleDownloadPDF = async (data: any) => {
@@ -117,6 +124,7 @@ export default function StudentDispensePage() {
     const [loading, setLoading] = useState<boolean>(true);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const [student, setStudent] = useState<any>({});
     const [entriesPerPage, setEntriesPerPage] = useState(5);
 
     useEffect(() => {
@@ -133,7 +141,29 @@ export default function StudentDispensePage() {
         };
 
         initializePage();
+
+        const tokenData = getTokenData();
+        if (tokenData) {
+            fetchStudentData(tokenData.id);
+            setStudent((prev: StudentState) => ({
+                ...prev,
+                role: tokenData.role
+            }));
+        }
     }, []);
+
+    const fetchStudentData = async (userId: number) => {
+        try {
+            const response = await authApi.getStudentLogin(userId);
+            setStudent((prev: StudentState) => ({
+                ...prev,
+                ...response.data
+            }));
+        } catch (err) {
+            console.error("Error fetching user data:", err);
+            setError("Failed to fetch user data");
+        }
+    };
 
     if (loading) {
         return <LoadingSpinner />;
@@ -148,7 +178,7 @@ export default function StudentDispensePage() {
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9">
                 <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Surat Dispen</h1>
-                <p className="text-sm text-gray-600">Halo adam, selamat datang di halaman Surat Dispen</p>
+                <p className="text-sm text-gray-600">Halo {student.name}, selamat datang di halaman Surat Dispen</p>
             </header>
 
             <main className="px-9 pb-6">

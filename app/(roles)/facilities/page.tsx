@@ -129,6 +129,13 @@ export default function FacilitiesDashboardPage() {
         latestProcurements: selectedMonth === 'Semua'
             ? dashboardData.latestProcurements
             : dashboardData.latestProcurements.filter(item => filterDataByMonth(item.date)),
+            totalApprovedItems: selectedMonth === 'Semua'
+            ? dashboardData.latestProcurements
+                .filter(item => item.procurementStatus === 'Approved')
+                .reduce((total, item) => total + Number(item.quantity), 0)
+            : dashboardData.latestProcurements
+                .filter(item => filterDataByMonth(item.date) && item.procurementStatus === 'Approved')
+                .reduce((total, item) => total + Number(item.quantity), 0),
     };
 
     const togglePanel = () => {
@@ -220,7 +227,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-package text-[#e88d1f] text-4xl'></i> {/* Ikon untuk Barang Keluar */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{filteredDashboardData.outgoingGoods}</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{filteredDashboardData.totalApprovedItems}</p>
 
                             <p className="text-sm text-[var(--text-regular-color)]">Barang Keluar</p>
                         </div>
@@ -285,7 +292,7 @@ export default function FacilitiesDashboardPage() {
                                 <div key={index} className="flex items-center mb-2">
                                     <div className="w-4 h-4 bg-[var(--main-color)] rounded-full mr-2"></div>
                                     <div>
-                                        <p>Pengajuan barang baru: {procurement.name}.</p>
+                                        <p>Pengajuan barang baru: {procurement.inventory?.name}</p>
                                         <span className="text-[var(--text-regular-color)]">{procurement.date}</span>
                                     </div>
                                 </div>

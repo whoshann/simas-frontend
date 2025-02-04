@@ -9,7 +9,7 @@ import {
   AbsenceStatus,
   Religion,
   Gender,
-  AchievementType,
+  AchievementCategory,
 } from "./enums";
 
 export const ConditionLabel = {
@@ -124,11 +124,11 @@ export const getGenderLabel = (gender: Gender): string => {
   return GenderLabel[gender] || gender;
 };
 
-export const AchievementTypeLabel = {
+export const AchievementCategoryLabel = {
   academic: "Akademik",
   Non_Academic: "Non Akademik",
 };
 
-export const getAchievementTypeLabel = (type: AchievementType): string => {
-  return AchievementTypeLabel[type] || type;
+export const getAchievementCategoryLabel = (category: AchievementCategory): string => {
+  return AchievementCategory[category] || category;
 };

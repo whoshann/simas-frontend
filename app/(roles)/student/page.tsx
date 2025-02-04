@@ -9,6 +9,16 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
+import { NewsInformation } from "@/app/api/news-information/types";
+import { useNewsInformation } from "@/app/hooks/useNewsInformation";
+import { getTokenData } from '@/app/utils/tokenHelper';
+import { authApi } from '@/app/api/auth';
+
+interface StudentState {
+  role?: string;
+  name?: string;
+  [key: string]: any;
+}  
 
 // Daftarkan semua komponen yang diperlukan
 Chart.register(...registerables);
@@ -70,6 +80,8 @@ export default function StudentDashboard() {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const { newsInformation, fetchNewsInformation } = useNewsInformation();
+  const [news, setNews] = useState<NewsInformation[]>([]);
 
   useEffect(() => {
     const initializePage = async () => {
@@ -85,7 +97,30 @@ export default function StudentDashboard() {
     };
 
     initializePage();
+
+    const tokenData = getTokenData();
+    if (tokenData) {
+      fetchStudentData(tokenData.id);
+      setStudent((prev: StudentState) => ({
+        ...prev,
+        role: tokenData.role
+      }));
+    }
   }, []);
+
+  const fetchStudentData = async (userId: number) => {
+    try {
+      const response = await authApi.getStudentLogin(userId);
+      setStudent((prev: StudentState) => ({
+        ...prev,
+        ...response.data
+      }));
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+      setError("Failed to fetch user data");
+    }
+  };
+
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const swiperRef = useRef<any>(null);
@@ -100,6 +135,18 @@ export default function StudentDashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    // Panggil API untuk mengambil data berita
+    fetchNewsInformation();
+  }, [fetchNewsInformation]);
+
+  useEffect(() => {
+    // Jika data berita berhasil diambil, set ke state newsData
+    if (newsInformation && newsInformation.length > 0) {
+      setNews(newsInformation);
+    }
+  }, [newsInformation]);
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -107,6 +154,11 @@ export default function StudentDashboard() {
   if (error) {
     return <p className="text-red-500">{error}</p>;
   }
+
+  if (!isAuthorized) {
+    return null;
+  }
+
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
@@ -266,32 +318,40 @@ export default function StudentDashboard() {
             }
           }}
         >
-          {newsData.map((news) => (
+          {news.map((news, index) => (
             <SwiperSlide key={news.id}>
-              <div className="bg-white shadow rounded-lg overflow-hidden w-full max-w-sm mx-auto">
+              <div key={index} className="bg-white shadow rounded-lg overflow-hidden w-full max-w-sm mx-auto">
                 <div className="relative h-48 md:h-56">
-                  <Image
-                    src={news.image}
-                    alt={news.title}
-                    className="rounded-t-lg object-cover"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
+                  {news.photo ? (
+                    <Image
+                      src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/student-information/${news.photo.split('/').pop()}`}
+                      alt={news.activity}
+                      className="rounded-t-lg object-cover"
+                      fill
+                      style={{ objectFit: 'cover' }}
+                    />
+                  ) : (
+                    '-'
+                  )}
                 </div>
                 <div className="p-4 flex flex-col">
                   <div className="flex items-center justify-start pr-4">
                     <div className="flex flex-col items-center mr-4">
-                      <span className="text-2xl font-bold text-blue-700">{news.date.day}</span>
-                      <span className="text-xl font-semibold text-teal-600">{news.date.month}</span>
+                      {news.date && (
+                        <>
+                          <span className="text-2xl font-bold text-[var(--main-color)]"> {new Date(news.date).getDate()}</span>
+                          <span className="text-xl font-semibold text-[var(--third-color)]">{new Date(news.date).getMonth() + 1}</span>
+                        </>
+                      )}
                     </div>
                     <div className="flex-grow">
                       <h4 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
-                        {news.title}
+                        {news.activity}
                       </h4>
                       <p className="text-sm text-gray-600 mt-1 whitespace-normal">
                         {news.description}
                       </p>
-                      <p className="text-xs text-gray-400 mt-1">{news.note}</p>
+                      <p className="text-xs text-gray-400 mt-1">Catatan: {news.note}</p>
                     </div>
                   </div>
                 </div>

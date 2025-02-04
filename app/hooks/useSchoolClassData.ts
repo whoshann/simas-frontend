@@ -21,10 +21,45 @@ export const useSchoolClasses = () => {
     }
   };
 
+  const createSchoolClass = async (
+    data: Omit<SchoolClass, "id" | "createdAt" | "updatedAt" | "major" | "homeroomTeacher">
+  ) => {
+    try {
+      await schoolClassesApi.create(data);
+      await fetchSchoolClasses();
+    } catch (err) {
+      console.error("Error creating school class:", err);
+      throw err;
+    }
+  };
+
+  const updateSchoolClass = async (id: number, data: Partial<SchoolClass>) => {
+    try {
+      await schoolClassesApi.update(id, data);
+      await fetchSchoolClasses();
+    } catch (err) {
+      console.error("Error updating school class:", err);
+      throw err;
+    }
+  };
+
+  const deleteSchoolClass = async (id: number) => {
+    try {
+      await schoolClassesApi.delete(id);
+      await fetchSchoolClasses();
+    } catch (err) {
+      console.error("Error deleting school class:", err);
+      throw err;
+    }
+  };
+
   return {
     schoolClasses,
     loading,
     error,
     fetchSchoolClasses,
+    createSchoolClass,
+    updateSchoolClass,
+    deleteSchoolClass
   };
 };

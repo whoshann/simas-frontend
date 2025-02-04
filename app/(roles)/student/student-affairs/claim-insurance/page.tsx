@@ -17,7 +17,7 @@ interface CustomJwtPayload {
     sub: number;
 }
 
-interface InsuranceClaim {
+export interface InsuranceClaim {
     id: number;
     studentId: number;
     category: InsuranceClaimCategory;
@@ -257,7 +257,7 @@ export default function StudentClaimInsurancePage() {
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9">
                 <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pengajuan Klaim Asuransi</h1>
-                <p className="text-sm text-[var(--text-regular-color)]">Halo James, selamat datang di halaman Klaim Asuransi</p>
+                <p className="text-sm text-[var(--text-regular-color)]">Halo {student.name}, selamat datang di halaman Klaim Asuransi</p>
             </header>
 
             <main className="px-6 pb-6">
@@ -265,7 +265,7 @@ export default function StudentClaimInsurancePage() {
 
 
                     {/* Start Form Input */}
-                    <div className="bg-white rounded-lg shadow p-6">
+                    <div className="bg-white rounded-lg shadow p-6 h-max">
 
                         <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)] mb-4 flex items-center">
                             <div className="bg-[#e88e1f29] flex justify-center items-center rounded-full h-7 w-7 p-2">
@@ -395,7 +395,7 @@ export default function StudentClaimInsurancePage() {
 
 
                     {/* Start History Card */}
-                    <div className="bg-white rounded-lg shadow p-6">
+                    <div className="bg-white rounded-lg shadow p-6 overflow-hidden overflow-y-auto h-[670px]">
                         <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)] mb-4">Riwayat Klaim</h2>
                         <div className="space-y-8">
                             {Array.isArray(insuranceClaims) && insuranceClaims.map((claim) => {
