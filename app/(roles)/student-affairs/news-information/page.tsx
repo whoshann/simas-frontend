@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { useNewsInformation } from "@/app/hooks/useNewsInformation";
 import FormModal from '@/app/components/DataTable/FormModal';
 import { NewsInformation } from "@/app/api/news-information/types";
-
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 
 
 interface FormData {
@@ -127,6 +127,7 @@ export default function StudentAffairsNewsInformationPage() {
             if (modalMode === "add") {
                 // console.log("Submitting new news:", formData);
                 await createNewsInformation(formData);
+                await showSuccessAlert('Berhasil', 'Data berita berhasil ditambahkan');
             } else if (modalMode === "edit" && selectedNews?.id) {
                 // console.log("Updating news with id:", selectedNews.id);
 
@@ -136,6 +137,7 @@ export default function StudentAffairsNewsInformationPage() {
                 // console.log("Sanitized Form Data:", validData);
 
                 const response = await updateNewsInformation(selectedNews.id, validData);
+                await showSuccessAlert('Berhasil', 'Data berita berhasil diperbarui');
                 // console.log("Update success response:", response);
             }
             handleCloseModal();
@@ -145,10 +147,20 @@ export default function StudentAffairsNewsInformationPage() {
     };
 
     const handleDelete = async (id: number) => {
-        try {
-            await deleteNewsInformation(id);
-        } catch (err) {
-            console.error("Error deleting news information:", err);
+        const isConfirmed = await showConfirmDelete(
+            'Hapus Data Pelanggaran',
+            'Apakah Anda yakin ingin menghapus data pelanggaran ini?'
+        );
+
+        if (isConfirmed) {
+            try {
+                await deleteNewsInformation(id);
+                await showSuccessAlert('Berhasil', 'Data berita berhasil dihapus');
+                await fetchNewsInformation();
+            } catch (error) {
+                console.error('Error:', error);
+                await showErrorAlert('Error', 'Gagal menghapus data berita');
+            }
         }
     };
 

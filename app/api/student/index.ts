@@ -17,7 +17,7 @@ export const studentsApi = {
   },
 
   create: async (
-    data: Omit<Student, "id" | "createdAt" | "updatedAt" | "Class" | "Major">
+    data: Omit<Student, "id" | "createdAt" | "updatedAt" | "Class" | "Major" | "track" | "admissionYear" | "religion">
   ): Promise<StudentResponse> => {
     const response = await axios.post(API_URL, data, { headers: getHeaders() });
     return response.data;
@@ -27,7 +27,7 @@ export const studentsApi = {
     id: number,
     data: Partial<Omit<Student, "Class" | "Major">>
   ): Promise<StudentResponse> => {
-    const response = await axios.put(`${API_URL}/${id}`, data, {
+    const response = await axios.patch(`${API_URL}/${id}`, data, {
       headers: getHeaders(),
     });
     return response.data;
