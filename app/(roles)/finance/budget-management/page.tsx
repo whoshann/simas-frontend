@@ -5,6 +5,7 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import DataTable from "@/app/components/DataTable/TableData";
 import PageHeader from "@/app/components/DataTable/TableHeader";
+import FormModal from '@/app/components/DataTable/FormModal';
 
 // Enum untuk status
 enum DispensationStatus {
@@ -25,6 +26,7 @@ interface BudgetProposal {
     document: string;
     date: string;
     status: DispensationStatus;
+    showMessageButton: boolean;
 }
 
 // Data dummy
@@ -40,6 +42,7 @@ const staticBudgetProposal: BudgetProposal[] = [
         document: "Proposal_Renovation_Lab.pdf",
         date: "15/12/2024",
         status: DispensationStatus.Pending,
+        showMessageButton: false,
     },
     {
         no: 2,
@@ -52,6 +55,7 @@ const staticBudgetProposal: BudgetProposal[] = [
         document: "Proposal_Sports.pdf",
         date: "15/12/2024",
         status: DispensationStatus.Pending,
+        showMessageButton: false,
     },
     {
         no: 3,
@@ -64,6 +68,7 @@ const staticBudgetProposal: BudgetProposal[] = [
         document: "Proposal_Workshop.pdf",
         date: "15/12/2024",
         status: DispensationStatus.Pending,
+        showMessageButton: false,
     },
     {
         no: 4,
@@ -76,6 +81,7 @@ const staticBudgetProposal: BudgetProposal[] = [
         document: "Proposal_Books.pdf",
         date: "15/12/2024",
         status: DispensationStatus.Approved,
+        showMessageButton: false,
     },
     {
         no: 5,
@@ -88,6 +94,7 @@ const staticBudgetProposal: BudgetProposal[] = [
         document: "Proposal_Maintenance.pdf",
         date: "15/12/2024",
         status: DispensationStatus.Rejected,
+        showMessageButton: false,
     }
 ];
 
@@ -97,6 +104,8 @@ export default function FinanceDispensationPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [budgetProposal, setBudgetProposal] = useState<BudgetProposal[]>(staticBudgetProposal);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalReason, setModalReason] = useState("");
 
     // Fetch data saat komponen dimount
     useEffect(() => {
@@ -130,7 +139,7 @@ export default function FinanceDispensationPage() {
         setBudgetProposal(prevData =>
             prevData.map(item =>
                 item.id === id
-                    ? { ...item, status: DispensationStatus.Approved }
+                    ? { ...item, status: DispensationStatus.Approved, showMessageButton: true }
                     : item
             )
         );
@@ -141,10 +150,15 @@ export default function FinanceDispensationPage() {
         setBudgetProposal(prevData =>
             prevData.map(item =>
                 item.id === id
-                    ? { ...item, status: DispensationStatus.Rejected }
+                    ? { ...item, status: DispensationStatus.Rejected, showMessageButton: true }
                     : item
             )
         );
+    };
+
+    const handleOpenMessageModal = (row: BudgetProposal) => {
+        setModalReason("");
+        setIsModalOpen(true);
     };
 
     // Konfigurasi header tabel
@@ -177,30 +191,46 @@ export default function FinanceDispensationPage() {
             key: 'actions',
             label: 'Aksi',
             render: (_: any, row: BudgetProposal) => {
-                if (row.status === DispensationStatus.Pending) {
-                    return (
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => handleConfirm(row.id)}
-                                className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-                            >
-                                <i className='bx bxs-check-circle text-lg'></i>
-                            </button>
-                            <button
-                                onClick={() => handleReject(row.id)}
-                                className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-                            >
-                                <i className='bx bxs-x-circle text-lg'></i>
-                            </button>
-                        </div>
-                    );
-                }
                 return (
-                    <span className="text-gray-400 text-xs">
-                        -
-                    </span>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => handleOpenMessageModal(row)}
+                            className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+                        >
+                            <i className='bx bxs-message text-lg'></i>
+                        </button>
+                        {row.status === DispensationStatus.Pending && (
+                            <>
+                                <button
+                                    onClick={() => handleConfirm(row.id)}
+                                    className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+                                >
+                                    <i className='bx bxs-check-circle text-lg'></i>
+                                </button>
+                                <button
+                                    onClick={() => handleReject(row.id)}
+                                    className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
+                                >
+                                    <i className='bx bxs-x-circle text-lg'></i>
+                                </button>
+                            </>
+                        )}
+                    </div>
                 );
             }
+        }
+    ];
+
+    const formFields = [
+        {
+            name: 'reason',
+            label: 'Alasan',
+            type: 'textarea' as 'textarea',
+            required: true,
+            placeholder: 'Masukkan alasan...',
+            rows: 3,
+            value: modalReason,
+            onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setModalReason(e.target.value),
         }
     ];
 
@@ -228,6 +258,21 @@ export default function FinanceDispensationPage() {
                 entriesPerPage={entriesPerPage}
                 setEntriesPerPage={setEntriesPerPage}
                 onExport={handleExport}
+            />
+
+            <FormModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={() => {
+                    console.log('Alasan:', modalReason);
+                    setIsModalOpen(false);
+                }}
+                title="Masukkan Alasan"
+                fields={formFields}
+                size="lg"
+                mode="edit"
+                formData={{ reason: modalReason }}
+                setFormData={(data) => setModalReason(data.reason)}
             />
         </div>
     );
