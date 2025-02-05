@@ -4,21 +4,23 @@ import { SchoolClass } from "../school-class/types";
 
 export interface Student {
   id: number;
-  name: string;
-  classId: number;
-  majorId: number;
   nis: string;
   nisn: string;
+  name: string;
   gender: Gender;
   birthDate: string;
   birthPlace: string;
   address: string;
   phone: string;
   parentPhone: string;
+  classId: number;
   religion: Religion;
-  motherName: string;
   fatherName: string;
+  motherName: string;
   guardian: string;
+  majorId: number;
+  track: string;
+  admissionYear: number;
   createdAt: string;
   updatedAt: string;
   class: SchoolClass;

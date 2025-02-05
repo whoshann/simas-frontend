@@ -1,11 +1,13 @@
+import { TeacherRole } from './../../utils/enums';
 import { Gender } from "@/app/utils/enums";
 import { Position } from "../position/types";
 import { Subject } from "../subject/types";
 
-export interface Teacher {
+export interface Teachers {
   id: number;
   picture?: string;
   nip: string;
+  role: TeacherRole;
   name: string;
   gender: Gender;
   placeOfBirth: string;
@@ -16,7 +18,6 @@ export interface Teacher {
   lastEducationMajor: string;
   subjectId: number;
   positionId: number;
-  role: string;
   subject: Subject;
   position: Position;
   createdAt: string;
@@ -27,5 +28,5 @@ export interface TeachersResponse {
   success: boolean;
   code: string;
   message: string;
-  data: Teacher[];
+  data: Teachers[];
 }

@@ -39,7 +39,7 @@ export default function StudentAffairsDispensationPage() {
         };
 
         initializePage();
-    }, []);
+    },[]);
 
     const handleConfirm = async (id: number) => {
         try {

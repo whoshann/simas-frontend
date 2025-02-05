@@ -95,10 +95,15 @@ export default function StudentDispensePage() {
                 }
             );
 
-            const studentDispenses = response.data.data.filter(
-                (dispense: any) => dispense.studentId === student.id
-            );
-            setDispenses(studentDispenses);
+            if (response?.data?.data?.data) {
+                // Filter data berdasarkan studentId
+                const studentDispenses = response.data.data.data.filter(
+                    (dispense: any) => dispense.studentId === student.id
+                );
+                setDispenses(studentDispenses);
+            } else {
+                setDispenses([]);
+            }
         } catch (error) {
             console.error('Error fetching dispenses:', error);
             await showErrorAlert('Error', 'Gagal mengambil data dispensasi');

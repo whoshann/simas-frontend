@@ -8,9 +8,17 @@ import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
+import FormModal from "@/app/components/DataTable/FormModal";
 import axios from "axios";
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import { useTeachers } from "@/app/hooks/useTeacher";
+import { useSubjects } from "@/app/hooks/useSubject";
+import { usePositions } from "@/app/hooks/usePositionData";
+import { Gender, TeacherRole } from "@/app/utils/enums";
+import { getGenderLabel, getTeacherRoleLabel } from "@/app/utils/enumHelpers";
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 export default function SuperAdminTeacherDataPage() {
 
@@ -21,14 +29,38 @@ export default function SuperAdminTeacherDataPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-    const { teachers, loading, error, fetchTeachers } = useTeachers();
+    const { teachers, loading, error, fetchTeachers, createTeachers, updateTeachers, deleteTeachers } = useTeachers();
+    const { subjects, fetchSubjects } = useSubjects();
+    const { positions, fetchPositions } = usePositions();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+    const [selectedData, setSelectedData] = useState<any>(null);
+    const [formData, setFormData] = useState({
+        name: '',
+        nip: '',
+        gender: '',
+        birthDate: '',
+        placeOfBirth: '',
+        address: '',
+        phone: '',
+        lastEducation: '',
+        lastEducationMajor: '',
+        subjectId: '',
+        positionId: '',
+        role: '',
+        picture: null
+    });
 
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["SuperAdmin"]);
                 setIsAuthorized(true);
-                await fetchTeachers();
+                await Promise.all([
+                    fetchTeachers(),
+                    fetchSubjects(),
+                    fetchPositions()
+                ]);
                 const id = getUserIdFromToken();
                 if (id) {
                     setUserId(id);
@@ -41,6 +73,233 @@ export default function SuperAdminTeacherDataPage() {
 
         initializePage();
     }, []);
+
+    const formFields = [
+        {
+            name: 'name',
+            label: 'Nama Lengkap',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Masukkan nama lengkap'
+        },
+        {
+            name: 'nip',
+            label: 'NIP',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Masukkan NIP'
+        },
+        {
+            name: 'gender',
+            label: 'Jenis Kelamin',
+            type: 'select' as const,
+            required: true,
+            options: [
+                { value: Gender.Male, label: 'Laki-laki' },
+                { value: Gender.Female, label: 'Perempuan' }
+            ]
+        },
+        {
+            name: 'birthDate',
+            label: 'Tanggal Lahir',
+            type: 'date' as const,
+            required: true
+        },
+        {
+            name: 'placeOfBirth',
+            label: 'Tempat Lahir',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Masukkan tempat lahir'
+        },
+        {
+            name: 'address',
+            label: 'Alamat',
+            type: 'textarea' as const,
+            required: true,
+            placeholder: 'Masukkan alamat lengkap',
+            rows: 3
+        },
+        {
+            name: 'phone',
+            label: 'Nomor Telepon',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Masukkan nomor telepon'
+        },
+        {
+            name: 'lastEducation',
+            label: 'Pendidikan Terakhir',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Masukkan pendidikan terakhir'
+        },
+        {
+            name: 'lastEducationMajor',
+            label: 'Jurusan Pendidikan Terakhir',
+            type: 'text' as const,
+            required: true,
+            placeholder: 'Masukkan jurusan'
+        },
+        {
+            name: 'subjectId',
+            label: 'Mata Pelajaran',
+            type: 'select' as const,
+            required: true,
+            options: subjects.map(subject => ({
+                value: subject.id.toString(),
+                label: subject.name
+            }))
+        },
+        {
+            name: 'positionId',
+            label: 'Posisi Jabatan',
+            type: 'select' as const,
+            required: true,
+            options: positions.map(position => ({
+                value: position.id.toString(),
+                label: position.name
+            }))
+        },
+        {
+            name: 'role',
+            label: 'Peran',
+            type: 'select' as const,
+            required: true,
+            options: [
+                { value: TeacherRole.Teacher, label: 'Guru' },
+                { value: TeacherRole.HomeroomTeacher, label: 'Wali Kelas' }
+            ]
+        },
+        {
+            name: 'picture',
+            label: 'Foto',
+            type: 'file' as const,
+            required: false,
+            accept: 'image/*'
+        }
+
+    ];
+
+    // Handler untuk membuka modal
+    const handleOpenModal = (mode: 'add' | 'edit', data?: any) => {
+        setModalMode(mode);
+        
+        const formattedDate = data.birthDate ? new Date(data.birthDate).toISOString() : '';
+
+        if (mode === 'edit' && data) {
+            setFormData({
+                ...data,
+                birthDate: formattedDate.split('T')[0],
+                name: data.name || '',
+                nip: data.nip || '',
+                gender: data.gender || '',
+                placeOfBirth: data.placeOfBirth || '',
+                address: data.address || '',
+                phone: data.phone || '',
+                lastEducation: data.lastEducation || '',
+                lastEducationMajor: data.lastEducationMajor || '',
+                subjectId: data.subject?.id?.toString() || '',
+                positionId: data.position?.id?.toString() || '',
+                role: data.role || '',
+                picture: null
+            });
+            setSelectedData(data);
+        } else {
+            setFormData({
+                name: '',
+                nip: '',
+                gender: '',
+                birthDate: '',
+                placeOfBirth: '',
+                address: '',
+                phone: '',
+                lastEducation: '',
+                lastEducationMajor: '',
+                subjectId: '',
+                positionId: '',
+                role: '',
+                picture: null
+            });
+        }
+        setIsModalOpen(true);
+    };
+
+    // Handler untuk menutup modal
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedData(null);
+        setFormData({
+            name: '',
+            nip: '',
+            gender: '',
+            birthDate: '',
+            placeOfBirth: '',
+            address: '',
+            phone: '',
+            lastEducation: '',
+            lastEducationMajor: '',
+            subjectId: '',
+            positionId: '',
+            role: '',
+            picture: null
+        });
+    };
+
+    // Handler untuk submit form
+    const handleSubmit = async (formData: any) => {
+        try {
+
+            const formatData = {
+                birthDate: new Date(formData.birthDate).toISOString(),
+                name: formData.name,
+                nip: formData.nip,
+                gender: formData.gender,
+                placeOfBirth: formData.placeOfBirth,
+                address: formData.address,
+                phone: formData.phone,
+                lastEducation: formData.lastEducation,
+                lastEducationMajor: formData.lastEducationMajor,
+                role: formData.role
+            }
+
+            if (modalMode === 'add') {
+                // Tambahkan logika untuk create teacher
+                await createTeachers(formatData);
+                await showSuccessAlert('Berhasil', 'Data guru berhasil ditambahkan');
+            } else if (modalMode === "edit" && selectedData?.id) {
+
+                const { id, createdAt, updatedAt, ...validData } = formData;
+
+                // Tambahkan logika untuk update teacher
+                const response = await updateTeachers(selectedData.id, formatData);
+                await showSuccessAlert('Berhasil', 'Data guru berhasil diperbarui');
+            }
+            handleCloseModal();
+            await fetchTeachers();
+        } catch (error) {
+            console.error('Error:', error);
+            await showErrorAlert('Error', 'Gagal menyimpan data guru');
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        const isConfirmed = await showConfirmDelete(
+            'Hapus Data Pelanggaran',
+            'Apakah Anda yakin ingin menghapus data pelanggaran ini?'
+        );
+
+        if (isConfirmed) {
+            try {
+                await deleteTeachers(id);
+                await showSuccessAlert('Berhasil', 'Data guru berhasil dihapus');
+                await fetchTeachers();
+            } catch (error) {
+                console.error('Error:', error);
+                await showErrorAlert('Error', 'Gagal menghapus data guru');
+            }
+        }
+    };
 
     // Search item tabel
     const filteredData = teachers.filter(item =>
@@ -122,7 +381,7 @@ export default function SuperAdminTeacherDataPage() {
                         <div className="flex space-x-2 mt-5 sm:mt-0">
                             {/* Button Tambah Data */}
                             <button
-                                onClick={() => console.log("Tambah Data")}
+                                onClick={() => handleOpenModal('add')}
                                 className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
                             >
                                 Tambah Data
@@ -195,6 +454,7 @@ export default function SuperAdminTeacherDataPage() {
                                     <th className="py-2 px-4 border-b text-left">Jurusan Pendidikan Terakhir</th>
                                     <th className="py-2 px-4 border-b text-left">Mapel Yang Diajarkan</th>
                                     <th className="py-2 px-4 border-b text-left">Posisi Jabatan</th>
+                                    <th className="py-2 px-4 border-b text-left">Peran</th>
                                     <th className="py-2 px-4 border-b text-left">Action</th>
                                 </tr>
                             </thead>
@@ -219,8 +479,8 @@ export default function SuperAdminTeacherDataPage() {
                                         </td>
                                         <td className="py-2 px-4 border-b">{item.name}</td>
                                         <td className="py-2 px-4 border-b">{item.nip}</td>
-                                        <td className="py-2 px-4 border-b">{item.gender}</td>
-                                        <td className="py-2 px-4 border-b">{item.birthDate}</td>
+                                        <td className="py-2 px-4 border-b">{getGenderLabel(item.gender)}</td>
+                                        <td className="py-2 px-4 border-b">{format(new Date(item.birthDate), 'dd MMMM yyyy', { locale: id })}</td>
                                         <td className="py-2 px-4 border-b">{item.placeOfBirth}</td>
                                         <td className="py-2 px-4 border-b">{item.address}</td>
                                         <td className="py-2 px-4 border-b">{item.phone}</td>
@@ -228,18 +488,20 @@ export default function SuperAdminTeacherDataPage() {
                                         <td className="py-2 px-4 border-b">{item.lastEducationMajor}</td>
                                         <td className="py-2 px-4 border-b">{item.subject.name}</td>
                                         <td className="py-2 px-4 border-b">{item.position.name}</td>
+                                        <td className="py-2 px-4 border-b">{getTeacherRoleLabel(item.role)}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 {/* Edit Button */}
                                                 <button
+                                                    onClick={() => handleOpenModal('edit', item)}
                                                     className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-
                                                 >
                                                     <i className="bx bxs-edit text-lg"></i>
                                                 </button>
 
                                                 {/* Delete Button */}
                                                 <button
+                                                    onClick={() => handleDelete(item.id)}
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
 
                                                 >
@@ -287,6 +549,18 @@ export default function SuperAdminTeacherDataPage() {
                             </button>
                         </div>
                     </div>
+
+                    <FormModal
+                        isOpen={isModalOpen}
+                        onClose={handleCloseModal}
+                        onSubmit={handleSubmit}
+                        title={modalMode === 'add' ? 'Tambah Data Guru' : 'Edit Data Guru'}
+                        mode={modalMode}
+                        fields={formFields}
+                        formData={formData}
+                        setFormData={setFormData}
+                        size="lg"
+                    />
                 </div>
             </main>
         </div>
