@@ -28,9 +28,9 @@ export enum InsuranceClaimStatus {
 }
 
 export enum DispenseStatus {
-  Pending = "Pending",
-  Approved = "Download Letter",
-  Rejected = "Rejected",
+  Pending = 'Pending',
+  Approved = 'Approved',
+  Rejected = 'Rejected'
 }
 
 export enum InsuranceClaimCategory {
@@ -52,6 +52,7 @@ export enum AbsenceStatus {
   Permission = "Permission",
   Sick = "Sick",
   Alpha = "Alpha",
+  Late = "Terlambat",
 }
 
 export enum Religion {

@@ -15,12 +15,35 @@ export const useViolation = () => {
       setViolations(response.data);
       setError(null);
     } catch (err: any) {
-      setError(err.message || "Error fetching violations");
-      console.error("Error fetching violations:", err);
+      setError(err.message || "Error fetching Dispense");
+      console.error("Error fetching Dispense:", err);
     } finally {
       setLoading(false);
     }
   };
+
+
+  const createViolation = async (data: Omit<Violation, "id" | "createdAt" | "updatedAt" | "violationPoint" | "student">) => {
+    try {
+        await violationApi.create(data);
+        await fetchViolations();
+    } catch (err) {
+        console.error("Error creating violation:", err);
+        throw err;
+    }
+};
+
+
+  const updateViolation = async (id: number, data: Partial<Violation>) => {
+    try {
+      await violationApi.update(id, data);
+      await fetchViolations();
+    } catch (err) {
+      console.error("Error updating violation:", err);
+      throw err;
+    }
+  };
+
   const deleteViolation = async (id: number) => {
     try {
       await violationApi.delete(id);
@@ -36,6 +59,8 @@ export const useViolation = () => {
     loading,
     error,
     fetchViolations,
+    createViolation,
+    updateViolation,
     deleteViolation
   };
 };

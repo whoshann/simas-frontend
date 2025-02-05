@@ -133,6 +133,7 @@ export default function StudentAchievementPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    await showSuccessAlert('Berhasil', 'Prestasi berhasil ditambahkan!');
 
     if (!studentData) {
       toast.error("Data siswa tidak ditemukan");

@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import { ViolationResponse } from "./types";
+import { Violation, ViolationResponse } from "./types";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/violations`;
@@ -10,20 +10,27 @@ const getHeaders = () => ({
 });
 
 export const violationApi = {
-  post: async (): Promise<ViolationResponse> => {
-    const response = await axios.post(API_URL, { headers: getHeaders() });
+  getAll: async (): Promise<ViolationResponse> => {
+    const response = await axios.get(API_URL, { headers: getHeaders() });
     return response.data;
   },
 
-  patch: async (id: number): Promise<ViolationResponse> => {
-    const response = await axios.patch(`${API_URL}/${id}`, {
+  create: async (
+    data: Omit<Violation, "id" | "createdAt" | "updatedAt" | "violationPoint" | "student">
+  ): Promise<ViolationResponse> => {
+    const response = await axios.post(API_URL, data, {
       headers: getHeaders(),
     });
     return response.data;
   },
 
-  getAll: async (): Promise<ViolationResponse> => {
-    const response = await axios.get(API_URL, { headers: getHeaders() });
+  update: async (
+    id: number,
+    data: Partial<Violation>
+  ): Promise<ViolationResponse> => {
+    const response = await axios.patch(`${API_URL}/${id}`, data, {
+      headers: getHeaders(),
+    });
     return response.data;
   },
 

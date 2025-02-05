@@ -1,124 +1,78 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@/app/styles/globals.css";
-import { useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import Image from 'next/image';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import { authApi } from "@/app/api/auth";
-import { getUserIdFromToken } from "@/app/utils/tokenHelper";
-import FormModal from '@/app/components/DataTable/FormModal';
 import { useViolation } from "@/app/hooks/useViolationData";
-
-interface User {
-    id: number;
-    name: string;
-    username: string;
-}
+import { useStudents } from "@/app/hooks/useStudent";
+import { useViolationPoint } from "@/app/hooks/useViolationPointData";
+import FormModal from "@/app/components/DataTable/FormModal";
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 
 export default function StudentAffairsViolationsPage() {
-    const {
-        violations,
-        loading: violationLoading,
-        fetchViolations,
-        deleteViolation
-    } = useViolation();
-    const [error, setError] = useState<string>("");
-
-    useEffect(() => {
-        const initializePage = async () => {
-            try {
-                // Cek role dengan middleware
-                await roleMiddleware(["StudentAffairs", "SuperAdmin"]);
-                await fetchViolations();
-                setIsAuthorized(true);
-
-                // Fetch user data
-                const userId = getUserIdFromToken();
-                if (userId) {
-                    await fetchUserData(Number(userId));
-                }
-
-            } catch (error) {
-                console.error("Error initializing page:", error);
-                setError("Terjadi kesalahan saat memuat halaman");
-                setIsAuthorized(false);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        initializePage();
-    }, []);
-
-    const fetchUserData = async (userId: number) => {
-        try {
-            const response = await authApi.getUserLogin(userId);
-            setUser(prev => ({
-                ...prev,
-                ...response.data
-            }));
-        } catch (err) {
-            console.error("Error fetching user data:", err);
-            setError("Gagal memuat data pengguna");
-        }
-    };
-
-    const formatDateForInput = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toISOString().slice(0, 16);
-    };
-
+    // States
     const [isAuthorized, setIsAuthorized] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const formatDateDisplay = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleString('id-ID', {
-            year: 'numeric',
-            month: 'long',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZone: 'UTC',
-            hour12: false
-        }) + 'UTC';
-    };
-    const [user, setUser] = useState<User>({
-        id: 0,
-        name: '',
-        username: '',
-    });
-
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+    const [selectedData, setSelectedData] = useState<any>(null);
+    const [error, setError] = useState<string>("");
+
+    // Custom Hooks
+    const { violations, loading: violationLoading, fetchViolations, createViolation, updateViolation, deleteViolation } = useViolation();
+    const { students, fetchStudents } = useStudents();
+    const { violationPoints, fetchViolationPoints } = useViolationPoint();
+
+    // Initial form data
     const [formData, setFormData] = useState({
+        studentId: '',
         name: '',
-        // classSchool: '',
-        violations: '',
-        category: '',
+        violationPointId: '',
         punishment: '',
-        // document: null,
         date: ''
     });
 
-    // form untuk modal add dan edit
+    useEffect(() => {
+        const initializePage = async () => {
+            try {
+                await roleMiddleware(["StudentAffairs", "SuperAdmin"]);
+                await Promise.all([
+                    fetchViolations(),
+                    fetchStudents(),
+                    fetchViolationPoints()
+                ]);
+                setIsAuthorized(true);
+            } catch (error) {
+                console.error("Error:", error);
+                setError("Terjadi kesalahan saat memuat halaman");
+                setIsAuthorized(false);
+            }
+        };
+
+        initializePage();
+    }, []);
+
+    // Form fields configuration
     const formFields = [
         {
-            name: 'name',
+            name: 'studentId',
             label: 'Nama Siswa',
-            type: 'text' as const,
+            type: 'select' as const,
             required: true,
-            placeholder: 'Masukkan Nama Siswa',
+            options: students.map(student => ({
+                value: student.id,
+                label: `${student.name}`
+            }))
         },
-
         {
-            name: 'violations',
+            name: 'name',
             label: 'Pelanggaran',
             type: 'textarea' as const,
             required: true,
@@ -126,14 +80,13 @@ export default function StudentAffairsViolationsPage() {
             rows: 3
         },
         {
-            name: 'category',
+            name: 'violationPointId',
             label: 'Kategori Pelanggaran',
             type: 'select' as const,
-            options: [
-                { value: 'Ringan', label: 'Ringan' },
-                { value: 'Sedang', label: 'Sedang' },
-                { value: 'Berat', label: 'Berat' }
-            ],
+            options: violationPoints.map(point => ({
+                value: point.id,
+                label: `${point.name} (${point.points} poin)`
+            })),
             required: true
         },
         {
@@ -143,37 +96,31 @@ export default function StudentAffairsViolationsPage() {
             required: true,
             placeholder: 'Masukkan hukuman'
         },
-
         {
             name: 'date',
             label: 'Tanggal',
-            type: 'datetime-local' as const,
+            type: 'date' as const,
             required: true
         }
     ];
 
-    //handle untuk memunculkan modal add dan edit
     const handleOpenModal = (mode: 'add' | 'edit', data?: any) => {
         setModalMode(mode);
         if (mode === 'edit' && data) {
-            // edit data
             setFormData({
-                name: data.student.name,
-                // classSchool: data.classSchool,
-                violations: data.name,
-                category: data.violationPoint.name,
+                studentId: data.studentId.toString(),
+                name: data.name,
+                violationPointId: data.violationPointId.toString(),
                 punishment: data.punishment,
-                // document: data.document,
-                date: formatDateForInput(data.date)
+                date: format(new Date(data.date), 'yyyy-MM-dd')
             });
+            setSelectedData(data);
         } else {
             setFormData({
+                studentId: '',
                 name: '',
-                // classSchool: '',
-                violations: '',
-                category: '',
+                violationPointId: '',
                 punishment: '',
-                // document: null,
                 date: ''
             });
         }
@@ -182,48 +129,62 @@ export default function StudentAffairsViolationsPage() {
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
+        setSelectedData(null);
         setFormData({
+            studentId: '',
             name: '',
-            // classSchool: '',
-            violations: '',
-            category: '',
+            violationPointId: '',
             punishment: '',
-            // document: null,
             date: ''
         });
     };
 
     const handleSubmit = async (formData: any) => {
         try {
+            const violationData = {
+                studentId: parseInt(formData.studentId),
+                violationPointId: parseInt(formData.violationPointId),
+                name: formData.name,
+                punishment: formData.punishment,
+                date: formData.date
+            };
+
             if (modalMode === 'add') {
-                console.log('Adding new data:', formData);
+                await createViolation(violationData);
+                await showSuccessAlert('Berhasil', 'Data pelanggaran berhasil ditambahkan');
             } else {
-                console.log('Updating data:', formData);
+                await updateViolation(selectedData.id, violationData);
+                await showSuccessAlert('Berhasil', 'Data pelanggaran berhasil diperbarui');
             }
             handleCloseModal();
+            await fetchViolations();
         } catch (error) {
-            console.error('Error submitting form:', error);
+            console.error('Error:', error);
+            await showErrorAlert('Error', 'Gagal menyimpan data pelanggaran');
         }
     };
 
     const handleDelete = async (id: number) => {
-        try {
-            // Tambahkan konfirmasi sebelum menghapus
-            if (window.confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+        const isConfirmed = await showConfirmDelete(
+            'Hapus Data Pelanggaran',
+            'Apakah Anda yakin ingin menghapus data pelanggaran ini?'
+        );
+
+        if (isConfirmed) {
+            try {
                 await deleteViolation(id);
-                alert('Data posisi berhasil dihapus!');
+                await showSuccessAlert('Berhasil', 'Data pelanggaran berhasil dihapus');
                 await fetchViolations();
+            } catch (error) {
+                console.error('Error:', error);
+                await showErrorAlert('Error', 'Gagal menghapus data pelanggaran');
             }
-        } catch (error: any) {
-            console.error("Error deleting position:", error);
-            alert('Gagal menghapus data posisi');
         }
     };
 
     // fungsi untuk search
     const filteredData = violations.filter(item =>
         item.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        // item.classSchool.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.violationPoint.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.punishment.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -236,7 +197,7 @@ export default function StudentAffairsViolationsPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
 
-    if (loading) {
+    if (violationLoading) {
         return <LoadingSpinner />;
     }
 
@@ -385,7 +346,7 @@ export default function StudentAffairsViolationsPage() {
                                                 )}
                                             </div>
                                         </td> */}
-                                        <td className="py-2 px-4 border-b">{formatDateDisplay(violations.date)}</td>
+                                        <td className="py-2 px-4 border-b">{violations.date}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 <button
