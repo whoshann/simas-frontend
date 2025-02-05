@@ -5,7 +5,6 @@ import { SchoolClass } from "../school-class/types";
 interface StudentInDispense {
     id: number;
     name: string;
-    
     class: SchoolClass;
   }
 
@@ -26,5 +25,9 @@ export interface DispenseResponse {
     success: boolean;
     code: string;
     message: string;
-    data: Dispense[];
+    data: {
+        success: boolean;
+        code: string;
+        data: Dispense[];
+    };
 }

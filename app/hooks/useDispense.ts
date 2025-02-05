@@ -13,7 +13,7 @@ export const useDispense = () => {
     try {
       setLoading(true);
       const response = await dispenseApi.getAll();
-      setDispenses(response.data);
+      setDispenses(response.data.data|| []);
       setError(null);
     } catch (err: any) {
       setError(err.message || "Error fetching Dispense");
