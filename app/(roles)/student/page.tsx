@@ -321,7 +321,7 @@ export default function StudentDashboard() {
                 </div>
                 <div className="p-4 flex flex-col flex-grow" style={{ height: '100%' }}>
                   <div className="flex items-center justify-start pr-4">
-                    <div className="flex flex-col items-center mr-4">
+                    <div className="flex flex-col items-start justify-start mr-4">
                       {news.date && (
                         <>
                           <span className="text-2xl font-bold text-[var(--main-color)]">
@@ -333,7 +333,7 @@ export default function StudentDashboard() {
                         </>
                       )}
                     </div>
-                    <div className="flex-grow">
+                    <div className="flex-grow text-left">
                       <h4 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
                         {news.activity}
                       </h4>
