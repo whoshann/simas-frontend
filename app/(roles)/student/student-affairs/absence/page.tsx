@@ -3,25 +3,110 @@
 import "@/app/styles/globals.css";
 import { useState } from 'react';
 import { useEffect } from "react";
+import { useMemo } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from 'next/image';
+import Cookies from "js-cookie";
+import { toast } from "react-hot-toast";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import { getTokenData } from '@/app/utils/tokenHelper';
+import { getTokenData, getUserIdFromToken } from '@/app/utils/tokenHelper';
 import { authApi } from '@/app/api/auth';
+import { useAbsence } from "@/app/hooks/useAbsence";
+import axios from "axios";
+import { Student } from "@/app/api/student/types";
+import { AbsenceStatus } from "@/app/utils/enums";
+import { jwtDecode } from "jwt-decode";
+
+interface CustomJwtPayload {
+    sub: number;
+}
 
 interface StudentState {
     role?: string;
     name?: string;
     [key: string]: any;
-  }  
+}
+
+interface User {
+    id: number;
+    name: string;
+    username: string;
+}
+
+export interface Absence {
+    id: number;
+    studentId: number;
+    date: string;
+    status: AbsenceStatus;
+    note: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    photo: string | null;
+    Student: Student;
+}
 
 export default function StudentAbsencePage() {
+    const [absence, setAbsence] = useState<Absence[]>([]);
+
+    const fetchAbsence = async (studentId: number) => {
+        try {
+            const token = Cookies.get("token");
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/absence/student/${studentId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.data && response.data.data) {
+                setAbsence(response.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching achievements:', error);
+            toast.error('Gagal mengambil data prestasi');
+        }
+    };
 
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["Student", "SuperAdmin"]);
                 setIsAuthorized(true);
+
+                const token = Cookies.get("token");
+                if (token) {
+                    try {
+                        const decodedToken = jwtDecode<CustomJwtPayload>(token);
+                        const studentId = decodedToken.sub;
+                        setStudentId(studentId);
+
+                        const response = await axios.get(
+                            `${process.env.NEXT_PUBLIC_API_URL}/student/${studentId}`,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            }
+                        );
+
+                        const student = response.data.data;
+                        setStudentData(student);
+
+                        await fetchAbsence(studentId);
+
+                        setFormData(prev => ({
+                            ...prev,
+                            studentId: studentId,
+                            classId: student.classId
+                        }));
+
+                    } catch (error) {
+                        console.error("Error fetching student data:", error);
+                        toast.error("Gagal mendapatkan data siswa");
+                    }
+                }
             } catch (error) {
                 console.error("Auth error:", error);
                 setIsAuthorized(false);
@@ -31,84 +116,91 @@ export default function StudentAbsencePage() {
         };
 
         initializePage();
-
-        const tokenData = getTokenData();
-        if (tokenData) {
-            fetchStudentData(tokenData.id);
-            setStudent((prev: StudentState) => ({
-                ...prev,
-                role: tokenData.role
-            }));
-        }
     }, []);
 
-    const fetchStudentData = async (userId: number) => {
+    const fetchUserData = async (userId: number) => {
         try {
-            const response = await authApi.getStudentLogin(userId);
-            setStudent((prev: StudentState) => ({
+            const response = await authApi.getUserLogin(userId);
+            setUser(prev => ({
                 ...prev,
                 ...response.data
             }));
         } catch (err) {
             console.error("Error fetching user data:", err);
-            setError("Failed to fetch user data");
         }
     };
 
-    const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
-    const [selectedMonth, setSelectedMonth] = useState('Januari');
+    const months = [
+        'Semua', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    // const [error, setError] = useState<string>("");
+    // const [loading, setLoading] = useState<boolean>(true);
+    const [selectedMonth, setSelectedMonth] = useState(months[new Date().getMonth()]);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-    const [student, setStudent] = useState<any>({});
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
+    const [studentData, setStudentData] = useState<Student | null>(null);
+    const [studentId, setStudentId] = useState<number | null>(null);
+    const [formData, setFormData] = useState<{ studentId?: number; classId?: number }>({});
     const [isAuthorized, setIsAuthorized] = useState(false);
+    const formatDate = (date: string) => {
+        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(date).toLocaleDateString('id-ID', options);
+    };
+    const [user, setUser] = useState<User>({
+        id: 0,
+        name: '',
+        username: '',
+    });
 
 
-    const months = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
+    // Pindahkan fungsi filterDataByMonth ke sini
+    const filterDataByMonth = (date: string) => {
+        if (!date) return false;
+        if (selectedMonth === 'Semua') return true; // Tampilkan semua data jika 'Semua' dipilih
 
-    // Data statis tabel absensi
-    const data = [
-        { no: 1, name: "Ilham Kurniawan", class: "X PH A", status: "Hadir", document: null, date: "21/01/2024" },
-        { no: 2, name: "Ilham Kurniawan", class: "X PH B", status: "Izin", document: "/images/Berita1.jpg", date: "22/01/2024" },
-        { no: 3, name: "Ilham Kurniawan", class: "XI IPA A", status: "Sakit", document: "/images/Berita1.jpg", date: "23/01/2024" },
-        { no: 4, name: "Ilham Kurniawan", class: "XI IPA B", status: "Alpha", document: null, date: "24/01/2024" },
-        { no: 5, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 6, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 7, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 8, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 9, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 10, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 11, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 12, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 13, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 14, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 15, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 16, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 17, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 18, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 19, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
-        { no: 20, name: "Ilham Kurniawan", class: "XII IPS A", status: "Hadir", document: null, date: "25/01/2024" },
+        const itemDate = new Date(date);
+        return itemDate.getMonth() === months.indexOf(selectedMonth) - 1 && // Kurangi 1 karena ada 'Semua' di index 0
+            itemDate.getFullYear() === selectedYear;
+    };
 
-    ];
+    // Filter data
+    const filteredAbsence = absence
+        .filter(item => filterDataByMonth(item.date))
+        .filter(item => item.status.toLowerCase().includes(searchTerm.toLowerCase()));
 
     // Search item tabel
-    const filteredData = data.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.class.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const filteredData = absence.filter(item =>
+        item.Student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.Student.class.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.date.includes(searchTerm)
     );
 
-    const totalEntries = filteredData.length;
+    const totalEntries = filteredAbsence.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
-    const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
+    const currentEntries = filteredAbsence.slice(startIndex, startIndex + entriesPerPage);
+
+
+
+    // Memproses data absensi
+    const absenceStats = useMemo(() => {
+        const filteredAbsence = absence.filter(item => filterDataByMonth(item.date));
+        return {
+            present: filteredAbsence.filter(item => item.status === 'Present').length,
+            sick: filteredAbsence.filter(item => item.status === 'Sick').length,
+            alpha: filteredAbsence.filter(item => item.status === 'Alpha').length,
+            permission: filteredAbsence.filter(item => item.status === 'Permission').length
+        };
+    }, [absence, selectedMonth, selectedYear]);
+
 
     const togglePanel = () => {
         setIsPanelOpen(!isPanelOpen);
@@ -131,7 +223,7 @@ export default function StudentAbsencePage() {
             <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Absensi Anda</h1>
-                    <p className="text-sm text-gray-600">Halo {student.name} selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo {studentData?.name} selamat datang kembali</p>
                 </div>
 
 
@@ -182,7 +274,7 @@ export default function StudentAbsencePage() {
                             <i className='bx bxs-check-circle text-[#1f509a] text-4xl'></i>
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">27</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{absenceStats.present}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Hadir</p>
                         </div>
                     </div>
@@ -191,7 +283,7 @@ export default function StudentAbsencePage() {
                             <i className='bx bxs-envelope text-[#e88d1f]  text-3xl'></i>
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">2</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{absenceStats.permission}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Izin</p>
                         </div>
                     </div>
@@ -200,7 +292,7 @@ export default function StudentAbsencePage() {
                             <i className='bx bxs-clinic text-[#0a97b0]  text-3xl'></i>
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">0</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{absenceStats.sick}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Sakit</p>
                         </div>
                     </div>
@@ -209,7 +301,7 @@ export default function StudentAbsencePage() {
                             <i className='bx bxs-x-circle text-[#bd0000]  text-4xl'></i>
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">0</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{absenceStats.alpha}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Alpha</p>
                         </div>
                     </div>
@@ -269,21 +361,21 @@ export default function StudentAbsencePage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEntries.map((item) => (
-                                    <tr key={item.no} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
-                                        <td className="py-2 px-4 border-b">{item.no}</td>
-                                        <td className="py-2 px-4 border-b">{item.name}</td>
-                                        <td className="py-2 px-4 border-b">{item.class}</td>
+                                {currentEntries.map((absence, index) => (
+                                    <tr key={absence.id} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
+                                        <td className="py-2 px-4 border-b">{index + 1}</td>
+                                        <td className="py-2 px-4 border-b">{absence.Student.name}</td>
+                                        <td className="py-2 px-4 border-b">{absence.Student.class.name}</td>
                                         <td className="py-2 px-4 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${item.status === 'Hadir' ? 'bg-[#0a97b028] text-[var(--third-color)]' : item.status === 'Sakit' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : item.status === 'Alpha' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : item.status === 'Izin' ? 'bg-[#1f509a26] text-[var(--main-color)] ' : ''}`}>
-                                                {item.status}
+                                            <span className={`inline-block px-3 py-1 rounded-full ${absence.status === 'Present' ? 'bg-[#0a97b028] text-[var(--third-color)]' : absence.status === 'Sick' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : absence.status === 'Alpha' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : absence.status === 'Permission' ? 'bg-[#1f509a26] text-[var(--main-color)] ' : ''}`}>
+                                                {absence.status}
                                             </span>
                                         </td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="w-16 h-16 overflow-hidden rounded">
-                                                {item.document ? (
+                                                {absence.photo ? (
                                                     <Image
-                                                        src={item.document}
+                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/absence/${absence.photo.split('/').pop()}`}
                                                         alt="Bukti Surat"
                                                         className="w-full h-full object-cover"
                                                         width={256}
@@ -294,7 +386,7 @@ export default function StudentAbsencePage() {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="py-2 px-4 border-b">{item.date}</td>
+                                        <td className="py-2 px-4 border-b">{formatDate(absence.date)}</td>
                                     </tr>
                                 ))}
                             </tbody>
