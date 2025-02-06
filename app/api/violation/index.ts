@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import { Violation, ViolationResponse } from "./types";
+import { Violation, ViolationResponse, ViolationResponseByStudentId } from "./types";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/violations`;
@@ -40,4 +40,11 @@ export const violationApi = {
     });
     return response.data;
   },
+
+  getByStudentId: async (studentId: number): Promise<ViolationResponseByStudentId> => {
+    const response = await axios.get(`${API_URL}/student/${studentId}`, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  }
 };
