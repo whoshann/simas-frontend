@@ -1,4 +1,3 @@
-import { Student } from "../student/types";
 import { ViolationPoint } from "../violation-point/types";
 
 interface StudentInViolation {
@@ -28,4 +27,14 @@ export interface ViolationResponse {
     code: string;
     message: string;
     data: Violation[];
+}
+
+export interface ViolationResponseByStudentId {
+  success: boolean;
+  code: string;
+  message: string;
+  data: {
+    studentId: number;
+    totalPoints: number;
+  };
 }

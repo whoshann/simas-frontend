@@ -16,4 +16,10 @@ export const schoolPaymentApi = {
     });
     return response.data;
   },
+  getByStudentId: async (studentId: number): Promise<PaymentSppResponse> => {
+    const response = await axios.get(`${API_URL}/${studentId}`, { 
+      headers: getHeaders() 
+    });
+    return response.data;
+  }
 };
