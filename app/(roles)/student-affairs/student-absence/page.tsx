@@ -226,7 +226,7 @@ export default function StudentAffairsAbsencePage() {
                                             {item.photo ? (
                                                 <div
                                                     className="w-16 h-16 overflow-hidden rounded cursor-pointer"
-                                                    onClick={() => handleImageClick(`${process.env.NEXT_PUBLIC_API_URL}/uploads/absence/${item.photo.split('/').pop()}`)}
+                                                    onClick={() => handleImageClick(`${process.env.NEXT_PUBLIC_API_URL}/uploads/absence/${item.photo?.split('/').pop()}`)}
                                                 >
                                                     <Image
                                                         src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/absence/${item.photo.split('/').pop()}`}

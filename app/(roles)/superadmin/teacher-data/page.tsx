@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState } from "react";
@@ -260,7 +261,9 @@ export default function SuperAdminTeacherDataPage() {
                 phone: formData.phone,
                 lastEducation: formData.lastEducation,
                 lastEducationMajor: formData.lastEducationMajor,
-                role: formData.role
+                role: formData.role,
+                picture: formData.picture || null
+                
             }
 
             if (modalMode === 'add') {

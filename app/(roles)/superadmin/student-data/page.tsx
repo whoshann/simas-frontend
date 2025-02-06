@@ -208,7 +208,7 @@ export default function StudentPage() {
             label: 'Jalur Masuk',
             type: 'text' as const,
             required: false,
-            placeholder: 'Masukkan masuk siswa'
+            placeholder: 'Masukkan jalur pendaftaran siswa'
         },
         {
             name: 'admissionYear',
@@ -366,7 +366,7 @@ export default function StudentPage() {
         student.nisn?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.class?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.major?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.birthDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.birthDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.birthPlace?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.gender?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||

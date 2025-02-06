@@ -65,6 +65,7 @@ export default function StudentAbsencePage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [student, setStudent] = useState<any>({});
     const [isAuthorized, setIsAuthorized] = useState(false);
+    
 
 
     const months = [
