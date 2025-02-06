@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { OutgoingGoods } from '@/app/api/outgoing-goods/types';
 import { GuaranteeOutgoingGoods } from '@/app/utils/enums';
 import { useInventory } from '@/app/hooks/useInventory';
+import { formatDate } from '@/app/utils/helper';
 
 interface OutgoingGoodModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: OutgoingGoods) => void;
+  onSubmit: (id: number) => void;
   borrowingData?: OutgoingGoods | null;
 }
 
@@ -25,7 +26,8 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
     borrowDate: borrowingData?.borrowDate || '',
     returnDate: borrowingData?.returnDate || '',
     reason: borrowingData?.reason || '',
-    guarantee: borrowingData?.guarantee || GuaranteeOutgoingGoods.StudentCard
+    guarantee: borrowingData?.guarantee || GuaranteeOutgoingGoods.StudentCard,
+    status: borrowingData?.status || ''
   });
 
   useEffect(() => {
@@ -38,7 +40,8 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
         borrowDate: borrowingData.borrowDate || '',
         returnDate: borrowingData.returnDate || '',
         reason: borrowingData.reason || '',
-        guarantee: borrowingData.guarantee || GuaranteeOutgoingGoods.StudentCard
+        guarantee: borrowingData.guarantee || GuaranteeOutgoingGoods.StudentCard,
+        status: borrowingData.status || ''
       });
     } else {
       setFormData({
@@ -49,7 +52,8 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
         borrowDate: '',
         returnDate: '',
         reason: '',
-        guarantee: GuaranteeOutgoingGoods.StudentCard
+        guarantee: GuaranteeOutgoingGoods.StudentCard,
+        status: ''
       });
     }
   }, [borrowingData]);
@@ -72,159 +76,56 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.inventoryId) {
-      alert('Silakan pilih barang terlebih dahulu');
-      return;
+    if (borrowingData?.id) {
+      onSubmit(borrowingData.id);
     }
-
-    onSubmit(formData as OutgoingGoods);
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">
-            {borrowingData ? 'Edit Peminjaman' : 'Ajukan Peminjaman'}
-          </h2>
+      <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+      <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-bold text-gray-800">Konfirmasi Pengembalian</h2>
+      <hr className="border-gray-300 my-2" />
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <i className='bx bx-x text-2xl'></i>
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Role */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Role</label>
-            <input
-              type="text"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              placeholder="Contoh: Student/Teacher"
-            />
-          </div>
-
-          {/* Borrower Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Nama Peminjam</label>
-            <input
-              type="text"
-              name="borrowerName"
-              value={formData.borrowerName}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              placeholder="Masukkan nama peminjam"
-            />
-          </div>
-
-          {/* Inventory Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Pilih Barang</label>
-            <select
-              name="inventoryId"
-              value={formData.inventoryId}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            >
-              <option value="">Pilih Barang</option>
-              {inventories?.map((inventory) => (
-                <option key={inventory.id} value={inventory.id}>
-                  {inventory.name} - Stok: {inventory.stock}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Quantity */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Jumlah</label>
-            <input
-              type="number"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-              min="1"
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-
-          {/* Dates */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Tanggal Pinjam</label>
-              <input
-                type="date"
-                name="borrowDate"
-                value={formData.borrowDate}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              />
+          <p className="text-gray-700 text-sm">Apakah Anda yakin ingin mengembalikan barang ini?</p>
+          <div className="mt-4">
+            <div className="flex flex-col mt-4">
+              <div className="flex flex-col">
+                <p className="font-semibold"><strong>Peminjam:</strong></p>
+                <p className="text-gray-800">{borrowingData?.borrowerName}</p>
+              </div>
+              <div className="flex flex-col mt-4">
+                <p className="font-semibold"><strong>Barang:</strong></p>
+                <p className="text-gray-800 text-left">{borrowingData?.inventory?.name}</p>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Tanggal Kembali</label>
-              <input
-                type="date"
-                name="returnDate"
-                value={formData.returnDate}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              />
+            <div className="flex flex-col mt-4">
+              <p className="font-semibold"><strong>Tanggal Pinjam:</strong></p>
+              <p className="text-gray-800">{formatDate(borrowingData?.borrowDate || '')}</p>
             </div>
-          </div>
-
-          {/* Reason */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Alasan Peminjaman</label>
-            <textarea
-              name="reason"
-              value={formData.reason}
-              onChange={handleChange}
-              required
-              rows={3}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-
-          {/* Guarantee */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Jaminan</label>
-            <select
-              name="guarantee"
-              value={formData.guarantee}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            >
-              <option value={GuaranteeOutgoingGoods.StudentCard}>Kartu Pelajar</option>
-              <option value={GuaranteeOutgoingGoods.KTP}>KTP</option>
-              <option value={GuaranteeOutgoingGoods.Handphone}>Handphone</option>
-            </select>
           </div>
 
           <div className="flex justify-end space-x-3 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition duration-200"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="bg-[var(--main-color)] text-white py-2 px-4 rounded-md hover:bg-[#2154a1] disabled:opacity-50"
             >
-              {borrowingData ? 'Update' : 'Submit'}
+              Konfirmasi Pengembalian
             </button>
           </div>
         </form>

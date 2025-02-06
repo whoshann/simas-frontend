@@ -51,11 +51,9 @@ export default function MonthlyFinancePage() {
     });
 
     // Tambahkan state untuk nilai yang diformat
-    const [formattedValues, setFormattedValues] = useState({
-        income: '',
-        expenses: '',
-        remainingBalance: ''
-    });
+    const [formattedIncome, setFormattedIncome] = useState('');
+    const [formattedExpenses, setFormattedExpenses] = useState('');
+    const [formattedRemainingBalance, setFormattedRemainingBalance] = useState('');
 
    useEffect(() => {
         const initializePage = async () => {
@@ -105,6 +103,7 @@ export default function MonthlyFinancePage() {
     const handleOpenModal = (mode: 'add' | 'edit', item?: MonthlyFinance) => {
         setModalMode(mode);
         if (mode === 'edit' && item) {
+            setSelectedMonthlyFinance(item);
             setFormData({
                 month: item.month,
                 income: item.income,
@@ -112,11 +111,9 @@ export default function MonthlyFinancePage() {
                 remainingBalance: item.remainingBalance,
                 financeOverviewId: item.financeOverviewId
             });
-            setFormattedValues({
-                income: formatRupiah(item.income),
-                expenses: formatRupiah(item.expenses),
-                remainingBalance: formatRupiah(item.remainingBalance)
-            });
+            setFormattedIncome(formatRupiah(item.income));
+            setFormattedExpenses(formatRupiah(item.expenses));
+            setFormattedRemainingBalance(formatRupiah(item.remainingBalance));
         } else {
             setFormData({
                 month: '',
@@ -125,11 +122,9 @@ export default function MonthlyFinancePage() {
                 remainingBalance: 0,
                 financeOverviewId: 1
             });
-            setFormattedValues({
-                income: '',
-                expenses: '',
-                remainingBalance: ''
-            });
+            setFormattedIncome('');
+            setFormattedExpenses('');
+            setFormattedRemainingBalance('');
         }
         setIsModalOpen(true);
     };
@@ -145,18 +140,24 @@ export default function MonthlyFinancePage() {
         });
     };
 
-    const handleSubmit = async (data: FormData) => {
+    const handleSubmit = async (data: Partial<MonthlyFinance>) => {
         console.log('Data yang diterima:', data);
-        const formDataToSubmit = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-            formDataToSubmit.append(key, value.toString());
-        });
         
+        const formDataToSubmit: Omit<MonthlyFinance, "id"> = {
+            month: data.month || '',
+            income: data.income || 0,
+            expenses: data.expenses || 0,
+            remainingBalance: data.remainingBalance || 0,
+            financeOverviewId: data.financeOverviewId || 1
+        };
+
         try {
             if (modalMode === 'edit' && selectedMonthlyFinance) {
                 await updateMonthlyFinance(selectedMonthlyFinance.id!, formDataToSubmit);
+                await fetchMonthlyFinances();
             } else {
                 await addMonthlyFinance(formDataToSubmit);
+                await fetchMonthlyFinances();
             }
             handleCloseModal();
         } catch (error) {
@@ -165,9 +166,12 @@ export default function MonthlyFinancePage() {
     };
 
     const handleDeleteClick = async (id: number) => {
+        console.log('Attempting to delete ID:', id);
         if (window.confirm('Apakah Anda yakin ingin menghapus data keuangan bulanan ini?')) {
             try {
                 await deleteMonthlyFinance(id);
+                console.log('Delete successful');
+                await fetchMonthlyFinances();
             } catch (error) {
                 console.error('Error deleting monthly finance:', error);
             }
@@ -196,10 +200,14 @@ export default function MonthlyFinancePage() {
             };
         });
         
-        setFormattedValues(prev => ({
-            ...prev,
-            [field]: value ? formatRupiah(value) : ''
-        }));
+        // Set nilai yang diformat
+        if (field === 'income') {
+            setFormattedIncome(value ? formatRupiah(value) : '');
+        } else if (field === 'expenses') {
+            setFormattedExpenses(value ? formatRupiah(value) : '');
+        } else if (field === 'remainingBalance') {
+            setFormattedRemainingBalance(value ? formatRupiah(value) : '');
+        }
     };
 
     // Definisikan pageContent
@@ -215,25 +223,25 @@ export default function MonthlyFinancePage() {
             name: 'income', 
             label: 'Pemasukan', 
             type: 'number' as const,
-            value: formattedValues.income,
+            value: formattedIncome || formData.income,
             onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleRupiahInput(e, 'income'),
-            placeholder: 'Rp 0'
+            placeholder: '0'
         },
         { 
             name: 'expenses', 
             label: 'Pengeluaran', 
             type: 'number' as const,
-            value: formattedValues.expenses,
+            value: formattedExpenses || formData.expenses,
             onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleRupiahInput(e, 'expenses'),
-            placeholder: 'Rp 0'
+            placeholder: '0'
         },
         { 
             name: 'remainingBalance', 
             label: 'Sisa Keuangan', 
             type: 'number' as const,
-            value: formattedValues.remainingBalance,
+            value: formattedRemainingBalance || formData.remainingBalance,
             onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleRupiahInput(e, 'remainingBalance'),
-            placeholder: 'Rp 0'
+            placeholder: '0'
         }
     ];
 
@@ -362,6 +370,7 @@ export default function MonthlyFinancePage() {
                                                     <i className="bx bxs-edit text-lg"></i>
                                                 </button>
                                                 <button
+                                                    onClick={() => item.id !== undefined && handleDeleteClick(item.id)}
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
                                                 >
                                                     <i className="bx bxs-trash-alt text-lg"></i>

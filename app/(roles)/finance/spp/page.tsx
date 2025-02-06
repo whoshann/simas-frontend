@@ -1,187 +1,240 @@
 "use client";
 
-import React, { useState } from "react";
-import "@/app/styles/globals.css";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import PageHeader from "@/app/components/DataTable/TableHeader";
-import DataTable from "@/app/components/DataTable/TableData";
-import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { useSchoolPayment } from "@/app/hooks/useSchoolPayment";
+import { formatRupiah } from "@/app/utils/helper";
+import { useUser } from "@/app/hooks/useUser";
 
-type Spp = {
-    id: number;
-    no: number;
-    name: string;
-    quantity: number;
-    month: number;
-    status: "Lunas" | "Belum Dibayar";
-    transactionId: string;
-    date: string;
-};
+interface FormData {
+    [key: string]: any;
+}
 
 export default function SppPage() {
+    const { paymentSpp, loading, error, fetchPaymentSpp, } = useSchoolPayment();
+    const { user } = useUser();
     const [isAuthorized, setIsAuthorized] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedSpp, setSelectedSpp] = useState<Spp | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const formatDate = (date: string) => {
+        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(date).toLocaleDateString('id-ID', options);
+    };
 
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["Finance", "SuperAdmin"]);
                 setIsAuthorized(true);
+
+                // Fetch all data
+                const results = await Promise.all([
+                    fetchPaymentSpp(),
+                ]);
+
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Error initializing page:", error);
                 setIsAuthorized(false);
-            } finally {
-                setLoading(false);
             }
         };
 
         initializePage();
     }, []);
 
-    const data: Spp[] = [
-        { id: 1, no: 1, name: "Revina Okta Safitri", quantity: 100000, month: 1, status: "Belum Dibayar", transactionId: "TXN-12345", date: "2024-12-15" },
-        { id: 2, no: 2, name: "Putri Rosario", quantity: 100000, month: 1, status: "Lunas", transactionId: "TXN-12346", date: "2024-12-15" },
-        { id: 3, no: 3, name: "Aurizta Widya Ulima", quantity: 100000, month: 1, status: "Belum Dibayar", transactionId: "TXN-12347", date: "2024-12-15" },
-        { id: 4, no: 4, name: "Davina Tegar Putri", quantity: 100000, month: 1, status: "Lunas", transactionId: "TXN-12348", date: "2024-12-15" },
-        { id: 5, no: 5, name: "Ikfi Dwi Nazila", quantity: 100000, month: 1, status: "Lunas", transactionId: "TXN-12349", date: "2024-12-15" },
-    ];
+    // Search item tabel
+    const filteredData = paymentSpp.filter(item =>
+        item.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        formatDate(item.month).includes(searchTerm)
+    );
 
-    const headers = [
-        { key: 'no', label: 'No' },
-        { key: 'name', label: 'Nama Siswa' },
-        { 
-            key: 'quantity', 
-            label: 'Jumlah',
-            render: (value: number) => `Rp. ${value.toLocaleString()}`
-        },
-        { 
-            key: 'month', 
-            label: 'Bulan',
-            render: (value: number) => {
-                const months = [
-                    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-                    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-                ];
-                return months[value - 1];
-            }
-        },
-        {
-            key: 'status',
-            label: 'Status',
-            render: (value: string) => (
-                <span className={`px-3 py-1 rounded-full text-xs ${
-                    value === "Lunas" 
-                        ? 'bg-green-100 text-green-600' 
-                        : 'bg-red-100 text-red-600'
-                }`}>
-                    {value}
-                </span>
-            )
-        },
-        { key: 'transactionId', label: 'ID Transaksi' },
-        { 
-            key: 'date', 
-            label: 'Tanggal',
-            render: (value: string) => new Date(value).toLocaleDateString('id-ID')
-        }
-    ];
-
-    const modalFields = [
-        { name: 'name', label: 'Nama Siswa', type: 'text' as const, required: true },
-        { name: 'quantity', label: 'Jumlah', type: 'number' as const, required: true },
-        { 
-            name: 'month', 
-            label: 'Bulan', 
-            type: 'select' as const, 
-            required: true,
-            options: Array.from({ length: 12 }, (_, i) => ({
-                value: String(i + 1),
-                label: `Bulan ${i + 1}`
-            }))
-        },
-        {
-            name: 'status',
-            label: 'Status',
-            type: 'select' as const,
-            required: true,
-            options: [
-                { value: 'Lunas', label: 'Lunas' },
-                { value: 'Belum Dibayar', label: 'Belum Dibayar' }
-            ]
-        },
-        { name: 'transactionId', label: 'ID Transaksi', type: 'text' as const, required: true },
-        { name: 'date', label: 'Tanggal', type: 'date' as const, required: true }
-    ];
-
-    const handleAdd = () => {
-        setSelectedSpp(null);
-        setIsModalOpen(true);
-    };
-
-    const handleEdit = (id: number) => {
-        const expense = data.find(item => item.id === id);
-        setSelectedSpp(expense);
-        setIsModalOpen(true);
-    };
-
-    const handleDelete = (id: number) => {
-        console.log("Delete item with id:", id);
-        // Implementasi delete
-    };
-
-    const handleModalSubmit = async (formData: any) => {
-        if (selectedSpp) {
-            console.log("Update data:", formData);
-        } else {
-            console.log("Add new data:", formData);
-        }
-        setIsModalOpen(false);
-    };
+    const totalEntries = filteredData.length;
+    const totalPages = Math.ceil(totalEntries / entriesPerPage);
+    const startIndex = (currentPage - 1) * entriesPerPage;
+    const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     if (loading) {
         return <LoadingSpinner />;
     }
 
+    // Page content configuration
+    const pageContent = {
+        title: "Spp",
+        greeting: "Halo Admin Keuangan, selamat datang kembali"
+    };
+
     if (!isAuthorized) {
-        return <div className="p-4">Anda tidak memiliki akses ke halaman ini.</div>;
+        return null;
     }
 
     return (
-        <div className="flex-1 px-9 flex flex-col overflow-hidden bg-[#F2F2F2]">
-            <PageHeader
-                title="Pembayaran SPP"
-                greeting="Halo role Keuangan, selamat datang kembali"
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-            />
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
+            <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                <div>
+                    <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Spp</h1>
+                    <p className="text-sm text-gray-600">Halo {user?.username}, selamat datang kembali</p>
+                </div>
+                <div className="mt-4 sm:mt-0">
+                    <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
+                        <i className='bx bx-search text-[var(--text-semi-bold-color)] text-lg mr-0 sm:mr-2 ml-2 sm:ml-0'></i>
+                        <input
+                            type="text"
+                            placeholder="Cari data..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="border-0 focus:outline-none text-base w-40"
+                        />
+                    </div>
+                </div>
+            </header>
 
-            <DataTable
-                headers={headers}
-                data={data}
-                searchTerm={searchTerm}
-                entriesPerPage={entriesPerPage}
-                setEntriesPerPage={setEntriesPerPage}
-                onAdd={handleAdd}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onImport={() => console.log("Import clicked")}
-                onExport={(type) => console.log("Export", type)}
-            />
+            <main className="px-9 pb-6">
+                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+                    <div className="mb-4 flex justify-between flex-wrap sm:flex-nowrap">
+                        <div className="text-xs sm:text-base">
+                            <label className="mr-2">Tampilkan</label>
+                            <select
+                                value={entriesPerPage}
+                                onChange={(e) => setEntriesPerPage(Number(e.target.value))}
+                                className="border border-gray-300 rounded-lg p-1 text-xs sm:text-sm w-12 sm:w-16"
+                            >
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={15}>15</option>
+                                <option value={20}>20</option>
+                            </select>
+                            <label className="ml-2">Entri</label>
+                        </div>
 
-            <DynamicModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-                title={selectedSpp ? "Edit Data SPP" : "Tambah Data SPP"}
-                fields={modalFields}
-                initialData={selectedSpp}
-            />
-        </div>
+                        {/* 3 button*/}
+
+                        <div className="flex space-x-2 mt-5 sm:mt-0">
+                            {/* Button Import CSV */}
+                            <button
+                                onClick={() => console.log("Import CSV")}
+                                className="bg-[var(--second-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#de881f]"
+                            >
+                                Import Dari Excel
+                            </button>
+
+                            {/* Dropdown Export */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                                    className="bg-[var(--third-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#09859a] flex items-center"
+                                >
+                                    Export Data
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth={2}
+                                        stroke="currentColor"
+                                        className={`w-4 h-4 ml-2 transform transition-transform ${dropdownOpen ? 'rotate-90' : 'rotate-0'
+                                            }`}
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                {dropdownOpen && (
+                                    <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                                        <button
+                                            onClick={() => console.log("Export PDF")}
+                                            className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
+                                        >
+                                            Export PDF
+                                        </button>
+                                        <button
+                                            onClick={() => console.log("Export Excel")}
+                                            className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
+                                        >
+                                            Export Excel
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full rounded-lg overflow-hidden">
+                            <thead className="text-[var(--text-semi-bold-color)]">
+                                <tr>
+                                    <th className="py-2 px-4 border-b text-left">No</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Siswa</th>
+                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
+                                    <th className="py-2 px-4 border-b text-left">Jumlah</th>
+                                    <th className="py-2 px-4 border-b text-left">Bulan</th>
+                                    <th className="py-2 px-4 border-b text-left">Status</th>
+                                    <th className="py-2 px-4 border-b text-left">Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentEntries.map((paymentSpp, index) => (
+                                    <tr key={paymentSpp.id} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
+                                        <td className="py-2 px-4 border-b">{index + 1}</td>
+                                        <td className="py-2 px-4 border-b">{paymentSpp.student.name}</td>
+                                        <td className="py-2 px-4 border-b">{paymentSpp.student.class.name}</td>
+                                        <td className="py-2 px-4 border-b">{formatRupiah(paymentSpp.amount)}</td>
+                                        <td className="py-2 px-4 border-b">{paymentSpp.month}</td>
+                                        <td className="py-2 px-4 border-b">
+                                            <span className={`px-3 py-1 rounded-full text-xs ${
+                                                paymentSpp.status === 'Lunas' 
+                                                    ? 'bg-green-100 text-green-600' 
+                                                    : 'bg-red-100 text-red-600'
+                                            }`}>
+                                                {paymentSpp.status === 'Lunas' ? 'Lunas' : 'Belum Lunas'}
+                                            </span>
+                                        </td>
+                                        <td className="py-2 px-4 border-b">{formatDate(paymentSpp.date)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className="flex justify-between items-center mt-5">
+                        <span className="text-xs sm:text-base">Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri</span>
+
+                        <div className="flex items-center">
+                            <button
+                                onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="px-4 py-2 text-[var(--main-color)]"
+                            >
+                                &lt;
+                            </button>
+                            <div className="flex space-x-1">
+                                {Array.from({ length: Math.min(totalPages - (currentPage - 1), 2) }, (_, index) => {
+                                    const pageNumber = currentPage + index;
+                                    return (
+                                        <button
+                                            key={pageNumber}
+                                            onClick={() => setCurrentPage(pageNumber)}
+                                            className={`rounded-md px-3 py-1 ${currentPage === pageNumber ? 'bg-[var(--main-color)] text-white' : 'text-[var(--main-color)]'}`}
+                                        >
+                                            {pageNumber}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            <button
+                                onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="px-4 py-2 text-[var(--main-color)]"
+                            >
+                                &gt;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div >
     );
 }

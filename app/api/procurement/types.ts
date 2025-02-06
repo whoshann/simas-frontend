@@ -1,3 +1,4 @@
+import { ProcurementStatus } from "@/app/utils/enums";
 import { Inventory } from "../inventories/types";
 
 export interface Procurement {
@@ -9,7 +10,7 @@ export interface Procurement {
   quantity: string;
   procurementDate: string;
   documentPath: string;
-  procurementStatus: string;
+  procurementStatus: ProcurementStatus;
 }
 
 export interface ProcurementResponse {

@@ -1,34 +1,36 @@
 import { MonthlyFinance } from "../monthly-finances/types";
+
 export interface Income {
     id?: number;
-    monthlyFinanceId: number;
+    description: string;
+    amount: number ;
     source: string;
-    description?: string;
-    amount: string;
-    incomeDate: string;
+    incomeDate: number;
+    monthlyFinanceId?: number;
+    MonthlyFinance: MonthlyFinance;
     createdAt?: string;
     updatedAt?: string;
   }
   
-  export interface IncomesRequest {
+  export interface IncomeRequest {
     monthlyFinanceId: number;
-    amount: number;
-    incomeDate: string;
+    amount: string;
     source: string;
-    description?: string;
+    incomeDate: string;
+    description: string;
   }
   
 
   export interface UpdateIncomesRequest {
     monthlyFinanceId?: number;
     amount?: number;
-    incomeDate?: string;
+    incomedate?: string;
   }
   
   export interface IncomesResponse {
     code: number;
     entity: string;
-    Data: Income;
+    incomedata: Income;
   }
   
   export interface IncomesResponses {
@@ -36,4 +38,4 @@ export interface Income {
     entity: string;
     data: Income[];
   }
-  
+   

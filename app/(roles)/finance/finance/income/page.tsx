@@ -1,132 +1,141 @@
 "use client";
-
-import React, { useState } from "react";
 import "@/app/styles/globals.css";
-import { useEffect } from "react";
-import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import PageHeader from "@/app/components/DataTable/TableHeader";
-import DataTable from "@/app/components/DataTable/TableData";
-import DynamicModal from "@/app/components/DataTable/TableModal";
-import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { Income, IncomeRequest } from '@/app/api/incomes/types';
+import { IncomeHeader } from '@/app/components/incomes/IncomeHeader';
+import { IncomeActions } from '@/app/components/incomes/IncomeAction';
+import { IncomeTable } from '@/app/components/incomes/IncomeTable';
+import { IncomePagination } from '@/app/components/incomes/IncomePagination';
+import IncomeModal from '@/app/components/incomes/IncomeModal';
+import { useIncomes } from '@/app/hooks/useIncomes';
+import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
+import { useState, useEffect } from 'react';
+import { useMonthlyFinance } from "@/app/hooks/useMonthlyFinances";
 
-export default function ExpensesPage() {
-    // Fetch data saat komponen dimount
+export default function IncomePage() {
+    // State
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [entriesPerPage, setEntriesPerPage] = useState(5);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedIncome, setSelectedIncome] = useState<Income | null>(null);
+
+    // Hooks
+    const { Incomes, loading, error, fetchIncomes, createIncome, updateIncome, deleteIncome } = useIncomes();
+    const { 
+        monthlyFinances, 
+        fetchMonthlyFinances 
+    } = useMonthlyFinance();
+
     useEffect(() => {
         const initializePage = async () => {
             try {
-                await roleMiddleware(["Finance", "SuperAdmin"]);
+                await roleMiddleware(["Finance","SuperAdmin"]);
                 setIsAuthorized(true);
+                await fetchIncomes();
+                await fetchMonthlyFinances();
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Auth error:", error);
                 setIsAuthorized(false);
-            } finally {
-                setLoading(false);
             }
         };
 
         initializePage();
     }, []);
 
-    const [selectedExpenses, setSelectedExpenses] = useState<any>(null);
-    const [isAuthorized, setIsAuthorized] = useState(false);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [entriesPerPage, setEntriesPerPage] = useState(5);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const data = [
-        { id: 1, no: 1, name: "Dana Bos", quantity: 600000, date: "2024-12-15" },
-        { id: 2, no: 2, name: "Donasi Alumni", quantity: 360000, date: "2024-12-15" },
-        { id: 3, no: 3, name: "SPP Bulanan", quantity: 100000, date: "2024-12-15" },
-        { id: 4, no: 4, name: "Sponsor Industri", quantity: 1800000, date: "2024-12-15" },
-        { id: 5, no: 5, name: "Sumbangan", quantity: 1000000, date: "2024-12-15" },
-    ];
-
-    const headers = [
-        { key: 'no', label: 'No' },
-        { key: 'name', label: 'Sumber Pemasukan' },
-        {
-            key: 'quantity',
-            label: 'Jumlah',
-            render: (value: number) => `Rp. ${value.toLocaleString()}`
-        },
-        {
-            key: 'date',
-            label: 'Tanggal',
-            render: (value: string) => new Date(value).toLocaleDateString('id-ID')
-        }
-    ];
-
-    const modalFields = [
-        { name: 'name', label: 'Sumber Pemasukan', type: 'text' as const, required: true },
-        { name: 'quantity', label: 'Jumlah', type: 'number' as const, required: true },
-        { name: 'date', label: 'Tanggal', type: 'date' as const, required: true }
-    ];
-
-    const handleAdd = () => {
-        setSelectedExpenses(null);
-        setIsModalOpen(true);
-    };
-
-    const handleEdit = (id: number) => {
-        const expense = data.find(item => item.id === id);
-        setSelectedExpenses(expense);
-        setIsModalOpen(true);
-    };
-
-    const handleDelete = (id: number) => {
-        console.log("Delete item with id:", id);
-        // Implementasi delete
-    };
-
-    const handleModalSubmit = async (formData: any) => {
-        if (selectedExpenses) {
-            console.log("Update data:", formData);
-        } else {
-            console.log("Add new data:", formData);
-        }
-        setIsModalOpen(false);
-    };
-
     if (loading) {
-        return <LoadingSpinner />;
+        return <div>Loading...</div>;
     }
 
     if (!isAuthorized) {
-        return <div>
-            Hello world
-        </div>;
+        return null;
     }
 
+    // Calculations
+    const startIndex = (currentPage - 1) * entriesPerPage;
+    const filteredIncomes = Incomes.filter((incomes: Income) => 
+        incomes.monthlyFinanceId && 
+        incomes.monthlyFinanceId.toString().includes(searchTerm.toLowerCase())
+    );
+    const totalEntries = filteredIncomes.length;
+    const totalPages = Math.ceil(totalEntries / entriesPerPage);
+    const displayedIncomes = filteredIncomes.slice(startIndex, startIndex + entriesPerPage);
+
+    // Handlers
+    const handleAddClick = () => {
+        setSelectedIncome(null);
+        setIsModalOpen(true);
+    };
+
+    const handleEditClick = (incomes: Income) => {
+        setSelectedIncome(incomes);
+        setIsModalOpen(true);
+    };
+
+    const handleSubmit = async (data: Income) => {
+        try {
+            const requestData: IncomeRequest = {
+                source: data.source,
+                description: data.description,
+                monthlyFinanceId: data.monthlyFinanceId!,
+                amount: data.amount,  // Pastikan format decimal string
+                incomeDate: data.incomeDate
+            };
+    
+            console.log('Data yang dikirim:', requestData);
+    
+            if (selectedIncome) {
+                await updateIncome(selectedIncome.id!, requestData);
+            } else {
+                await createIncome(requestData);
+            }
+            // Refresh data
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
     return (
-        <div className="flex-1 flex flex-col px-9 overflow-hidden bg-[#F2F2F2]">
-            <PageHeader
-                title="Data Pemasukan"
-                greeting="Halo role Keuangan, selamat datang kembali"
+        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+                <IncomeHeader 
                 searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-            />
+                onSearchChange={(e) => setSearchTerm(e.target.value)}
+                />
 
-            <DataTable
-                headers={headers}
-                data={data}
-                searchTerm={searchTerm}
-                entriesPerPage={entriesPerPage}
-                setEntriesPerPage={setEntriesPerPage}
-                onAdd={handleAdd}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onImport={() => console.log("Import clicked")}
-                onExport={(type) => console.log("Export", type)}
-            />
+            <main className="px-9 pb-6">
+            <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+                    <IncomeActions
+                        entriesPerPage={entriesPerPage}
+                        onEntriesChange={(e) => setEntriesPerPage(Number(e.target.value))}
+                        onAddClick={handleAddClick}
+                        dropdownOpen={dropdownOpen}
+                        setDropdownOpen={setDropdownOpen}
+                    />
 
-            <DynamicModal
+                    <IncomeTable
+                        incomes={displayedIncomes}
+                        startIndex={startIndex}
+                        onEdit={handleEditClick}
+                        onDelete={deleteIncome}
+                    />
+
+                    <IncomePagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        startIndex={startIndex}
+                        entriesPerPage={entriesPerPage}
+                        totalEntries={totalEntries}
+                        onPageChange={setCurrentPage}
+                    />
+                </div>
+            </main>
+            <IncomeModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onSubmit={handleModalSubmit}
-                title={selectedExpenses ? "Edit Pengeluaran" : "Tambah Pengeluaran"}
-                fields={modalFields}
-                initialData={selectedExpenses}
+                onSubmit={handleSubmit}
+                incomeData={selectedIncome}
+                monthlyFinances={monthlyFinances}
             />
         </div>
     );

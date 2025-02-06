@@ -298,29 +298,14 @@ export default function StudentDashboard() {
           loop={true}
           effect={'slide'}
           breakpoints={{
-            1024: {
-              slidesPerView: 3,
-              slidesPerGroup: 1,
-              centeredSlides: false,
-              spaceBetween: 20
-            },
-            768: {
-              slidesPerView: 2,
-              slidesPerGroup: 1,
-              centeredSlides: false,
-              spaceBetween: 15
-            },
-            0: { // Tambahkan ini untuk ponsel
-              slidesPerView: 1,
-              slidesPerGroup: 1,
-              centeredSlides: true,
-              spaceBetween: 10
-            }
+            1024: { slidesPerView: 3, slidesPerGroup: 1, centeredSlides: false, spaceBetween: 20 },
+            768: { slidesPerView: 2, slidesPerGroup: 1, centeredSlides: false, spaceBetween: 15 },
+            0: { slidesPerView: 1, slidesPerGroup: 1, centeredSlides: true, spaceBetween: 10 }
           }}
         >
           {news.map((news, index) => (
             <SwiperSlide key={news.id}>
-              <div key={index} className="bg-white shadow rounded-lg overflow-hidden w-full max-w-sm mx-auto">
+              <div className="bg-white shadow rounded-lg overflow-hidden w-full max-w-sm mx-auto flex flex-col" style={{ height: '350px' }}>
                 <div className="relative h-48 md:h-56">
                   {news.photo ? (
                     <Image
@@ -334,23 +319,27 @@ export default function StudentDashboard() {
                     '-'
                   )}
                 </div>
-                <div className="p-4 flex flex-col">
+                <div className="p-4 flex flex-col flex-grow" style={{ height: '100%' }}>
                   <div className="flex items-center justify-start pr-4">
-                    <div className="flex flex-col items-center mr-4">
+                    <div className="flex flex-col items-start justify-start mr-4">
                       {news.date && (
                         <>
-                          <span className="text-2xl font-bold text-[var(--main-color)]"> {new Date(news.date).getDate()}</span>
-                          <span className="text-xl font-semibold text-[var(--third-color)]">{new Date(news.date).getMonth() + 1}</span>
+                          <span className="text-2xl font-bold text-[var(--main-color)]">
+                            {new Date(news.date).getDate()}
+                          </span>
+                          <span className="text-xl font-semibold text-[var(--third-color)]">
+                            {new Date(news.date).getMonth() + 1}
+                          </span>
                         </>
                       )}
                     </div>
-                    <div className="flex-grow">
+                    <div className="flex-grow text-left">
                       <h4 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
                         {news.activity}
                       </h4>
-                      <p className="text-sm text-gray-600 mt-1 whitespace-normal">
+                      <div className="text-sm text-gray-600 mt-1 scroll-hidden" style={{ maxHeight: '120px', overflowY: 'auto' }}>
                         {news.description}
-                      </p>
+                      </div>
                       <p className="text-xs text-gray-400 mt-1">Catatan: {news.note}</p>
                     </div>
                   </div>
@@ -359,6 +348,7 @@ export default function StudentDashboard() {
             </SwiperSlide>
           ))}
         </Swiper>
+
       </main>
     </div>
   );

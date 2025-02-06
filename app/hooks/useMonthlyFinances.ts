@@ -24,7 +24,7 @@ export const useMonthlyFinance = () => {
     }
   };
 
-  const addMonthlyFinance = async (formData: FormData) => {
+  const addMonthlyFinance = async (formData: Omit<MonthlyFinance, "id">) => {
     try {
       const response = await monthlyFinanceApi.create(formData);
       await fetchMonthlyFinances();
@@ -34,7 +34,7 @@ export const useMonthlyFinance = () => {
     }
   };
 
-  const updateMonthlyFinance = async (id: number, formData: FormData) => {
+  const updateMonthlyFinance = async (id: number, formData: Partial<MonthlyFinance>) => {
     try {
       await monthlyFinanceApi.update(id, formData);
       await fetchMonthlyFinances();

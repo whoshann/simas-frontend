@@ -13,7 +13,8 @@ import {
   DispenseStatus,
   TeacherRole,
   EmployeeGender,
-  EmployeeCategory
+  EmployeeCategory,
+  OutgoingGoodsStatus,
 } from "./enums";
 
 export const ConditionLabel = {
@@ -65,6 +66,17 @@ export const getGuaranteeOutgoingGoodsLabel = (
   guarantee: GuaranteeOutgoingGoods
 ): string => {
   return GuaranteeOutgoingGoodsLabel[guarantee] || guarantee;
+};
+
+export const OutgoingGoodsStatusLabel = {
+  Borrowed: "Dipinjam",
+  Returned: "Dikembalikan",
+};
+
+export const getOutgoingGoodsStatusLabel = (
+  status: OutgoingGoodsStatus
+): string => {
+  return OutgoingGoodsStatusLabel[status] || status;
 };
 
 export const InsuranceClaimStatusLabel = {
@@ -174,5 +186,12 @@ export const EmployeeCategoryLabel = {
 
 export const getEmployeeCategoryLabel = (category: EmployeeCategory): string => {
   return EmployeeCategoryLabel[category] || category;
+};
+
+export const BudgetManagementStatusLabel = {
+  Submitted: "Dikirim",
+  Revised: "Revisi",
+  Approved: "Disetujui",
+  Rejected: "Ditolak",
 };
 
