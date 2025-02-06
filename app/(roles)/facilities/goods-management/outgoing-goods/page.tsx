@@ -11,10 +11,12 @@ import { OutgoingGoodPagination } from "@/app/components/outgoing-goods/Outgoing
 import { OutgoingGoodModal } from "@/app/components/outgoing-goods/OutgoingGoodModal";
 import { OutgoingGoods, OutgoingGoodsRequest } from "@/app/api/outgoing-goods/types";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
+import { getOutgoingGoodsStatusLabel, getGuaranteeOutgoingGoodsLabel } from "@/app/utils/enumHelpers";
+import { showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 
 export default function OutgoingGoodsPage() {
 
-    const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,28 +24,67 @@ export default function OutgoingGoodsPage() {
   const [selectedBorrowing, setSelectedBorrowing] = useState<OutgoingGoods | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const { loading, error, outgoingGoods,fetchOutgoingGoods, updateBorrowingStatus } = useOutgoingGoods();
-    useEffect(() => {
-        const initializePage = async () => {
-            try {
-                await roleMiddleware(["Facilities"]);
-                setIsAuthorized(true);
-                await fetchOutgoingGoods();
-            } catch (error) {
-                console.error("Auth error:", error);
-                setIsAuthorized(false);
-            }
-        };
+  const { loading, error, outgoingGoods, fetchOutgoingGoods, updateBorrowingStatus } = useOutgoingGoods();
+  useEffect(() => {
+    const initializePage = async () => {
+      try {
+        await roleMiddleware(["Facilities"]);
+        setIsAuthorized(true);
+        await fetchOutgoingGoods();
+      } catch (error) {
+        console.error("Auth error:", error);
+        setIsAuthorized(false);
+      }
+    };
 
-        initializePage();
-    }, []);
+    initializePage();
+  }, []);
 
   // Filter dan pagination logic
-  const filteredData = outgoingGoods.filter((item: OutgoingGoods) =>
-        item?.inventoryId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item?.borrowerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item?.role?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+  const filteredData = outgoingGoods.filter((item: OutgoingGoods) => {
+    const searchValue = searchTerm.toLowerCase();
+
+    // Format tanggal
+    const borrowDate = new Date(item.borrowDate).toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).toLowerCase();
+
+    const returnDate = item.returnDate
+      ? new Date(item.returnDate).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).toLowerCase()
+      : '';
+
+    // Konversi jaminan ke label Indonesia
+    const guaranteeLabel = getGuaranteeOutgoingGoodsLabel(item.guarantee).toLowerCase();
+
+    return (
+      // Data Barang
+      item.inventoryId?.name?.toLowerCase().includes(searchValue) ||
+
+      // Data Peminjam
+      item.borrowerName?.toLowerCase().includes(searchValue) ||
+      item.role?.toLowerCase().includes(searchValue) ||
+
+      // Data Numerik
+      item.quantity?.toString().includes(searchValue) ||
+
+      // Status dan Jaminan
+      getOutgoingGoodsStatusLabel(item.status).toLowerCase().includes(searchValue) ||
+      guaranteeLabel.includes(searchValue) ||
+
+      // Tanggal
+      borrowDate.includes(searchValue) ||
+      returnDate.includes(searchValue) ||
+
+      // Alasan dan Catatan
+      item.reason?.toLowerCase().includes(searchValue)
+    );
+  });
 
   const totalEntries = filteredData.length;
   const totalPages = Math.ceil(totalEntries / entriesPerPage);
@@ -62,10 +103,11 @@ export default function OutgoingGoodsPage() {
     try {
       await updateBorrowingStatus(id);
       await fetchOutgoingGoods(); // Refresh data
+      showSuccessAlert('Status peminjaman berhasil diperbarui!');
       setIsModalOpen(false);
-      alert('Status peminjaman berhasil diperbarui!');
+
     } catch (error: any) {
-      alert(error.message);
+      showErrorAlert(error.message);
     }
   };
 

@@ -10,6 +10,8 @@ import RoomModal from '@/app/components/rooms/RoomModal';
 import { useRooms } from '@/app/hooks/useRooms';
 import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
 import LoadingSpinner from '@/app/components/loading/LoadingSpinner';
+import { getStatusInIndonesian, statusMapping } from '@/app/utils/statusConverter';
+import { showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
 
 export default function RoomDataPage() {
     // State
@@ -52,10 +54,15 @@ export default function RoomDataPage() {
 
     // Calculations
     const startIndex = (currentPage - 1) * entriesPerPage;
-    const filteredRooms = rooms.filter(room => 
-        room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        room.type.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredRooms = rooms.filter(room => {
+        const searchValue = searchTerm.toLowerCase();
+        return (
+            room.name.toLowerCase().includes(searchValue) ||
+            room.type.toLowerCase().includes(searchValue) ||
+            room.capacity.toString().includes(searchValue) ||
+            getStatusInIndonesian(room.status as keyof typeof statusMapping).toLowerCase().includes(searchValue)
+        );
+    });
     const totalEntries = filteredRooms.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const displayedRooms = filteredRooms.slice(startIndex, startIndex + entriesPerPage);
@@ -75,19 +82,23 @@ export default function RoomDataPage() {
         try {
             if (selectedRoom) {
                 await updateRoom(selectedRoom.id!, data);
+                showSuccessAlert('Data ruangan berhasil diperbarui!');
             } else {
                 await createRoom(data);
+                showSuccessAlert('Data ruangan berhasil ditambahkan!');
             }
+            await fetchRooms(); // Refresh data
             setIsModalOpen(false);
         } catch (error) {
             console.error('Error handling room:', error);
+            showErrorAlert('Terjadi kesalahan saat menyimpan data!');
         }
     };
 
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-            <RoomHeader 
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
+            <RoomHeader
                 searchTerm={searchTerm}
                 onSearchChange={(e) => setSearchTerm(e.target.value)}
             />

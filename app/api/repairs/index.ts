@@ -25,7 +25,7 @@ export const repairsApi = {
   },
 
   create: async (
-    data: Omit<Repairs, "id" | "createdAt" | "updatedAt">
+    data: Omit<Repairs, "id" | "createdAt" | "updatedAt" >
   ): Promise<RepairsResponse> => {
     const response = await axios.post(API_URL, data, {
       headers: getHeaders(),

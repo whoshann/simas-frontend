@@ -21,11 +21,25 @@ export const IncomingGoodsModal: React.FC<IncomingGoodsModalProps> = ({
 }) => {
     if (!isOpen) return null;
 
-    const [formData, setFormData] = useState<IncomingGoods>(incomingGoodsData || {
-        inventoryId: 0,
-        quantity: 0,
-        date: new Date().toISOString().split('T')[0],
-        condition: Condition.Good
+    const formatDateForInput = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+    };
+
+    const [formData, setFormData] = useState<IncomingGoods>(() => {
+        if (incomingGoodsData) {
+            return {
+                ...incomingGoodsData,
+                // Format tanggal saat inisialisasi data edit
+                date: formatDateForInput(incomingGoodsData.date)
+            };
+        }
+        return {
+            inventoryId: 0,
+            quantity: 0,
+            date: new Date().toISOString().split('T')[0],
+            condition: Condition.Good
+        };
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

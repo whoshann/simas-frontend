@@ -11,6 +11,7 @@ import React from "react";
 import { SchoolClass } from "@/app/api/school-class/types";
 import { AchievementCategory } from '@/app/utils/enums';
 import Image from 'next/image';
+import { showSuccessAlert } from '@/app/utils/sweetAlert';
 import { getTokenData } from '@/app/utils/tokenHelper';
 import { authApi } from '@/app/api/auth';
 
@@ -65,6 +66,10 @@ export default function StudentAchievementPage() {
 
   const tableHeaders = [
     {
+      key: 'no',
+      label: 'No',
+    },
+    {
       key: 'name',
       label: 'Nama',
     },
@@ -97,10 +102,12 @@ export default function StudentAchievementPage() {
       label: 'Gambar',
       render: (value: string) => (
         <div className="w-16 h-16 overflow-hidden rounded">
-          <img
+          <Image
             src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/achievement/${value}`}
             alt="Bukti Prestasi"
             className="w-full h-full object-cover"
+            width={256}
+            height={256}
           />
         </div>
       )
@@ -435,6 +442,7 @@ export default function StudentAchievementPage() {
                 <tbody>
                   {currentEntries.map((item, index) => (
                     <tr key={item.id || index} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 border-b">{index + 1}</td>
                       <td className="px-4 py-3 border-b">{item.student?.name || '-'}</td>
                       <td className="px-4 py-3 border-b">{item.class?.name || '-'}</td>
                       <td className="px-4 py-3 border-b">{item.achievementName}</td>

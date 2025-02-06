@@ -212,6 +212,9 @@ export default function StudentDispensePage() {
         item.student?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.student?.class?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.reason?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.startTime?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.endTime?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.date?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -358,7 +361,7 @@ export default function StudentDispensePage() {
                         {/* Table */}
                         <div className="overflow-x-auto">
                             <table className="min-w-full rounded-lg overflow-hidden">
-                                <thead className="bg-gray-50">
+                                <thead className="bg-gray-50 text-[var(--text-semi-bold-color)]">
                                     <tr>
                                         <th className="py-2 px-4 border-b text-left">No</th>
                                         <th className="py-2 px-4 border-b text-left">Nama</th>

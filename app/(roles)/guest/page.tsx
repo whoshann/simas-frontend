@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { NewsInformation } from "@/app/api/news-information/types";
 import { useNewsInformation } from "@/app/hooks/useNewsInformation";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 
 export default function GuestDashboard() {
     const carouselRef = useRef<HTMLDivElement>(null);
@@ -37,7 +38,9 @@ export default function GuestDashboard() {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) {
+        return <LoadingSpinner />;
+    }
     if (error) return <div>Error: {error}</div>;
 
     return (

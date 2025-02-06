@@ -29,6 +29,7 @@
     "pdfmake": "^0.2.18",
     "react": "^18",
     "react-calendar": "^5.1.0",
+    "react-chartjs-2": "^5.3.0",
     "react-datepicker": "^8.0.0",
     "react-dom": "^18",
     "react-easy-swipe": "^0.0.23",
@@ -43,6 +44,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@types/chart.js": "^2.9.41",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20.17.12",
     "@types/react": "^18",

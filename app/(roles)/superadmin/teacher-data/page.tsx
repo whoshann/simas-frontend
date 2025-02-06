@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState } from "react";
@@ -184,13 +185,16 @@ export default function SuperAdminTeacherDataPage() {
     // Handler untuk membuka modal
     const handleOpenModal = (mode: 'add' | 'edit', data?: any) => {
         setModalMode(mode);
-        
-        const formattedDate = data.birthDate ? new Date(data.birthDate).toISOString() : '';
+
+        // Hanya format tanggal jika mode edit dan data ada
+        const formattedDate = (mode === 'edit' && data?.birthDate)
+            ? new Date(data.birthDate).toISOString().split('T')[0]
+            : '';
 
         if (mode === 'edit' && data) {
             setFormData({
                 ...data,
-                birthDate: formattedDate.split('T')[0],
+                birthDate: formattedDate,
                 name: data.name || '',
                 nip: data.nip || '',
                 gender: data.gender || '',
@@ -260,7 +264,11 @@ export default function SuperAdminTeacherDataPage() {
                 phone: formData.phone,
                 lastEducation: formData.lastEducation,
                 lastEducationMajor: formData.lastEducationMajor,
-                role: formData.role
+                role: formData.role,
+                subjectId: parseInt(formData.subjectId),    // Tambahkan ini
+                positionId: parseInt(formData.positionId),
+                picture: formData.picture || null
+
             }
 
             if (modalMode === 'add') {

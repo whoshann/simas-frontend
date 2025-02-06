@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { Facility } from "../api/facilities/types";
 import { facilitiesApi } from "../api/facilities";
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "../utils/sweetAlert";
 
 export const useFacilities = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -43,14 +44,26 @@ export const useFacilities = () => {
 
   const deleteFacility = async (id: number) => {
     try {
-      await facilitiesApi.delete(id);
-      await fetchFacilities();
+
+      const isConfirmed = await showConfirmDelete(
+        'Hapus Data Perbaikan',
+        'Apakah Anda yakin ingin menghapus data perbaikan ini?'
+      );
+
+      if (isConfirmed) {
+        await facilitiesApi.delete(id);
+        await fetchFacilities();
+        await showSuccessAlert('Berhasil', 'Data perbaikan berhasil dihapus');
+      }
     } catch (err) {
-      console.error("Error deleting room:", err);
+      console.error("Error deleting repair:", err);
+      await showErrorAlert('Error', 'Gagal menghapus data perbaikan');
       throw err;
     }
   };
 
+
+ 
   return {
     facilities,
     loading,

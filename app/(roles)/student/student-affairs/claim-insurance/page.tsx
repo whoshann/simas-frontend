@@ -10,6 +10,7 @@ import { getTokenData } from "@/app/utils/tokenHelper";
 import { jwtDecode } from 'jwt-decode';
 import Cookies from "js-cookie";
 import axios from 'axios';
+import { showErrorAlert, showSuccessAlert } from '@/app/utils/sweetAlert';
 import { getInsuranceClaimCategoryLabel, InsuranceClaimCategoryLabel } from '@/app/utils/enumHelpers';
 import { InsuranceClaimCategory, InsuranceClaimStatus } from '@/app/utils/enums';
 
@@ -143,13 +144,13 @@ export default function StudentClaimInsurancePage() {
                 reason: ''
             });
             setSelectedFile(null);
-            alert('Klaim asuransi berhasil dikirim!');
+            showSuccessAlert('Klaim asuransi berhasil dikirim!');
 
             // Refresh data
             fetchInsuranceClaim(formData.studentId);
         } catch (error) {
             console.error('Error submitting claim:', error);
-            alert('Gagal mengirim klaim asuransi. Silakan coba lagi.');
+            showErrorAlert('Klaim asuransi gagal dikirim!');                                        
         }
     };
 

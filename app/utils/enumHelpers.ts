@@ -44,8 +44,8 @@ export const RepairCategoryLabel = {
 
 export const RepairStatusLabel = {
   Completed: "Selesai",
-  InProgress: "Dalam Proses",
-  Pending: "Menunggu",
+  InProgress: "Sedang Dikerjakan",
+  Pending: "Pending",
 };
 
 export const getRepairCategoryLabel = (category: RepairCategory): string => {

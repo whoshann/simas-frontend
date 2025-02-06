@@ -11,13 +11,27 @@ interface IncomingGoodTableProps {
 const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
     });
-  };
+};
 
 export const IncomingGoodTable: React.FC<IncomingGoodTableProps> = ({ incomingGoods, onEdit, onDelete, startIndex }) => {
+
+    const getConditionColor = (condition: string) => {
+        switch (condition) {
+            case 'Good':
+                return 'bg-[#0a97b02a] text-[var(--third-color)]';
+            case 'MinorDamage':
+                return 'bg-[#e88e1f29] text-[var(--second-color)]';
+            case 'SevereDamage':
+                return 'bg-[#bd000025] text-[var(--fourth-color)]';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
     return (
         <table className="min-w-full bg-white">
             <thead>
@@ -38,7 +52,9 @@ export const IncomingGoodTable: React.FC<IncomingGoodTableProps> = ({ incomingGo
                         <td className="py-2 px-4 border-b">{item.quantity}</td>
                         <td className="py-2 px-4 border-b">{formatDate(item.date)}</td>
                         <td className="py-2 px-4 border-b">
-                            {ConditionLabel[item.condition]}
+                            <span className={`px-2 py-1 rounded-full text-md font-medium ${getConditionColor(item.condition)}`}>
+                                {ConditionLabel[item.condition]}
+                            </span>
                         </td>
                         <td className="py-2 px-4 border-b">
                             <div className="flex space-x-2">

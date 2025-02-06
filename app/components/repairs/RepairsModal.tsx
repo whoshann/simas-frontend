@@ -29,29 +29,46 @@ const parseRupiah = (value: string): number => {
     return parseInt(numericValue, 10) || 0;
 };
 
-export const RepairsModal: React.FC<RepairsModalProps> = ({ 
-    isOpen, 
-    onClose, 
-    onSubmit, 
+export const RepairsModal: React.FC<RepairsModalProps> = ({
+    isOpen,
+    onClose,
+    onSubmit,
     repairsData,
     inventories,
     rooms
 }) => {
     if (!isOpen) return null;
 
-    const [formData, setFormData] = useState<Repairs>(repairsData || {
-        category: RepairCategory.Item,
-        maintenanceDate: new Date().toISOString().split('T')[0],
-        description: '',
-        cost: 0,
-        status: RepairStatus.Pending
+    const formatDateForInput = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+    };
+
+    const [formData, setFormData] = useState<Repairs>(() => {
+        if (repairsData) {
+            return {
+                ...repairsData,
+                // Format tanggal saat inisialisasi data
+                maintenanceDate: formatDateForInput(repairsData.maintenanceDate)
+            };
+        }
+        return {
+            category: RepairCategory.Item,
+            maintenanceDate: new Date().toISOString().split('T')[0],
+            description: '',
+            cost: 0,
+            status: RepairStatus.Pending
+        };
     });
 
-    const [displayCost, setDisplayCost] = useState(formatRupiah(formData.cost));
+
+    const [displayCost, setDisplayCost] = useState(() =>
+        formatRupiah(repairsData?.cost || 0)
+    );
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        
+
         // Reset inventoryId/roomId when category changes
         if (name === 'category') {
             setFormData({
@@ -89,17 +106,17 @@ export const RepairsModal: React.FC<RepairsModalProps> = ({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Bersihkan data sebelum dikirim
-        const { 
-            id, 
-            createdAt, 
-            updatedAt, 
+        const {
+            id,
+            createdAt,
+            updatedAt,
             inventory,
             room,
-            ...submitData 
+            ...submitData
         } = formData;
-        
+
         onSubmit(submitData);
         onClose();
     };
