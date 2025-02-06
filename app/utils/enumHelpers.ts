@@ -176,3 +176,10 @@ export const getEmployeeCategoryLabel = (category: EmployeeCategory): string => 
   return EmployeeCategoryLabel[category] || category;
 };
 
+export const BudgetManagementStatusLabel = {
+  Submitted: "Dikirim",
+  Revised: "Revisi",
+  Approved: "Disetujui",
+  Rejected: "Ditolak",
+};
+

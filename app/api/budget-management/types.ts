@@ -1,17 +1,17 @@
-import { DispenseStatus } from "@/app/utils/enums";
+import { BudgetManagementStatus } from "@/app/utils/enums";
+import { User } from "../user/types";
 
 export interface BudgetManagement {
     id?: number;
-    name: string;
-    role: string;
     title: string;
     description: string;
-    amount:number;
-    document: string;
-    date:String;
-    status: DispenseStatus;
-    createdAt?: string;
-    updatedAt?: string;
+    total_budget:number;
+    document_path: string;
+    status: BudgetManagementStatus;
+    userId: number;
+    user: User;
+    created_at?: string;
+    updated_at?: string;
   }
   
   export interface BudgetManagementResponse {

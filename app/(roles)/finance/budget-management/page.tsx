@@ -3,69 +3,29 @@
 import React, { useState, useEffect } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import Cookies from "js-cookie";
-import axios from "axios";
-import Image from 'next/image';
 import { useBudgetManagement } from "@/app/hooks/useBudgetManagement";
 import FormModal from '@/app/components/DataTable/FormModal';
 import { BudgetManagement } from "@/app/api/budget-management/types";
-import { DispenseStatus } from "@/app/utils/enums";
+import { BudgetManagementStatus } from "@/app/utils/enums";
+import { budgetManagementApi } from "@/app/api/budget-management";
+import { formatRupiah, formatDate } from "@/app/utils/helper";
+import { useUser } from "@/app/hooks/useUser";
 
 interface FormData {
     [key: string]: any;
 }
 
 export default function BudgetManagementPage() {
-    const { budgetManagement, loading, fetchBudgetManagement } = useBudgetManagement();
-    const [user, setUser] = useState<any>({});
+    const { budgetManagement, loading, fetchBudgetManagement, updateBudgetStatus } = useBudgetManagement();
+    const { user } = useUser();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-    const formatDate = (date: string) => {
-        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(date).toLocaleDateString('id-ID', options);
-    };
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-    const [formData, setFormData] = useState<BudgetManagement>({
-        name: '',
-        role: '',
-        title: '',
-        description: '',
-        amount: 0,
-        document: '',
-        status: DispenseStatus.Pending,
-        date: ''
-    });
     const [selectedBudget, setSelectedBudget] = useState<BudgetManagement | null>(null);
-
-    const dummyData: BudgetManagement[] = [
-        {
-            id: 1,
-            name: 'John Doe',
-            role: 'Guru',
-            title: 'Budget Approval',
-            description: 'Approval for the budget of Q1',
-            amount: 1000000,
-            document: 'document1.pdf',
-            status: DispenseStatus.Pending,
-            date: '2023-01-15'
-        },
-        {
-            id: 2,
-            name: 'Jane Smith',
-            role: 'Guru',
-            title: 'Budget Request',
-            description: 'Request for additional funds',
-            amount: 500000,
-            document: 'document2.pdf',
-            status: DispenseStatus.Approved,
-            date: '2023-02-20'
-        },
-        // Tambahkan lebih banyak data dummy sesuai kebutuhan
-    ];
-
+    const [formData, setFormData] = useState<FormData>({});
     // Form fields untuk modal
     const formFields = [
         {
@@ -82,9 +42,9 @@ export default function BudgetManagementPage() {
             type: 'select' as const,
             required: true,
             options: [
-                { value: DispenseStatus.Approved, label: 'Disetujui', style: 'bg-green-500 text-white' },
-                { value: DispenseStatus.Pending, label: 'Menunggu', style: 'bg-yellow-500 text-white' },
-                { value: DispenseStatus.Rejected, label: 'Ditolak', style: 'bg-red-500 text-white' },
+                { value: BudgetManagementStatus.Approved, label: 'Disetujui', style: 'bg-green-500 text-white' },
+                { value: BudgetManagementStatus.Revised, label: 'Revisi', style: 'bg-yellow-500 text-white' },
+                { value: BudgetManagementStatus.Rejected, label: 'Ditolak', style: 'bg-red-500 text-white' },
             ],
         },
     ];
@@ -96,17 +56,6 @@ export default function BudgetManagementPage() {
     ) => {
         event.preventDefault(); // Mencegah default behavior
         setSelectedBudget(data || null);
-        setFormData({
-            ...data,
-            status: DispenseStatus.Approved,
-            name: data?.name || '',
-            role: data?.role || '',
-            title: data?.title || '',
-            description: data?.description || '',
-            amount: data?.amount || 0,
-            document: data?.document || '',
-            date: data?.date || ''
-        });
         setIsModalOpen(true);
     };
 
@@ -114,20 +63,24 @@ export default function BudgetManagementPage() {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedBudget(null); 
-        setFormData({
-            name: '',
-            role: '',
-            title: '',
-            description: '',
-            amount: 0,
-            document: '',
-            status: DispenseStatus.Pending,
-            date: ''
-        });
     };
 
-    const handleSubmit = async (formData: BudgetManagement) => {
-        handleCloseModal();
+    const handleSubmit = async (formData: any) => {
+        try {
+            if (!selectedBudget?.id) return;
+
+            await updateBudgetStatus(
+                selectedBudget.id,
+                formData.status,
+                formData.reason // reason akan menjadi updateMessage
+            );
+
+            alert("Status RAB berhasil diperbarui!");
+            handleCloseModal();
+        } catch (error: any) {
+            console.error("Error updating status:", error);
+            alert(error.response?.data?.message || "Gagal memperbarui status RAB");
+        }
     };
 
     useEffect(() => {
@@ -151,9 +104,10 @@ export default function BudgetManagementPage() {
     }, []);
 
     // Search item tabel
-    const filteredData = dummyData.filter(item =>
+    const filteredData = budgetManagement.filter(item =>
         item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.date.includes(searchTerm)
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.user.username.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const totalEntries = filteredData.length;
@@ -161,6 +115,35 @@ export default function BudgetManagementPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const handleViewPDF = async (filename: string) => {
+        try {
+            console.log('Mencoba mengakses file:', filename);
+            const blob = await budgetManagementApi.getDocument(filename);
+            const url = window.URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        } catch (error) {
+            alert('Gagal mengambil file PDF: ' + (error.response?.data?.message || 'File tidak ditemukan'));
+            console.error('Error fetching PDF:', error);
+        }
+    };
+
+    const handleDownloadPDF = async (filename: string) => {
+        try {
+            const blob = await budgetManagementApi.getDocument(filename);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            alert('Gagal mengunduh file PDF');
+            console.error('Error downloading PDF:', error);
+        }
+    };
 
     if (loading) {
         return <LoadingSpinner />;
@@ -181,7 +164,7 @@ export default function BudgetManagementPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pengelolaan RAB</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Keuangan, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo {user?.username}, selamat datang kembali</p>
                 </div>
                 <div className="mt-4 sm:mt-0">
                     <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
@@ -278,22 +261,38 @@ export default function BudgetManagementPage() {
                                 {currentEntries.map((budgetManagement, index) => (
                                     <tr key={budgetManagement.id} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
                                         <td className="py-2 px-4 border-b">{index + 1}</td>
-                                        <td className="py-2 px-4 border-b">{budgetManagement.name}</td>
-                                        <td className="py-2 px-4 border-b">{budgetManagement.role}</td>
+                                        <td className="py-2 px-4 border-b">{budgetManagement.user.username}</td>
+                                        <td className="py-2 px-4 border-b">{budgetManagement.user.role}</td>
                                         <td className="py-2 px-4 border-b">{budgetManagement.title}</td>
                                         <td className="py-2 px-4 border-b">{budgetManagement.description}</td>
-                                        <td className="py-2 px-4 border-b">{budgetManagement.amount}</td>
-                                        <td className="py-2 px-4 border-b">{budgetManagement.document}</td>
-                                        <td className="py-2 px-4 border-b">{formatDate(budgetManagement.date)}</td>
-                                        <td className="py-2 px-4 border-b">{budgetManagement.status === DispenseStatus.Approved ? 'Disetujui' : budgetManagement.status === DispenseStatus.Pending ? 'Menunggu' : 'Ditolak'}</td>
+                                        <td className="py-2 px-4 border-b">{formatRupiah(budgetManagement.total_budget)}</td>
+                                        <td className="py-2 px-4 border-b">
+                                            <button
+                                                onClick={() => handleViewPDF(budgetManagement.document_path)}
+                                                className="text-blue-500 underline mr-2"
+                                            >
+                                                Lihat PDF
+                                            </button>
+                                            {' | '}
+                                            <button
+                                                onClick={() => handleDownloadPDF(budgetManagement.document_path)}
+                                                className="text-blue-500 underline"
+                                            >
+                                                Unduh PDF
+                                            </button>
+                                        </td>
+                                        <td className="py-2 px-4 border-b">{formatDate(budgetManagement.created_at)}</td>
+                                        <td className="py-2 px-4 border-b">{budgetManagement.status}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
-                                                <button
-                                                    onClick={(e) => handleOpenMessageModal(e, budgetManagement)}
-                                                    className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-                                                >
-                                                    <i className="bx bxs-message text-lg"></i>
-                                                </button>
+                                            {budgetManagement.status === BudgetManagementStatus.Submitted && (
+                                                    <button
+                                                        onClick={(e) => handleOpenMessageModal(e, budgetManagement)}
+                                                        className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
+                                                    >
+                                                        <i className="bx bxs-message text-lg"></i>
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

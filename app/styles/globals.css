@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import 'boxicons/css/boxicons.min.css';
+@import url('https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css');
 
 :root {
   --background: #f2f2f2;

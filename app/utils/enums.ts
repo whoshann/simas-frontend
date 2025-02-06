@@ -94,3 +94,10 @@ export enum Grade {
   XI = "XI",
   XII = "XII",
 }
+
+export enum BudgetManagementStatus {
+  Revised = "Revised",
+  Approved = "Approved",
+  Rejected = "Rejected",
+  Submitted = "Submitted",
+}

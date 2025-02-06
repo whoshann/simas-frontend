@@ -1,13 +1,17 @@
+import { useUser } from "@/app/hooks/useUser";
+
 interface IncomesHeaderProps {
     searchTerm: string;
     onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const IncomeHeader: React.FC<IncomesHeaderProps> = ({ searchTerm, onSearchChange }) => (
+export const IncomeHeader: React.FC<IncomesHeaderProps> = ({ searchTerm, onSearchChange }) => {
+    const { user } = useUser();
+    return (
     <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
             <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pemasukan</h1>
-            <p className="text-sm text-gray-600">Halo Admin Keuangan, selamat datang kembali</p>
+            <p className="text-sm text-gray-600">Halo {user?.username}, selamat datang kembali</p>
         </div>
         <div className="mt-4 sm:mt-0">
             <div className="bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
@@ -22,4 +26,5 @@ export const IncomeHeader: React.FC<IncomesHeaderProps> = ({ searchTerm, onSearc
             </div>
         </div>
     </header>
-);
+    );
+};
