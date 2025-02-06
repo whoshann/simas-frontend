@@ -11,8 +11,8 @@ import { useProcurements } from "@/app/hooks/useProcurements";
 import { getProcurementStatusLabel } from "@/app/utils/enumHelpers";
 import { ProcurementStatus } from "@/app/utils/enums";
 import { procurementsApi } from "@/app/api/procurement";
-import { Viewer, Worker } from "@react-pdf-viewer/core";
 import FormModal from '@/app/components/DataTable/FormModal';
+import { formatDate } from "@/app/utils/helper";
 
 interface TableProps {
     procurement: Procurement[];
@@ -37,8 +37,6 @@ export default function ItemRequestPage() {
         initializePage();
     }, []);
 
-    const token = Cookies.get("token");
-    const [user, setUser] = useState<any>({});
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
@@ -46,51 +44,19 @@ export default function ItemRequestPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
     const [selectedItem, setSelectedItem] = useState<Procurement | null>(null);
-    const [formData, setFormData] = useState<FormData>({} as FormData);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const { procurements, fetchProcurements } = useProcurements();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [isAvailable, setIsAvailable] = useState(false);
-
-    // Data statis untuk tabel
-    const staticData: Procurement[] = [
-        {
-            id: 1,
-            inventoryId: 1,
-            inventory: { name: "Barang A", code: "A001", stock: 100 },
-            procurementName: "Pengajuan Barang A",
-            role: "Admin",
-            quantity: "10",
-            documentPath: "path/to/documentA.pdf",
-            procurementDate: "2023-10-01",
-            procurementStatus: "Pending"
-        },
-        {
-            id: 2,
-            inventoryId: 2,
-            inventory: { name: "Barang B", code: "B002", stock: 50 },
-            procurementName: "Pengajuan Barang B",
-            role: "Admin",
-            quantity: "5",
-            documentPath: "path/to/documentB.pdf",
-            procurementDate: "2023-10-02",
-            procurementStatus: "Pending"
-        },
-        // Tambahkan lebih banyak data sesuai kebutuhan
-    ];
+    const { procurements, fetchProcurements, updateProcurementStatus } = useProcurements();
+    const [formData, setFormData] = useState({
+        procurementStatus: '',
+        updateMessage: ''
+    });
 
     // Menggunakan data statis untuk filteredData
-    const filteredData = staticData.filter((item: Procurement) =>
+    const filteredData = procurements.filter((item: Procurement) =>
         item.inventory.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.procurementName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-    const formatDate = (date: string) => {
-        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(date).toLocaleDateString('id-ID', options);
-    };
 
     const totalEntries = filteredData.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
@@ -101,7 +67,7 @@ export default function ItemRequestPage() {
     // Form fields untuk modal
     const formFields = [
         {
-            name: 'reason',
+            name: 'updateMessage',
             label: 'Alasan',
             type: 'textarea' as const,
             required: true,
@@ -109,13 +75,13 @@ export default function ItemRequestPage() {
             rows: 3
         },
         {
-            name: 'status',
+            name: 'procurementStatus',
             label: 'Status',
             type: 'select' as const,
             required: true,
             options: [
-                { value: 'Approved', label: 'Disetujui', style: 'bg-green-500 text-white' },
-                { value: 'Rejected', label: 'Ditolak', style: 'bg-red-500 text-white' },
+                { value: ProcurementStatus.Approved, label: 'Disetujui', style: 'bg-green-500 text-white' },
+                { value: ProcurementStatus.Rejected, label: 'Ditolak', style: 'bg-red-500 text-white' },
             ],
         },
     ];
@@ -127,39 +93,6 @@ export default function ItemRequestPage() {
     const handleAddClick = () => {
         setSelectedItem(null);
         setIsModalOpen(true);
-    };
-
-    const handleCheckClick = async (item: Procurement) => {
-        handleOpenMessageModal(event, item);
-    };
-
-    const handleCancelClick = async (item: Procurement) => {
-        try {
-            setLoading(true);
-            setError("");
-
-            const updateData = {
-                procurementStatus: "Rejected",
-                updateMessage: "Pengajuan ditolak oleh Admin Sarpras"
-            };
-
-            await procurementsApi.updateStatus(
-                item.id.toString(),
-                updateData
-            );
-
-            await fetchProcurements();
-            alert("Status pengajuan berhasil diubah menjadi Ditolak");
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                alert(error.message);
-            } else {
-                alert("Gagal mengubah status pengajuan");
-            }
-            console.error("Error updating status:", error);
-        } finally {
-            setLoading(false);
-        }
     };
 
     const handleViewPDF = async (filename: string) => {
@@ -193,22 +126,43 @@ export default function ItemRequestPage() {
 
     // Handle buka modal untuk message
     const handleOpenMessageModal = (
-        event: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>,
-        data?: Procurement
+        event: React.MouseEvent<HTMLButtonElement>,
+        procurement: Procurement
     ) => {
-        event.preventDefault(); // Mencegah default behavior
-        setSelectedItem(data || null);
+        event.preventDefault();
+        setSelectedItem(procurement);
+        setFormData({
+            procurementStatus: '',
+            updateMessage: ''
+        });
         setIsModalOpen(true);
     };
 
-    // Handle tutup modal
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setSelectedItem(null); 
+        setSelectedItem(null);
+        setFormData({
+            procurementStatus: '',
+            updateMessage: ''
+        });
     };
 
-    const handleSubmit = async (data: FormData) => {
-        // Implementasi pengiriman data
+    const handleSubmit = async (formData: any) => {
+        try {
+            if (!selectedItem?.id) return;
+
+            await updateProcurementStatus(
+                selectedItem.id,
+                formData.procurementStatus,
+                formData.updateMessage
+            );
+
+            alert('Status pengajuan berhasil diperbarui!');
+            handleCloseModal();
+        } catch (error: any) {
+            console.error('Error updating status:', error);
+            alert(error.message);
+        }
     };
 
     if (isLoading) {

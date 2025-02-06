@@ -40,50 +40,16 @@ export const useOutgoingGoods = () => {
     }
   }, []);
 
-  const createOutgoingGoods = async (data: Partial<OutgoingGoods>) => {
+  const updateBorrowingStatus = async (id: number) => {
     try {
-      const response = await outgoingGoodsApi.create(
-        data as unknown as OutgoingGoodsRequest
-      );
-      const apiResponse = response as unknown as ApiResponse;
-      if (apiResponse.success) {
-        await fetchOutgoingGoods(); // Refresh data after creation
-        return apiResponse.data;
-      }
-    } catch (err) {
-      throw err;
-    }
-  };
-
-  const updateOutgoingGoods = async (
-    id: number,
-    data: Partial<OutgoingGoods>
-  ) => {
-    try {
-      const response = await outgoingGoodsApi.update(
-        id,
-        data as unknown as OutgoingGoodsRequest
-      );
-      const apiResponse = response as unknown as ApiResponse;
-      if (apiResponse.success) {
-        await fetchOutgoingGoods(); // Refresh data after update
-        return apiResponse.data;
-      }
-    } catch (err) {
-      throw err;
-    }
-  };
-
-  const deleteOutgoingGoods = async (id: number) => {
-    try {
-      const response = await outgoingGoodsApi.delete(id);
-      const apiResponse = response as unknown as ApiResponse;
-      if (apiResponse.success) {
-        await fetchOutgoingGoods(); // Refresh data after deletion
-        return apiResponse.data;
-      }
-    } catch (err) {
-      throw err;
+      setLoading(true);
+      await outgoingGoodsApi.updateStatus(id);
+      await fetchOutgoingGoods();
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Gagal mengupdate status peminjaman';
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -92,8 +58,6 @@ export const useOutgoingGoods = () => {
     loading,
     error,
     fetchOutgoingGoods,
-    createOutgoingGoods,
-    updateOutgoingGoods,
-    deleteOutgoingGoods,
+    updateBorrowingStatus,
   };
 };

@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { OutgoingGoods } from '@/app/api/outgoing-goods/types';
 import { GuaranteeOutgoingGoods } from '@/app/utils/enums';
 import { useInventory } from '@/app/hooks/useInventory';
+import { formatDate } from '@/app/utils/helper';
 
 interface OutgoingGoodModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: OutgoingGoods) => void;
+  onSubmit: (id: number) => void;
   borrowingData?: OutgoingGoods | null;
 }
 
@@ -75,8 +76,9 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    onSubmit(formData as OutgoingGoods);
+    if (borrowingData?.id) {
+      onSubmit(borrowingData.id);
+    }
   };
 
   if (!isOpen) return null;
@@ -85,43 +87,18 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">
-            {borrowingData ? 'Status Peminjaman' : 'Ajukan Peminjaman'}
-          </h2>
+          <h2 className="text-xl font-semibold">Konfirmasi Pengembalian</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <i className='bx bx-x text-2xl'></i>
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Reason */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Alasan</label>
-            <textarea
-              name="reason"
-              value={formData.reason}
-              onChange={handleChange}
-              required
-              rows={3}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-
-          {/* Status */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            >
-              <option value="">Pilih Status</option>
-              <option value="Disetujui">Disetujui</option>
-              <option value="Sedang Proses">Sedang Proses</option>
-              <option value="Ditolak">Ditolak</option>
-            </select>
+          <p>Apakah Anda yakin ingin mengembalikan barang ini?</p>
+          <div className="mt-4">
+            <p><strong>Peminjam:</strong> {borrowingData?.borrowerName}</p>
+            <p><strong>Barang:</strong> {borrowingData?.inventory?.name}</p>
+            <p><strong>Tanggal Pinjam:</strong> {formatDate(borrowingData?.borrowDate || '')}</p>
           </div>
 
           <div className="flex justify-end space-x-3 mt-6">
@@ -136,7 +113,7 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             >
-              {borrowingData ? 'Submit' : 'Submit'}
+              Konfirmasi Pengembalian
             </button>
           </div>
         </form>

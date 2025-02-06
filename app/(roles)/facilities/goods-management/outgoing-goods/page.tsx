@@ -22,45 +22,13 @@ export default function OutgoingGoodsPage() {
   const [selectedBorrowing, setSelectedBorrowing] = useState<OutgoingGoods | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const staticOutgoingGoods = [
-    {
-        id: 1,
-        borrowerName: "John Doe",
-        role: "Staff",
-        inventory: { name: "Laptop" },
-        quantity: 1,
-        borrowDate: "2023-10-01",
-        returnDate: "2023-10-10",
-        reason: "Presenasi",
-        guarantee: "KTP",
-        status: "Disetujui"
-    },
-    {
-        id: 2,
-        borrowerName: "Jane Smith",
-        role: "Manager",
-        inventory: { name: "Proyektor" },
-        quantity: 1,
-        borrowDate: "2023-10-02",
-        returnDate: "2023-10-12",
-        reason: "Presentasi",
-        guarantee: "KTP",
-        status: "Sedang Proses"
-    },
-    // Tambahkan data statis lainnya sesuai kebutuhan
-];
-
-  const { loading, error, fetchOutgoingGoods, createOutgoingGoods, updateOutgoingGoods, deleteOutgoingGoods } = useOutgoingGoods();
-  const outgoingGoods = staticOutgoingGoods; // Menggunakan data statis
-    const { inventories } = useInventory();
-
+  const { loading, error, outgoingGoods,fetchOutgoingGoods, updateBorrowingStatus } = useOutgoingGoods();
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["Facilities"]);
                 setIsAuthorized(true);
                 await fetchOutgoingGoods();
-                console.log('Data dari fetch:', outgoingGoods); // Log data setelah fetch
             } catch (error) {
                 console.error("Auth error:", error);
                 setIsAuthorized(false);
@@ -71,13 +39,11 @@ export default function OutgoingGoodsPage() {
     }, []);
 
   // Filter dan pagination logic
-  const filteredData = Array.isArray(outgoingGoods) 
-    ? outgoingGoods.filter((item: OutgoingGoods) =>
+  const filteredData = outgoingGoods.filter((item: OutgoingGoods) =>
         item?.inventoryId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item?.borrowerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item?.role?.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : [];
 
   const totalEntries = filteredData.length;
   const totalPages = Math.ceil(totalEntries / entriesPerPage);
@@ -92,43 +58,16 @@ export default function OutgoingGoodsPage() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus peminjaman ini?")) {
-      try {
-        await deleteOutgoingGoods(id);
-        alert("Peminjaman berhasil dihapus");
-      } catch (err) {
-        console.error("Error deleting borrowing:", err);
-        alert("Gagal menghapus peminjaman");
-      }
+  const handleModalSubmit = async (id: number) => {
+    try {
+      await updateBorrowingStatus(id);
+      await fetchOutgoingGoods(); // Refresh data
+      setIsModalOpen(false);
+      alert('Status peminjaman berhasil diperbarui!');
+    } catch (error: any) {
+      alert(error.message);
     }
   };
-
-  const handleModalSubmit = async (data: OutgoingGoods) => {
-  try {
-    // Validasi stok
-    const selectedInventory = inventories.find(
-      inv => inv.id === data.inventoryId
-    );
-    
-    if (selectedInventory && data.quantity > (selectedInventory.stock || 0)) {
-      throw new Error(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
-    }
-
-    // Data sudah dalam format yang benar
-    if (selectedBorrowing) {
-      await updateOutgoingGoods(selectedBorrowing.id!, data);
-      alert("Peminjaman berhasil diperbarui");
-    } else {
-      await createOutgoingGoods(data);
-      alert("Peminjaman berhasil diajukan");
-    }
-    setIsModalOpen(false);
-  } catch (err: any) {
-    console.error("Error submitting borrowing:", err);
-    alert(err.response?.data?.message?.[0] || err.message || "Gagal menyimpan peminjaman");
-  }
-};
 
   if (loading) return <LoadingSpinner />;
 
@@ -155,8 +94,9 @@ export default function OutgoingGoodsPage() {
           <OutgoingGoodTable
             outgoingGoods={currentEntries}
             startIndex={startIndex}
+            loading={loading}
             onEdit={handleMessage}
-            onDelete={handleDelete}
+            updateBorrowingStatus={updateBorrowingStatus}
           />
 
           <OutgoingGoodPagination

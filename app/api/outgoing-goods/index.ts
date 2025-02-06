@@ -26,22 +26,12 @@ export const outgoingGoodsApi = {
     return response.data;
   },
 
-  update: async (
-    id: number,
-    data: OutgoingGoodsRequest
-  ): Promise<OutgoingGoods> => {
-    // Bersihkan data yang tidak diperlukan
-    const {
-      id: _id,
-      createdAt,
-      updatedAt,
-      inventory,
-      ...updateData
-    } = data as any;
-
-    const response = await axios.patch(`${API_URL}/${id}`, updateData, {
-      headers: getHeaders(),
-    });
+  updateStatus: async (id: number): Promise<OutgoingGoodsResponse> => {
+    const response = await axios.patch(
+      `${API_URL}/${id}/return`,
+      {},
+      { headers: getHeaders() }
+    );
     return response.data;
   },
 };

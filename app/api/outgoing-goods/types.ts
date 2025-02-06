@@ -1,5 +1,6 @@
 import { GuaranteeOutgoingGoods } from "@/app/utils/enums";
 import { Inventory } from "../inventories/types";
+import { OutgoingGoodsStatus } from "@/app/utils/enums";
 
 export type OutgoingGoods = {
   id?: number;
@@ -12,7 +13,7 @@ export type OutgoingGoods = {
   quantity: number;
   reason: string;
   guarantee: GuaranteeOutgoingGoods;
-  status: string;
+  status: OutgoingGoodsStatus;
   createdAt?: string;
   updatedAt?: string;
 };

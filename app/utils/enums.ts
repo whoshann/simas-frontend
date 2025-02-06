@@ -21,6 +21,11 @@ export enum GuaranteeOutgoingGoods {
   Handphone = "Handphone",
 }
 
+export enum OutgoingGoodsStatus {
+  Borrowed = "Borrowed",
+  Returned = "Returned",
+}
+
 export enum InsuranceClaimStatus {
   Pending = "Pending",
   Approved = "Approved",
