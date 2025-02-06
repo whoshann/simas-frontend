@@ -12,6 +12,8 @@ import { RepairsActions } from '@/app/components/repairs/RepairsActions';
 import { useRepairs } from '@/app/hooks/useRepairs';
 import { useRooms } from '@/app/hooks/useRooms';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
+import { getRepairCategoryLabel, getRepairStatusLabel } from '@/app/utils/enumHelpers';
 
 
 export default function RepairsPage() {
@@ -57,11 +59,26 @@ export default function RepairsPage() {
         if (!searchTerm) return true;
 
         const searchValue = searchTerm.toLowerCase();
-        if (repair.category === 'Items') {
-            return repair.inventory?.name?.toLowerCase().includes(searchValue);
-        } else {
-            return repair.room?.name?.toLowerCase().includes(searchValue);
-        }
+        // Perbaikan format tanggal untuk pencarian
+        const date = repair.maintenanceDate
+            ? new Date(repair.maintenanceDate).toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            }).replace(/\//g, '-')
+            : '';
+
+        return (
+            getRepairCategoryLabel(repair.category).toLowerCase().includes(searchValue) ||
+            repair.cost?.toString().includes(searchValue) ||
+            repair.description?.toLowerCase().includes(searchValue) ||
+            getRepairStatusLabel(repair.status).toLowerCase().includes(searchValue) ||
+            date.includes(searchValue) ||  // Ubah dari date.toLowerCase() karena tanggal sudah berupa string
+            (repair.category === 'Items'
+                ? repair.inventory?.name?.toLowerCase().includes(searchValue)
+                : repair.room?.name?.toLowerCase().includes(searchValue)
+            )
+        );
     });
 
     console.log('Filtered Repairs:', filteredRepairs);
@@ -105,18 +122,21 @@ export default function RepairsPage() {
         try {
             if (selectedRepairs) {
                 await updateRepair(selectedRepairs.id!, data);
+                showSuccessAlert('Data perbaikan berhasil di perbarui!');
             } else {
                 await createRepair(data);
+                showSuccessAlert('Data perbaikan berhasil di kirim!');
             }
             await fetchRepairs(); // Refresh data after submit
             setIsModalOpen(false);
         } catch (error) {
             console.error('Error handling repairs:', error);
+            showErrorAlert('Data perbaikan gagal di kirim!');
         }
     };
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <RepairsHeader
                 searchTerm={searchTerm}
                 onSearchChange={(e) => setSearchTerm(e.target.value)}

@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { showSuccessAlert, showErrorAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
 import {
   IncomingGoods,
   IncomingGoodsRequest,
@@ -50,13 +51,24 @@ export const useIncomingGoods = () => {
 
   const deleteIncomingGoods = async (id: number) => {
     try {
-      await incomingGoodsApi.delete(id);
-      await fetchIncomingGoods();
+
+      const isConfirmed = await showConfirmDelete(
+        'Hapus Data Perbaikan',
+        'Apakah Anda yakin ingin menghapus data perbaikan ini?'
+      );
+
+      if (isConfirmed) {
+        await incomingGoodsApi.delete(id);
+        await fetchIncomingGoods();
+        await showSuccessAlert('Berhasil', 'Data perbaikan berhasil dihapus');
+      }
     } catch (err) {
-      console.error("Error deleting incoming goods:", err);
+      console.error("Error deleting repair:", err);
+      await showErrorAlert('Error', 'Gagal menghapus data perbaikan');
       throw err;
     }
   };
+
 
   return {
     incomingGoods,

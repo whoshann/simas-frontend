@@ -11,7 +11,8 @@ import { IncomingGoodPagination } from '@/app/components/incoming-goods/Incoming
 import { useIncomingGoods } from '@/app/hooks/useIncomingGoods';
 import { useInventory } from '@/app/hooks/useInventory';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-
+import { ConditionLabel } from "@/app/utils/enumHelpers";
+import { showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 
 export default function IncomingGoodDataPage() {
     // State
@@ -54,9 +55,22 @@ export default function IncomingGoodDataPage() {
 
     // Calculations
     const startIndex = (currentPage - 1) * entriesPerPage;
-    const filteredIncomingGoods = incomingGoods.filter((incomingGoods: IncomingGoods) => 
-        incomingGoods.inventory?.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredIncomingGoods = incomingGoods.filter((item: IncomingGoods) => {
+        const searchValue = searchTerm.toLowerCase();
+        const date = new Date(item.date).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        }).toLowerCase();
+        
+        return (
+            item.inventory?.name.toLowerCase().includes(searchValue) ||
+            item.quantity.toString().includes(searchValue) ||
+            date.includes(searchValue) ||
+            ConditionLabel[item.condition].toLowerCase().includes(searchValue)
+        );
+    });
+    
     const totalEntries = filteredIncomingGoods.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const displayedIncomingGoods = filteredIncomingGoods.slice(startIndex, startIndex + entriesPerPage);
@@ -76,16 +90,21 @@ export default function IncomingGoodDataPage() {
         try {
             if (selectedIncomingGoods) {
                 await updateIncomingGoods(selectedIncomingGoods.id!, data);
+                showSuccessAlert('Data barang masuk berhasil diperbarui!');
             } else {
                 await createIncomingGoods(data);
+                showSuccessAlert('Data barang masuk berhasil ditambahkan!');
             }
+            await fetchIncomingGoods(); // Refresh data
             setIsModalOpen(false);
         } catch (error) {
             console.error('Error handling incoming goods:', error);
+            showErrorAlert('Terjadi kesalahan saat menyimpan data!');
         }
     };
+    
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <IncomingGoodsHeader 
                 searchTerm={searchTerm}
                 onSearchChange={(e) => setSearchTerm(e.target.value)}

@@ -1,5 +1,5 @@
 import { Repairs } from "@/app/api/repairs/types";
-import { RepairCategoryLabel, RepairStatusLabel } from "@/app/utils/enumHelpers";
+import { getRepairCategoryLabel, getRepairStatusLabel } from "@/app/utils/enumHelpers";
 
 interface RepairsTableProps {
     repairs: Repairs[];
@@ -60,7 +60,7 @@ export const RepairsTable: React.FC<RepairsTableProps> = ({ repairs, onEdit, onD
                                 {item.inventory?.name || item.room?.name}
                             </td>
                             <td className="py-2 px-4 border-b">
-                                {item.category === 'Items' ? 'Barang' : 'Ruangan'}
+                                {getRepairCategoryLabel(item.category)}
                             </td>
                             <td className="py-2 px-4 border-b">
                                 {formatRupiah(item.cost)}
@@ -69,18 +69,13 @@ export const RepairsTable: React.FC<RepairsTableProps> = ({ repairs, onEdit, onD
                                 {item.description}
                             </td>
                             <td className="py-2 px-4 border-b">
-                                <span className={`px-2 py-1 rounded-full text-sm ${
-                                    item.status === 'Completed' 
-                                        ? 'bg-green-100 text-[var(--third-color)]'
-                                        : item.status === 'InProgress'
-                                        ? 'bg-yellow-100 text-[var(--second-color)]'
-                                        : 'bg-red-100 text-[var(--fourth-color)]'
-                                }`}>
-                                    {item.status === 'Completed' 
-                                        ? 'Selesai'
-                                        : item.status === 'InProgress'
-                                        ? 'Sedang Dikerjakan'
-                                        : 'Pending'}
+                                <span className={`px-2 py-1 rounded-full text-sm ${item.status === 'Completed'
+                                    ? 'bg-[#0a97b02a] text-[var(--third-color)]'
+                                    : item.status === 'InProgress'
+                                        ? 'bg-[#1f509a26] text-[var(--main-color)]'
+                                        : 'bg-[#e88e1f29] text-[var(--second-color)]'
+                                    }`}>
+                                    {getRepairStatusLabel(item.status)}
                                 </span>
                             </td>
                             <td className="py-2 px-4 border-b">

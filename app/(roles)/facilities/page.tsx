@@ -62,7 +62,29 @@ export default function FacilitiesDashboardPage() {
     // Filter data
     const filteredRepairs = dashboardData.repairs
         .filter(item => filterDataByMonth(item.date))
-        .filter(item => item.category.toLowerCase().includes(searchTerm.toLowerCase()));
+        .filter(item => {
+            if (!searchTerm) return true;
+
+            const searchValue = searchTerm.toLowerCase();
+            const displayDate = new Date(item.date).toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            // Status yang ditampilkan di tabel
+            const displayStatus = item.status === 'Completed'
+                ? 'Selesai'
+                : item.status === 'InProgress'
+                    ? 'Sedang Dikerjakan'
+                    : 'Pending';
+
+            return (
+                item.category.toLowerCase().includes(searchValue) ||
+                displayDate.toLowerCase().includes(searchValue) ||
+                displayStatus.toLowerCase().includes(searchValue)
+            );
+        });
 
     // Hitung total entries dan pagination
     const totalEntries = filteredRepairs.length;
@@ -96,13 +118,14 @@ export default function FacilitiesDashboardPage() {
         latestProcurements: selectedMonth === 'Semua'
             ? dashboardData.latestProcurements
             : dashboardData.latestProcurements.filter(item => filterDataByMonth(item.date)),
-            totalApprovedItems: selectedMonth === 'Semua'
+        totalApprovedItems: selectedMonth === 'Semua'
             ? dashboardData.latestProcurements
                 .filter(item => item.procurementStatus === 'Approved')
                 .reduce((total, item) => total + Number(item.quantity), 0)
             : dashboardData.latestProcurements
                 .filter(item => filterDataByMonth(item.date) && item.procurementStatus === 'Approved')
                 .reduce((total, item) => total + Number(item.quantity), 0),
+
     };
 
     const togglePanel = () => {
@@ -225,7 +248,7 @@ export default function FacilitiesDashboardPage() {
                     <div className="bg-white shadow-md rounded-lg px-7 py-7 col-span-1 ">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">Peminjaman Barang</h3>
-                            <button className="bg-[var(--main-color)] text-white px-4 py-2 rounded-full">Lihat Detail</button>
+                            <a href="/facilities/goods-management/outgoing-goods" className="bg-[var(--main-color)] text-white px-4 py-2 rounded-full">Lihat Detail</a>
                         </div>
                         <div className="flex flex-col">
                             {filteredDashboardData.latestBorrowings.map((borrowing, index) => (
@@ -250,7 +273,7 @@ export default function FacilitiesDashboardPage() {
                     <div className="bg-white shadow-md rounded-lg px-7 py-7 col-span-1 ">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)] ">Pengajuan Barang</h3>
-                            <button className="bg-[var(--main-color)] text-white px-4 py-2 rounded-full">Lihat Detail</button>
+                            <a href="/facilities/goods-management/item-request" className="bg-[var(--main-color)] text-white px-4 py-2 rounded-full">Lihat Detail</a>
 
                         </div>
 

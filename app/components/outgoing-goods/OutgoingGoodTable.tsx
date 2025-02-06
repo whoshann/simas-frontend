@@ -4,6 +4,7 @@ import { formatDate } from '@/app/utils/helper';
 import { useState } from 'react';
 import { OutgoingGoodModal } from './OutgoingGoodModal';
 import { useOutgoingGoods } from '@/app/hooks/useOutgoingGoods';
+import { getOutgoingGoodsStatusLabel } from '@/app/utils/enumHelpers';
 
 interface OutgoingGoodTableProps {
     outgoingGoods: OutgoingGoods[];
@@ -17,6 +18,25 @@ export const OutgoingGoodTable: React.FC<OutgoingGoodTableProps> = ({ outgoingGo
     const { error } = useOutgoingGoods();
     const [selectedItem, setSelectedItem] = useState<OutgoingGoods | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'Borrowed':
+                return 'bg-[#bd000025] text-[var(--fourth-color)]';
+            case 'Returned':
+                return 'bg-[#0a97b02a] text-[var(--third-color)]';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
 
     const handleOpenModal = (item: OutgoingGoods) => {
         setSelectedItem(item);
@@ -75,8 +95,8 @@ export const OutgoingGoodTable: React.FC<OutgoingGoodTableProps> = ({ outgoingGo
                                 {getGuaranteeOutgoingGoodsLabel(outgoingGoods.guarantee)}
                             </td>
                             <td className="py-2 px-4 border-b" style={{ whiteSpace: 'nowrap' }}>
-                                <span className={`px-2 py-1 rounded-full text-xs ${outgoingGoods.status === "Returned" ? 'bg-green-100 text-green-600' : outgoingGoods.status === "Borrowed" ? 'bg-red-100 text-red-600' : ''}`}>
-                                    {outgoingGoods.status}
+                                <span className={`px-2 py-1 rounded-full text-md font-medium ${getStatusColor(outgoingGoods.status)}`}>
+                                    {getOutgoingGoodsStatusLabel(outgoingGoods.status)}
                                 </span>
                             </td>
                             <td className="py-2 px-4 border-b text-left" style={{ whiteSpace: 'nowrap' }}>
@@ -90,7 +110,7 @@ export const OutgoingGoodTable: React.FC<OutgoingGoodTableProps> = ({ outgoingGo
                                         </button>
                                     )}
                                     {outgoingGoods.status === "Returned" && (
-                                        <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-600">
+                                        <span className="px-2 py-1 rounded-full text-md bg-[#0a97b02a] text-[var(--third-color)]">
                                             Sudah Dikembalikan
                                         </span>
                                     )}

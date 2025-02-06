@@ -64,11 +64,11 @@ export const useDashboardFacilities = () => {
   const getStatusColor = useCallback((status: string) => {
     switch (status.toLowerCase()) {
       case "pending":
-        return "bg-red-100 text-red-800";
+        return "bg-[#e88e1f29] text-[var(--second-color)]";
       case "inprogress":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-[#1f509a26] text-[var(--main-color)]";
       case "completed":
-        return "bg-green-100 text-green-800";
+        return "bg-[#0a97b02a] text-[var(--third-color)]";
     }
   }, []);
 

@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { Room } from "../api/rooms/types";
 import { roomsApi } from "../api/rooms";
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "../utils/sweetAlert";
 
 export const useRooms = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -43,13 +44,24 @@ export const useRooms = () => {
 
   const deleteRoom = async (id: number) => {
     try {
-      await roomsApi.delete(id);
-      await fetchRooms();
+
+      const isConfirmed = await showConfirmDelete(
+        'Hapus Data Perbaikan',
+        'Apakah Anda yakin ingin menghapus data perbaikan ini?'
+      );
+
+      if (isConfirmed) {
+        await roomsApi.delete(id);
+        await fetchRooms();
+        await showSuccessAlert('Berhasil', 'Data perbaikan berhasil dihapus');
+      }
     } catch (err) {
-      console.error("Error deleting room:", err);
+      console.error("Error deleting repair:", err);
+      await showErrorAlert('Error', 'Gagal menghapus data perbaikan');
       throw err;
     }
   };
+
 
   return {
     rooms,

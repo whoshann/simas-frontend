@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Repairs } from "../api/repairs/types";
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
 import { repairsApi } from "../api/repairs";
 
 export const useRepairs = () => {
@@ -23,7 +24,7 @@ export const useRepairs = () => {
   }, []);
 
   const createRepair = async (
-    data: Omit<Repairs, "id" | "createdAt" | "updatedAt">
+    data: Omit<Repairs, "id" | "createdAt" | "updatedAt" >
   ) => {
     try {
       await repairsApi.create(data);
@@ -46,10 +47,20 @@ export const useRepairs = () => {
 
   const deleteRepair = async (id: number) => {
     try {
-      await repairsApi.delete(id);
-      await fetchRepairs();
+
+      const isConfirmed = await showConfirmDelete(
+        'Hapus Data Perbaikan',
+        'Apakah Anda yakin ingin menghapus data perbaikan ini?'
+      );
+
+      if (isConfirmed) {
+        await repairsApi.delete(id);
+        await fetchRepairs();
+        await showSuccessAlert('Berhasil', 'Data perbaikan berhasil dihapus');
+      }
     } catch (err) {
       console.error("Error deleting repair:", err);
+      await showErrorAlert('Error', 'Gagal menghapus data perbaikan');
       throw err;
     }
   };

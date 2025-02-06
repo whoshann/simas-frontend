@@ -10,7 +10,7 @@ import { useFacilities } from '@/app/hooks/useFacilities';
 import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
 import { useState, useEffect } from 'react';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-
+import { showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
 
 export default function FacilityDataPage() {
     //State
@@ -45,14 +45,20 @@ export default function FacilityDataPage() {
 
     // Calculations
     const startIndex = (currentPage - 1) * entriesPerPage;
-    const filteredFacilities = facilities.filter(facility => 
-        facility.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        facility.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredFacilities = facilities.filter(facility => {
+        const searchValue = searchTerm.toLowerCase();
+        return (
+            facility.name.toLowerCase().includes(searchValue) ||
+            facility.description.toLowerCase().includes(searchValue) ||
+            facility.count.toString().includes(searchValue) ||
+            (facility.note?.toLowerCase() || '').includes(searchValue)
+        );
+    });
+
     const totalEntries = filteredFacilities.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const displayedFacilities = filteredFacilities.slice(startIndex, startIndex + entriesPerPage);
-    
+
     // Handlers
     const handleAddClick = () => {
         setSelectedFacility(null);
@@ -66,14 +72,24 @@ export default function FacilityDataPage() {
 
     const handleModalSubmit = async (data: Facility) => {
         try {
+            // Pastikan count adalah number
+            const formattedData = {
+                ...data,
+                count: Number(data.count)
+            };
+
             if (selectedFacility) {
-                await updateFacility(selectedFacility.id!, data);
+                await updateFacility(selectedFacility.id!, formattedData);
+                showSuccessAlert('Data fasilitas berhasil diperbarui!');
             } else {
-                await createFacility(data);
+                await createFacility(formattedData);
+                showSuccessAlert('Data fasilitas berhasil ditambahkan!');
             }
+            await fetchFacilities(); // Refresh data
             setIsModalOpen(false);
         } catch (error) {
-            console.error('Error handling room:', error);
+            console.error('Error handling facility:', error);
+            showErrorAlert('Terjadi kesalahan saat menyimpan data!');
         }
     };
 
@@ -95,8 +111,8 @@ export default function FacilityDataPage() {
         return null;
     }
     return (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-            <FacilityHeader 
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
+            <FacilityHeader
                 searchTerm={searchTerm}
                 onSearchChange={(e) => setSearchTerm(e.target.value)}
             />
