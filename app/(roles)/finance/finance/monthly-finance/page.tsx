@@ -103,6 +103,7 @@ export default function MonthlyFinancePage() {
     const handleOpenModal = (mode: 'add' | 'edit', item?: MonthlyFinance) => {
         setModalMode(mode);
         if (mode === 'edit' && item) {
+            setSelectedMonthlyFinance(item);
             setFormData({
                 month: item.month,
                 income: item.income,
@@ -142,7 +143,6 @@ export default function MonthlyFinancePage() {
     const handleSubmit = async (data: Partial<MonthlyFinance>) => {
         console.log('Data yang diterima:', data);
         
-        // Pastikan semua nilai tidak undefined
         const formDataToSubmit: Omit<MonthlyFinance, "id"> = {
             month: data.month || '',
             income: data.income || 0,
@@ -153,10 +153,11 @@ export default function MonthlyFinancePage() {
 
         try {
             if (modalMode === 'edit' && selectedMonthlyFinance) {
-                // Pastikan ID yang benar digunakan untuk pembaruan
                 await updateMonthlyFinance(selectedMonthlyFinance.id!, formDataToSubmit);
+                await fetchMonthlyFinances();
             } else {
                 await addMonthlyFinance(formDataToSubmit);
+                await fetchMonthlyFinances();
             }
             handleCloseModal();
         } catch (error) {
@@ -165,11 +166,12 @@ export default function MonthlyFinancePage() {
     };
 
     const handleDeleteClick = async (id: number) => {
+        console.log('Attempting to delete ID:', id);
         if (window.confirm('Apakah Anda yakin ingin menghapus data keuangan bulanan ini?')) {
             try {
                 await deleteMonthlyFinance(id);
-                // Tambahkan logika untuk memperbarui state setelah penghapusan
-                await fetchMonthlyFinances(); // Memperbarui data setelah penghapusan
+                console.log('Delete successful');
+                await fetchMonthlyFinances();
             } catch (error) {
                 console.error('Error deleting monthly finance:', error);
             }
@@ -368,6 +370,7 @@ export default function MonthlyFinancePage() {
                                                     <i className="bx bxs-edit text-lg"></i>
                                                 </button>
                                                 <button
+                                                    onClick={() => item.id !== undefined && handleDeleteClick(item.id)}
                                                     className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
                                                 >
                                                     <i className="bx bxs-trash-alt text-lg"></i>

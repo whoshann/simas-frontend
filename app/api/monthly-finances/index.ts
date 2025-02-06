@@ -27,17 +27,21 @@ export const monthlyFinanceApi = {
   },
 
   update: async (id: number, data: Partial<MonthlyFinance>): Promise<MonthlyFinanceResponse> => {
+    console.log('Updating ID:', id, 'with data:', data);
     const { id: _, createdAt, updatedAt, ...updateData } = data;
     const response = await axios.patch(`${API_URL}/${id}`, updateData, {
       headers: getHeaders(),
     });
+    console.log('Update response:', response.data);
     return response.data;
   },
 
   delete: async (id: number): Promise<MonthlyFinanceResponse> => {
+    console.log('Deleting ID:', id);
     const response = await axios.delete(`${API_URL}/${id}`, {
       headers: getHeaders(),
     });
+    console.log('Delete response:', response.data);
     return response.data;
   },
 

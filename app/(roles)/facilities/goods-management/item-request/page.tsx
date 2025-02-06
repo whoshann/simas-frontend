@@ -12,6 +12,7 @@ import { getProcurementStatusLabel } from "@/app/utils/enumHelpers";
 import { ProcurementStatus } from "@/app/utils/enums";
 import { procurementsApi } from "@/app/api/procurement";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
+import FormModal from '@/app/components/DataTable/FormModal';
 
 interface TableProps {
     procurement: Procurement[];
@@ -43,7 +44,9 @@ export default function ItemRequestPage() {
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
     const [selectedItem, setSelectedItem] = useState<Procurement | null>(null);
+    const [formData, setFormData] = useState<FormData>({} as FormData);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const { procurements, fetchProcurements } = useProcurements();
@@ -51,8 +54,35 @@ export default function ItemRequestPage() {
     const [error, setError] = useState("");
     const [isAvailable, setIsAvailable] = useState(false);
 
-    // Search item tabel
-    const filteredData = procurements.filter((item: Procurement) =>
+    // Data statis untuk tabel
+    const staticData: Procurement[] = [
+        {
+            id: 1,
+            inventoryId: 1,
+            inventory: { name: "Barang A", code: "A001", stock: 100 },
+            procurementName: "Pengajuan Barang A",
+            role: "Admin",
+            quantity: "10",
+            documentPath: "path/to/documentA.pdf",
+            procurementDate: "2023-10-01",
+            procurementStatus: "Pending"
+        },
+        {
+            id: 2,
+            inventoryId: 2,
+            inventory: { name: "Barang B", code: "B002", stock: 50 },
+            procurementName: "Pengajuan Barang B",
+            role: "Admin",
+            quantity: "5",
+            documentPath: "path/to/documentB.pdf",
+            procurementDate: "2023-10-02",
+            procurementStatus: "Pending"
+        },
+        // Tambahkan lebih banyak data sesuai kebutuhan
+    ];
+
+    // Menggunakan data statis untuk filteredData
+    const filteredData = staticData.filter((item: Procurement) =>
         item.inventory.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.procurementName.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -68,6 +98,28 @@ export default function ItemRequestPage() {
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
+    // Form fields untuk modal
+    const formFields = [
+        {
+            name: 'reason',
+            label: 'Alasan',
+            type: 'textarea' as const,
+            required: true,
+            placeholder: 'Masukkan alasan',
+            rows: 3
+        },
+        {
+            name: 'status',
+            label: 'Status',
+            type: 'select' as const,
+            required: true,
+            options: [
+                { value: 'Approved', label: 'Disetujui', style: 'bg-green-500 text-white' },
+                { value: 'Rejected', label: 'Ditolak', style: 'bg-red-500 text-white' },
+            ],
+        },
+    ];
+
     const togglePanel = () => {
         setIsPanelOpen(!isPanelOpen);
     };
@@ -78,32 +130,7 @@ export default function ItemRequestPage() {
     };
 
     const handleCheckClick = async (item: Procurement) => {
-        try {
-            setLoading(true);
-            setError("");
-
-            const updateData = {
-                procurementStatus: "Approved",
-                updateMessage: "Pengajuan disetujui oleh Admin Sarpras"
-            };
-
-            await procurementsApi.updateStatus(
-                item.id.toString(),
-                updateData
-            );
-
-            await fetchProcurements();
-            alert("Status pengajuan berhasil diubah menjadi Disetujui");
-        } catch (error) {
-            if (error.response?.data?.message) {
-                alert(error.response.data.message);
-            } else {
-                alert("Gagal mengubah status pengajuan");
-            }
-            console.error("Error updating status:", error);
-        } finally {
-            setLoading(false);
-        }
+        handleOpenMessageModal(event, item);
     };
 
     const handleCancelClick = async (item: Procurement) => {
@@ -123,9 +150,9 @@ export default function ItemRequestPage() {
 
             await fetchProcurements();
             alert("Status pengajuan berhasil diubah menjadi Ditolak");
-        } catch (error) {
-            if (error.response?.data?.message) {
-                alert(error.response.data.message);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                alert(error.message);
             } else {
                 alert("Gagal mengubah status pengajuan");
             }
@@ -162,6 +189,26 @@ export default function ItemRequestPage() {
             alert('Gagal mengunduh file PDF');
             console.error('Error downloading PDF:', error);
         }
+    };
+
+    // Handle buka modal untuk message
+    const handleOpenMessageModal = (
+        event: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>,
+        data?: Procurement
+    ) => {
+        event.preventDefault(); // Mencegah default behavior
+        setSelectedItem(data || null);
+        setIsModalOpen(true);
+    };
+
+    // Handle tutup modal
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedItem(null); 
+    };
+
+    const handleSubmit = async (data: FormData) => {
+        // Implementasi pengiriman data
     };
 
     if (isLoading) {
@@ -321,19 +368,14 @@ export default function ItemRequestPage() {
                                                     <>
                                                         {/* Centang (Check) Button */}
                                                         <button
-                                                            onClick={() => handleCheckClick(item)}
+                                                            onClick={(event) => handleOpenMessageModal(event, item)}
                                                             className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
                                                         >
                                                             <i className="bx bx-check text-lg"></i>
                                                         </button>
 
                                                         {/* Cancel Button */}
-                                                        <button
-                                                            onClick={() => handleCancelClick(item)}
-                                                            className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-                                                        >
-                                                            <i className="bx bx-x text-lg"></i>
-                                                        </button>
+                                                        
                                                     </>
                                                 )}
                                             </div>
@@ -380,6 +422,18 @@ export default function ItemRequestPage() {
                     </div>
                 </div>
             </main>
+
+            <FormModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onSubmit={handleSubmit}
+                title="Message Pengelolaan Barang"
+                mode={modalMode}
+                fields={formFields}
+                formData={formData}
+                setFormData={setFormData}
+                size="lg"
+            />
         </div>
     );
 }
