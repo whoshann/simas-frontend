@@ -34,4 +34,9 @@ export const outgoingGoodsApi = {
     );
     return response.data;
   },
+
+  create: async (data: OutgoingGoodsRequest): Promise<OutgoingGoods> => {
+    const response = await axios.post(API_URL, data, { headers: getHeaders() });
+    return response.data;
+  },
 };

@@ -53,11 +53,27 @@ export const useOutgoingGoods = () => {
     }
   };
 
+  const createOutgoingGoods = async (data: Partial<OutgoingGoods>) => {
+    try {
+      const response = await outgoingGoodsApi.create(
+        data as unknown as OutgoingGoodsRequest
+      );
+      const apiResponse = response as unknown as ApiResponse;
+      if (apiResponse.success) {
+        await fetchOutgoingGoods(); // Refresh data after creation
+        return apiResponse.data;
+      }
+    } catch (err) {
+      throw err;
+    }
+  };
+
   return {
     outgoingGoods,
     loading,
     error,
     fetchOutgoingGoods,
     updateBorrowingStatus,
+    createOutgoingGoods,
   };
 };

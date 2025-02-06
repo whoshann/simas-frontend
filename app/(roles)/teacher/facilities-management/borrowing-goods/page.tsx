@@ -58,11 +58,7 @@ export default function TeacherBorrowingGoodsPage() {
   const fetchTeacherData = async (userId: number) => {
     try {
       const response = await authApi.getTeacherLogin(userId);
-      setTeacher(prev => ({
-        ...prev,
-        ...response.data,
-        role: 'Teacher'
-      }));
+      setTeacher(response.data);
     } catch (err) {
       console.error("Error fetching teacher data:", err);
       setError("Failed to fetch teacher data");
@@ -74,7 +70,7 @@ export default function TeacherBorrowingGoodsPage() {
 
     if (name === 'quantity') {
       const selectedInventory = inventories.find(
-        inv => inv.id === parseInt(formData.inventoryId)
+        inv => inv.id === Number(formData.inventoryId)
       );
 
       if (selectedInventory && parseInt(value) > selectedInventory.stock) {
@@ -93,10 +89,10 @@ export default function TeacherBorrowingGoodsPage() {
     e.preventDefault();
 
     const selectedInventory = inventories.find(
-      inv => inv.id === parseInt(formData.inventoryId)
+      inv => inv.id === Number(formData.inventoryId)
     );
 
-    if (selectedInventory && parseInt(formData.quantity) > selectedInventory.stock) {
+    if (selectedInventory && Number(formData.quantity) > selectedInventory.stock) {
       alert(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
       return;
     }
@@ -107,11 +103,11 @@ export default function TeacherBorrowingGoodsPage() {
     try {
       const borrowingData = {
         role: teacher?.role || '',
-        inventoryId: parseInt(formData.inventoryId),
+        inventoryId: Number(formData.inventoryId),
         borrowerName: teacher?.name || '',
         borrowDate: formData.borrowDate,
         returnDate: formData.returnDate,
-        quantity: parseInt(formData.quantity),
+        quantity: Number(formData.quantity),
         reason: formData.reason,
         guarantee: formData.guarantee
       };
