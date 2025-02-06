@@ -85,33 +85,45 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Konfirmasi Pengembalian</h2>
+      <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+      <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-bold text-gray-800">Konfirmasi Pengembalian</h2>
+      <hr className="border-gray-300 my-2" />
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <i className='bx bx-x text-2xl'></i>
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <p>Apakah Anda yakin ingin mengembalikan barang ini?</p>
+          <p className="text-gray-700 text-sm">Apakah Anda yakin ingin mengembalikan barang ini?</p>
           <div className="mt-4">
-            <p><strong>Peminjam:</strong> {borrowingData?.borrowerName}</p>
-            <p><strong>Barang:</strong> {borrowingData?.inventory?.name}</p>
-            <p><strong>Tanggal Pinjam:</strong> {formatDate(borrowingData?.borrowDate || '')}</p>
+            <div className="flex flex-col mt-4">
+              <div className="flex flex-col">
+                <p className="font-semibold"><strong>Peminjam:</strong></p>
+                <p className="text-gray-800">{borrowingData?.borrowerName}</p>
+              </div>
+              <div className="flex flex-col mt-4">
+                <p className="font-semibold"><strong>Barang:</strong></p>
+                <p className="text-gray-800 text-left">{borrowingData?.inventory?.name}</p>
+              </div>
+            </div>
+            <div className="flex flex-col mt-4">
+              <p className="font-semibold"><strong>Tanggal Pinjam:</strong></p>
+              <p className="text-gray-800">{formatDate(borrowingData?.borrowDate || '')}</p>
+            </div>
           </div>
 
           <div className="flex justify-end space-x-3 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition duration-200"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="bg-[var(--main-color)] text-white py-2 px-4 rounded-md hover:bg-[#2154a1] disabled:opacity-50"
             >
               Konfirmasi Pengembalian
             </button>

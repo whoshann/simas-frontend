@@ -59,35 +59,35 @@ export const OutgoingGoodTable: React.FC<OutgoingGoodTableProps> = ({ outgoingGo
                 <tbody>
                     {outgoingGoods.map((outgoingGoods, index) => (
                         <tr key={outgoingGoods.id} className="hover:bg-gray-100">
-                            <td className="py-2 px-4 border-b text-left">{startIndex + index + 1}</td>
-                            <td className="py-2 px-4 border-b text-left">{outgoingGoods.borrowerName}</td>
-                            <td className="py-2 px-4 border-b text-left">{outgoingGoods.role}</td>
-                            <td className="py-2 px-4 border-b text-left">{outgoingGoods.inventory.name}</td>
-                            <td className="py-2 px-4 border-b text-left">{outgoingGoods.quantity}</td>
-                            <td className="py-2 px-4 border-b text-left">
+                            <td className="py-2 px-4 border-b text-left" style={{ whiteSpace: 'nowrap' }}>{startIndex + index + 1}</td>
+                            <td className="py-2 px-4 border-b text-left" style={{ whiteSpace: 'nowrap' }}>{outgoingGoods.borrowerName}</td>
+                            <td className="py-2 px-4 border-b text-left" style={{ whiteSpace: 'nowrap' }}>{outgoingGoods.role}</td>
+                            <td className="py-2 px-4 border-b text-left" style={{ whiteSpace: 'nowrap' }}>{outgoingGoods.inventory.name}</td>
+                            <td className="py-2 px-4 border-b text-left" style={{ whiteSpace: 'nowrap' }}>{outgoingGoods.quantity}</td>
+                            <td className="py-2 px-4 border-b text-left" style={{ whiteSpace: 'nowrap' }}>
                                 {formatDate(outgoingGoods.borrowDate)}
                             </td>
-                            <td className="py-2 px-4 border-b text-left">
+                            <td className="py-2 px-4 border-b text-left" style={{ whiteSpace: 'nowrap' }}>
                                 {formatDate(outgoingGoods.returnDate)}
                             </td>
-                            <td className="py-2 px-4 border-b text-left">{outgoingGoods.reason}</td>
-                            <td className="py-2 px-4 border-b text-left">
+                            <td className="py-2 px-4 border-b text-left" style={{ whiteSpace: 'nowrap' }}>{outgoingGoods.reason}</td>
+                            <td className="py-2 px-4 border-b text-left" style={{ whiteSpace: 'nowrap' }}>
                                 {getGuaranteeOutgoingGoodsLabel(outgoingGoods.guarantee)}
                             </td>
-                            <td className="py-2 px-4 border-b">
+                            <td className="py-2 px-4 border-b" style={{ whiteSpace: 'nowrap' }}>
                                 <span className={`px-2 py-1 rounded-full text-xs ${outgoingGoods.status === "Returned" ? 'bg-green-100 text-green-600' : outgoingGoods.status === "Borrowed" ? 'bg-red-100 text-red-600' : ''}`}>
                                     {outgoingGoods.status}
                                 </span>
                             </td>
-                            <td className="py-2 px-4 border-b text-left">
+                            <td className="py-2 px-4 border-b text-left" style={{ whiteSpace: 'nowrap' }}>
                                 <div className="flex space-x-2">
                                     {outgoingGoods.status === "Borrowed" && (
                                         <button
                                             onClick={() => onEdit(outgoingGoods)}
                                             className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
-                                    >
-                                        <i className="bx bxs-message text-lg"></i>
-                                    </button>
+                                        >
+                                            <i className="bx bxs-message text-lg"></i>
+                                        </button>
                                     )}
                                     {outgoingGoods.status === "Returned" && (
                                         <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-600">
