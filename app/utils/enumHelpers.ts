@@ -10,7 +10,10 @@ import {
   Religion,
   Gender,
   AchievementCategory,
-  DispenseStatus
+  DispenseStatus,
+  TeacherRole,
+  EmployeeGender,
+  EmployeeCategory
 } from "./enums";
 
 export const ConditionLabel = {
@@ -143,5 +146,40 @@ export const AchievementCategoryLabel = {
 
 export const getAchievementCategoryLabel = (category: AchievementCategory): string => {
   return AchievementCategory[category] || category;
+};
+
+export const TeacherRoleLabel = {
+  Teacher: "Guru",
+  HomeroomTeacher: "Wali Kelas"
+};
+
+export const getTeacherRoleLabel = (role: TeacherRole): string => {
+  return TeacherRoleLabel[role] || role;
+};
+
+export const EmployeeGenderLabel = {
+  Male: "Laki-laki",
+  Female: "Perempuan"
+};
+
+export const getEmployeeGenderLabel = (gender: EmployeeGender): string => {
+  return EmployeeGenderLabel[gender] || gender;
+};
+
+export const EmployeeCategoryLabel = {
+  PTT: "Pegawai Tidak Tetap",
+  CS: "Cleaning Service",
+  Security: "Security"
+};
+
+export const getEmployeeCategoryLabel = (category: EmployeeCategory): string => {
+  return EmployeeCategoryLabel[category] || category;
+};
+
+export const BudgetManagementStatusLabel = {
+  Submitted: "Dikirim",
+  Revised: "Revisi",
+  Approved: "Disetujui",
+  Rejected: "Ditolak",
 };
 

@@ -346,7 +346,7 @@ export default function StudentAffairsViolationsPage() {
                                                 )}
                                             </div>
                                         </td> */}
-                                        <td className="py-2 px-4 border-b">{violations.date}</td>
+                                        <td className="py-2 px-4 border-b">  {format(new Date(violations.date), 'dd MMMM yyyy', { locale: id })}</td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 <button

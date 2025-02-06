@@ -90,13 +90,22 @@ export default function SubjectPage() {
         }
     };
 
+    
     const handleDelete = async (id: number) => {
-        try {
-            await deleteSubject(id);
-            await showSuccessAlert('Berhasil', 'Mapel berhasil dihapus');
-        } catch (error) {
-            console.error("Error deleting subject:", error);
-            await showErrorAlert('Error', 'Gagal menghapus mapel');
+        const isConfirmed = await showConfirmDelete(
+            'Hapus Data Mapel ini?',
+            'Apakah Anda yakin ingin menghapus data mata pelajaran ini?'
+        );
+
+        if (isConfirmed) {
+            try {
+                await deleteSubject(id);
+                await showSuccessAlert('Berhasil', 'Data mata pelajaran berhasil dihapus');
+                await fetchSubjects();
+            } catch (error) {
+                console.error('Error:', error);
+                await showErrorAlert('Error', 'Gagal menghapus data mata pelajaran');
+            }
         }
     };
 
@@ -112,10 +121,10 @@ export default function SubjectPage() {
 
             if (selectedSubject?.id) {
                 await updateSubject(selectedSubject.id, subjectData);
-                await showSuccessAlert('Berhasil', 'Mapel berhasil diperbarui');
+                await showSuccessAlert('Berhasil', 'Mata pelajaran berhasil diperbarui');
             } else {
                 await createSubject(subjectData);
-                await showSuccessAlert('Berhasil', 'Mapel berhasil ditambahkan');
+                await showSuccessAlert('Berhasil', 'Mata pelajaran berhasil ditambahkan');
             }
 
             await fetchSubjects();

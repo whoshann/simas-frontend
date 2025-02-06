@@ -69,6 +69,21 @@ export enum AchievementCategory{
   Non_Academic = "Non_Academic"
 }
 
+export enum TeacherRole{
+  Teacher = "Teacher",
+  HomeroomTeacher = "HomeroomTeacher"
+}
+export enum EmployeeGender{
+  Male = "Male",
+  Female = "Female"
+}
+
+export enum EmployeeCategory{
+  PTT = "PTT",
+  CS = "CS",
+  Security = "Security"
+}
+
 export enum Gender {
   Male = "L",
   Female = "P",
@@ -78,4 +93,11 @@ export enum Grade {
   X = "X",
   XI = "XI",
   XII = "XII",
+}
+
+export enum BudgetManagementStatus {
+  Revised = "Revised",
+  Approved = "Approved",
+  Rejected = "Rejected",
+  Submitted = "Submitted",
 }

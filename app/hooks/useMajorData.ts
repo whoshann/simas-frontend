@@ -21,10 +21,46 @@ export const useMajors = () => {
     }
   };
 
+  const createMajor = async (
+    data: Omit<Major, "id" | "createdAt" | "updatedAt">
+  ) => {
+    try {
+      await majorsApi.create(data);
+      await fetchMajors();
+    } catch (err) {
+      console.error("Error creating news Information:", err);
+      throw err;
+    }
+  };
+
+  const updateMajor = async (id: number, data: Partial<Major>) => {
+    try {
+      await majorsApi.update(id, data);
+      await fetchMajors();
+    } catch (err) {
+      console.error("Error updating news Information:", err);
+      throw err;
+    }
+  };
+
+  const deleteMajor = async (id: number) => {
+    try {
+      await majorsApi.delete(id);
+      await fetchMajors();
+    } catch (err) {
+      console.error("Error deleting news Information:", err);
+      throw err;
+    }
+  };
+
+
   return {
     majors,
     loading,
     error,
     fetchMajors,
+    createMajor,
+    updateMajor,
+    deleteMajor
   };
 };

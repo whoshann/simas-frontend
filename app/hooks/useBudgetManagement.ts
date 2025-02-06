@@ -11,19 +11,32 @@ export const useBudgetManagement = () => {
     try {
       setLoading(true);
       const response = await budgetManagementApi.getAll();
-      const processedData = response.data.map((budget: BudgetManagement) => ({
-        ...budget,
-      }));
-
-      setBudgetManagement(processedData);
+      setBudgetManagement(response.data);
       setError(null);
     } catch (err) {
-      setError("Failed to fetch news information");
-      console.error("Error fetching news information:", err);
+      setError("Failed to fetch budget management");
+      console.error("Error fetching budget management:", err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  return { budgetManagement, loading, error, fetchBudgetManagement };
+  const updateBudgetStatus = async (
+    id: number,
+    status: string,
+    updateMessage: string
+  ) => {
+    try {
+      setLoading(true);
+      await budgetManagementApi.updateStatus(id, { status, updateMessage });
+      await fetchBudgetManagement(); // Refresh data setelah update
+    } catch (err) {
+      console.error("Error updating budget status:", err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { budgetManagement, loading, error, fetchBudgetManagement, updateBudgetStatus };
 };

@@ -1,21 +1,12 @@
 "use client";
 
 import "@/app/styles/globals.css";
-import { useState, useRef } from 'react';
-import { useEffect } from "react";
+import { useState, useRef, useEffect } from 'react';
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
-import React from 'react';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
-import Cookies from "js-cookie";
 import { useDashboardFacilities } from "@/app/hooks/useDashboardFacilities";
-import { authApi } from "@/app/api/auth";
-import { getUserIdFromToken } from "@/app/utils/tokenHelper";
-
-interface User {
-    id: number;
-    name: string;
-    username: string;
-}
+import React from "react";
+import { useUser } from "@/app/hooks/useUser";
 
 interface CircleProgressBarProps {
     percentage: number;
@@ -25,18 +16,12 @@ interface CircleProgressBarProps {
 }
 
 export default function FacilitiesDashboardPage() {
-
+    const { user } = useUser();
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["Facilities"]);
                 setIsAuthorized(true);
-                
-                const userId = getUserIdFromToken();
-                if (userId) {
-                    fetchUserData(Number(userId));
-                }
-                
             } catch (error) {
                 console.error("Error initializing page:", error);
                 setIsAuthorized(false);
@@ -46,25 +31,7 @@ export default function FacilitiesDashboardPage() {
         initializePage();
     }, []);
 
-    const fetchUserData = async (userId: number) => {
-        try {
-            const response = await authApi.getUserLogin(userId);
-            setUser(prev => ({
-                ...prev,
-                ...response.data
-            }));
-        } catch (err) {
-            console.error("Error fetching user data:", err);
-        }
-    };
-
     const [isAuthorized, setIsAuthorized] = useState(false);
-    const token = Cookies.get("token");
-    const [user, setUser] = useState<User>({
-        id: 0,
-        name: '',
-        username: '',
-    });
     const months = [
         'Semua', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -169,7 +136,7 @@ export default function FacilitiesDashboardPage() {
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
                     <p className="text-sm text-gray-600">
-                        Halo {user.username || 'User'}, selamat datang kembali
+                        Halo {user?.username}, selamat datang kembali
                     </p>
                 </div>
 

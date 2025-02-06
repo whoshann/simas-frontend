@@ -21,10 +21,45 @@ export const useStudents = () => {
     }
   };
 
+  const createStudent = async (
+    data: Omit<Student, "id" | "createdAt" | "updatedAt" | "Class" | "Major" | "track" | "admissionYear" | "religion">
+  ) => {
+    try {
+      await studentsApi.create(data);
+      await fetchStudents();
+    } catch (err) {
+      console.error("Error creating news Information:", err);
+      throw err;
+    }
+  };
+
+  const updateStudent = async (id: number, data: Partial<Student>) => {
+    try {
+      await studentsApi.update(id, data);
+      await fetchStudents();
+    } catch (err) {
+      console.error("Error updating news Information:", err);
+      throw err;
+    }
+  };
+
+  const deleteStudent = async (id: number) => {
+    try {
+      await studentsApi.delete(id);
+      await fetchStudents();
+    } catch (err) {
+      console.error("Error deleting news Information:", err);
+      throw err;
+    }
+  };
+
   return {
     students,
     loading,
     error,
     fetchStudents,
+    createStudent,
+    updateStudent,
+    deleteStudent
   };
 };

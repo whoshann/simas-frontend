@@ -7,7 +7,7 @@ import DataTable from "@/app/components/DataTable/TableData";
 import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { usePositions } from '@/app/hooks/usePositionData';
-import { toast, Toaster } from 'react-hot-toast';
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 
 interface FormData {
     [key: string]: any;
@@ -82,10 +82,10 @@ export default function PositionPage() {
 
             if (selectedPosition?.id) {
                 await updatePosition(selectedPosition.id, positionData);
-                alert('Data posisi berhasil diperbarui!');
+                await showSuccessAlert('Berhasil', 'Data posisi jabatan berhasil di perbarui');
             } else {
                 await createPosition(positionData);
-                alert('Data posisi berhasil ditambahkan!');
+                await showSuccessAlert('Berhasil', 'Data posisi jabatan berhasil di tambahkan');
             }
 
             await fetchPositions();
@@ -97,17 +97,22 @@ export default function PositionPage() {
         }
     };
 
+ 
     const handleDelete = async (id: number) => {
-        try {
-            // Tambahkan konfirmasi sebelum menghapus
-            if (window.confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+        const isConfirmed = await showConfirmDelete(
+            'Hapus Data Pelanggaran',
+            'Apakah Anda yakin ingin menghapus data pelanggaran ini?'
+        );
+
+        if (isConfirmed) {
+            try {
                 await deletePosition(id);
-                alert('Data posisi berhasil dihapus!');
+                await showSuccessAlert('Berhasil', 'Data posisi jabatan berhasil dihapus');
                 await fetchPositions();
+            } catch (error) {
+                console.error('Error:', error);
+                await showErrorAlert('Error', 'Gagal menghapus data posisi jabatan');
             }
-        } catch (error: any) {
-            console.error("Error deleting position:", error);
-            alert('Gagal menghapus data posisi');
         }
     };
 
