@@ -48,4 +48,33 @@ export const absenceApi = {
     return response.data;
   },
 
+  // Fungsi untuk mengambil absensi bulanan
+  getMonthlyAbsences: async (
+    studentId: number,
+    year: number,
+    month: number
+  ): Promise<AbsenceResponse> => {
+    const response = await axios.get(
+      `${API_URL}/monthly/${studentId}?year=${year}&month=${month}`,
+      {
+        headers: getHeaders(),
+      }
+    );
+    return response.data;
+  },
+
+  // Fungsi untuk mengambil statistik absensi
+  getStatistics: async (
+    studentId: number,
+    year?: number,
+    month?: number
+  ): Promise<AbsenceResponse> => {
+    const url = `${API_URL}/statistics/${studentId}?year=${year ?? ""}&month=${
+      month ?? ""
+    }`;
+    const response = await axios.get(url, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
 };
