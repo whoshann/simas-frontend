@@ -12,6 +12,7 @@ export type OutgoingGoods = {
   quantity: number;
   reason: string;
   guarantee: GuaranteeOutgoingGoods;
+  status: string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -31,6 +32,7 @@ export interface OutgoingGoodsRequest {
   quantity: number;
   reason: string;
   guarantee: GuaranteeOutgoingGoods;
+  status: string;
 }
 
 export interface OutgoingGoodsResponse {
@@ -43,6 +45,7 @@ export interface OutgoingGoodsResponse {
   quantity: number;
   reason: string;
   guarantee: GuaranteeOutgoingGoods;
+  status: string;
   createdAt: string;
   updatedAt: string;
 }

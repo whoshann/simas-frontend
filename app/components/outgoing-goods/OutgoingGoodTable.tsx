@@ -31,6 +31,7 @@ export const OutgoingGoodTable: React.FC<OutgoingGoodTableProps> = ({ outgoingGo
                     <th className="py-2 px-4 border-b text-left">Tanggal Pengembalian</th>
                     <th className="py-2 px-4 border-b text-left">Alasan</th>
                     <th className="py-2 px-4 border-b text-left">Jaminan</th>
+                    <th className="py-2 px-4 border-b text-left">Status</th>
                     <th className="py-2 px-4 border-b text-left">Aksi</th>
                 </tr>
             </thead>
@@ -52,20 +53,20 @@ export const OutgoingGoodTable: React.FC<OutgoingGoodTableProps> = ({ outgoingGo
                         <td className="py-2 px-4 border-b text-left">
                             {getGuaranteeOutgoingGoodsLabel(outgoingGoods.guarantee)}
                         </td>
+                        <td className="py-2 px-4 border-b">
+                            <span className={`px-2 py-1 rounded-full text-xs ${outgoingGoods.status === "Disetujui" ? 'bg-green-100 text-green-600' : outgoingGoods.status === "Ditolak" ? 'bg-red-100 text-red-600' : outgoingGoods.status === "Sedang Proses" ? 'bg-yellow-100 text-yellow-600' : ''}`}>
+                                {outgoingGoods.status}
+                            </span>
+                        </td>
                         <td className="py-2 px-4 border-b text-left">
                             <div className="flex space-x-2">
                                 <button
                                     onClick={() => onEdit(outgoingGoods)}
                                     className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
                                 >
-                                    <i className="bx bxs-edit text-lg"></i>
+                                    <i className="bx bxs-message text-lg"></i>
                                 </button>
-                                <button
-                                    onClick={() => onDelete(outgoingGoods.id!)}
-                                    className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-                                >
-                                    <i className="bx bxs-trash-alt text-lg"></i>
-                                </button>
+                               
                             </div>
                         </td>
                     </tr>

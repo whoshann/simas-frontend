@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -23,7 +22,36 @@ export default function OutgoingGoodsPage() {
   const [selectedBorrowing, setSelectedBorrowing] = useState<OutgoingGoods | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const { outgoingGoods, loading, error, fetchOutgoingGoods, createOutgoingGoods, updateOutgoingGoods, deleteOutgoingGoods } = useOutgoingGoods();
+  const staticOutgoingGoods = [
+    {
+        id: 1,
+        borrowerName: "John Doe",
+        role: "Staff",
+        inventory: { name: "Laptop" },
+        quantity: 1,
+        borrowDate: "2023-10-01",
+        returnDate: "2023-10-10",
+        reason: "Presenasi",
+        guarantee: "KTP",
+        status: "Disetujui"
+    },
+    {
+        id: 2,
+        borrowerName: "Jane Smith",
+        role: "Manager",
+        inventory: { name: "Proyektor" },
+        quantity: 1,
+        borrowDate: "2023-10-02",
+        returnDate: "2023-10-12",
+        reason: "Presentasi",
+        guarantee: "KTP",
+        status: "Sedang Proses"
+    },
+    // Tambahkan data statis lainnya sesuai kebutuhan
+];
+
+  const { loading, error, fetchOutgoingGoods, createOutgoingGoods, updateOutgoingGoods, deleteOutgoingGoods } = useOutgoingGoods();
+  const outgoingGoods = staticOutgoingGoods; // Menggunakan data statis
     const { inventories } = useInventory();
 
     useEffect(() => {
@@ -59,7 +87,7 @@ export default function OutgoingGoodsPage() {
     startIndex + entriesPerPage
   );
 
-  const handleEdit = async (borrowing: OutgoingGoods) => {
+  const handleMessage = async (borrowing: OutgoingGoods) => {
     setSelectedBorrowing(borrowing);
     setIsModalOpen(true);
   };
@@ -83,7 +111,7 @@ export default function OutgoingGoodsPage() {
       inv => inv.id === data.inventoryId
     );
     
-    if (selectedInventory && data.quantity > selectedInventory.stock) {
+    if (selectedInventory && data.quantity > (selectedInventory.stock || 0)) {
       throw new Error(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
     }
 
@@ -127,7 +155,7 @@ export default function OutgoingGoodsPage() {
           <OutgoingGoodTable
             outgoingGoods={currentEntries}
             startIndex={startIndex}
-            onEdit={handleEdit}
+            onEdit={handleMessage}
             onDelete={handleDelete}
           />
 

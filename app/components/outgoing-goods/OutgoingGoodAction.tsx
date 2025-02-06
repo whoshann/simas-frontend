@@ -30,19 +30,7 @@ export const OutgoingGoodsActions: React.FC<OutgoingGoodsActionsProps> = ({
         </div>
 
         <div className="flex space-x-2 mt-5 sm:mt-0">
-            <button
-                onClick={onAddClick}
-                className="bg-[var(--main-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#1a4689]"
-            >
-                Tambah Data
-            </button>
-            {/* Button Import CSV */}
-            <button
-                onClick={() => console.log("Import CSV")}
-                className="bg-[var(--second-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#de881f]"
-            >
-                Import Dari Excel
-            </button>
+            
 
             {/* Dropdown Export */}
             <div className="relative">

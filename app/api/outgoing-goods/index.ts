@@ -26,11 +26,6 @@ export const outgoingGoodsApi = {
     return response.data;
   },
 
-  create: async (data: OutgoingGoodsRequest): Promise<OutgoingGoods> => {
-    const response = await axios.post(API_URL, data, { headers: getHeaders() });
-    return response.data;
-  },
-
   update: async (
     id: number,
     data: OutgoingGoodsRequest
@@ -45,13 +40,6 @@ export const outgoingGoodsApi = {
     } = data as any;
 
     const response = await axios.patch(`${API_URL}/${id}`, updateData, {
-      headers: getHeaders(),
-    });
-    return response.data;
-  },
-
-  delete: async (id: number): Promise<OutgoingGoods> => {
-    const response = await axios.delete(`${API_URL}/${id}`, {
       headers: getHeaders(),
     });
     return response.data;

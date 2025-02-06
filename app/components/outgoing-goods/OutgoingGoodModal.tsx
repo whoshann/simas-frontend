@@ -25,7 +25,8 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
     borrowDate: borrowingData?.borrowDate || '',
     returnDate: borrowingData?.returnDate || '',
     reason: borrowingData?.reason || '',
-    guarantee: borrowingData?.guarantee || GuaranteeOutgoingGoods.StudentCard
+    guarantee: borrowingData?.guarantee || GuaranteeOutgoingGoods.StudentCard,
+    status: borrowingData?.status || ''
   });
 
   useEffect(() => {
@@ -38,7 +39,8 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
         borrowDate: borrowingData.borrowDate || '',
         returnDate: borrowingData.returnDate || '',
         reason: borrowingData.reason || '',
-        guarantee: borrowingData.guarantee || GuaranteeOutgoingGoods.StudentCard
+        guarantee: borrowingData.guarantee || GuaranteeOutgoingGoods.StudentCard,
+        status: borrowingData.status || ''
       });
     } else {
       setFormData({
@@ -49,7 +51,8 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
         borrowDate: '',
         returnDate: '',
         reason: '',
-        guarantee: GuaranteeOutgoingGoods.StudentCard
+        guarantee: GuaranteeOutgoingGoods.StudentCard,
+        status: ''
       });
     }
   }, [borrowingData]);
@@ -73,11 +76,6 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.inventoryId) {
-      alert('Silakan pilih barang terlebih dahulu');
-      return;
-    }
-
     onSubmit(formData as OutgoingGoods);
   };
 
@@ -88,7 +86,7 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">
-            {borrowingData ? 'Edit Peminjaman' : 'Ajukan Peminjaman'}
+            {borrowingData ? 'Status Peminjaman' : 'Ajukan Peminjaman'}
           </h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <i className='bx bx-x text-2xl'></i>
@@ -96,96 +94,9 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Role */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Role</label>
-            <input
-              type="text"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              placeholder="Contoh: Student/Teacher"
-            />
-          </div>
-
-          {/* Borrower Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Nama Peminjam</label>
-            <input
-              type="text"
-              name="borrowerName"
-              value={formData.borrowerName}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              placeholder="Masukkan nama peminjam"
-            />
-          </div>
-
-          {/* Inventory Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Pilih Barang</label>
-            <select
-              name="inventoryId"
-              value={formData.inventoryId}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            >
-              <option value="">Pilih Barang</option>
-              {inventories?.map((inventory) => (
-                <option key={inventory.id} value={inventory.id}>
-                  {inventory.name} - Stok: {inventory.stock}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Quantity */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Jumlah</label>
-            <input
-              type="number"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-              min="1"
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-
-          {/* Dates */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Tanggal Pinjam</label>
-              <input
-                type="date"
-                name="borrowDate"
-                value={formData.borrowDate}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Tanggal Kembali</label>
-              <input
-                type="date"
-                name="returnDate"
-                value={formData.returnDate}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </div>
-          </div>
-
           {/* Reason */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Alasan Peminjaman</label>
+            <label className="block text-sm font-medium text-gray-700">Alasan</label>
             <textarea
               name="reason"
               value={formData.reason}
@@ -196,19 +107,20 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
             />
           </div>
 
-          {/* Guarantee */}
+          {/* Status */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Jaminan</label>
+            <label className="block text-sm font-medium text-gray-700">Status</label>
             <select
-              name="guarantee"
-              value={formData.guarantee}
+              name="status"
+              value={formData.status}
               onChange={handleChange}
               required
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
             >
-              <option value={GuaranteeOutgoingGoods.StudentCard}>Kartu Pelajar</option>
-              <option value={GuaranteeOutgoingGoods.KTP}>KTP</option>
-              <option value={GuaranteeOutgoingGoods.Handphone}>Handphone</option>
+              <option value="">Pilih Status</option>
+              <option value="Disetujui">Disetujui</option>
+              <option value="Sedang Proses">Sedang Proses</option>
+              <option value="Ditolak">Ditolak</option>
             </select>
           </div>
 
@@ -224,7 +136,7 @@ export const OutgoingGoodModal: React.FC<OutgoingGoodModalProps> = ({
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             >
-              {borrowingData ? 'Update' : 'Submit'}
+              {borrowingData ? 'Submit' : 'Submit'}
             </button>
           </div>
         </form>
