@@ -11,7 +11,8 @@ import { useProcurements } from "@/app/hooks/useProcurements";
 import { getProcurementStatusLabel } from "@/app/utils/enumHelpers";
 import { ProcurementStatus } from "@/app/utils/enums";
 import { procurementsApi } from "@/app/api/procurement";
-import { Viewer, Worker } from "@react-pdf-viewer/core";
+import FormModal from '@/app/components/DataTable/FormModal';
+import { formatDate } from "@/app/utils/helper";
 
 interface TableProps {
     procurement: Procurement[];
@@ -36,37 +37,54 @@ export default function ItemRequestPage() {
         initializePage();
     }, []);
 
-    const token = Cookies.get("token");
-    const [user, setUser] = useState<any>({});
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
     const [selectedItem, setSelectedItem] = useState<Procurement | null>(null);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const { procurements, fetchProcurements } = useProcurements();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [isAvailable, setIsAvailable] = useState(false);
+    const { procurements, fetchProcurements, updateProcurementStatus } = useProcurements();
+    const [formData, setFormData] = useState({
+        procurementStatus: '',
+        updateMessage: ''
+    });
 
-    // Search item tabel
+    // Menggunakan data statis untuk filteredData
     const filteredData = procurements.filter((item: Procurement) =>
         item.inventory.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.procurementName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-    const formatDate = (date: string) => {
-        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(date).toLocaleDateString('id-ID', options);
-    };
 
     const totalEntries = filteredData.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    // Form fields untuk modal
+    const formFields = [
+        {
+            name: 'updateMessage',
+            label: 'Alasan',
+            type: 'textarea' as const,
+            required: true,
+            placeholder: 'Masukkan alasan',
+            rows: 3
+        },
+        {
+            name: 'procurementStatus',
+            label: 'Status',
+            type: 'select' as const,
+            required: true,
+            options: [
+                { value: ProcurementStatus.Approved, label: 'Disetujui', style: 'bg-green-500 text-white' },
+                { value: ProcurementStatus.Rejected, label: 'Ditolak', style: 'bg-red-500 text-white' },
+            ],
+        },
+    ];
 
     const togglePanel = () => {
         setIsPanelOpen(!isPanelOpen);
@@ -75,64 +93,6 @@ export default function ItemRequestPage() {
     const handleAddClick = () => {
         setSelectedItem(null);
         setIsModalOpen(true);
-    };
-
-    const handleCheckClick = async (item: Procurement) => {
-        try {
-            setLoading(true);
-            setError("");
-
-            const updateData = {
-                procurementStatus: "Approved",
-                updateMessage: "Pengajuan disetujui oleh Admin Sarpras"
-            };
-
-            await procurementsApi.updateStatus(
-                item.id.toString(),
-                updateData
-            );
-
-            await fetchProcurements();
-            alert("Status pengajuan berhasil diubah menjadi Disetujui");
-        } catch (error) {
-            if (error.response?.data?.message) {
-                alert(error.response.data.message);
-            } else {
-                alert("Gagal mengubah status pengajuan");
-            }
-            console.error("Error updating status:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleCancelClick = async (item: Procurement) => {
-        try {
-            setLoading(true);
-            setError("");
-
-            const updateData = {
-                procurementStatus: "Rejected",
-                updateMessage: "Pengajuan ditolak oleh Admin Sarpras"
-            };
-
-            await procurementsApi.updateStatus(
-                item.id.toString(),
-                updateData
-            );
-
-            await fetchProcurements();
-            alert("Status pengajuan berhasil diubah menjadi Ditolak");
-        } catch (error) {
-            if (error.response?.data?.message) {
-                alert(error.response.data.message);
-            } else {
-                alert("Gagal mengubah status pengajuan");
-            }
-            console.error("Error updating status:", error);
-        } finally {
-            setLoading(false);
-        }
     };
 
     const handleViewPDF = async (filename: string) => {
@@ -161,6 +121,47 @@ export default function ItemRequestPage() {
         } catch (error) {
             alert('Gagal mengunduh file PDF');
             console.error('Error downloading PDF:', error);
+        }
+    };
+
+    // Handle buka modal untuk message
+    const handleOpenMessageModal = (
+        event: React.MouseEvent<HTMLButtonElement>,
+        procurement: Procurement
+    ) => {
+        event.preventDefault();
+        setSelectedItem(procurement);
+        setFormData({
+            procurementStatus: '',
+            updateMessage: ''
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedItem(null);
+        setFormData({
+            procurementStatus: '',
+            updateMessage: ''
+        });
+    };
+
+    const handleSubmit = async (formData: any) => {
+        try {
+            if (!selectedItem?.id) return;
+
+            await updateProcurementStatus(
+                selectedItem.id,
+                formData.procurementStatus,
+                formData.updateMessage
+            );
+
+            alert('Status pengajuan berhasil diperbarui!');
+            handleCloseModal();
+        } catch (error: any) {
+            console.error('Error updating status:', error);
+            alert(error.message);
         }
     };
 
@@ -321,19 +322,14 @@ export default function ItemRequestPage() {
                                                     <>
                                                         {/* Centang (Check) Button */}
                                                         <button
-                                                            onClick={() => handleCheckClick(item)}
+                                                            onClick={(event) => handleOpenMessageModal(event, item)}
                                                             className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
                                                         >
                                                             <i className="bx bx-check text-lg"></i>
                                                         </button>
 
                                                         {/* Cancel Button */}
-                                                        <button
-                                                            onClick={() => handleCancelClick(item)}
-                                                            className="w-8 h-8 rounded-full bg-[#bd000029] flex items-center justify-center text-[var(--fourth-color)]"
-                                                        >
-                                                            <i className="bx bx-x text-lg"></i>
-                                                        </button>
+                                                        
                                                     </>
                                                 )}
                                             </div>
@@ -380,6 +376,18 @@ export default function ItemRequestPage() {
                     </div>
                 </div>
             </main>
+
+            <FormModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onSubmit={handleSubmit}
+                title="Message Pengelolaan Barang"
+                mode={modalMode}
+                fields={formFields}
+                formData={formData}
+                setFormData={setFormData}
+                size="lg"
+            />
         </div>
     );
 }

@@ -1,8 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* @import 'boxicons/css/boxicons.min.css'; */
-@import url('https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css');
 
 :root {
   --background: #f2f2f2;
@@ -88,13 +86,12 @@
 .react-calendar__month-view__days__day {
   padding: 0.25rem;
 }
-
-.custom-scroll::-webkit-scrollbar {
-  width: 0; /* Sembunyikan scrollbar */
-  background: transparent; /* Latar belakang transparan */
+/* Tambahkan ini ke file CSS Anda */
+.scroll-hidden {
+  overflow-y: scroll; /* Tetap aktifkan scroll */
+  scrollbar-width: none; /* Untuk Firefox */
 }
 
-.custom-scroll {
-  scrollbar-width: thin; /* Untuk Firefox */
-  scrollbar-color: transparent transparent; /* Untuk Firefox */
+.scroll-hidden::-webkit-scrollbar {
+  display: none; /* Untuk Chrome, Safari, dan Opera */
 }

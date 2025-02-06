@@ -40,6 +40,19 @@ export const useOutgoingGoods = () => {
     }
   }, []);
 
+  const updateBorrowingStatus = async (id: number) => {
+    try {
+      setLoading(true);
+      await outgoingGoodsApi.updateStatus(id);
+      await fetchOutgoingGoods();
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Gagal mengupdate status peminjaman';
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const createOutgoingGoods = async (data: Partial<OutgoingGoods>) => {
     try {
       const response = await outgoingGoodsApi.create(
@@ -55,45 +68,12 @@ export const useOutgoingGoods = () => {
     }
   };
 
-  const updateOutgoingGoods = async (
-    id: number,
-    data: Partial<OutgoingGoods>
-  ) => {
-    try {
-      const response = await outgoingGoodsApi.update(
-        id,
-        data as unknown as OutgoingGoodsRequest
-      );
-      const apiResponse = response as unknown as ApiResponse;
-      if (apiResponse.success) {
-        await fetchOutgoingGoods(); // Refresh data after update
-        return apiResponse.data;
-      }
-    } catch (err) {
-      throw err;
-    }
-  };
-
-  const deleteOutgoingGoods = async (id: number) => {
-    try {
-      const response = await outgoingGoodsApi.delete(id);
-      const apiResponse = response as unknown as ApiResponse;
-      if (apiResponse.success) {
-        await fetchOutgoingGoods(); // Refresh data after deletion
-        return apiResponse.data;
-      }
-    } catch (err) {
-      throw err;
-    }
-  };
-
   return {
     outgoingGoods,
     loading,
     error,
     fetchOutgoingGoods,
+    updateBorrowingStatus,
     createOutgoingGoods,
-    updateOutgoingGoods,
-    deleteOutgoingGoods,
   };
 };

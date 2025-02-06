@@ -31,11 +31,32 @@ export const useProcurements = () => {
     }
   };
 
+  const updateProcurementStatus = async (
+    id: number,
+    procurementStatus: string,
+    updateMessage: string
+) => {
+    try {
+        setLoading(true);
+        await procurementsApi.updateStatus(id.toString(), {
+            procurementStatus,
+            updateMessage
+        });
+        await fetchProcurements();
+    } catch (error: any) {
+        const errorMessage = error.response?.data?.message || 'Gagal mengupdate status pengajuan';
+        throw new Error(errorMessage);
+    } finally {
+        setLoading(false);
+    }
+  };
+
   return {
     procurements,
     loading,
     error,
     fetchProcurements,
     createProcurement,
+    updateProcurementStatus,
   };
 };

@@ -1,13 +1,17 @@
+import { useUser } from "@/app/hooks/useUser";
+
 interface ExpensesHeaderProps {
     searchTerm: string;
     onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const ExpensesHeader: React.FC<ExpensesHeaderProps> = ({ searchTerm, onSearchChange }) => (
+export const ExpensesHeader: React.FC<ExpensesHeaderProps> = ({ searchTerm, onSearchChange }) => {
+    const { user } = useUser();
+    return (
     <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
             <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pengeluaran</h1>
-            <p className="text-sm text-gray-600">Halo Admin Peneluaran, selamat datang kembali</p>
+            <p className="text-sm text-gray-600">Halo {user?.username}, selamat datang kembali</p>
         </div>
         <div className="mt-4 sm:mt-0">
             <div className="bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">
@@ -21,5 +25,6 @@ export const ExpensesHeader: React.FC<ExpensesHeaderProps> = ({ searchTerm, onSe
                 />
             </div>
         </div>
-    </header>
-);
+        </header>
+    );
+};

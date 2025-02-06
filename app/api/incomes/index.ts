@@ -15,7 +15,7 @@ const getHeaders = () => ({
   "Content-Type": "application/json",
 });
 
-export const incomeApi = {
+export const incomesApi = {
   getAll: async (): Promise<IncomesResponses> => {
     const response = await axios.get(API_URL, { headers: getHeaders() });
     return response.data;
@@ -28,26 +28,11 @@ export const incomeApi = {
     return response.data;
   },
 
-  create: async (data: IncomesRequest): Promise<IncomesResponse> => {
-    try {
-      // Pastikan format data sesuai
-      const formattedData = {
-        monthlyFinanceId: data.monthlyFinanceId,
-        source: data.source,
-        description: data.description,
-        amount: data.amount,
-        incomeDate: data.incomeDate
-      };
-
-      const response = await axios.post(API_URL, formattedData, { 
-        headers: getHeaders(),
-        withCredentials: true // Tambahkan ini untuk mengirim cookies
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error creating income:', error);
-      throw error;
-    }
+  create: async (
+    data: Omit<Income, "id">
+  ): Promise<IncomesResponse> => {
+    const response = await axios.post(API_URL, data, { headers: getHeaders() });
+    return response.data;
   },
 
   update: async (
@@ -59,7 +44,7 @@ export const incomeApi = {
       id: _id,
       createdAt,
       updatedAt,
-      monthlyFinanceId,
+      inventory,
       ...updateData
     } = data as any;
 

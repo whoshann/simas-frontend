@@ -46,20 +46,13 @@ export default function StudentBorrowingGoodsPage() {
     const tokenData = getTokenData();
     if (tokenData) {
       fetchStudentData(tokenData.id);
-      setStudent(prev => ({
-        ...prev,
-        role: tokenData.role
-      }));
     }
   }, []);
 
   const fetchStudentData = async (userId: number) => {
     try {
       const response = await authApi.getStudentLogin(userId);
-      setStudent(prev => ({
-        ...prev,
-        ...response.data
-      }));
+      setStudent(response.data);
     } catch (err) {
       console.error("Error fetching user data:", err);
       setError("Failed to fetch user data");
@@ -80,21 +73,36 @@ export default function StudentBorrowingGoodsPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
+    if (name === 'inventoryId') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: Number(value)
+      }));
+      return;
+    }
+    
     if (name === 'quantity') {
+      const numValue = Number(value);
       const selectedInventory = inventories.find(
-        inv => inv.id === parseInt(formData.inventoryId)
+        inv => inv.id === formData.inventoryId
       );
       
-      if (selectedInventory && parseInt(value) > selectedInventory.stock) {
+      if (selectedInventory && numValue > selectedInventory.stock) {
         alert(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
         setFormData(prev => ({
           ...prev,
-          quantity: selectedInventory.stock.toString()
+          quantity: selectedInventory.stock
         }));
         return;
       }
-    }
 
+      setFormData(prev => ({
+        ...prev,
+        [name]: numValue
+      }));
+      return;
+    }
+    
     if (name === 'guarantee') {
       console.log('Selected guarantee:', value); // Debug
     }
@@ -109,10 +117,10 @@ export default function StudentBorrowingGoodsPage() {
     e.preventDefault();
     
     const selectedInventory = inventories.find(
-      inv => inv.id === parseInt(formData.inventoryId)
+      inv => inv.id === formData.inventoryId
     );
     
-    if (selectedInventory && parseInt(formData.quantity) > selectedInventory.stock) {
+    if (selectedInventory && formData.quantity > selectedInventory.stock) {
       alert(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
       return;
     }
@@ -123,14 +131,16 @@ export default function StudentBorrowingGoodsPage() {
     try {
       const borrowingData = {
         role: student?.role || '',
-        inventoryId: parseInt(formData.inventoryId),
+        inventoryId: Number(formData.inventoryId),
         borrowerName: student?.name || '',
         borrowDate: formData.borrowDate,
         returnDate: formData.returnDate,
-        quantity: parseInt(formData.quantity),
+        quantity: Number(formData.quantity),
         reason: formData.reason,
         guarantee: formData.guarantee
       };
+
+      console.log('Data yang dikirim:', borrowingData); // Debug
 
       await outgoingGoodsApi.create(borrowingData as OutgoingGoodsRequest);
       
@@ -141,13 +151,20 @@ export default function StudentBorrowingGoodsPage() {
         returnDate: '',
         reason: '',
         guarantee: GuaranteeOutgoingGoods.StudentCard,
+        role: '',
+        borrowerName: '',
       });
 
       await showSuccessAlert('Berhasil', 'Peminjaman berhasil di ajukan');
       
     } catch (err: any) {
       console.error('Error submitting form:', err);
-      setError(err.response?.data?.message || 'Gagal mengajukan peminjaman');
+      const errorMessage = err.response?.data?.message;
+      if (Array.isArray(errorMessage)) {
+        await showErrorAlert('Error', errorMessage.join('\n'));
+      } else {
+        await showErrorAlert('Error', errorMessage || 'Gagal mengajukan peminjaman');
+      }
     } finally {
       setLoading(false);
     }

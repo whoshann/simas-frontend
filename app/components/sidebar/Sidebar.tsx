@@ -599,13 +599,13 @@ const Sidebar: React.FC = () => {
                                     </svg>
                                 </button>
                                 <div className={` ${isDropdownOpenFinance ? '' : 'hidden'}`}>
-                                <a
-                                        href="/finance/finance/finance-overview"
-                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Keuangan Utama' ? 'text-blue-900' : ''}`}
-                                        onClick={() => handleSubMenuClick('Keuangan Utama')}
+                                    <a
+                                        href="/finance/finance/monthly-finance"
+                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Keuangan Bulanan' ? 'text-blue-900' : ''}`}
+                                        onClick={() => handleSubMenuClick('Keuangan Bulanan')}
                                     >
                                         <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Keuangan Bulanan' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                        Keuangan Utama
+                                        Keuangan Bulanan
                                     </a>
                                     <a
                                         href="/finance/finance/expense"
@@ -622,14 +622,6 @@ const Sidebar: React.FC = () => {
                                     >
                                         <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Pemasukan' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
                                         Pemasukan
-                                    </a>
-                                    <a
-                                        href="/finance/finance/monthly-finance"
-                                        className={`block py-3 px-4 rounded-xl transition duration-200 submenu text-[var(--text-thin-color)] ${activeMenu === 'Keuangan Bulanan' ? 'text-blue-900' : ''}`}
-                                        onClick={() => handleSubMenuClick('Keuangan Bulanan')}
-                                    >
-                                        <span className={`inline-block w-2 h-2 font-medium rounded-full mr-2 ${activeMenu === 'Keuangan Bulanan' ? 'bg-[var(--main-color)]' : 'bg-[var(--text-thin-color)]'}`}></span>
-                                        Keuangan Bulanan
                                     </a>
                                 </div>
                             </div>

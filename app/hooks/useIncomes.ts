@@ -1,69 +1,65 @@
 import { useState, useCallback } from "react";
-import {
-  Income,
-  IncomesRequest,
-  UpdateIncomesRequest,
-} from "../api/incomes/types";
-import { incomeApi } from "../api/incomes";
+import { Income } from "../api/incomes/types";
+import { incomesApi } from "../api/incomes";
 
-export const useIncome = () => {
-  const [incomes, setIncomes] = useState<Income[]>([]);
+export const useIncomes = () => {
+  const [Incomes, setIncomes] = useState<Income[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchIncomes = useCallback(async () => {
+  const fetchIncomes = useCallback(async (): Promise<{ amount: number }[]> => {
     try {
       setLoading(true);
-      const response = await incomeApi.getAll();
+      const response = await incomesApi.getAll();
       setIncomes(response.data);
       setError(null);
-      return response.data; // Tambahkan return untuk mengembalikan data
+      return response.data;
     } catch (err) {
-      setError("Gagal mengambil data pendapatan");
-      console.error("Error fetching incomes:", err);
-      return []; // Return array kosong jika terjadi error
+      setError("Failed to fetch Incomes");
+      console.error("Error fetching Incomes:", err);
+      return [];
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const createIncomes = async (data: IncomesRequest) => {
+  const createIncome = async (data: Omit<Income, "id"> & { monthlyFinanceId: number; incomedate: string }) => {
     try {
-      await incomeApi.create(data);
+      await incomesApi.create(data);
       await fetchIncomes();
     } catch (err) {
-      console.error("Error creating income:", err);
+      console.error("Error creating Incomes:", err);
       throw err;
     }
   };
 
-  const updateIncomes = async (id: number, data: UpdateIncomesRequest) => {
+  const updateIncome = async (id: number, data: Partial<Income>) => {
     try {
-      await incomeApi.update(id, data);
+      await incomesApi.update(id, data);
       await fetchIncomes();
     } catch (err) {
-      console.error("Error updating incomes", err);
+      console.error("Error updating Incomes:", err);
       throw err;
     }
   };
 
-  const deleteIncomes = async (id: number) => {
+  const deleteIncome = async (id: number) => {
     try {
-      await incomeApi.delete(id);
+      await incomesApi.delete(id);
       await fetchIncomes();
     } catch (err) {
-      console.error("Error deleting incomes", err);
+      console.error("Error deleting Income:", err);
       throw err;
     }
   };
 
   return {
-    incomes,
+    Incomes,
     loading,
     error,
     fetchIncomes,
-    createIncomes,
-    updateIncomes,
-    deleteIncomes,
+    createIncome,
+    updateIncome,
+    deleteIncome,
   };
 };
