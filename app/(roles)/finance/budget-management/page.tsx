@@ -7,9 +7,11 @@ import { useBudgetManagement } from "@/app/hooks/useBudgetManagement";
 import FormModal from '@/app/components/DataTable/FormModal';
 import { BudgetManagement } from "@/app/api/budget-management/types";
 import { BudgetManagementStatus } from "@/app/utils/enums";
+import { BudgetManagementStatusLabel } from "@/app/utils/enumHelpers";
 import { budgetManagementApi } from "@/app/api/budget-management";
 import { formatRupiah, formatDate } from "@/app/utils/helper";
 import { useUser } from "@/app/hooks/useUser";
+import { showErrorAlert, showSuccessAlert } from "@/app/utils/sweetAlert";
 
 interface FormData {
     [key: string]: any;
@@ -62,7 +64,7 @@ export default function BudgetManagementPage() {
     // Handle tutup modal
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setSelectedBudget(null); 
+        setSelectedBudget(null);
     };
 
     const handleSubmit = async (formData: any) => {
@@ -75,11 +77,11 @@ export default function BudgetManagementPage() {
                 formData.reason // reason akan menjadi updateMessage
             );
 
-            alert("Status RAB berhasil diperbarui!");
+            await showSuccessAlert('Success', 'Status RAB berhasil diperbarui!');
             handleCloseModal();
         } catch (error: any) {
             console.error("Error updating status:", error);
-            alert(error.response?.data?.message || "Gagal memperbarui status RAB");
+            await showErrorAlert('Error', 'Gagal memperbarui status RAB');
         }
     };
 
@@ -123,7 +125,7 @@ export default function BudgetManagementPage() {
             const url = window.URL.createObjectURL(blob);
             window.open(url, '_blank');
         } catch (error) {
-            alert('Gagal mengambil file PDF: ' + (error.response?.data?.message || 'File tidak ditemukan'));
+            await showErrorAlert('Error', 'Gagal mengambil file PDF: ' + (error.response?.data?.message || 'File tidak ditemukan'));
             console.error('Error fetching PDF:', error);
         }
     };
@@ -140,7 +142,7 @@ export default function BudgetManagementPage() {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
         } catch (error) {
-            alert('Gagal mengunduh file PDF');
+            await showErrorAlert('Error', 'Gagal mengunduh file PDF');
             console.error('Error downloading PDF:', error);
         }
     };
@@ -269,23 +271,35 @@ export default function BudgetManagementPage() {
                                         <td className="py-2 px-4 border-b">
                                             <button
                                                 onClick={() => handleViewPDF(budgetManagement.document_path)}
-                                                className="text-blue-500 underline mr-2"
+                                                className="text-[var(--main-color)] underline mr-2"
                                             >
                                                 Lihat PDF
                                             </button>
                                             {' | '}
                                             <button
                                                 onClick={() => handleDownloadPDF(budgetManagement.document_path)}
-                                                className="text-blue-500 underline"
+                                                className="text-[var(--third-color)] underline"
                                             >
                                                 Unduh PDF
                                             </button>
                                         </td>
-                                        <td className="py-2 px-4 border-b">{formatDate(budgetManagement.created_at)}</td>
-                                        <td className="py-2 px-4 border-b">{budgetManagement.status}</td>
+                                        <td className="py-2 px-4 border-b">{formatDate(budgetManagement.created_at || '')}</td>
+                                        <td className="py-2 px-4 border-b">
+                                            <span
+                                                className={`px-2 py-1 rounded-full text-xs font-medium ${budgetManagement.status === "Submitted"
+                                                    ? "bg-[#1f509a26] text-[var(--main-color)]"
+                                                    : budgetManagement.status === "Approved"
+                                                        ? "bg-[#0a97b022] text-[var(--third-color)]"
+                                                        : budgetManagement.status === "Revised" ? "bg-[#e88e1f29] text-[var(--second-color)]"
+                                                            : "bg-[#bd000025] text-[var(--fourth-color)]"
+                                                    }`}
+                                            >
+                                                {BudgetManagementStatusLabel[budgetManagement.status]}
+                                            </span>
+                                        </td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
-                                            {budgetManagement.status === BudgetManagementStatus.Submitted && (
+                                                {budgetManagement.status === BudgetManagementStatus.Submitted && (
                                                     <button
                                                         onClick={(e) => handleOpenMessageModal(e, budgetManagement)}
                                                         className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"

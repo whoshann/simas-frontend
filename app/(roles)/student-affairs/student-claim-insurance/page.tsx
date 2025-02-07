@@ -11,6 +11,8 @@ import { InsuranceClaimCategory } from "@/app/utils/enums";
 import { InsuranceClaimStatus } from "@/app/utils/enums";
 import axios from "axios";
 import { InsuranceClaimCategoryLabel } from "@/app/utils/enumHelpers";
+import { useUser } from "@/app/hooks/useUser"; 
+import { showErrorAlert, showSuccessAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
 
 export default function StudentAffairsClaimInsurancePage() {
     useEffect(() => {
@@ -38,6 +40,7 @@ export default function StudentAffairsClaimInsurancePage() {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [insuranceClaims, setInsuranceClaims] = useState<InsuranceClaim[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const { user } = useUser();
 
     interface InsuranceClaim {
         id: number;
@@ -89,19 +92,25 @@ export default function StudentAffairsClaimInsurancePage() {
         try {
             // Implementasi logika konfirmasi dengan API
             console.log("Klaim dikonfirmasi:", claimId);
+            await showSuccessAlert("Klaim berhasil dikonfirmasi!");
             setIsModalOpen(false);
+            refreshData(); // Refresh data setelah konfirmasi
         } catch (error) {
             console.error("Error saat mengkonfirmasi klaim:", error);
+            await showErrorAlert("Gagal mengkonfirmasi klaim");
         }
     };
 
     const handleReject = async (claimId: number) => {
         try {
-            // Implementasi logika penolakan dengan API
             console.log("Klaim ditolak:", claimId);
+            // Tampilkan SweetAlert untuk penolakan sukses
+            await showSuccessAlert("Klaim berhasil ditolak!");
             setIsModalOpen(false);
+            refreshData(); // Refresh data setelah penolakan
         } catch (error) {
             console.error("Error saat menolak klaim:", error);
+            await showErrorAlert("Gagal menolak klaim");
         }
     };
 
@@ -193,7 +202,7 @@ export default function StudentAffairsClaimInsurancePage() {
                         Pengajuan Klaim Asuransi Siswa
                     </h1>
                     <p className="text-sm text-gray-600">
-                        Halo Admin Kesiswaan, selamat datang kembali
+                        Halo {user?.username}, selamat datang kembali
                     </p>
                 </div>
 

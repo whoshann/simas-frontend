@@ -20,6 +20,7 @@ import { Gender, TeacherRole } from "@/app/utils/enums";
 import { getGenderLabel, getTeacherRoleLabel } from "@/app/utils/enumHelpers";
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { useUser } from "@/app/hooks/useUser";
 
 export default function SuperAdminTeacherDataPage() {
 
@@ -51,6 +52,8 @@ export default function SuperAdminTeacherDataPage() {
         role: '',
         picture: null
     });
+
+    const { user } = useUser();
 
     useEffect(() => {
         const initializePage = async () => {
@@ -347,7 +350,7 @@ export default function SuperAdminTeacherDataPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Guru</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo {user?.username || 'User'}, selamat datang kembali</p>
                 </div>
 
 

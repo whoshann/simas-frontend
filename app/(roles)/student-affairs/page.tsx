@@ -13,6 +13,7 @@ import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import { authApi } from "@/app/api/auth";
 import Image from "next/image";
 import { ChartOptions } from 'chart.js';
+import { useUser } from "@/app/hooks/useUser";
 
 // Registrasi Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -203,10 +204,11 @@ export default function StudentAffairsDashboardPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [entriesPerPage] = useState(5);
-    const [user, setUser] = useState<User>({ id: 0, name: '', username: '' });
+    const [userId, setUserId] = useState<User>({ id: 0, name: '', username: '' });
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [selectedMonth, setSelectedMonth] = useState<number | null>(new Date().getMonth() + 1);
+    const { user } = useUser();
 
     // Hooks untuk data
     const { absence, loading: absenceLoading, error: absenceError, fetchAbsence } = useAbsence();
@@ -277,7 +279,7 @@ export default function StudentAffairsDashboardPage() {
     const fetchUserData = async (userId: number) => {
         try {
             const response = await authApi.getUserLogin(userId);
-            setUser(response.data);
+            setUserId(response.data);
         } catch (err) {
             console.error("Error fetching user:", err);
         }
@@ -390,7 +392,7 @@ export default function StudentAffairsDashboardPage() {
             <header className="pt-6 pb-0 px-9 flex flex-col sm:flex-row justify-between items-start">
                 <div className="self-start"> 
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
-                    <p className="text-sm text[var(--text-regular-color)] mt-1">Halo Admin Kesiswaan, selamat datang kembali</p>
+                    <p className="text-sm text[var(--text-regular-color)] mt-1">Halo {user?.username}, selamat datang kembali</p>
                 </div>
 
                 {/* Filtering Bulanan */}

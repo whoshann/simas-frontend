@@ -8,6 +8,7 @@ import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useSubjects } from '@/app/hooks/useSubject';
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
+import { useUser } from "@/app/hooks/useUser";
 
 interface SubjectForm {
     id?: number;
@@ -25,6 +26,8 @@ export default function SubjectPage() {
         updateSubject,
         deleteSubject
     } = useSubjects();
+
+    const { user } = useUser();
 
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -51,7 +54,7 @@ export default function SubjectPage() {
 
     const pageContent = {
         title: "Data Mapel",
-        greeting: "Halo Super Admin, selamat datang kembali"
+        greeting: `Halo ${user?.username || 'User'}, selamat datang kembali`
     };
 
     // Form fields configuration

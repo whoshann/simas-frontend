@@ -5,19 +5,20 @@ import { InsuranceClaimCategory, InsuranceClaimStatus } from '@/app/utils/enums'
 import { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { showConfirmDelete, showErrorAlert, showSuccessAlert } from '@/app/utils/sweetAlert';
 
 interface ClaimModalProps {
     selectedClaim: ClaimData | null;
     onClose: () => void;
-    refreshData: () => void | Promise<void>; 
+    refreshData: () => void | Promise<void>;
 }
 
 const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
     });
 };
 
@@ -26,6 +27,62 @@ const ClaimModal: React.FC<ClaimModalProps> = ({
     onClose,
     refreshData
 }) => {
+
+    const handleApprove = async () => {
+        const confirm = await showConfirmDelete('Apakah anda yakin ingin menyetujui klaim ini?');
+        if (confirm) {
+            try {
+                setIsLoading(true);
+                const token = Cookies.get("token");
+                await axios.patch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/insurance-claim/${selectedClaim?.id}/status`,
+                    { statusInsurance: InsuranceClaimStatus.Approved },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
+                );
+                showSuccessAlert('Klaim berhasil disetujui');
+                refreshData();
+                onClose();
+            } catch (error) {
+                console.error('Error updating claim status:', error);
+                showErrorAlert('Gagal mengupdate status klaim');
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    };
+
+    const handleReject = async () => {
+        const confirm = await showConfirmDelete('Apakah anda yakin ingin menolak klaim ini?');
+        if (confirm) {
+            try {
+                setIsLoading(true);
+                const token = Cookies.get("token");
+                await axios.patch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/insurance-claim/${selectedClaim?.id}/status`,
+                    { statusInsurance: InsuranceClaimStatus.Rejected },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
+                );
+                showSuccessAlert('Klaim berhasil ditolak');
+                refreshData();
+                onClose();
+            } catch (error) {
+                console.error('Error updating claim status:', error);
+                showErrorAlert('Gagal mengupdate status klaim');
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    };
+
+
     const [isLoading, setIsLoading] = useState(false);
 
     if (!selectedClaim) return null;
@@ -43,7 +100,7 @@ const ClaimModal: React.FC<ClaimModalProps> = ({
                     }
                 }
             );
-            
+
             refreshData();
             onClose();
         } catch (error) {
@@ -160,14 +217,14 @@ const ClaimModal: React.FC<ClaimModalProps> = ({
                         {selectedClaim.statusInsurance === "Pending" ? (
                             <div className="flex justify-end space-x-4 mt-6">
                                 <button
-                                    onClick={() => updateClaimStatus(InsuranceClaimStatus.Rejected)}
+                                    onClick={handleReject}
                                     disabled={isLoading}
-                                    className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+                                    className="px-6 py-2 bg-[var(--fourth-color)] text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
                                 >
                                     {isLoading ? 'Memproses...' : 'Tolak'}
                                 </button>
                                 <button
-                                    onClick={() => updateClaimStatus(InsuranceClaimStatus.Approved)}
+                                    onClick={handleApprove}
                                     disabled={isLoading}
                                     className="px-6 py-2 bg-[var(--third-color)] text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50"
                                 >
@@ -175,17 +232,15 @@ const ClaimModal: React.FC<ClaimModalProps> = ({
                                 </button>
                             </div>
                         ) : (
-                            <div className={`p-4 rounded-lg ${
-                                selectedClaim.statusInsurance === "Approved" 
-                                    ? "bg-green-50 text-green-700 border border-green-200"
-                                    : "bg-red-50 text-red-700 border border-red-200"
-                            }`}>
+                            <div className={`p-4 rounded-lg ${selectedClaim.statusInsurance === "Approved"
+                                ? "bg-green-50 text-green-700 border border-green-200"
+                                : "bg-red-50 text-red-700 border border-red-200"
+                                }`}>
                                 <div className="flex items-center">
-                                    <i className={`bx ${
-                                        selectedClaim.statusInsurance === "Approved"
-                                            ? "bx-check text-green-500"
-                                            : "bx-x text-red-500"
-                                    } text-2xl mr-2`}></i>
+                                    <i className={`bx ${selectedClaim.statusInsurance === "Approved"
+                                        ? "bx-check text-green-500"
+                                        : "bx-x text-red-500"
+                                        } text-2xl mr-2`}></i>
                                     <p className="font-medium">
                                         {selectedClaim.statusInsurance === "Approved"
                                             ? "Klaim ini telah disetujui"

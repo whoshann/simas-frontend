@@ -9,7 +9,8 @@ import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import FormModal from '@/app/components/DataTable/FormModal';
 import { MonthlyFinance } from "@/app/api/monthly-finances/types";
 import { formatDateDisplay } from "@/app/utils/helper";
-    
+import { showSuccessAlert, showErrorAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
+
 // Perbaikan fungsi formatRupiah
 const formatRupiah = (angka: string | number) => {
     const number = angka.toString().replace(/[^,\d]/g, '');
@@ -29,13 +30,13 @@ const formatRupiah = (angka: string | number) => {
 
 export default function MonthlyFinancePage() {
     const { monthlyFinances, loading, error, fetchMonthlyFinances, addMonthlyFinance, updateMonthlyFinance, deleteMonthlyFinance } = useMonthlyFinance();
-    
+
     // State untuk table
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    
+
     // State untuk modal
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMonthlyFinance, setSelectedMonthlyFinance] = useState<MonthlyFinance | null>(null);
@@ -55,7 +56,7 @@ export default function MonthlyFinancePage() {
     const [formattedExpenses, setFormattedExpenses] = useState('');
     const [formattedRemainingBalance, setFormattedRemainingBalance] = useState('');
 
-   useEffect(() => {
+    useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["Finance"]);
@@ -82,7 +83,7 @@ export default function MonthlyFinancePage() {
     const filteredData = monthlyFinances.filter(item =>
         item.month.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    
+
 
     const totalEntries = filteredData.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
@@ -141,47 +142,59 @@ export default function MonthlyFinancePage() {
     };
 
     const handleSubmit = async (data: Partial<MonthlyFinance>) => {
-        console.log('Data yang diterima:', data);
-        
-        const formDataToSubmit: Omit<MonthlyFinance, "id"> = {
-            month: data.month || '',
-            income: data.income || 0,
-            expenses: data.expenses || 0,
-            remainingBalance: data.remainingBalance || 0,
-            financeOverviewId: data.financeOverviewId || 1
-        };
-
         try {
+            // Format bulan ke format yang diharapkan (YYYY-MM)
+            const formattedMonth = data.month ? new Date(data.month).toISOString().slice(0, 7) : '';
+
+            const formDataToSubmit: Omit<MonthlyFinance, "id"> = {
+                month: formattedMonth,
+                income: data.income || 0,
+                expenses: data.expenses || 0,
+                remainingBalance: data.remainingBalance || 0,
+                financeOverviewId: data.financeOverviewId || 1
+            };
+
+            console.log('Data yang dikirim:', formDataToSubmit);
+
             if (modalMode === 'edit' && selectedMonthlyFinance) {
                 await updateMonthlyFinance(selectedMonthlyFinance.id!, formDataToSubmit);
                 await fetchMonthlyFinances();
+                await showSuccessAlert('Success', 'Data keuangan bulanan berhasil diperbarui!');
             } else {
                 await addMonthlyFinance(formDataToSubmit);
                 await fetchMonthlyFinances();
+                await showSuccessAlert('Success', 'Data keuangan bulanan berhasil ditambahkan!');
             }
             handleCloseModal();
         } catch (error) {
             console.error('Error:', error);
+            await showErrorAlert('Error', error.response?.data?.message || 'Gagal memperbarui data keuangan bulanan');
         }
     };
 
     const handleDeleteClick = async (id: number) => {
-        console.log('Attempting to delete ID:', id);
-        if (window.confirm('Apakah Anda yakin ingin menghapus data keuangan bulanan ini?')) {
-            try {
+        try {
+            const result = await showConfirmDelete(
+                'Apakah Anda yakin?',
+                'Data yang dihapus tidak dapat dikembalikan!'
+            );
+
+            if (result) {
                 await deleteMonthlyFinance(id);
-                console.log('Delete successful');
-                await fetchMonthlyFinances();
-            } catch (error) {
-                console.error('Error deleting monthly finance:', error);
+                await showSuccessAlert('Berhasil', 'Data keuangan bulanan berhasil dihapus!');
+                await fetchMonthlyFinances(); // Refresh data setelah berhasil menghapus
             }
+        } catch (error) {
+            console.error('Error deleting income:', error);
+            await showErrorAlert('Error', 'Gagal menghapus data pemasukan');
         }
     };
+
 
     // Update pada handleRupiahInput
     const handleRupiahInput = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
         const value = e.target.value.replace(/[^0-9]/g, '');
-        
+
         setFormData(prev => {
             const updatedData = {
                 ...prev,
@@ -199,7 +212,7 @@ export default function MonthlyFinancePage() {
                 remainingBalance: remainingBalanceValue
             };
         });
-        
+
         // Set nilai yang diformat
         if (field === 'income') {
             setFormattedIncome(value ? formatRupiah(value) : '');
@@ -219,25 +232,25 @@ export default function MonthlyFinancePage() {
     // Definisikan formFields
     const formFields = [
         { name: 'month', label: 'Bulan dan Tahun', type: 'month' as const },
-        { 
-            name: 'income', 
-            label: 'Pemasukan', 
+        {
+            name: 'income',
+            label: 'Pemasukan',
             type: 'number' as const,
             value: formattedIncome || formData.income,
             onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleRupiahInput(e, 'income'),
             placeholder: '0'
         },
-        { 
-            name: 'expenses', 
-            label: 'Pengeluaran', 
+        {
+            name: 'expenses',
+            label: 'Pengeluaran',
             type: 'number' as const,
             value: formattedExpenses || formData.expenses,
             onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleRupiahInput(e, 'expenses'),
             placeholder: '0'
         },
-        { 
-            name: 'remainingBalance', 
-            label: 'Sisa Keuangan', 
+        {
+            name: 'remainingBalance',
+            label: 'Sisa Keuangan',
             type: 'number' as const,
             value: formattedRemainingBalance || formData.remainingBalance,
             onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleRupiahInput(e, 'remainingBalance'),
@@ -408,11 +421,10 @@ export default function MonthlyFinancePage() {
                                         <button
                                             key={pageNumber}
                                             onClick={() => setCurrentPage(pageNumber)}
-                                            className={`rounded-md px-3 py-1 ${
-                                                currentPage === pageNumber 
-                                                    ? 'bg-[var(--main-color)] text-white' 
-                                                    : 'text-[var(--main-color)]'
-                                            }`}
+                                            className={`rounded-md px-3 py-1 ${currentPage === pageNumber
+                                                ? 'bg-[var(--main-color)] text-white'
+                                                : 'text-[var(--main-color)]'
+                                                }`}
                                         >
                                             {pageNumber}
                                         </button>

@@ -11,6 +11,7 @@ import FormModal from "@/app/components/DataTable/FormModal";
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { useUser } from "@/app/hooks/useUser";
 
 
 export default function StudentAffairsViolationsPage() {
@@ -29,6 +30,7 @@ export default function StudentAffairsViolationsPage() {
     const { violations, loading: violationLoading, fetchViolations, createViolation, updateViolation, deleteViolation } = useViolation();
     const { students, fetchStudents } = useStudents();
     const { violationPoints, fetchViolationPoints } = useViolationPoint();
+    const { user } = useUser();
 
     // Initial form data
     const [formData, setFormData] = useState({
@@ -210,7 +212,7 @@ export default function StudentAffairsViolationsPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Point Pelanggaran Siswa</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo {user?.username}, selamat datang kembali</p>
                 </div>
 
                 <div className="mt-4 sm:mt-0">

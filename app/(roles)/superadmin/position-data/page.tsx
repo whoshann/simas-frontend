@@ -8,6 +8,7 @@ import DynamicModal from "@/app/components/DataTable/TableModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { usePositions } from '@/app/hooks/usePositionData';
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
+import { useUser } from "@/app/hooks/useUser";
 
 interface FormData {
     [key: string]: any;
@@ -29,6 +30,7 @@ export default function PositionPage() {
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPosition, setSelectedPosition] = useState<FormData | null>(null);
+    const { user } = useUser();
 
     const headers = [
         { key: "no", label: "No" },
@@ -38,7 +40,7 @@ export default function PositionPage() {
 
     const pageContent = {
         title: "Data Posisi Jabatan Guru",
-        greeting: "Halo Super Admin, selamat datang kembali"
+        greeting: `Halo ${user?.username || 'User'}, selamat datang kembali`
     };
 
     const positionFields = [
