@@ -116,7 +116,7 @@ export default function MonthlyFinancePage() {
             setFormattedRemainingBalance(formatRupiah(item.remainingBalance));
         } else {
             setFormData({
-                month: '',
+                month: 'Januari 2023',
                 income: 0,
                 expenses: 0,
                 remainingBalance: 0,
@@ -379,6 +379,11 @@ export default function MonthlyFinancePage() {
                                         </td>
                                     </tr>
                                 ))}
+                                {currentEntries.length === 0 && (
+                                    <tr>
+                                        <td colSpan={10} className="text-center py-4">Tidak ada data</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>

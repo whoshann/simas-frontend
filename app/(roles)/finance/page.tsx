@@ -218,6 +218,11 @@ export default function FinanceDashboardPage() {
                     </td>
                   </tr>
                 ))}
+                {dashboardData.budgetRequests.length === 0 && (
+                  <tr>
+                    <td colSpan={10} className="text-center py-4">Tidak ada data</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

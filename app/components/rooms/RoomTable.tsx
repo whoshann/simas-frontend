@@ -65,6 +65,11 @@ export const RoomTable: React.FC<RoomTableProps> = ({ rooms, onEdit, onDelete, s
                         </td>
                     </tr>
                 ))}
+                {rooms.length === 0 && (
+                    <tr>
+                        <td colSpan={10} className="text-center py-4">Tidak ada data</td>
+                    </tr>
+                )}
             </tbody>
         </table>
     );

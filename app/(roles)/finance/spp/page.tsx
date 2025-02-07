@@ -195,6 +195,11 @@ export default function SppPage() {
                                         <td className="py-2 px-4 border-b">{formatDate(paymentSpp.date)}</td>
                                     </tr>
                                 ))}
+                                {currentEntries.length === 0 && (
+                                    <tr>
+                                        <td colSpan={10} className="text-center py-4">Tidak ada data</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>

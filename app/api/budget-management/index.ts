@@ -51,4 +51,11 @@ export const budgetManagementApi = {
     return response.data;
   },
 
+  getByUserId: async (userId: number): Promise<BudgetManagementResponse> => {
+    const response = await axios.get(`${API_URL}/user/${userId}`, {
+      headers: getHeaders(),
+    });
+    return response.data;
+  },
+
 };

@@ -74,6 +74,11 @@ export const IncomingGoodTable: React.FC<IncomingGoodTableProps> = ({ incomingGo
                         </td>
                     </tr>
                 ))}
+                {incomingGoods.length === 0 && (
+                    <tr>
+                        <td colSpan={10} className="text-center py-4">Tidak ada data</td>
+                    </tr>
+                )}
             </tbody>
         </table>
     );
