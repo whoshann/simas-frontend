@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import { error } from "console";
+import TableData2 from "@/app/components/TableWithoutAction/TableData2";
 import { InsuranceClaimStatus } from '@/app/utils/enums';
 
 
@@ -69,6 +70,41 @@ const staticBudgetProposalData = [
   }
 ];
 
+const tableHeaders = [
+  { key: 'no', label: 'No' },
+  { key: 'title', label: 'Nama RAB' },
+  {
+    key: 'total_budget',
+    label: 'Jumlah Dana',
+    render: (value: number) => formatRupiah(value.toString())
+  },
+  { key: 'document_path', label: 'Dokumen Pendukung' },
+  { key: 'description', label: 'Alasan Pengajuan' },
+  { key: 'date', label: 'Tanggal Pengajuan' },
+  {
+    key: 'status',
+    label: 'Status',
+    render: (value: InsuranceClaimStatus) => {
+      const statusStyles = {
+        [InsuranceClaimStatus.Pending]: 'bg-[#e88e1f29] text-[var(--second-color)]',
+        [InsuranceClaimStatus.Approved]: 'bg-[#0a97b022] text-[var(--third-color)]',
+        [InsuranceClaimStatus.Rejected]: 'bg-red-100 text-[var(--fourth-color)]',
+      };
+
+      const statusText = {
+        [InsuranceClaimStatus.Pending]: 'Menunggu',
+        [InsuranceClaimStatus.Approved]: 'Disetujui',
+        [InsuranceClaimStatus.Rejected]: 'Ditolak',
+      };
+
+      return (
+        <span className={`px-3 py-1 rounded-full text-sm ${statusStyles[value]}`}>
+          {statusText[value]}
+        </span>
+      );
+    }
+  }
+];
 
 export default function FacilitiesBudgetProposalPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -131,11 +167,10 @@ export default function FacilitiesBudgetProposalPage() {
     const numericValue = value.replace(/[^0-9]/g, '');
     const formattedValue = numericValue ? formatRupiah(numericValue) : '';
     setJumlahDana(formattedValue);
-    
     // Update formData dengan nilai numerik
     setFormData(prev => ({
       ...prev,
-      total_budget: Number(numericValue) || 0
+      total_budget: Number(numericValue)
     }));
   };
 
@@ -313,67 +348,14 @@ export default function FacilitiesBudgetProposalPage() {
             </form>
           </div>
           {/* Tabel Riwayat */}
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <div className="mb-4 flex justify-between flex-wrap sm:flex-nowrap">
-              <div className="text-xs sm:text-base">
-                <label className="mr-2">Tampilkan</label>
-                <select
-                  value={entriesPerPage}
-                  onChange={(e) => setEntriesPerPage(Number(e.target.value))}
-                  className="border border-gray-300 rounded-lg p-1 text-xs sm:text-sm w-12 sm:w-16"
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={15}>15</option>
-                  <option value={20}>20</option>
-                </select>
-                <label className="ml-2">Entri</label>
-              </div>
-
-              <div className="flex space-x-2 mt-5 sm:mt-0">
-                
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="min-w-full rounded-lg overflow-hidden">
-                <thead className="text-[var(--text-semi-bold-color)]">
-                  <tr>
-                    <th className="py-2 px-4 border-b text-left">No</th>
-                    <th className="py-2 px-4 border-b text-left">Nama RAB</th>
-                    <th className="py-2 px-4 border-b text-left">Jumlah Dana</th>
-                    <th className="py-2 px-4 border-b text-left">Dokumen Pendukung</th>
-                    <th className="py-2 px-4 border-b text-left">Alasan pengajuan</th>
-                    <th className="py-2 px-4 border-b text-left">Tanggal Pengajuan</th>
-                    <th className="py-2 px-4 border-b text-left">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {staticBudgetProposalData.map((item, index) => (
-                    <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
-                      <td className="py-2 px-4 border-b" style={{ whiteSpace: 'nowrap' }}>{index + 1}</td>
-                      <td className="py-2 px-4 border-b" style={{ whiteSpace: 'nowrap' }}>{item.title}</td>
-                      <td className="py-2 px-4 border-b" style={{ whiteSpace: 'nowrap' }}>{formatRupiah(item.total_budget.toString())}</td>
-                      <td className="py-2 px-4 border-b" style={{ whiteSpace: 'nowrap' }}>{item.document_path}</td>
-                      <td className="py-2 px-4 border-b" style={{ whiteSpace: 'nowrap' }}>{item.description}</td>
-                      <td className="py-2 px-4 border-b" style={{ whiteSpace: 'nowrap' }}>{item.date}</td>
-                      <td className="py-2 px-4 border-b" style={{ whiteSpace: 'nowrap' }}>
-                        {item.status === InsuranceClaimStatus.Pending && (
-                          <span className="bg-[#e88e1f29] text-[var(--second-color)] rounded-full px-4 py-2">Menunggu</span>
-                        )}
-                        {item.status === InsuranceClaimStatus.Approved && (
-                          <span className="bg-[#0a97b022] text-[var(--third-color)] rounded-full px-4 py-2">Disetujui</span>
-                        )}
-                        {item.status === InsuranceClaimStatus.Rejected && (
-                          <span className="bg-red-100 text-[var(--fourth-color)] rounded-full px-4 py-2">Ditolak</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <TableData2
+            headers={tableHeaders}
+            data={staticBudgetProposalData}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            entriesPerPage={entriesPerPage}
+            setEntriesPerPage={setEntriesPerPage}
+          />
         </div>
       </main>
     </div>
