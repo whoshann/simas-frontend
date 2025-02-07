@@ -148,7 +148,7 @@ export default function TeacherBorrowingGoodsPage() {
     <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9">
         <h1 className="text-2xl font-bold text-[var(--text-bold-color)]">Peminjaman Barang</h1>
-        <p className="text-sm text-[var(--text-thin-color)]">Halo {teacher.name}, selamat datang di halaman Peminjaman Barang</p>
+        <p className="text-sm text-[var(--text-thin-color)]">Halo {teacher.name}, selamat datang kembali</p>
       </header>
 
       <main className="px-9 pb-6">

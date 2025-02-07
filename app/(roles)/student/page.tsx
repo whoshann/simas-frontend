@@ -253,9 +253,9 @@ export default function StudentDashboard() {
                 <h3 className="text-lg font-semibold text-[var(--text-semi-bold-color)]">
                   Keuangan
                 </h3>
-                <button className="bg-[#1F509A] text-white text-xs px-3 py-1 rounded-full">
+                <a href="/student/finance/payment-status" className="bg-[#1F509A] text-white text-xs px-3 py-1 rounded-full">
                   Lihat Detail
-                </button>
+                </a>
               </div>
               <ul className="space-y-2">
                 {paymentSpp && paymentSpp.filter(payment => payment.status === 'Belum Bayar').length > 0 ? (
