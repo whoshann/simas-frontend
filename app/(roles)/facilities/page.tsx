@@ -344,7 +344,7 @@ export default function FacilitiesDashboardPage() {
                                         <td className="py-1 px-2 border-b">{item.category}</td>
                                         <td className="py-1 px-2 border-b">{item.date}</td>
                                         <td className="py-1 px-2 border-b">
-                                            <span className={`inline-block px-3 py-1 rounded-full ${item.statusColor}`}>
+                                            <span className={`inline-block px-3 py-1 text-xs rounded-full ${item.statusColor}`}>
                                                 {item.status === 'Completed'
                                                     ? 'Selesai'
                                                     : item.status === 'InProgress'

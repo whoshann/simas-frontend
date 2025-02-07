@@ -281,8 +281,8 @@ export default function StudentDashboard() {
                     ))
                 ) : (
                   <li className="text-sm flex items-center">
-                    <div className="p-2 bg-green-100 rounded-full mr-2 w-10 h-10 flex items-center justify-center">
-                      <i className="bx bx-check text-xl text-green-500"></i>
+                    <div className="p-2 rounded-full bg-[#0a97b02a] mr-2 w-10 h-10 flex items-center justify-center">
+                      <i className='bx bxs-check-circle text-2xl text-[var(--third-color)]'></i>
                     </div>
                     <div>
                       <div>Anda telah membayar SPP</div>
@@ -355,11 +355,10 @@ export default function StudentDashboard() {
                 <div className="relative h-48 md:h-56">
                   {news.photo ? (
                     <Image
-                      src={`${
-                        process.env.NEXT_PUBLIC_API_URL
-                      }/uploads/student-information/${news.photo
-                        .split("/")
-                        .pop()}`}
+                      src={`${process.env.NEXT_PUBLIC_API_URL
+                        }/uploads/student-information/${news.photo
+                          .split("/")
+                          .pop()}`}
                       alt={news.activity}
                       className="rounded-t-lg object-cover"
                       fill

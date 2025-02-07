@@ -43,7 +43,7 @@ export const RoomTable: React.FC<RoomTableProps> = ({ rooms, onEdit, onDelete, s
                         <td className="py-2 px-4 border-b">{room.type}</td>
                         <td className="py-2 px-4 border-b">{room.capacity}</td>
                         <td className="py-2 px-4 border-b">
-                            <span className={`px-2 py-1 rounded-full text-md font-medium ${getStatusColor(room.status)}`}>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(room.status)}`}>
                                 {getStatusInIndonesian(room.status as keyof typeof statusMapping)}
                             </span>
                         </td>

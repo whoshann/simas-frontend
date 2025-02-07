@@ -13,6 +13,7 @@ import { outgoingGoodsApi } from "@/app/api/outgoing-goods";
 import { OutgoingGoodsRequest } from '@/app/api/outgoing-goods/types';
 import { GuaranteeOutgoingGoods } from '@/app/utils/enums';
 import { getGuaranteeOutgoingGoodsLabel } from '@/app/utils/enumHelpers';
+import { showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 
 export default function TeacherBorrowingGoodsPage() {
   const [teacher, setTeacher] = useState<any>({});
@@ -74,7 +75,7 @@ export default function TeacherBorrowingGoodsPage() {
       );
 
       if (selectedInventory && parseInt(value) > selectedInventory.stock) {
-        alert(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
+        showErrorAlert(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
         return;
       }
     }
@@ -93,7 +94,7 @@ export default function TeacherBorrowingGoodsPage() {
     );
 
     if (selectedInventory && Number(formData.quantity) > selectedInventory.stock) {
-      alert(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
+      showErrorAlert(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
       return;
     }
 
@@ -125,7 +126,7 @@ export default function TeacherBorrowingGoodsPage() {
         guarantee: GuaranteeOutgoingGoods.KTP
       });
 
-      alert('Peminjaman berhasil diajukan!');
+      showSuccessAlert('Peminjaman berhasil diajukan!');
 
     } catch (err: any) {
       console.error('Error submitting form:', err);

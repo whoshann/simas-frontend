@@ -10,6 +10,7 @@ import { InventoryTable } from "@/app/components/inventories/InventoryTable";
 import { InventoryPagination } from "@/app/components/inventories/InventoryPagination";
 import { InventoryModal } from "@/app/components/inventories/InventoryModal";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { showSuccessAlert, showErrorAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
     
 export default function InventoryPage() {
     const { inventories, loading, error, fetchInventories, addInventory, updateInventory, deleteInventory } = useInventory();
@@ -52,6 +53,7 @@ export default function InventoryPage() {
     // Filter dan pagination logic
     const filteredData = inventories.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.stock.toString().includes(searchTerm.toLowerCase()) ||
         item.code.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -82,12 +84,16 @@ export default function InventoryPage() {
     };
 
     const handleDeleteClick = async (id: number) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus item ini?')) {
-            try {
-                await deleteInventory(id);
-            } catch (error) {
-                console.error('Error deleting inventory:', error);
-            }
+        const isConfirmed = await showConfirmDelete(
+            'Hapus Data Inventory',
+            'Apakah Anda yakin ingin menghapus data inventory ini?'
+        );
+
+        if (isConfirmed) {
+            await deleteInventory(id);
+            showSuccessAlert('Berhasil', 'Data inventory berhasil dihapus');
+        } else {
+            showErrorAlert('Error', 'Gagal menghapus data inventory');
         }
     };
 
@@ -95,12 +101,14 @@ export default function InventoryPage() {
         try {
             if (selectedInventory) {
                 await updateInventory(selectedInventory.id!, formData);
+                showSuccessAlert('Success', 'Data inventory berhasil diubah');
             } else {
                 await addInventory(formData);
+                showSuccessAlert('Success', 'Data inventory berhasil ditambahkan');
             }
             setIsModalOpen(false);
         } catch (error) {
-            console.error('Error:', error);
+            showErrorAlert('Error', 'Gagal menambahkan data inventory');
         }
     };
 

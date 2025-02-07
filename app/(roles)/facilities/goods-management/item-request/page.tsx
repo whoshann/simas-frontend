@@ -13,6 +13,8 @@ import { ProcurementStatus } from "@/app/utils/enums";
 import { procurementsApi } from "@/app/api/procurement";
 import FormModal from '@/app/components/DataTable/FormModal';
 import { formatDate } from "@/app/utils/helper";
+import { useUser } from "@/app/hooks/useUser";
+import { showSuccessAlert, showErrorAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
 
 interface TableProps {
     procurement: Procurement[];
@@ -51,18 +53,42 @@ export default function ItemRequestPage() {
         procurementStatus: '',
         updateMessage: ''
     });
+    const { user } = useUser();
 
     // Menggunakan data statis untuk filteredData
-    const filteredData = procurements.filter((item: Procurement) =>
-        item.inventory.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.procurementName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredData = procurements.filter((item: Procurement) => {
+        const searchString = searchTerm.toLowerCase();
+        const statusLabel = getProcurementStatusLabel(item.procurementStatus as ProcurementStatus).toLowerCase();
+
+        return (
+            item.inventory.name.toLowerCase().includes(searchString) ||
+            item.procurementName.toLowerCase().includes(searchString) ||
+            item.role.toLowerCase().includes(searchString) ||
+            item.quantity.toString().includes(searchString) ||
+            formatDate(item.procurementDate).toLowerCase().includes(searchString) ||
+            statusLabel.includes(searchString)
+        );
+    });
 
     const totalEntries = filteredData.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const getStatusColor = (status: ProcurementStatus) => {
+        switch (status) {
+            case ProcurementStatus.Pending:
+                return 'bg-[#e88e1f29] text-[var(--second-color)]';
+            case ProcurementStatus.Approved:
+                return 'bg-[#0a97b02a] text-[var(--third-color)]';
+            case ProcurementStatus.Rejected:
+                return 'bg-[#bd000025] text-[var(--fourth-color)]';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
 
     // Form fields untuk modal
     const formFields = [
@@ -101,8 +127,8 @@ export default function ItemRequestPage() {
             const blob = await procurementsApi.getDocument(filename);
             const url = window.URL.createObjectURL(blob);
             window.open(url, '_blank');
-        } catch (error) {
-            alert('Gagal mengambil file PDF: ' + (error.response?.data?.message || 'File tidak ditemukan'));
+        } catch (error: any) {
+            showErrorAlert('Error', 'Gagal mengambil file PDF: ' + (error.response?.data?.message || 'File tidak ditemukan'));
             console.error('Error fetching PDF:', error);
         }
     };
@@ -118,8 +144,8 @@ export default function ItemRequestPage() {
             link.click();
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-        } catch (error) {
-            alert('Gagal mengunduh file PDF');
+        } catch (error: any) {
+            showErrorAlert('Error', 'Gagal mengunduh file PDF');
             console.error('Error downloading PDF:', error);
         }
     };
@@ -157,11 +183,11 @@ export default function ItemRequestPage() {
                 formData.updateMessage
             );
 
-            alert('Status pengajuan berhasil diperbarui!');
+            showSuccessAlert('Berhasil', 'Status pengajuan berhasil diperbarui!');
             handleCloseModal();
         } catch (error: any) {
             console.error('Error updating status:', error);
-            alert(error.message);
+            showErrorAlert('Error', error.message);
         }
     };
 
@@ -178,7 +204,7 @@ export default function ItemRequestPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Pengajuan Barang</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Sarpras, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo {user?.username}, selamat datang kembali</p>
                 </div>
 
 
@@ -281,9 +307,9 @@ export default function ItemRequestPage() {
                             <thead className="text-[var(--text-semi-bold-color)]">
                                 <tr>
                                     <th className="py-2 px-4 border-b text-left">No</th>
-                                    <th className="py-2 px-4 border-b text-left">Nama Barang</th>
                                     <th className="py-2 px-4 border-b text-left">Nama Pengaju</th>
                                     <th className="py-2 px-4 border-b text-left">Role Pengaju</th>
+                                    <th className="py-2 px-4 border-b text-left">Nama Barang</th>
                                     <th className="py-2 px-4 border-b text-left">Jumlah</th>
                                     <th className="py-2 px-4 border-b text-left">Dokumen Pengajuan</th>
                                     <th className="py-2 px-4 border-b text-left">Tanggal</th>
@@ -295,27 +321,29 @@ export default function ItemRequestPage() {
                                 {currentEntries.map((item: Procurement, index: number) => (
                                     <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)] ">
                                         <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
-                                        <td className="py-2 px-4 border-b">{item.inventory.name}</td>
                                         <td className="py-2 px-4 border-b">{item.procurementName}</td>
                                         <td className="py-2 px-4 border-b">{item.role}</td>
+                                        <td className="py-2 px-4 border-b">{item.inventory.name}</td>
                                         <td className="py-2 px-4 border-b">{item.quantity}</td>
                                         <td className="py-2 px-4 border-b">
                                             <button
                                                 onClick={() => handleViewPDF(item.documentPath)}
-                                                className="text-blue-500 underline mr-2"
+                                                className="text-[var(--main-color)] underline mr-2"
                                             >
                                                 Lihat PDF
                                             </button>
                                             {' | '}
                                             <button
                                                 onClick={() => handleDownloadPDF(item.documentPath)}
-                                                className="text-blue-500 underline"
+                                                className="text-[var(--third-color)] underline"
                                             >
                                                 Unduh PDF
                                             </button>
                                         </td>
                                         <td className="py-2 px-4 border-b">{formatDate(item.procurementDate)}</td>
-                                        <td className="py-2 px-4 border-b">{getProcurementStatusLabel(item.procurementStatus as ProcurementStatus)}</td>
+                                        <td className="py-2 px-4 border-b">    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(item.procurementStatus as ProcurementStatus)}`}>
+                                            {getProcurementStatusLabel(item.procurementStatus as ProcurementStatus)}
+                                        </span></td>
                                         <td className="py-2 px-4 border-b">
                                             <div className="flex space-x-2">
                                                 {item.procurementStatus !== 'Approved' && item.procurementStatus !== 'Rejected' && (
@@ -325,11 +353,11 @@ export default function ItemRequestPage() {
                                                             onClick={(event) => handleOpenMessageModal(event, item)}
                                                             className="w-8 h-8 rounded-full bg-[#1f509a2b] flex items-center justify-center text-[var(--main-color)]"
                                                         >
-                                                            <i className="bx bx-check text-lg"></i>
+                                                            <i className='bx bxs-check-circle text-lg'></i>
                                                         </button>
 
                                                         {/* Cancel Button */}
-                                                        
+
                                                     </>
                                                 )}
                                             </div>

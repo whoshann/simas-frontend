@@ -52,7 +52,7 @@ export const IncomingGoodTable: React.FC<IncomingGoodTableProps> = ({ incomingGo
                         <td className="py-2 px-4 border-b">{item.quantity}</td>
                         <td className="py-2 px-4 border-b">{formatDate(item.date)}</td>
                         <td className="py-2 px-4 border-b">
-                            <span className={`px-2 py-1 rounded-full text-md font-medium ${getConditionColor(item.condition)}`}>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getConditionColor(item.condition)}`}>
                                 {ConditionLabel[item.condition]}
                             </span>
                         </td>

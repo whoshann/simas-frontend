@@ -95,7 +95,7 @@ export const OutgoingGoodTable: React.FC<OutgoingGoodTableProps> = ({ outgoingGo
                                 {getGuaranteeOutgoingGoodsLabel(outgoingGoods.guarantee)}
                             </td>
                             <td className="py-2 px-4 border-b" style={{ whiteSpace: 'nowrap' }}>
-                                <span className={`px-2 py-1 rounded-full text-md font-medium ${getStatusColor(outgoingGoods.status)}`}>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(outgoingGoods.status)}`}>
                                     {getOutgoingGoodsStatusLabel(outgoingGoods.status)}
                                 </span>
                             </td>
@@ -110,7 +110,7 @@ export const OutgoingGoodTable: React.FC<OutgoingGoodTableProps> = ({ outgoingGo
                                         </button>
                                     )}
                                     {outgoingGoods.status === "Returned" && (
-                                        <span className="px-2 py-1 rounded-full text-md bg-[#0a97b02a] text-[var(--third-color)]">
+                                        <span className="px-2 py-1 rounded-full text-xs bg-[#0a97b02a] text-[var(--third-color)]">
                                             Sudah Dikembalikan
                                         </span>
                                     )}
