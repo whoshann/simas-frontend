@@ -117,7 +117,7 @@ export default function TeacherRequestGoodsPage() {
       <header className="py-6 px-9">
         <h1 className="text-2xl font-bold text-gray-800">Pengajuan Barang</h1>
         <p className="text-sm text-gray-600">
-          Halo, selamat datang di halaman Pengajuan Barang
+          Halo {teacher.name}, selamat datang kembali
         </p>
       </header>
 

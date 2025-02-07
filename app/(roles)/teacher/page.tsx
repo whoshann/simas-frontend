@@ -4,7 +4,9 @@ import "@/app/styles/globals.css";
 import { useEffect, useState, useRef } from "react";
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import Image from "next/image";
+import { getUserIdFromToken } from '@/app/utils/tokenHelper';
 import Calendar from "react-calendar";
+import { authApi } from '@/app/api/auth';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { NewsInformation } from "@/app/api/news-information/types";
 import { useNewsInformation } from "@/app/hooks/useNewsInformation";
@@ -12,25 +14,43 @@ import { useNewsInformation } from "@/app/hooks/useNewsInformation";
 export default function TeacherDashboardPage() {
   const [date, setDate] = useState(new Date());
   const [isAuthorized, setIsAuthorized] = useState(false);
-  // const [error, setError] = useState("");
-  // const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [teacher, setTeacher] = useState<any>({});
   const carouselRef = useRef<HTMLDivElement>(null);
-  const { newsInformation, loading, error, fetchNewsInformation } = useNewsInformation();
+  const { newsInformation, fetchNewsInformation } = useNewsInformation();
   const [news, setNews] = useState<NewsInformation[]>([]);
 
   useEffect(() => {
     const initializePage = async () => {
       try {
-        await roleMiddleware(["Teacher", "SuperAdmin"]);
+        await roleMiddleware(["Teacher"]);
         setIsAuthorized(true);
+
+        const userId = getUserIdFromToken();
+        if (userId) {
+          fetchTeacherData(Number(userId));
+        }
       } catch (error) {
         console.error("Auth error:", error);
         setIsAuthorized(false);
+      } finally {
+        setLoading(false);
       }
     };
 
     initializePage();
   }, []);
+
+  const fetchTeacherData = async (userId: number) => {
+    try {
+      const response = await authApi.getTeacherLogin(userId);
+      setTeacher(response.data);
+    } catch (err) {
+      console.error("Error fetching teacher data:", err);
+      setError("Failed to fetch teacher data");
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -110,7 +130,7 @@ export default function TeacherDashboardPage() {
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
       <header className="py-6 px-9">
         <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
-        <p className="text-sm text-gray-600">Halo James, selamat datang kembali</p>
+        <p className="text-sm text-gray-600">Halo {teacher.name}, selamat datang kembali</p>
       </header>
 
       <main className="px-9 pb-6">
