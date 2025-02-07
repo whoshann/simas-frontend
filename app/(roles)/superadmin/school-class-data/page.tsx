@@ -10,6 +10,7 @@ import { useTeachers } from "@/app/hooks/useTeacher";
 import { Grade } from "@/app/utils/enums";
 import FormModal from "@/app/components/DataTable/FormModal";
 import { SchoolClass } from "@/app/api/school-class/types";
+import { useUser } from "@/app/hooks/useUser";
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
 
 export default function SuperAdminSchoolClassDataPage() {
@@ -32,6 +33,7 @@ export default function SuperAdminSchoolClassDataPage() {
     const { schoolClasses, loading, error, fetchSchoolClasses, createSchoolClass, updateSchoolClass, deleteSchoolClass } = useSchoolClasses();
     const { majors, fetchMajors } = useMajors();
     const { teachers, fetchTeachers } = useTeachers();
+    const { user } = useUser();
 
     // Form fields configuration
     const formFields = [
@@ -206,7 +208,7 @@ export default function SuperAdminSchoolClassDataPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Kelas</h1>
-                    <p className="text-sm text-gray-600">Halo SuperAdmin, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo {user?.username || 'User'}, selamat datang kembali</p>
                 </div>
 
 

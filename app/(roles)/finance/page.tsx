@@ -8,10 +8,17 @@ import { useDashboardFinance } from "@/app/hooks/useDashboardFinance";
 import { formatDate, formatRupiah } from "@/app/utils/helper";
 import { useUser } from "@/app/hooks/useUser";
 import { budgetManagementApi } from "@/app/api/budget-management";
+import { BudgetManagementStatusLabel } from "@/app/utils/enumHelpers";
+import { showErrorAlert, showSuccessAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
+
 export default function FinanceDashboardPage() {
   const { dashboardData, loading } = useDashboardFinance();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const { user } = useUser();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [entriesPerPage, setEntriesPerPage] = useState(5);
+
 
   useEffect(() => {
     const initializePage = async () => {
@@ -37,10 +44,7 @@ export default function FinanceDashboardPage() {
       const url = window.URL.createObjectURL(blob);
       window.open(url, "_blank");
     } catch (error) {
-      alert(
-        "Gagal mengambil file PDF: " +
-          (error.response?.data?.message || "File tidak ditemukan")
-      );
+      await showErrorAlert('Error', 'Gagal mengambil file PDF: ' + (error.response?.data?.message || "File tidak ditemukan"));
       console.error("Error fetching PDF:", error);
     }
   };
@@ -57,10 +61,26 @@ export default function FinanceDashboardPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      alert("Gagal mengunduh file PDF");
+      await showErrorAlert('Error', 'Gagal mengunduh file PDF');
       console.error("Error downloading PDF:", error);
     }
   };
+
+  const filteredData = dashboardData.budgetRequests.filter(item =>
+    item.user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.created_at && formatDate(item.created_at).toLowerCase().includes(searchTerm.toLowerCase())) ||
+    formatRupiah(item.total_budget).toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalEntries = filteredData.length;
+  const totalPages = Math.ceil(totalEntries / entriesPerPage);
+  const startIndex = (currentPage - 1) * entriesPerPage;
+  const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
+
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
@@ -134,23 +154,39 @@ export default function FinanceDashboardPage() {
         </div>
         {/* End Cards */}
 
+        <div className="mb-5">
+          <span className="text-md sm:text-lg font-semibold text-[var(--text-semi-bold-color)]">
+            Data RAB
+          </span>
+        </div>
+
         {/* Tabel RAB */}
         <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-          <div className="mb-4 flex justify-between">
-            <div className="">
-              <span className="text-md sm:text-lg font-semibold text-[var(--text-semi-bold-color)]">
-                Data RAB
-              </span>
+          <div className="mb-4 flex justify-between flex-wrap sm:flex-nowrap">
+            <div className="text-xs sm:text-base">
+              <label className="mr-2">Tampilkan</label>
+              <select
+                value={entriesPerPage}
+                onChange={(e) => setEntriesPerPage(Number(e.target.value))}
+                className="border border-gray-300 rounded-lg p-1 text-xs sm:text-sm w-12 sm:w-16"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={15}>15</option>
+                <option value={20}>20</option>
+              </select>
+              <label className="ml-2">Entri</label>
             </div>
 
-            {/*Start Search */}
-            <div className="border border-gray-300 rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-24 sm:w-56">
-              <i className="bx bx-search text-[var(--text-semi-bold-color)] text-xs sm:text-lg mr-2"></i>
+            <div className="relative">
               <input
                 type="text"
-                placeholder="Cari data..."
-                className="border-0 focus:outline-none text-xs sm:text-base w-16 sm:w-40"
+                placeholder="Cari..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
               />
+              <i className='bx bx-search absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400'></i>
             </div>
           </div>
 
@@ -175,7 +211,7 @@ export default function FinanceDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {dashboardData.budgetRequests.map((item, index) => (
+                {currentEntries.map((item, index) => (
                   <tr key={item.id} className="hover:bg-gray-100">
                     <td className="py-1 px-2 border-b">{index + 1}</td>
                     <td className="py-1 px-2 border-b">{item.user.username}</td>
@@ -188,37 +224,37 @@ export default function FinanceDashboardPage() {
                     <td className="py-1 px-2 border-b">
                       <button
                         onClick={() => handleViewPDF(item.document_path)}
-                        className="text-blue-500 underline mr-2"
+                        className="text-[var(--main-color)] underline mr-2"
                       >
                         Lihat PDF
                       </button>
                       {" | "}
                       <button
                         onClick={() => handleDownloadPDF(item.document_path)}
-                        className="text-blue-500 underline"
+                        className="text-[var(--third-color)] underline"
                       >
                         Unduh PDF
                       </button>
                     </td>
                     <td className="py-1 px-2 border-b">
-                      {formatDate(item.created_at)}
+                      {formatDate(item.created_at || '')}
                     </td>
                     <td className="py-1 px-2 border-b">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          item.status === "Submitted"
-                            ? "bg-[#e88e1f29] text-[var(--second-color)]"
-                            : item.status === "Approved"
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${item.status === "Submitted"
+                          ? "bg-[#1f509a26] text-[var(--main-color)]"
+                          : item.status === "Approved"
                             ? "bg-[#0a97b022] text-[var(--third-color)]"
-                            : "bg-red-100 text-[var(--fourth-color)]"
-                        }`}
+                            : item.status === "Revised" ? "bg-[#e88e1f29] text-[var(--second-color)]"
+                            : "bg-[#bd000025] text-[var(--fourth-color)]"
+                          }`}
                       >
-                        {item.status}
+                        {BudgetManagementStatusLabel[item.status]}
                       </span>
                     </td>
                   </tr>
                 ))}
-                {dashboardData.budgetRequests.length === 0 && (
+                {currentEntries.length === 0 && (
                   <tr>
                     <td colSpan={10} className="text-center py-4">Tidak ada data</td>
                   </tr>
@@ -226,6 +262,45 @@ export default function FinanceDashboardPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          <div className="flex justify-between items-center mt-5">
+            <span className="text-xs sm:text-sm">
+              Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri
+            </span>
+
+            <div className="flex items-center">
+              <button
+                onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 text-[var(--main-color)]"
+              >
+                &lt;
+              </button>
+              <div className="flex space-x-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`rounded-md px-3 py-1 ${currentPage === page
+                      ? 'bg-[var(--main-color)] text-white'
+                      : 'text-[var(--main-color)]'
+                      }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 text-[var(--main-color)]"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+
         </div>
         {/* End Tabel RAB */}
       </main>

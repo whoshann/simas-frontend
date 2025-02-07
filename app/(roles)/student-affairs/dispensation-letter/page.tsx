@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { getDispenseStatusLabel } from "@/app/utils/enumHelpers";
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
+import { useUser } from "@/app/hooks/useUser";
 
 export default function StudentAffairsDispensationPage() {
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -17,6 +18,7 @@ export default function StudentAffairsDispensationPage() {
     const [entriesPerPage, setEntriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const { user } = useUser();
 
     const {
         dispenses,
@@ -108,7 +110,7 @@ export default function StudentAffairsDispensationPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Dispensasi Siswa</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo {user?.username}, selamat datang kembali</p>
                 </div>
 
                 <div className="mt-4 sm:mt-0">

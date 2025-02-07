@@ -13,7 +13,7 @@ import { getGenderLabel, getReligionLabel } from "@/app/utils/enumHelpers";
 import { useStudents } from "@/app/hooks/useStudent";
 import { useSchoolClasses } from "@/app/hooks/useSchoolClassData";
 import { useMajors } from "@/app/hooks/useMajorData";
-
+import { useUser } from "@/app/hooks/useUser";
 
 export default function StudentPage() {
     // State Management
@@ -30,6 +30,7 @@ export default function StudentPage() {
     const { students, loading, error, fetchStudents, createStudent, updateStudent, deleteStudent } = useStudents();
     const { schoolClasses, fetchSchoolClasses } = useSchoolClasses();
     const { majors, fetchMajors } = useMajors();
+    const { user } = useUser();
 
     const [formData, setFormData] = useState({
         name: '',
@@ -394,7 +395,7 @@ export default function StudentPage() {
         <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div>
                 <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Siswa</h1>
-                <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
+                <p className="text-sm text-gray-600">Halo {user?.username || 'User'}, selamat datang kembali</p>
             </div>
 
 

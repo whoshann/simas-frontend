@@ -11,6 +11,7 @@ import { id } from 'date-fns/locale';
 import { EmployeeGender, EmployeeCategory } from "@/app/utils/enums";
 import { getEmployeeGenderLabel, getEmployeeCategoryLabel } from "@/app/utils/enumHelpers";
 import { useEmployee } from "@/app/hooks/useEmployee";
+import { useUser } from "@/app/hooks/useUser";
 
 export default function EmployeePage() {
     // State Management
@@ -22,6 +23,7 @@ export default function EmployeePage() {
     const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
     const [selectedData, setSelectedData] = useState<any>(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const { user } = useUser();
 
     // Gunakan custom hook untuk employees (perlu dibuat)
     const { employee, loading, error, fetchEmployee, createEmployee, updateEmployee, deleteEmployee } = useEmployee();
@@ -324,7 +326,7 @@ export default function EmployeePage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Karyawan</h1>
-                    <p className="text-sm text-gray-600">Halo Super Admin, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo {user?.username || 'User'}, selamat datang kembali</p>
                 </div>
 
                 <div className="mt-4 sm:mt-0">

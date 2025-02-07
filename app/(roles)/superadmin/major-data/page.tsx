@@ -7,6 +7,7 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useMajors } from '@/app/hooks/useMajorData';
 import FormModal from "@/app/components/DataTable/FormModal";
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
+import { useUser } from "@/app/hooks/useUser";
 
 export default function MajorPage() {
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -17,6 +18,7 @@ export default function MajorPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
     const [selectedData, setSelectedData] = useState<any>(null);
+    const { user } = useUser();
     const [formData, setFormData] = useState({
         name: '',
         code: ''
@@ -152,7 +154,7 @@ export default function MajorPage() {
         <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div>
                 <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Data Jurusan</h1>
-                <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
+                <p className="text-sm text-gray-600">Halo {user?.username || 'User'}, selamat datang kembali</p>
             </div>
 
 

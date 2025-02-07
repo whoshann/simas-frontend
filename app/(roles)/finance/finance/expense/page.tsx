@@ -10,6 +10,8 @@ import { useExpenses } from '@/app/hooks/useExpenses';
 import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
 import { useState, useEffect } from 'react';
 import { useMonthlyFinance } from "@/app/hooks/useMonthlyFinances";
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { showSuccessAlert, showErrorAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
 
 export default function ExpensePage() {
     // State
@@ -44,14 +46,6 @@ export default function ExpensePage() {
         initializePage();
     }, []);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (!isAuthorized) {
-        return null;
-    }
-
     // Calculations
     const startIndex = (currentPage - 1) * entriesPerPage;
     const filteredExpenses = Expenses.filter((expenses: Expense) => 
@@ -84,14 +78,26 @@ export default function ExpensePage() {
     
             if (selectedExpense) {
                 await updateExpense(selectedExpense.id!, requestData);
+                await fetchExpenses();
+                await showSuccessAlert('Success', 'Data pengeluaran berhasil diperbarui!');
             } else {
                 await createExpense(requestData);
+                await fetchExpenses();
+                await showSuccessAlert('Success', 'Data pengeluaran berhasil ditambahkan!');
             }
             // Refresh data
         } catch (error) {
             console.error('Error:', error);
         }
     };
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (!isAuthorized) {
+        return null;
+    }
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">

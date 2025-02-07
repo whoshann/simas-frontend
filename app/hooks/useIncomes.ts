@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { Income } from "../api/incomes/types";
 import { incomesApi } from "../api/incomes";
+import { showSuccessAlert, showErrorAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
 
 export const useIncomes = () => {
   const [Incomes, setIncomes] = useState<Income[]>([]);
@@ -45,10 +46,20 @@ export const useIncomes = () => {
 
   const deleteIncome = async (id: number) => {
     try {
-      await incomesApi.delete(id);
-      await fetchIncomes();
+
+      const isConfirmed = await showConfirmDelete(
+        'Hapus Data Pemasukan',
+        'Apakah Anda yakin ingin menghapus data pemasukan ini?'
+      );
+
+      if (isConfirmed) {
+        await incomesApi.delete(id);
+        await fetchIncomes();
+        await showSuccessAlert('Berhasil', 'Data pemasukan berhasil dihapus');
+      }
     } catch (err) {
-      console.error("Error deleting Income:", err);
+      console.error("Error deleting income:", err);
+      await showErrorAlert('Error', 'Gagal menghapus data pemasukan');
       throw err;
     }
   };

@@ -15,6 +15,7 @@ import { useTeachers } from "@/app/hooks/useTeacher";
 import { useMajors } from "@/app/hooks/useMajorData";
 import { useEmployee } from "@/app/hooks/useEmployee";
 import { useSubjects } from "@/app/hooks/useSubject";
+import { useUser } from "@/app/hooks/useUser";
 
 interface User {
     id: number;
@@ -44,6 +45,8 @@ export default function FacilitiesDashboardPage() {
     const { majors, fetchMajors } = useMajors()
 
     const { subjects, fetchSubjects } = useSubjects();
+
+    const { user } = useUser();
 
     useEffect(() => {
         const initializePage = async () => {
@@ -88,7 +91,7 @@ export default function FacilitiesDashboardPage() {
 
     const [isAuthorized, setIsAuthorized] = useState(false);
     const token = Cookies.get("token");
-    const [user, setUser] = useState<User>({
+    const [userId, setUserId] = useState<User>({
         id: 0,
         name: '',
         username: '',
@@ -139,7 +142,7 @@ export default function FacilitiesDashboardPage() {
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Beranda</h1>
                     <p className="text-sm text-gray-600">
-                        Halo {user.username || 'User'}, selamat datang kembali
+                        Halo {user?.username || 'User'}, selamat datang kembali
                     </p>
                 </div>
             </header>

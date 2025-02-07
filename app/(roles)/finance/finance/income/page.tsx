@@ -9,6 +9,8 @@ import IncomeModal from '@/app/components/incomes/IncomeModal';
 import { useIncomes } from '@/app/hooks/useIncomes';
 import { roleMiddleware } from '@/app/(auth)/middleware/middleware';
 import { useState, useEffect } from 'react';
+import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { showSuccessAlert, showErrorAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
 import { useMonthlyFinance } from "@/app/hooks/useMonthlyFinances";
 
 export default function IncomePage() {
@@ -44,13 +46,6 @@ export default function IncomePage() {
         initializePage();
     }, []);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (!isAuthorized) {
-        return null;
-    }
 
     // Calculations
     const startIndex = (currentPage - 1) * entriesPerPage;
@@ -87,14 +82,26 @@ export default function IncomePage() {
     
             if (selectedIncome) {
                 await updateIncome(selectedIncome.id!, requestData);
+                await showSuccessAlert('Berhasil', 'Data pemasukan berhasil diperbarui!');
             } else {
                 await createIncome(requestData);
+                await showSuccessAlert('Berhasil', 'Data pemasukan berhasil ditambahkan!');
             }
             // Refresh data
         } catch (error) {
             console.error('Error:', error);
+            await showErrorAlert('Error', 'Gagal menambahkan data pemasukan');
         }
     };
+
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (!isAuthorized) {
+        return null;
+    }
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">

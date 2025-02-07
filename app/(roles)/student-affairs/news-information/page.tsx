@@ -10,6 +10,7 @@ import { useNewsInformation } from "@/app/hooks/useNewsInformation";
 import FormModal from '@/app/components/DataTable/FormModal';
 import { NewsInformation } from "@/app/api/news-information/types";
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
+import { useUser } from "@/app/hooks/useUser";
 
 
 interface FormData {
@@ -18,7 +19,7 @@ interface FormData {
 
 export default function StudentAffairsNewsInformationPage() {
     const { newsInformation, loading, error, fetchNewsInformation, createNewsInformation, updateNewsInformation, deleteNewsInformation, } = useNewsInformation();
-    const [user, setUser] = useState<any>({});
+    const [userId, setUserId] = useState<any>({});
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
@@ -37,7 +38,7 @@ export default function StudentAffairsNewsInformationPage() {
         date: '',
     });
     const [selectedNews, setSelectedNews] = useState<NewsInformation | null>(null);
-
+    const { user } = useUser();
 
     // Form fields untuk modal
     const formFields = [
@@ -216,7 +217,7 @@ export default function StudentAffairsNewsInformationPage() {
             <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Informasi Berita</h1>
-                    <p className="text-sm text-gray-600">Halo Admin Kesiswaan, selamat datang kembali</p>
+                    <p className="text-sm text-gray-600">Halo {user?.username}, selamat datang kembali</p>
                 </div>
                 <div className="mt-4 sm:mt-0">
                     <div className=" bg-white shadow rounded-lg py-2 px-2 sm:px-4 flex justify-between items-center w-56 h-12">

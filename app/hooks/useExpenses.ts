@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { Expense } from "../api/expenses/types";
 import { expensesApi } from "../api/expenses";
+import { showSuccessAlert, showErrorAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
 
 export const useExpenses = () => {
   const [Expenses, setExpenses] = useState<Expense[]>([]);
@@ -45,13 +46,24 @@ export const useExpenses = () => {
 
   const deleteExpense = async (id: number) => {
     try {
-      await expensesApi.delete(id);
-      await fetchExpenses();
+
+      const isConfirmed = await showConfirmDelete(
+        'Hapus Data Pengeluaran',
+        'Apakah Anda yakin ingin menghapus data pengeluaran ini?'
+      );
+
+      if (isConfirmed) {
+        await expensesApi.delete(id);
+        await fetchExpenses();
+        await showSuccessAlert('Berhasil', 'Data pengeluaran berhasil dihapus');
+      }
     } catch (err) {
-      console.error("Error deleting Expense:", err);
+      console.error("Error deleting expense:", err);
+      await showErrorAlert('Error', 'Gagal menghapus data pengeluaran');
       throw err;
     }
   };
+
 
   return {
     Expenses,
