@@ -7,9 +7,9 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
-import { error } from "console";
 import TableData2 from "@/app/components/TableWithoutAction/TableData2";
 import { InsuranceClaimStatus } from '@/app/utils/enums';
+import { useBudgetManagement } from "@/app/hooks/useBudgetManagement";
 
 
 const formatRupiah = (angka: string) => {
@@ -108,7 +108,6 @@ const tableHeaders = [
 
 export default function FacilitiesBudgetProposalPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string>('');
   const [jumlahDana, setJumlahDana] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -120,6 +119,7 @@ export default function FacilitiesBudgetProposalPage() {
     total_budget: 0
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { budgetManagement, loading, error, fetchBudgetManagementByUserId } = useBudgetManagement();
 
   useEffect(() => {
     const initializePage = async () => {

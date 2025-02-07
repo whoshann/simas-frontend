@@ -100,6 +100,11 @@ export const RepairsTable: React.FC<RepairsTableProps> = ({ repairs, onEdit, onD
                         </tr>
                     ))
                 )}
+                {repairs.length === 0 && (
+                    <tr>
+                        <td colSpan={10} className="text-center py-4">Tidak ada data</td>
+                    </tr>
+                )}
             </tbody>
         </table>
     );
