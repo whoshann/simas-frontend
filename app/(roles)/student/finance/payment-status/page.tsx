@@ -148,14 +148,14 @@ export default function StudentPaymentStatusPage() {
 
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+    <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9 flex flex-col sm:flex-row justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pembayaran SPP</h1>
           <p className="text-sm text-gray-600">Halo {studentData?.name}, selamat datang kembali</p>
         </div>
       </header>
-      <main className="px-6 pb-6">
+      <main className="px-9 pb-6">
         <div className="bg-white shadow-md rounded-lg p-6 mb-6">
           <div className="overflow-x-auto">
             <table className="min-w-full rounded-lg overflow-hidden">

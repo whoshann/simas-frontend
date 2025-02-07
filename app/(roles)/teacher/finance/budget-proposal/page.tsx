@@ -10,7 +10,6 @@ import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import { error } from "console";
 import TableData2 from "@/app/components/TableWithoutAction/TableData2";
 import { InsuranceClaimStatus } from '@/app/utils/enums';
-import { authApi } from "@/app/api/auth";
 
 
 const formatRupiah = (angka: string) => {
@@ -35,11 +34,6 @@ interface FormData {
     description: string;
     total_budget: number;
     document_path?: File;
-}
-
-interface Teacher {
-    id: number;
-    role: string;
 }
 
 // Data statis untuk tabel
@@ -115,8 +109,7 @@ const tableHeaders = [
 export default function FacilitiesBudgetProposalPage() {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string>('');
-    const [teacher, setTeacher] = useState<Teacher | null>(null);
+    const [userId, setUserId] = useState<string>('');
     const [jumlahDana, setJumlahDana] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [entriesPerPage, setEntriesPerPage] = useState(5);
@@ -134,30 +127,22 @@ export default function FacilitiesBudgetProposalPage() {
                 await roleMiddleware(["Teacher"]);
                 setIsAuthorized(true);
 
-                const userId = getUserIdFromToken();
-                if (userId) {
-                    fetchTeacherData(Number(userId));
+                const id = getUserIdFromToken();
+                if (id) {
+                    setUserId(id);
+                    setFormData(prev => ({
+                        ...prev,
+                        userId: Number(id)
+                    }));
                 }
-            } catch (err) {
-                console.error("Auth error:", err);
+            } catch (error) {
+                console.error("Error initializing page:", error);
                 setIsAuthorized(false);
-            } finally {
-                setLoading(false);
             }
         };
 
         initializePage();
     }, []);
-
-    const fetchTeacherData = async (userId: number) => {
-        try {
-            const response = await authApi.getTeacherLogin(userId);
-            setTeacher({ ...response.data, role: "Teacher" });
-        } catch (err) {
-            console.error("Error fetching teacher data:", err);
-            setError("Failed to fetch teacher data");
-        }
-    };
 
     if (loading) {
         return (
@@ -253,7 +238,7 @@ export default function FacilitiesBudgetProposalPage() {
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
             <header className="py-6 px-9">
                 <h1 className="text-2xl font-bold text-gray-800">Pengajuan RAB</h1>
-                <p className="text-sm text-gray-600">Halo, selamat datang di halaman Pengajuan RAB</p>
+                <p className="text-sm text-gray-600">Halo Teacher, selamat datang di halaman Pengajuan RAB</p>
             </header>
 
             {/* Alert Section */}
