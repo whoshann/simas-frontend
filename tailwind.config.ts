@@ -10,10 +10,23 @@ export default {
     extend: {
       colors: {
         background: "var(--background)",
-        foreground: "var(--foreground)",
-        customBlue: '#1F509A'
+        foreground: "var(--foreground)"
       },
+      fontSize: {
+        'xxs': '10px', 
+      },
+      maxWidth: {
+        '272px': '272px', 
+      },
+      height: {
+        'h-100' : '500px'
+      }
     },
   },
-  plugins: [],
+  plugins: [
+    require('daisyui'),
+  ],
+  daisyui: {
+    themes: ["light"],
+  }
 } satisfies Config;

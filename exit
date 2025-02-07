@@ -1,0 +1,139 @@
+[33m4b5aab5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfetch/news-information[m[33m, [m[1;31morigin/fetch/news-information[m[33m)[m feat(admin-kesiswaan, guest, student, teacher): implement edit functionality for news information
+[33mefd62ae[m feat(admin-kesiswaan, guest, student, teacher): implement edit functionality for news information
+[33md8bfae5[m Merge branch 'fetching/expense' of https://github.com/whoshann/simas-frontend into fetch/news-information
+[33m54540af[m Merge branch 'fetch/crud-school-class' of https://github.com/whoshann/simas-frontend into fetch/news-information
+[33m0522301[m feat(admin-kesiswaan, guest, student, teacher): implement edit functionality for news information
+[33md910774[m[33m ([m[1;31morigin/fetch/crud-school-class[m[33m)[m fetch(schoolClass): CRUD school classs
+[33mc9a2223[m[33m ([m[1;31morigin/fetching/expense[m[33m)[m fetch(expense): add function to fetch CRUD expense
+[33m98af47a[m Merge branch 'develop' of https://github.com/whoshann/simas-frontend into fetch/news-information
+[33m142c4f1[m[33m ([m[1;31morigin/develop[m[33m)[m Merge pull request #6 from whoshann/fix/school-class-table
+[33mc99ee0c[m[33m ([m[1;31morigin/fix/school-class-table[m[33m)[m fetch/get school-class-data
+[33m482d7ff[m fix(monthly finance): display date, and create function
+[33m345cac6[m fetch/finances-monthlFinances
+[33m498a20e[m fixing card news
+[33m1f1befb[m feat: update fitur edit news information
+[33m9da93d1[m feat: update fitur edit news information
+[33mfa02389[m Merge pull request #5 from whoshann/style/fix-student-name-display
+[33md2811cd[m[33m ([m[1;31morigin/style/fix-student-name-display[m[33m)[m style(css): add student name display on the student affairs page
+[33m0bf719c[m[33m ([m[1;31morigin/fetch/student-violation[m[33m)[m style(css): display student name on the header
+[33m3396efc[m[33m ([m[1;31morigin/style/dashboard-superadmin[m[33m)[m feat(carousel): add carousel feature with styling
+[33mb5a146b[m feat(news-information): implement CRUD functionality for news information page
+[33m0863f87[m fetch(violation): display students's violation and point
+[33m422304f[m Merge pull request #3 from whoshann/fetch/student-violation
+[33m75276b1[m fetct(violation):get data
+[33m2e3bac6[m Merge branch 'fetch/news-information' of https://github.com/whoshann/simas-frontend into fetch/student-violation
+[33mf5da939[m[33m ([m[1;31morigin/style/fix-procurement-field[m[33m)[m style(css): add document field and remove price input
+[33ma1657e9[m Merge pull request #2 from whoshann/fetch/news-information
+[33md56c46e[m feat(news-information): implement read, create, update, and delete functionality
+[33me812e08[m[33m ([m[1;31morigin/fetching/student-achievement-table[m[33m)[m fetching(violation): add point in the table
+[33m11b5d2b[m styling/dashboard-superadmin
+[33mbaa5ebc[m Merge branch 'style/remake-student-affairs-page-table' of https://github.com/whoshann/simas-frontend into fetch/news-information
+[33m9bad958[m Merge branch 'fetch/violation' of https://github.com/whoshann/simas-frontend into style/remake-student-affairs-page-table
+[33m68e3340[m[33m ([m[1;31morigin/style/remake-student-affairs-page-table[m[33m)[m fetching(achievement): fetching achievement student
+[33m58731d4[m fix bug
+[33mad8f7cb[m[33m ([m[1;32mdevelop[m[33m)[m Merge pull request #1 from whoshann/fetch/violation
+[33mb434231[m[33m ([m[1;31morigin/fetch/violation[m[33m)[m feat: read violation data on admin student affairs page
+[33m85f5b12[m fetching(achievement): fetching achievement table
+[33m2c4fb3f[m style(modal): add modal data for violation table
+[33m9fad6e5[m style(table): change to static table
+[33m8e18869[m[33m ([m[1;31morigin/fetching/student-affairs[m[33m)[m fetch(student affairs): there is any bug in student
+[33m0b8d35d[m style(css): adjust table
+[33m6ed3305[m fetch(student affair): absence, achievement, news
+[33mdfc259f[m[33m ([m[1;31morigin/style/remake-finance-page[m[33m)[m style(css): remake al finance page using components
+[33mcbcdf2c[m[33m ([m[1;31morigin/style/add-budget-proposal-history-card[m[33m)[m style(css): update table history proposal
+[33mc34f877[m Merge branch 'fetching/facilities-item-request' of https://github.com/whoshann/simas-frontend into style/add-budget-proposal-history-card
+[33m54fd8a2[m style(css): change history card to the table
+[33m825f99a[m[33m ([m[1;31morigin/fetching/facilities-item-request[m[33m)[m fetc(request item): added function for post item request and update in admin
+[33m383c93a[m style(css):add history card on the budget proposal
+[33mfb09a09[m[33m ([m[1;31morigin/fix/class-and-student-data-bugs[m[33m)[m style(css): recreate table
+[33mbb25fb5[m Merge branch 'fetching/facilities-item-request' of https://github.com/whoshann/simas-frontend into fix/class-and-student-data-bugs
+[33m2a671e7[m style(css): add table dispense
+[33mfb39e7f[m fix(token helper and facilities): fix bug in facilities and tokenData in tokenHelper
+[33m6ff7914[m[33m ([m[1;31morigin/style/components-student-affairs[m[33m)[m add components
+[33mcf35543[m Merge branch 'fetching/facilities-item-request' of https://github.com/whoshann/simas-frontend into fix/class-and-student-data-bugs
+[33m1a6c002[m fix(facilities dahsboard): added filtering all month in dashboard facilities
+[33m1dc041c[m feature/fetching class data
+[33mf682ae1[m[33m ([m[1;31morigin/style/add-modal-student-affairs-insurance[m[33m)[m style(css): add modal for student affairs claim insurance
+[33m2f94be1[m[33m ([m[1;31morigin/fix/update-claim-insurance-field[m[33m)[m style(css): add reason and photo input
+[33me584c56[m Merge branch 'fetching/facilities-dashboard' of https://github.com/whoshann/simas-frontend into fetching/fix-student-table-bugs
+[33m84f9dae[m[33m ([m[1;31morigin/fetching/fix-student-table-bugs[m[33m)[m fetching(major): fetch major, position and subject
+[33m474b2f9[m[33m ([m[1;31morigin/fetching/facilities-dashboard[m[33m)[m fetch(dashboard facilities): added function to get data for display in dashboard facilities
+[33m43d1f9f[m[33m ([m[1;31morigin/featching/student-data[m[33m)[m fetching(student): showing stuent data on the table
+[33m136bd85[m[33m ([m[1;31morigin/fetching/outgoing-goods-facilities[m[33m)[m fetch(out-going goods): added function fetch for out going goods, but code is not clean
+[33m5e40c4b[m[33m ([m[1;31morigin/style/add-login-error-message[m[33m)[m  fetching(student): fetching student data
+[33mb3cb28b[m[33m ([m[1;31morigin/fetching/finance[m[33m)[m Add new components to display finance
+[33m7015bee[m[33m ([m[1;31morigin/fetching/teacher-data-component[m[33m)[m feat: add teacher data component
+[33m25432a7[m fix bug on teacher page
+[33mcdcf796[m fix bug
+[33m97ace0b[m Merge branch 'style/add-login-error-message' of https://github.com/whoshann/simas-frontend into fetching/outgoing-goods-facilities
+[33m8b9889a[m fix(auth): update auth on finance
+[33m70e3011[m feature(fix bug and fetch in outgoing item
+[33m728edc9[m Merge branch 'fetch/backend' of https://github.com/whoshann/simas-frontend into style/create-student-absence-page
+[33m43b2d29[m  stye(css): adjust fetching auth
+[33m65edf6f[m[33m ([m[1;31morigin/fetching/repairs-facilities[m[33m)[m feature(repairs): added function fetching from backend for repairs
+[33m16d0f07[m fix(sidebar): add menu sidebar
+[33mdc1db50[m Merge branch 'fetching/facility-facilities' of https://github.com/whoshann/simas-frontend into fetching/repairs-facilities
+[33m7e6397d[m Merge branch 'fetching/incoming-goods-facilities' of https://github.com/whoshann/simas-frontend into fetching/maintenance-record-facilities
+[33m2969573[m[33m ([m[1;31morigin/fetching/incoming-goods-facilities[m[33m)[m fetch
+[33mef2394c[m[33m ([m[1;31morigin/fetching/maintenance-record-facilities[m[33m)[m feat(maintenance-record): implement CRUD functionality for maintenance records
+[33m9f2dd59[m[33m ([m[1;31morigin/fecthing/incoming-goods-facilities[m[33m)[m fetch and fix(inventory, room, incoming goods): added function for fetch and fix middleware
+[33me3a93ec[m[33m ([m[1;31morigin/fetching/inventory-facilities[m[33m)[m fix(update in inventory): fixing bug update in inventory
+[33mce36527[m[33m ([m[1;31morigin/fetching/facility-facilities[m[33m)[m Merge branch 'fetching/inventory-facilities' of https://github.com/whoshann/simas-frontend into fetching/facility-facilities
+[33ma06b93e[m fix: resolve management bugs
+[33mb19e188[m[33m ([m[1;31morigin/style/create-student-and-teacher-data[m[33m)[m style(css): fix background color and adding spining loader
+[33m8739160[m fix(display image): fix bug for displaying image in inventory
+[33me3c494c[m feat(facilities): implement table for facility data display
+[33m8c1250a[m[33m ([m[1;31morigin/fetching/room-facilities[m[33m)[m fetch(Inventory Facilities): added function to fetch data in Inventory and make the code clean
+[33mab2466e[m Merge branch 'style/create-facilities-page' of https://github.com/whoshann/simas-frontend into style/create-student-and-teacher-data
+[33mc103365[m  style(css): add student and teacher data page on student affaors
+[33m3022bf7[m[33m ([m[1;31morigin/style/create-facilities-page[m[33m)[m style(student): enhance student achievement UI layout
+[33m19c5bca[m feature(folder structure): clean the code and added management folder structure, with update in middleware
+[33m2df6844[m feature(room): added fetching function fot create, edit, and delete data
+[33m105ed84[m Merge branch 'style/create-facilities-page' of https://github.com/whoshann/simas-frontend into fetching/room-facilities
+[33m047be78[m Merge branch 'develop' of https://github.com/whoshann/simas-frontend into style/create-facilities-page
+[33m7c4d849[m Update data table facility
+[33m62b5006[m update table data
+[33m12b04c7[m[33m ([m[1;31morigin/feature/payment-backend[m[33m)[m feature(payment school): added function and snap for payment school
+[33me899875[m Merge branch 'style/create-facilities-page' of https://github.com/whoshann/simas-frontend into develop
+[33m315a1ab[m Fix layout and resolve bugs
+[33m15a6463[m[33m ([m[1;31morigin/style/create-user-profile-page[m[33m)[m style(css): update profile photo
+[33md5dad41[m style(sarpras): update layout and styles for the sarpras role page
+[33m337927a[m Merge branch 'feature/profile' of https://github.com/whoshann/simas-frontend into style/create-user-profile-page
+[33m80f16ac[m style(css): update font module
+[33mc1e57a4[m style(css): update responsive for user profile page
+[33mbea01b8[m[33m ([m[1;31morigin/feature/profile[m[33m)[m Implement logout functionality and display user profile based on role (Student/Teacher)
+[33m3e94994[m style(css): create user profile page
+[33m80c4476[m[33m ([m[1;31morigin/style/create-student-affairs-page[m[33m)[m style(css): create 6 page for student affairs
+[33m3c38b20[m[33m ([m[1;31morigin/feature/teacher-homepage[m[33m)[m Merge branch 'style/create-student-affairs-page' of https://github.com/whoshann/simas-frontend into feature/teacher-homepage
+[33mffc3f3a[m feat(home-page): add home page for facilities
+[33m1a8328e[m style(css): update tabel display on absence page
+[33m8863082[m fix(dashboard): fix bug on student dashboard page
+[33m7363b43[m  style(css): adjust circle progres bar
+[33m49643fa[m style(css): create homepage for student affairs
+[33mcfcc5b6[m style(homepage): update student homepage layout, add new teacher homepage, and submit new rab
+[33md02f926[m[33m ([m[1;31morigin/style/create-student-claim-assurance-page[m[33m)[m feature(school fee): added function to make input convert to Rp
+[33m3fcc558[m[33m ([m[1;31morigin/style/create-student-claim-insurance-page[m[33m)[m style(css): adding role middleware function for several page
+[33mb832764[m style(css): add student claim insurance and violation
+[33m87312d4[m[33m ([m[1;31morigin/feature/teacher-facility-management[m[33m)[m feat(teacher): add borrowing and request goods interface
+[33md97ac50[m[33m ([m[1;31morigin/style/create-student-absence-page[m[33m)[m style(css): fix tabel responsive bugs
+[33mc52d165[m  style(css): update responsive page
+[33me08498d[m[33m ([m[1;31morigin/feature/student-dashboard[m[33m)[m feat(loan, payment, status): add item loan page, payment form, and payment status feature
+[33mcf8481e[m[33m ([m[1;31morigin/fetch/backend[m[33m)[m fix(auth): add middleware for role and fix bug in image
+[33md1df7d4[m style(css): update table display
+[33me019606[m style(css): update student absence page
+[33m7b1aa34[m[33m ([m[1;31morigin/style/fix-sidebar-bugs[m[33m)[m style: fixing bugs dropdown opens
+[33m890c5bc[m fetch(login): added function for get role
+[33m0131b30[m feature(image): added legacy image from next js
+[33m355c999[m feature(image): added legacy image from next js
+[33mc0343ff[m feature(image): added legacy image from next js
+[33m2d157dd[m feature(login): fixed acces token to save in cookies, using cookie editor for check
+[33m80fb0e9[m fetch(login): added fetch for login
+[33m5e4e219[m style(css): create more dropdown
+[33m3039ac0[m[33m ([m[1;31morigin/style/adjust-guest-page[m[33m)[m fix(page): resolve merge conflict
+[33madb1c59[m  style(css): update sidebar radius
+[33m37fb40b[m style(guest-page): minor appearance improvements
+[33m0c35697[m style(css): fix login button on sidebar
+[33m021b486[m[33m ([m[1;31morigin/style/create-guest-page[m[33m)[m style(css): create and adjust sidebar on the guest page
+[33md01ffb4[m style(guest): update guest dashboard page appearance
+[33m57eb04e[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m first commit
+[33m13971a8[m Initial commit from Create Next App
