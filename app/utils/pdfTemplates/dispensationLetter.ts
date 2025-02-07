@@ -98,7 +98,22 @@ export const generateDispensationPDF = (data: DispensationData) => {
   // Alasan
   doc.text('Alasan', labelX, startY + 42);
   doc.text(':', dotX, startY + 42);
-  doc.text(data.reason, dotX + 10, startY + 42);
+  
+  // Konfigurasi untuk wrapping text alasan
+  const maxWidth = 110; // Lebar maksimum untuk text alasan
+  const lineHeight = 8; // Tinggi baris
+  
+  // Split text alasan menjadi beberapa baris jika terlalu panjang
+  const splitReason = doc.splitTextToSize(data.reason, maxWidth);
+  
+  // Render setiap baris dari alasan
+  splitReason.forEach((line: string, index: number) => {
+      doc.text(line, dotX + 10, startY + 42 + (index * lineHeight));
+  });
+
+  // Menyesuaikan posisi text berikutnya berdasarkan jumlah baris alasan
+  const reasonHeight = splitReason.length * lineHeight;
+  const nextContentY = Math.max(startY + 42 + reasonHeight, startY + 65);
   
   // Keterangan izin dengan text wrapping dan justify
   const permitY = startY + 65;
