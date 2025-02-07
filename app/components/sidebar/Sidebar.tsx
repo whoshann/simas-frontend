@@ -708,7 +708,7 @@ const Sidebar: React.FC = () => {
                 {/* End Sidebar menu navigation  */}
 
                 {/* Login Button */}
-                <a href={isLoggedIn ? "/user-profile" : "/login"} className="fixed bottom-5 left-2 right-2 px-3">
+                <a href={isLoggedIn ? "/user-profile" : "/login"} className="fixed bottom-5 left-2 right-2 px-3 w-5">
                     <button className="flex items-center justify-center w-52 py-3 rounded-xl border border-[var(--text-semi-bold-color)] bg-white text-[var(--text-semi-bold-color)] hover:opacity-90 transition">
                         <i className={`bx ${isLoggedIn ? 'bx-user' : 'bx-power-off'} mr-2 font-medium`}></i>
                         {isLoggedIn ? "Profile Anda" : "Login / Masuk"}

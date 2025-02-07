@@ -10,6 +10,7 @@ import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import { error } from "console";
 import TableData2 from "@/app/components/TableWithoutAction/TableData2";
 import { InsuranceClaimStatus } from '@/app/utils/enums';
+import { showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 
 
 const formatRupiah = (angka: string) => {
@@ -178,7 +179,7 @@ export default function FacilitiesBudgetProposalPage() {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             if (file.type !== 'application/pdf') {
-                alert('Hanya file PDF yang diperbolehkan');
+                showErrorAlert('Hanya file PDF yang diperbolehkan');
                 return;
             }
             setSelectedFile(file);
@@ -225,12 +226,12 @@ export default function FacilitiesBudgetProposalPage() {
                 const fileInput = document.getElementById('document_path') as HTMLInputElement;
                 if (fileInput) fileInput.value = '';
 
-                alert('Pengajuan RAB berhasil dikirim!');
+                showSuccessAlert('Pengajuan RAB berhasil dikirim!');
             }
 
         } catch (error) {
             console.error('Error submitting form:', error);
-            alert('Gagal mengirim pengajuan RAB');
+            showErrorAlert('Gagal mengirim pengajuan RAB');
         }
     };
 

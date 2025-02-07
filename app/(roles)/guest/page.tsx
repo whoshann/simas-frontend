@@ -2,23 +2,58 @@
 "use client";
 import "@/app/styles/globals.css";
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { NewsInformation } from "@/app/api/news-information/types";
 import { useNewsInformation } from "@/app/hooks/useNewsInformation";
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
+import { useStudents } from "@/app/hooks/useStudent";
+import { useTeachers } from "@/app/hooks/useTeacher";
+import { useEmployee } from "@/app/hooks/useEmployee";
 
 export default function GuestDashboard() {
     const carouselRef = useRef<HTMLDivElement>(null);
     const { newsInformation, loading, error, fetchNewsInformation } = useNewsInformation();
     const [news, setNews] = useState<NewsInformation[]>([]);
+    const { students, fetchStudents, } = useStudents();
+    const { teachers, fetchTeachers } = useTeachers();
+    const { employee, fetchEmployee } = useEmployee();
+    const [isLoading, setIsLoading] = useState(true);
+    console.log('Current data:', { students, teachers, employee });
+    const cardData = useMemo(() => {
+        return {
+            student: students.length,
+            teacher: teachers.length,
+            employee: employee.length,
+        };
+    }, [students, teachers, employee]);
 
     useEffect(() => {
-        // Panggil API untuk mengambil data berita
-        fetchNewsInformation();
-    }, [fetchNewsInformation]);
+        const fetchAllData = async () => {
+            setIsLoading(true);
+            try {
+                await Promise.all([
+                    fetchNewsInformation(),
+                    fetchStudents(),
+                    fetchTeachers(),
+                    fetchEmployee()
+                ]);
+                console.log('After fetch:', {
+                    students,
+                    teachers,
+                    employee
+                });
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
+        fetchAllData();
+    }, []); // Jalankan sekali saat komponen dimount
+
+    // Pisahkan useEffect untuk news data
     useEffect(() => {
-        // Jika data berita berhasil diambil, set ke state newsData
         if (newsInformation && newsInformation.length > 0) {
             setNews(newsInformation);
         }
@@ -114,7 +149,7 @@ export default function GuestDashboard() {
                         </div>
                         <div>
                             <h4 className="text-md font-semibold text-[var(--text-semi-bold-color)]">Total Jumlah Guru</h4>
-                            <p className="text-sm text-[var(--text-regular-color)]">Terdapat total 200 guru yang mengajar</p>
+                            <p className="text-sm text-[var(--text-regular-color)]">Terdapat total {cardData.teacher} guru yang mengajar</p>
                         </div>
                     </div>
 
@@ -126,7 +161,7 @@ export default function GuestDashboard() {
                         </div>
                         <div>
                             <h4 className="text-md font-semibold text-[var(--text-semi-bold-color)]">Total Jumlah Siswa</h4>
-                            <p className="text-sm text-[var(--text-regular-color)]">Terdapat total 1000 siswa</p>
+                            <p className="text-sm text-[var(--text-regular-color)]">Terdapat total {cardData.student} siswa</p>
                         </div>
                     </div>
 
@@ -138,7 +173,7 @@ export default function GuestDashboard() {
                         </div>
                         <div>
                             <h4 className="text-md font-semibold text-[var(--text-semi-bold-color)]">Total Jumlah Karyawan</h4>
-                            <p className="text-sm text-[var(--text-regular-color)]">Terdapat total 100 karyawan</p>
+                            <p className="text-sm text-[var(--text-regular-color)]">Terdapat total {cardData.employee} karyawan</p>
                         </div>
                     </div>
                 </div>

@@ -104,28 +104,6 @@ export default function FacilitiesDashboardPage() {
         item.createdAt.includes(searchTerm)
     );
 
-
-
-    // const { dashboardData, loading, error, refreshData } = useDashboardFacilities();
-
-    // Data statis untuk tabel perbaikan
-    // const repairData = dashboardData.repairs;
-
-    // // Filter data hanya berdasarkan search term
-    // const filteredRepairs = dashboardData.repairs
-    //     .filter(item => item.category.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    // // Hapus filtered dashboard data, gunakan data asli
-    // const dashboardSummary = {
-    //     incomingGoods: dashboardData.incomingGoods.length,
-    //     outgoingGoods: dashboardData.outgoingGoods.length,
-    //     totalInventory: dashboardData.totalInventory.length,
-    //     totalRooms: dashboardData.totalRooms.length,
-    //     latestBorrowings: dashboardData.latestBorrowings,
-    //     repairs: dashboardData.repairs,
-    //     latestProcurements: dashboardData.latestProcurements,
-    // };
-
     // Memproses data absensi
     const cardData = useMemo(() => {
         return {
