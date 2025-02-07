@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { BudgetManagement } from "../api/budget-management/types";
 import { budgetManagementApi } from "../api/budget-management";
+import { getTokenData } from "../utils/tokenHelper";
 
 export const useBudgetManagement = () => {
   const [budgetManagement, setBudgetManagement] = useState<BudgetManagement[]>([]);
@@ -13,6 +14,25 @@ export const useBudgetManagement = () => {
       const response = await budgetManagementApi.getAll();
       setBudgetManagement(response.data);
       setError(null);
+    } catch (err) {
+      setError("Failed to fetch budget management");
+      console.error("Error fetching budget management:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchBudgetManagementByUserId = useCallback(async () => {
+    try {
+      setLoading(true);
+      const tokenData = getTokenData();
+      if (tokenData) {
+        const response = await budgetManagementApi.getByUserId(tokenData.id);
+        setBudgetManagement(response.data);
+        setError(null);
+      } else {
+        setError("Token data not found");
+      }
     } catch (err) {
       setError("Failed to fetch budget management");
       console.error("Error fetching budget management:", err);
@@ -38,5 +58,5 @@ export const useBudgetManagement = () => {
     }
   };
 
-  return { budgetManagement, loading, error, fetchBudgetManagement, updateBudgetStatus };
+  return { budgetManagement, loading, error, fetchBudgetManagement, fetchBudgetManagementByUserId, updateBudgetStatus };
 };

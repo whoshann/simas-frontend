@@ -56,6 +56,11 @@ export const MaintenanceRecordTable: React.FC<MaintenanceRecordTableProps> = ({ 
                         </td>
                     </tr>
                 ))}
+                {maintenancerecords.length === 0 && (
+                    <tr>
+                        <td colSpan={10} className="text-center py-4">Tidak ada data</td>
+                    </tr>
+                )}
             </tbody>
         </table>
     );

@@ -46,6 +46,11 @@ export const FacilityTable: React.FC<FacilityTableProps> = ({ facilities, onEdit
                         </td>
                     </tr>
                 ))}
+                {facilities.length === 0 && (
+                    <tr>
+                        <td colSpan={10} className="text-center py-4">Tidak ada data</td>
+                    </tr>
+                )}
             </tbody>
         </table>
     );
