@@ -16,15 +16,15 @@ import { GuaranteeOutgoingGoodsLabel, getGuaranteeOutgoingGoodsLabel } from '@/a
 import { showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
 
 export default function StudentBorrowingGoodsPage() {
-  
+
   const [student, setStudent] = useState<any>({});
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const { 
-        inventories, 
-        fetchInventories 
-    } = useInventory();
+  const {
+    inventories,
+    fetchInventories
+  } = useInventory();
   const { inventories: allInventories } = useInventory();
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export default function StudentBorrowingGoodsPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    
+
     if (name === 'inventoryId') {
       setFormData(prev => ({
         ...prev,
@@ -80,15 +80,15 @@ export default function StudentBorrowingGoodsPage() {
       }));
       return;
     }
-    
+
     if (name === 'quantity') {
       const numValue = Number(value);
       const selectedInventory = inventories.find(
         inv => inv.id === formData.inventoryId
       );
-      
+
       if (selectedInventory && numValue > selectedInventory.stock) {
-        alert(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
+        showErrorAlert('Error', `Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
         setFormData(prev => ({
           ...prev,
           quantity: selectedInventory.stock
@@ -102,11 +102,11 @@ export default function StudentBorrowingGoodsPage() {
       }));
       return;
     }
-    
+
     if (name === 'guarantee') {
       console.log('Selected guarantee:', value); // Debug
     }
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -115,11 +115,11 @@ export default function StudentBorrowingGoodsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const selectedInventory = inventories.find(
       inv => inv.id === formData.inventoryId
     );
-    
+
     if (selectedInventory && formData.quantity > selectedInventory.stock) {
       alert(`Stok tidak mencukupi, ${selectedInventory.name} hanya tersedia sebanyak ${selectedInventory.stock}`);
       return;
@@ -143,7 +143,7 @@ export default function StudentBorrowingGoodsPage() {
       console.log('Data yang dikirim:', borrowingData); // Debug
 
       await outgoingGoodsApi.create(borrowingData as OutgoingGoodsRequest);
-      
+
       setFormData({
         inventoryId: 0,
         quantity: 1,
@@ -156,7 +156,7 @@ export default function StudentBorrowingGoodsPage() {
       });
 
       await showSuccessAlert('Berhasil', 'Peminjaman berhasil di ajukan');
-      
+
     } catch (err: any) {
       console.error('Error submitting form:', err);
       const errorMessage = err.response?.data?.message;
@@ -209,7 +209,7 @@ export default function StudentBorrowingGoodsPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <input
-                  type="text" 
+                  type="text"
                   id="name"
                   name="name"
                   value={student.name}

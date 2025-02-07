@@ -11,6 +11,8 @@ import { BudgetManagementStatus } from "@/app/utils/enums";
 import { useBudgetManagement } from "@/app/hooks/useBudgetManagement";
 import { formatDate } from "@/app/utils/helper";
 import { budgetManagementApi } from "@/app/api/budget-management";
+import { useUser } from "@/app/hooks/useUser";
+import { showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 
 const formatRupiah = (angka: string) => {
   const number = angka.replace(/[^,\d]/g, "").toString();
@@ -40,6 +42,7 @@ export default function FacilitiesBudgetProposalPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [userId, setUserId] = useState<string>("");
   const [jumlahDana, setJumlahDana] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [formData, setFormData] = useState<FormData>({
@@ -48,6 +51,7 @@ export default function FacilitiesBudgetProposalPage() {
     description: "",
     total_budget: 0,
   });
+  const { user } = useUser();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { budgetManagement, loading, error, fetchBudgetManagementByUserId } =
     useBudgetManagement();
@@ -112,7 +116,7 @@ export default function FacilitiesBudgetProposalPage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.type !== "application/pdf") {
-        alert("Hanya file PDF yang diperbolehkan");
+        showErrorAlert("Hanya file PDF yang diperbolehkan");
         return;
       }
       setSelectedFile(file);
@@ -162,11 +166,15 @@ export default function FacilitiesBudgetProposalPage() {
         ) as HTMLInputElement;
         if (fileInput) fileInput.value = "";
 
-        alert("Pengajuan RAB berhasil dikirim!");
+        await fetchBudgetManagementByUserId();
+
+        setCurrentPage(1);
+
+        showSuccessAlert("Pengajuan RAB berhasil dikirim!");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("Gagal mengirim pengajuan RAB");
+      showErrorAlert("Gagal mengirim pengajuan RAB");
     }
   };
 
@@ -177,13 +185,29 @@ export default function FacilitiesBudgetProposalPage() {
       const url = window.URL.createObjectURL(blob);
       window.open(url, "_blank");
     } catch (error) {
-      alert(
+      showErrorAlert(
         "Gagal mengambil file PDF: " +
-          (error.response?.data?.message || "File tidak ditemukan")
+        (error.response?.data?.message || "File tidak ditemukan")
       );
       console.error("Error fetching PDF:", error);
     }
   };
+
+  const filteredData = budgetManagement.filter(item => {
+    const searchString = searchTerm.toLowerCase();
+    return (
+      item.title.toLowerCase().includes(searchString) ||
+      item.description.toLowerCase().includes(searchString) ||
+      formatRupiah(item.total_budget.toString()).toLowerCase().includes(searchString) ||
+      formatDate(item.created_at || '').toLowerCase().includes(searchString) ||
+      (item.updateMessage || '').toLowerCase().includes(searchString)
+    );
+  });
+
+  const totalEntries = filteredData.length;
+  const totalPages = Math.ceil(totalEntries / entriesPerPage);
+  const startIndex = (currentPage - 1) * entriesPerPage;
+  const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
 
   const handleDownloadPDF = async (filename: string) => {
     try {
@@ -196,8 +220,8 @@ export default function FacilitiesBudgetProposalPage() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      alert("Gagal mengunduh file PDF");
+    } catch (error: any) {
+      showErrorAlert("Gagal mengunduh file PDF");
       console.error("Error downloading PDF:", error);
     }
   };
@@ -205,14 +229,14 @@ export default function FacilitiesBudgetProposalPage() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9">
-        <h1 className="text-2xl font-bold text-gray-800">Pengajuan RAB</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-semi-bold-color)]">Pengajuan RAB</h1>
         <p className="text-sm text-gray-600">
-          Halo, selamat datang di halaman Pengajuan RAB
+          Halo {user?.username}, selamat datang kembali
         </p>
       </header>
 
       {/* Alert Section */}
-      <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-6 py-4 mx-9 flex items-start mb-6">
+      {/* <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-6 py-4 mx-9 flex items-start mb-6">
         <i className="bx bx-info-circle text-2xl mr-3"></i>
         <div>
           <p className="text-sm font-medium">
@@ -226,13 +250,13 @@ export default function FacilitiesBudgetProposalPage() {
             Lihat Panduan
           </button>
         </div>
-      </div>
+      </div> */}
 
       <main className="px-9 pb-6">
         <div className="grid grid-cols-1 gap-6">
           {/* Form Section */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)] mb-4 flex items-center">
               <i className="bx bx-box text-2xl text-orange-600 mr-2"></i>
               <span className="ml-2">Form Pengajuan RAB</span>
             </h2>
@@ -318,6 +342,7 @@ export default function FacilitiesBudgetProposalPage() {
               </button>
             </form>
           </div>
+
           {/* Tabel Riwayat */}
           <div className="bg-white shadow-md rounded-lg p-6">
             <div className="mb-4 flex justify-between flex-wrap sm:flex-nowrap">
@@ -336,7 +361,16 @@ export default function FacilitiesBudgetProposalPage() {
                 <label className="ml-2">Entri</label>
               </div>
 
-              <div className="flex space-x-2 mt-5 sm:mt-0"></div>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Cari..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                />
+                <i className='bx bx-search absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400'></i>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -360,7 +394,7 @@ export default function FacilitiesBudgetProposalPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {budgetManagement.map((item, index) => (
+                  {currentEntries.map((item, index) => (
                     <tr
                       key={item.id}
                       className="hover:bg-gray-100 text-[var(--text-regular-color)]"
@@ -369,7 +403,7 @@ export default function FacilitiesBudgetProposalPage() {
                         className="py-2 px-4 border-b"
                         style={{ whiteSpace: "nowrap" }}
                       >
-                        {index + 1}
+                        {startIndex + index + 1}
                       </td>
                       <td
                         className="py-2 px-4 border-b"
@@ -395,14 +429,14 @@ export default function FacilitiesBudgetProposalPage() {
                       >
                         <button
                           onClick={() => handleViewPDF(item.document_path)}
-                          className="text-blue-500 underline mr-2"
+                          className="text-[var(--main-color)] underline mr-2"
                         >
                           Lihat PDF
                         </button>
                         {" | "}
                         <button
                           onClick={() => handleDownloadPDF(item.document_path)}
-                          className="text-blue-500 underline"
+                          className="text-[var(--third-color)] underline"
                         >
                           Unduh PDF
                         </button>
@@ -411,29 +445,29 @@ export default function FacilitiesBudgetProposalPage() {
                         className="py-2 px-4 border-b"
                         style={{ whiteSpace: "nowrap" }}
                       >
-                        {formatDate(item.created_at)}
+                        {formatDate(item.created_at || '')}
                       </td>
                       <td
                         className="py-2 px-4 border-b"
                         style={{ whiteSpace: "nowrap" }}
                       >
                         {item.status === BudgetManagementStatus.Revised && (
-                          <span className="bg-[#e88e1f29] text-[var(--second-color)] rounded-full px-4 py-2">
+                          <span className="bg-[#1f509a26] text-[var(--main-color)] rounded-full text-xs px-4 py-2">
                             Revisi
                           </span>
                         )}
                         {item.status === BudgetManagementStatus.Approved && (
-                          <span className="bg-[#0a97b022] text-[var(--third-color)] rounded-full px-4 py-2">
+                          <span className="bg-[#0a97b022] text-[var(--third-color)] rounded-full text-xs px-4 py-2">
                             Disetujui
                           </span>
                         )}
                         {item.status === BudgetManagementStatus.Rejected && (
-                          <span className="bg-red-100 text-[var(--fourth-color)] rounded-full px-4 py-2">
+                          <span className="bg-[#bd000025] text-[var(--fourth-color)] rounded-full text-xs px-4 py-2">
                             Ditolak
                           </span>
                         )}
                         {item.status === BudgetManagementStatus.Submitted && (
-                          <span className="bg-[#e88e1f29] text-[var(--second-color)] rounded-full px-4 py-2">
+                          <span className="bg-[#e88e1f29] text-[var(--second-color)] rounded-full text-xs px-4 py-2">
                             Menunggu
                           </span>
                         )}
@@ -446,9 +480,55 @@ export default function FacilitiesBudgetProposalPage() {
                       </td>
                     </tr>
                   ))}
+                  {currentEntries.length === 0 && (
+                    <tr>
+                      <td colSpan={8} className="text-center py-4">
+                        Tidak ada data
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination */}
+            <div className="flex justify-between items-center mt-5">
+              <span className="text-xs sm:text-sm">
+                Menampilkan {startIndex + 1} hingga {Math.min(startIndex + entriesPerPage, totalEntries)} dari {totalEntries} entri
+              </span>
+
+              <div className="flex items-center">
+                <button
+                  onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 text-[var(--main-color)]"
+                >
+                  &lt;
+                </button>
+                <div className="flex space-x-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`rounded-md px-3 py-1 ${currentPage === page
+                        ? 'bg-[var(--main-color)] text-white'
+                        : 'text-[var(--main-color)]'
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 text-[var(--main-color)]"
+                >
+                  &gt;
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
       </main>

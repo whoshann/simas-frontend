@@ -197,7 +197,7 @@ const Sidebar: React.FC = () => {
                     </a>
 
 
-                    {/*Start Role Student and Teacher menu */}
+                    {/*Start Role Student menu*/}
                     {(role === "Student" || !isLoggedIn) && (
                         <div>
                             <div>
@@ -334,14 +334,6 @@ const Sidebar: React.FC = () => {
 
                     {role === "Teacher" && (
                         <div>
-                            <a
-                                href="/teacher/finance/budget-proposal"
-                                className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Budget Proposal' ? 'active' : ''}`}
-                                onClick={() => handleMenuClick('Budget Proposal')}
-                            >
-                                <i className='bx bxs-wallet mr-2 font-medium'></i> {/* Ikon untuk Usulan Anggaran */}
-                                Usulan Anggaran RAB
-                            </a>
                             <a
                                 href="/teacher/facilities-management/borrowing-goods"
                                 className={`block py-3 px-4 rounded-xl transition duration-200 text-[var(--text-thin-color)] ${activeMenu === 'Borrowing Goods' ? 'active' : ''}`}
