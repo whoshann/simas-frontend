@@ -7,24 +7,24 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
-import TableData2 from "@/app/components/TableWithoutAction/TableData2";
-import { InsuranceClaimStatus } from '@/app/utils/enums';
+import { BudgetManagementStatus } from "@/app/utils/enums";
 import { useBudgetManagement } from "@/app/hooks/useBudgetManagement";
-
+import { formatDate } from "@/app/utils/helper";
+import { budgetManagementApi } from "@/app/api/budget-management";
 
 const formatRupiah = (angka: string) => {
-  const number = angka.replace(/[^,\d]/g, '').toString();
-  const split = number.split(',');
+  const number = angka.replace(/[^,\d]/g, "").toString();
+  const split = number.split(",");
   const sisa = split[0].length % 3;
   let rupiah = split[0].substr(0, sisa);
   const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
 
   if (ribuan) {
-    const separator = sisa ? '.' : '';
-    rupiah += separator + ribuan.join('.');
+    const separator = sisa ? "." : "";
+    rupiah += separator + ribuan.join(".");
   }
 
-  rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+  rupiah = split[1] !== undefined ? rupiah + "," + split[1] : rupiah;
   return `Rp ${rupiah}`;
 };
 
@@ -36,90 +36,21 @@ interface FormData {
   document_path?: File;
 }
 
-// Data statis untuk tabel
-const staticBudgetProposalData = [
-  {
-    no: 1,
-    id: 1,
-    title: "Pengajuan Dana Gelar Karya Pembelajaran",
-    total_budget: 5000000,
-    document_path: "proposal_gkp.pdf",
-    description: "Dana untuk pelaksanaan gelar karya pembelajaran semester genap",
-    date: "2024-01-15",
-    status: InsuranceClaimStatus.Pending
-  },
-  {
-    no: 2,
-    id: 2,
-    title: "Pengajuan Dana Lomba Robotik",
-    total_budget: 3500000,
-    document_path: "proposal_robotik.pdf",
-    description: "Dana untuk persiapan tim robotik dalam kompetisi nasional",
-    date: "2024-01-10",
-    status: InsuranceClaimStatus.Approved
-  },
-  {
-    no: 3,
-    id: 3,
-    title: "Pengajuan Dana Pelatihan Guru",
-    total_budget: 2500000,
-    document_path: "proposal_pelatihan.pdf",
-    description: "Dana untuk workshop pengembangan kompetensi guru",
-    date: "2024-01-05",
-    status: InsuranceClaimStatus.Rejected
-  }
-];
-
-const tableHeaders = [
-  { key: 'no', label: 'No' },
-  { key: 'title', label: 'Nama RAB' },
-  {
-    key: 'total_budget',
-    label: 'Jumlah Dana',
-    render: (value: number) => formatRupiah(value.toString())
-  },
-  { key: 'document_path', label: 'Dokumen Pendukung' },
-  { key: 'description', label: 'Alasan Pengajuan' },
-  { key: 'date', label: 'Tanggal Pengajuan' },
-  {
-    key: 'status',
-    label: 'Status',
-    render: (value: InsuranceClaimStatus) => {
-      const statusStyles = {
-        [InsuranceClaimStatus.Pending]: 'bg-[#e88e1f29] text-[var(--second-color)]',
-        [InsuranceClaimStatus.Approved]: 'bg-[#0a97b022] text-[var(--third-color)]',
-        [InsuranceClaimStatus.Rejected]: 'bg-red-100 text-[var(--fourth-color)]',
-      };
-
-      const statusText = {
-        [InsuranceClaimStatus.Pending]: 'Menunggu',
-        [InsuranceClaimStatus.Approved]: 'Disetujui',
-        [InsuranceClaimStatus.Rejected]: 'Ditolak',
-      };
-
-      return (
-        <span className={`px-3 py-1 rounded-full text-sm ${statusStyles[value]}`}>
-          {statusText[value]}
-        </span>
-      );
-    }
-  }
-];
-
 export default function FacilitiesBudgetProposalPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [userId, setUserId] = useState<string>('');
-  const [jumlahDana, setJumlahDana] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [userId, setUserId] = useState<string>("");
+  const [jumlahDana, setJumlahDana] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [formData, setFormData] = useState<FormData>({
     userId: 0,
-    title: '',
-    description: '',
-    total_budget: 0
+    title: "",
+    description: "",
+    total_budget: 0,
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const { budgetManagement, loading, error, fetchBudgetManagementByUserId } = useBudgetManagement();
+  const { budgetManagement, loading, error, fetchBudgetManagementByUserId } =
+    useBudgetManagement();
 
   useEffect(() => {
     const initializePage = async () => {
@@ -130,9 +61,9 @@ export default function FacilitiesBudgetProposalPage() {
         const id = getUserIdFromToken();
         if (id) {
           setUserId(id);
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
-            userId: Number(id)
+            userId: Number(id),
           }));
         }
       } catch (error) {
@@ -141,44 +72,47 @@ export default function FacilitiesBudgetProposalPage() {
       }
     };
 
+    fetchBudgetManagementByUserId();
+
     initializePage();
   }, []);
 
   if (loading) {
-    return (
-      <LoadingSpinner />
-    );
+    return <LoadingSpinner />;
   }
 
   if (!isAuthorized) {
     return null;
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleJumlahDanaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const numericValue = value.replace(/[^0-9]/g, '');
-    const formattedValue = numericValue ? formatRupiah(numericValue) : '';
+    const numericValue = value.replace(/[^0-9]/g, "");
+    const formattedValue = numericValue ? formatRupiah(numericValue) : "";
     setJumlahDana(formattedValue);
+
     // Update formData dengan nilai numerik
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      total_budget: Number(numericValue)
+      total_budget: Number(numericValue) || 0,
     }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.type !== 'application/pdf') {
-        alert('Hanya file PDF yang diperbolehkan');
+      if (file.type !== "application/pdf") {
+        alert("Hanya file PDF yang diperbolehkan");
         return;
       }
       setSelectedFile(file);
@@ -189,13 +123,13 @@ export default function FacilitiesBudgetProposalPage() {
     e.preventDefault();
 
     const submitFormData = new FormData();
-    submitFormData.append('userId', formData.userId.toString());
-    submitFormData.append('title', formData.title);
-    submitFormData.append('description', formData.description);
-    submitFormData.append('total_budget', formData.total_budget.toString());
+    submitFormData.append("userId", formData.userId.toString());
+    submitFormData.append("title", formData.title);
+    submitFormData.append("description", formData.description);
+    submitFormData.append("total_budget", formData.total_budget.toString());
 
     if (selectedFile) {
-      submitFormData.append('document_path', selectedFile);
+      submitFormData.append("document_path", selectedFile);
     }
 
     try {
@@ -205,32 +139,66 @@ export default function FacilitiesBudgetProposalPage() {
         submitFormData,
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
-      if (response.status === 201) { // Menggunakan HTTP status code 201 Created
+      if (response.status === 201) {
+        // Menggunakan HTTP status code 201 Created
         // Reset semua input
         setFormData({
           userId: formData.userId,
-          title: '',
-          description: '',
-          total_budget: 0
+          title: "",
+          description: "",
+          total_budget: 0,
         });
         setSelectedFile(null);
-        setJumlahDana('');
+        setJumlahDana("");
 
         // Reset file input
-        const fileInput = document.getElementById('document_path') as HTMLInputElement;
-        if (fileInput) fileInput.value = '';
+        const fileInput = document.getElementById(
+          "document_path"
+        ) as HTMLInputElement;
+        if (fileInput) fileInput.value = "";
 
-        alert('Pengajuan RAB berhasil dikirim!');
+        alert("Pengajuan RAB berhasil dikirim!");
       }
-
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Gagal mengirim pengajuan RAB');
+      console.error("Error submitting form:", error);
+      alert("Gagal mengirim pengajuan RAB");
+    }
+  };
+
+  const handleViewPDF = async (filename: string) => {
+    try {
+      console.log("Mencoba mengakses file:", filename);
+      const blob = await budgetManagementApi.getDocument(filename);
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } catch (error) {
+      alert(
+        "Gagal mengambil file PDF: " +
+          (error.response?.data?.message || "File tidak ditemukan")
+      );
+      console.error("Error fetching PDF:", error);
+    }
+  };
+
+  const handleDownloadPDF = async (filename: string) => {
+    try {
+      const blob = await budgetManagementApi.getDocument(filename);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      alert("Gagal mengunduh file PDF");
+      console.error("Error downloading PDF:", error);
     }
   };
 
@@ -238,7 +206,9 @@ export default function FacilitiesBudgetProposalPage() {
     <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
       <header className="py-6 px-9">
         <h1 className="text-2xl font-bold text-gray-800">Pengajuan RAB</h1>
-        <p className="text-sm text-gray-600">Halo, selamat datang di halaman Pengajuan RAB</p>
+        <p className="text-sm text-gray-600">
+          Halo, selamat datang di halaman Pengajuan RAB
+        </p>
       </header>
 
       {/* Alert Section */}
@@ -246,7 +216,8 @@ export default function FacilitiesBudgetProposalPage() {
         <i className="bx bx-info-circle text-2xl mr-3"></i>
         <div>
           <p className="text-sm font-medium">
-            Untuk mempermudah proses pengajuan RAB, silakan baca panduan lengkap terlebih dahulu.
+            Untuk mempermudah proses pengajuan RAB, silakan baca panduan lengkap
+            terlebih dahulu.
           </p>
           <button
             type="button"
@@ -348,14 +319,137 @@ export default function FacilitiesBudgetProposalPage() {
             </form>
           </div>
           {/* Tabel Riwayat */}
-          <TableData2
-            headers={tableHeaders}
-            data={staticBudgetProposalData}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            entriesPerPage={entriesPerPage}
-            setEntriesPerPage={setEntriesPerPage}
-          />
+          <div className="bg-white shadow-md rounded-lg p-6">
+            <div className="mb-4 flex justify-between flex-wrap sm:flex-nowrap">
+              <div className="text-xs sm:text-base">
+                <label className="mr-2">Tampilkan</label>
+                <select
+                  value={entriesPerPage}
+                  onChange={(e) => setEntriesPerPage(Number(e.target.value))}
+                  className="border border-gray-300 rounded-lg p-1 text-xs sm:text-sm w-12 sm:w-16"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                </select>
+                <label className="ml-2">Entri</label>
+              </div>
+
+              <div className="flex space-x-2 mt-5 sm:mt-0"></div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full rounded-lg overflow-hidden">
+                <thead className="text-[var(--text-semi-bold-color)]">
+                  <tr>
+                    <th className="py-2 px-4 border-b text-left">No</th>
+                    <th className="py-2 px-4 border-b text-left">Judul RAB</th>
+                    <th className="py-2 px-4 border-b text-left">Deskripsi</th>
+                    <th className="py-2 px-4 border-b text-left">
+                      Biaya Anggaran
+                    </th>
+                    <th className="py-2 px-4 border-b text-left">
+                      Dokumen Pendukung
+                    </th>
+                    <th className="py-2 px-4 border-b text-left">
+                      Tanggal Pengajuan
+                    </th>
+                    <th className="py-2 px-4 border-b text-left">Status</th>
+                    <th className="py-2 px-4 border-b text-left">Pesan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {budgetManagement.map((item, index) => (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-gray-100 text-[var(--text-regular-color)]"
+                    >
+                      <td
+                        className="py-2 px-4 border-b"
+                        style={{ whiteSpace: "nowrap" }}
+                      >
+                        {index + 1}
+                      </td>
+                      <td
+                        className="py-2 px-4 border-b"
+                        style={{ whiteSpace: "nowrap" }}
+                      >
+                        {item.title}
+                      </td>
+                      <td
+                        className="py-2 px-4 border-b"
+                        style={{ whiteSpace: "nowrap" }}
+                      >
+                        {item.description}
+                      </td>
+                      <td
+                        className="py-2 px-4 border-b"
+                        style={{ whiteSpace: "nowrap" }}
+                      >
+                        {formatRupiah(item.total_budget.toString())}
+                      </td>
+                      <td
+                        className="py-2 px-4 border-b"
+                        style={{ whiteSpace: "nowrap" }}
+                      >
+                        <button
+                          onClick={() => handleViewPDF(item.document_path)}
+                          className="text-blue-500 underline mr-2"
+                        >
+                          Lihat PDF
+                        </button>
+                        {" | "}
+                        <button
+                          onClick={() => handleDownloadPDF(item.document_path)}
+                          className="text-blue-500 underline"
+                        >
+                          Unduh PDF
+                        </button>
+                      </td>
+                      <td
+                        className="py-2 px-4 border-b"
+                        style={{ whiteSpace: "nowrap" }}
+                      >
+                        {formatDate(item.created_at)}
+                      </td>
+                      <td
+                        className="py-2 px-4 border-b"
+                        style={{ whiteSpace: "nowrap" }}
+                      >
+                        {item.status === BudgetManagementStatus.Revised && (
+                          <span className="bg-[#e88e1f29] text-[var(--second-color)] rounded-full px-4 py-2">
+                            Revisi
+                          </span>
+                        )}
+                        {item.status === BudgetManagementStatus.Approved && (
+                          <span className="bg-[#0a97b022] text-[var(--third-color)] rounded-full px-4 py-2">
+                            Disetujui
+                          </span>
+                        )}
+                        {item.status === BudgetManagementStatus.Rejected && (
+                          <span className="bg-red-100 text-[var(--fourth-color)] rounded-full px-4 py-2">
+                            Ditolak
+                          </span>
+                        )}
+                        {item.status === BudgetManagementStatus.Submitted && (
+                          <span className="bg-[#e88e1f29] text-[var(--second-color)] rounded-full px-4 py-2">
+                            Menunggu
+                          </span>
+                        )}
+                      </td>
+                      <td
+                        className="py-2 px-4 border-b"
+                        style={{ whiteSpace: "nowrap" }}
+                      >
+                        {item.updateMessage || "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </main>
     </div>

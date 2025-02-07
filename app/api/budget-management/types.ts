@@ -10,6 +10,7 @@ export interface BudgetManagement {
     status: BudgetManagementStatus;
     userId: number;
     user: User;
+    updateMessage: string;
     created_at?: string;
     updated_at?: string;
   }

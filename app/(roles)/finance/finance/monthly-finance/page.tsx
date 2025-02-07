@@ -116,7 +116,7 @@ export default function MonthlyFinancePage() {
             setFormattedRemainingBalance(formatRupiah(item.remainingBalance));
         } else {
             setFormData({
-                month: '',
+                month: 'Januari 2023',
                 income: 0,
                 expenses: 0,
                 remainingBalance: 0,
