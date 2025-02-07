@@ -1,7 +1,7 @@
 "use client";
 
 import "@/app/styles/globals.css";
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { roleMiddleware } from "@/app/(auth)/middleware/middleware";
 import React from 'react';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
@@ -9,6 +9,12 @@ import Cookies from "js-cookie";
 import { useDashboardFacilities } from "@/app/hooks/useDashboardFacilities";
 import { authApi } from "@/app/api/auth";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
+import { usePositions } from "@/app/hooks/usePositionData";
+import { useStudents } from "@/app/hooks/useStudent";
+import { useTeachers } from "@/app/hooks/useTeacher";
+import { useMajors } from "@/app/hooks/useMajorData";
+import { useEmployee } from "@/app/hooks/useEmployee";
+import { useSubjects } from "@/app/hooks/useSubject";
 
 interface User {
     id: number;
@@ -24,11 +30,27 @@ interface CircleProgressBarProps {
 }
 
 export default function FacilitiesDashboardPage() {
+    const { positions,
+        loading,
+        error,
+        fetchPositions, } = usePositions();
+
+    const { students, fetchStudents, } = useStudents();
+
+    const { teachers, fetchTeachers } = useTeachers();
+
+    const { employee, fetchEmployee } = useEmployee();
+
+    const { majors, fetchMajors } = useMajors()
+
+    const { subjects, fetchSubjects } = useSubjects();
+
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await roleMiddleware(["SuperAdmin"]);
                 setIsAuthorized(true);
+                fetchPositions()
 
                 const userId = getUserIdFromToken();
                 if (userId) {
@@ -42,6 +64,15 @@ export default function FacilitiesDashboardPage() {
 
         initializePage();
     }, []);
+
+    useEffect(() => {
+        fetchStudents();
+        fetchTeachers();
+        fetchEmployee();
+        fetchMajors();
+        fetchSubjects();
+    }, []);
+
 
     const fetchUserData = async (userId: number) => {
         try {
@@ -67,25 +98,43 @@ export default function FacilitiesDashboardPage() {
     const [entriesPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
 
-    const { dashboardData, loading, error, refreshData } = useDashboardFacilities();
+    const filteredData = positions.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.createdAt.includes(searchTerm)
+    );
+
+
+
+    // const { dashboardData, loading, error, refreshData } = useDashboardFacilities();
 
     // Data statis untuk tabel perbaikan
-    const repairData = dashboardData.repairs;
+    // const repairData = dashboardData.repairs;
 
-    // Filter data hanya berdasarkan search term
-    const filteredRepairs = dashboardData.repairs
-        .filter(item => item.category.toLowerCase().includes(searchTerm.toLowerCase()));
+    // // Filter data hanya berdasarkan search term
+    // const filteredRepairs = dashboardData.repairs
+    //     .filter(item => item.category.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    // Hapus filtered dashboard data, gunakan data asli
-    const dashboardSummary = {
-        incomingGoods: dashboardData.incomingGoods.length,
-        outgoingGoods: dashboardData.outgoingGoods.length,
-        totalInventory: dashboardData.totalInventory.length,
-        totalRooms: dashboardData.totalRooms.length,
-        latestBorrowings: dashboardData.latestBorrowings,
-        repairs: dashboardData.repairs,
-        latestProcurements: dashboardData.latestProcurements,
-    };
+    // // Hapus filtered dashboard data, gunakan data asli
+    // const dashboardSummary = {
+    //     incomingGoods: dashboardData.incomingGoods.length,
+    //     outgoingGoods: dashboardData.outgoingGoods.length,
+    //     totalInventory: dashboardData.totalInventory.length,
+    //     totalRooms: dashboardData.totalRooms.length,
+    //     latestBorrowings: dashboardData.latestBorrowings,
+    //     repairs: dashboardData.repairs,
+    //     latestProcurements: dashboardData.latestProcurements,
+    // };
+
+    // Memproses data absensi
+    const cardData = useMemo(() => {
+        return {
+            student: students.length,
+            teacher: teachers.length,
+            employee: employee.length,
+            major: majors.length
+        };
+    }, [students, teachers, employee, majors]);
 
     if (loading) {
         return (
@@ -126,7 +175,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-user text-[#1f509a] text-4xl'></i> {/* Ikon untuk Jumlah Siswa */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{dashboardSummary.incomingGoods}</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{cardData.student}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Jumlah Siswa</p>
                         </div>
                     </div>
@@ -135,7 +184,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-chalkboard text-[#e88d1f] text-4xl'></i> {/* Ikon untuk Jumlah Guru */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{dashboardSummary.outgoingGoods}</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{cardData.teacher}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Jumlah Guru</p>
                         </div>
                     </div>
@@ -144,7 +193,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-briefcase text-[#0a97b0] text-3xl'></i> {/* Ikon untuk Jumlah Karyawan */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{dashboardSummary.totalInventory}</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{cardData.employee}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Jumlah Karyawan</p>
                         </div>
                     </div>
@@ -153,7 +202,7 @@ export default function FacilitiesDashboardPage() {
                             <i className='bx bxs-graduation text-[#bd0000] text-4xl'></i> {/* Ikon untuk Jumlah Jurusan */}
                         </div>
                         <div>
-                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{dashboardSummary.totalRooms}</p>
+                            <p className="text-2xl text-[var(--text-semi-bold-color)] font-bold">{cardData.major}</p>
                             <p className="text-sm text-[var(--text-regular-color)]">Jumlah Jurusan</p>
                         </div>
                     </div>
@@ -164,24 +213,20 @@ export default function FacilitiesDashboardPage() {
                 <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
                     <h2 className="text-lg font-semibold text-[var(--text-semi-bold-color)] mb-4">Mata Pelajaran</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {[
-                            { name: 'Matematika', icon: 'bx bxs-calculator' },
-                            { name: 'Bahasa Indonesia', icon: 'bx bxs-book' },
-                            { name: 'Bahasa Inggris', icon: 'bx bxs-book' },
-                            { name: 'Bahasa Jawa', icon: 'bx bxs-book' },
-                            { name: 'Agama', icon: 'bx bxs-church' },
-                            { name: 'PP', icon: 'bx bxs-graduation' },
-                            { name: 'Sejarah', icon: 'bx bxs-book-open' },
-                            { name: 'PJOK', icon: 'bx bxs-basketball' }
-                        ].map((mapel, index) => (
-                            <div key={index} className="bg-[#f0f4ff] shadow-md rounded-lg p-4 flex items-center justify-between transition-transform transform hover:scale-105">
-                                <p className="text-lg text-[var(--text-regular-color)]">{mapel.name}</p>
-                                <i className={`${mapel.icon} text-[#1f509a] text-3xl`}></i>
-                            </div>
-                        ))}
+                        {subjects.length > 0 ? (
+                            subjects.map((subject, index) => (
+                                <div key={index} className="bg-[#f0f4ff] shadow-md rounded-lg p-4 flex items-center justify-between transition-transform transform hover:scale-105">
+                                    <p className="text-lg text-[var(--text-regular-color)]">{subject.name}</p>
+                                    <i className={`bx bxs-book text-[#1f509a] text-3xl`}></i> {/* Sesuaikan ikon jika tersedia di backend */}
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-center text-gray-500 col-span-4">Tidak ada data mata pelajaran</p>
+                        )}
                     </div>
                 </div>
                 {/* End Card for Mapel */}
+
 
                 {/* Card for Table */}
                 <div className="bg-white shadow-md rounded-lg p-6 mb-6">
@@ -217,15 +262,15 @@ export default function FacilitiesDashboardPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredRepairs.map((item, index: number) => (
+                                {filteredData.map((item, index: number) => (
                                     <tr key={index} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
                                         <td className="py-1 px-2 border-b">{index + 1}</td>
-                                        <td className="py-1 px-2 border-b">{item.category}</td>
-                                        <td className="py-1 px-2 border-b">{item.type}</td>
+                                        <td className="py-1 px-2 border-b">{item.position}</td>
+                                        <td className="py-1 px-2 border-b">{item.name}</td>
                                     </tr>
                                 ))}
 
-                                {filteredRepairs.length === 0 && (
+                                {filteredData.length === 0 && (
                                     <tr>
                                         <td colSpan={4} className="text-center text-gray-500 py-4">Belum ada data Posisi Jabatan</td>
                                     </tr>
