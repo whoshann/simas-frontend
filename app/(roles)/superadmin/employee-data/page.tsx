@@ -12,6 +12,7 @@ import { EmployeeGender, EmployeeCategory } from "@/app/utils/enums";
 import { getEmployeeGenderLabel, getEmployeeCategoryLabel } from "@/app/utils/enumHelpers";
 import { useEmployee } from "@/app/hooks/useEmployee";
 import { useUser } from "@/app/hooks/useUser";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 export default function EmployeePage() {
     // State Management
@@ -313,6 +314,30 @@ export default function EmployeePage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
 
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Nama Lengkap': item.fullName,
+                'Jenis Kelamin': getEmployeeGenderLabel(item.gender),
+                'Tempat Lahir': item.placeOfBirth,
+                'Tanggal Lahir': format(new Date(item.dateOfBirth), 'dd MMMM yyyy', { locale: id }),
+                'Alamat': item.fullAddress,
+                'Pendidikan Terakhir': item.lastEducation,
+                'Jurusan': item.lastEducationMajor,
+                'Nomor Telepon': item.phoneNumber,
+                'Kategori': getEmployeeCategoryLabel(item.category),
+                'Status Pernikahan': item.maritalStatus,
+                'Tanggal Dibuat': item.createdAt ? format(new Date(item.createdAt), 'dd MMMM yyyy', { locale: id }) : '-',
+                'Terakhir Diupdate': item.updatedAt ? format(new Date(item.updatedAt), 'dd MMMM yyyy', { locale: id }) : '-'
+            }));
+
+            exportToExcel(formattedData, 'Data Karyawan');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
+
     if (loading) {
         return <LoadingSpinner />;
     }
@@ -403,7 +428,7 @@ export default function EmployeePage() {
                                             Export PDF
                                         </button>
                                         <button
-                                            onClick={() => console.log("Export Excel")}
+                                            onClick={handleExport}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export Excel

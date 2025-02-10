@@ -9,6 +9,7 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useSubjects } from '@/app/hooks/useSubject';
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
 import { useUser } from "@/app/hooks/useUser";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 interface SubjectForm {
     id?: number;
@@ -35,13 +36,19 @@ export default function SubjectPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSubject, setSelectedSubject] = useState<SubjectForm | null>(null);
 
-    const handleExport = (type: 'pdf' | 'excel') => {
-        if (type === 'pdf') {
-            console.log("Exporting to PDF...");
-            // Implementasi export PDF
+    const handleExport = () => {
+        if (subjects && subjects.length > 0) {
+            const formattedData = subjects.map((subject, index) => ({
+                'No': index + 1,
+                'Mata Pelajaran': subject.name,
+                'Kode Mapel': subject.code,
+                'Tanggal Dibuat': subject.createdAt ? new Date(subject.createdAt).toLocaleDateString() : '-',
+                'Terakhir Diupdate': subject.updatedAt ? new Date(subject.updatedAt).toLocaleDateString() : '-'
+            }));
+
+            exportToExcel(formattedData, 'Data Mata Pelajaran');
         } else {
-            console.log("Exporting to Excel...");
-            // Implementasi export Excel
+            console.error('Tidak ada data untuk diekspor');
         }
     };
 

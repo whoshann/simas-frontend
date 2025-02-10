@@ -51,16 +51,16 @@ export default function InventoryPage() {
     }
 
     // Filter dan pagination logic
-    const filteredData = inventories.filter(item =>
+    const filteredInventories = inventories.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.stock.toString().includes(searchTerm.toLowerCase()) ||
         item.code.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const totalEntries = filteredData.length;
+    const totalEntries = filteredInventories.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
-    const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
+    const currentEntries = filteredInventories.slice(startIndex, startIndex + entriesPerPage);
 
     // Handlers
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,6 +127,7 @@ export default function InventoryPage() {
                         onAddClick={handleAddClick}
                         dropdownOpen={dropdownOpen}
                         setDropdownOpen={setDropdownOpen}
+                        inventories={filteredInventories} 
                     />
 
                     <InventoryTable 

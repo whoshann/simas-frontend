@@ -57,14 +57,22 @@
 }
 
 .react-calendar__tile {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 3rem;
   font-size: 1rem;
   transition: background-color 0.2s ease;
-  padding: 0.25rem;
   border-radius: 50%;
+  padding: 0;
+}
+
+.react-calendar__month-view__days__day {
+  position: relative;
+  padding: 0.25rem;
 }
 
 .react-calendar__tile--now {
@@ -80,12 +88,16 @@
 .react-calendar__tile:hover {
   background-color: #dbeafe;
   color: #1f509a;
-  border-radius: 50%;
 }
 
-.react-calendar__month-view__days__day {
-  padding: 0.25rem;
+/* Untuk indikator agenda (bulatan kecil) */
+.react-calendar__tile .flex.justify-center {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
 }
+
 /* Tambahkan ini ke file CSS Anda */
 .scroll-hidden {
   overflow-y: scroll; /* Tetap aktifkan scroll */

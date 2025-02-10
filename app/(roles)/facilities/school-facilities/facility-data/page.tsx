@@ -125,6 +125,7 @@ export default function FacilityDataPage() {
                         onAddClick={handleAddClick}
                         dropdownOpen={dropdownOpen}
                         setDropdownOpen={setDropdownOpen}
+                        facilities={filteredFacilities}
                     />
 
                     <FacilityTable

@@ -15,6 +15,7 @@ import FormModal from '@/app/components/DataTable/FormModal';
 import { formatDate } from "@/app/utils/helper";
 import { useUser } from "@/app/hooks/useUser";
 import { showSuccessAlert, showErrorAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 interface TableProps {
     procurement: Procurement[];
@@ -191,6 +192,24 @@ export default function ItemRequestPage() {
         }
     };
 
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Nama Pengaju': item.procurementName,
+                'Role Pengaju': item.role,
+                'Nama Barang': item.inventory.name,
+                'Jumlah': item.quantity,
+                'Tanggal Pengajuan': formatDate(item.procurementDate),
+                'Status': getProcurementStatusLabel(item.procurementStatus as ProcurementStatus)
+            }));
+
+            exportToExcel(formattedData, 'Data Pengajuan Barang');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
+
     if (isLoading) {
         return <LoadingSpinner />;
     }
@@ -288,7 +307,7 @@ export default function ItemRequestPage() {
                                             Export PDF
                                         </button>
                                         <button
-                                            onClick={() => console.log("Export Excel")}
+                                            onClick={handleExport}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export Excel

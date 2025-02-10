@@ -41,7 +41,7 @@ export default function OutgoingGoodsPage() {
   }, []);
 
   // Filter dan pagination logic
-  const filteredData = outgoingGoods.filter((item: OutgoingGoods) => {
+  const filteredOutgoingGoods = outgoingGoods.filter((item: OutgoingGoods) => {
     const searchValue = searchTerm.toLowerCase();
 
     // Format tanggal
@@ -86,10 +86,10 @@ export default function OutgoingGoodsPage() {
     );
   });
 
-  const totalEntries = filteredData.length;
+  const totalEntries = filteredOutgoingGoods.length;
   const totalPages = Math.ceil(totalEntries / entriesPerPage);
   const startIndex = (currentPage - 1) * entriesPerPage;
-  const currentEntries = filteredData.slice(
+  const currentEntries = filteredOutgoingGoods.slice(
     startIndex,
     startIndex + entriesPerPage
   );
@@ -131,6 +131,7 @@ export default function OutgoingGoodsPage() {
             }}
             dropdownOpen={dropdownOpen}
             setDropdownOpen={setDropdownOpen}
+            outgoingGoods={filteredOutgoingGoods} 
           />
 
           <OutgoingGoodTable

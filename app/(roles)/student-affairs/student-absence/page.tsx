@@ -13,6 +13,7 @@ import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useUser } from "@/app/hooks/useUser";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 
 export default function StudentAffairsAbsencePage() {
@@ -90,6 +91,24 @@ export default function StudentAffairsAbsencePage() {
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
+
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Nama Siswa': item.Student?.name || '-',
+                'Keterangan': getAbsenceStatusLabel(item.status),
+                'Koordinat': item.latitude && item.longitude ? `${item.latitude}, ${item.longitude}` : '-',
+                'Tanggal': formatDate(item.date),
+                'Tanggal Dibuat': item.createdAt ? formatDate(item.createdAt) : '-',
+                'Terakhir Diupdate': item.updatedAt ? formatDate(item.updatedAt) : '-'
+            }));
+
+            exportToExcel(formattedData, 'Data Absensi Siswa');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
 
     if (loading) return <LoadingSpinner />;
     if (error) return <p className="text-red-500">{error}</p>;
@@ -176,7 +195,7 @@ export default function StudentAffairsAbsencePage() {
                                             Export PDF
                                         </button>
                                         <button
-                                            onClick={() => console.log("Export Excel")}
+                                            onClick={handleExport}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export Excel

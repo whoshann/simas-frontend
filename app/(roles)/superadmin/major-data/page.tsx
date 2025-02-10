@@ -8,6 +8,7 @@ import { useMajors } from '@/app/hooks/useMajorData';
 import FormModal from "@/app/components/DataTable/FormModal";
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 import { useUser } from "@/app/hooks/useUser";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 export default function MajorPage() {
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -147,6 +148,30 @@ export default function MajorPage() {
 
     const currentEntries = filteredData.slice(startIndex, endIndex);
 
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Nama Jurusan': item.name,
+                'Kode Jurusan': item.code,
+                'Tanggal Dibuat': item.createdAt ? new Date(item.createdAt).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                }) : '-',
+                'Terakhir Diupdate': item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                }) : '-'
+            }));
+
+            exportToExcel(formattedData, 'Data Jurusan');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
+
     if (loading) return <LoadingSpinner />;
 
     return (
@@ -238,7 +263,7 @@ export default function MajorPage() {
                                         Export PDF
                                     </button>
                                     <button
-                                        onClick={() => console.log("Export Excel")}
+                                        onClick={handleExport}
                                         className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                     >
                                         Export Excel

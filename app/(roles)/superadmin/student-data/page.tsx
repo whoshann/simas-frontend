@@ -14,6 +14,7 @@ import { useStudents } from "@/app/hooks/useStudent";
 import { useSchoolClasses } from "@/app/hooks/useSchoolClassData";
 import { useMajors } from "@/app/hooks/useMajorData";
 import { useUser } from "@/app/hooks/useUser";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 export default function StudentPage() {
     // State Management
@@ -386,6 +387,37 @@ export default function StudentPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
 
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Nama Lengkap': item.name,
+                'NIS': item.nis,
+                'NISN': item.nisn,
+                'Kelas': item.class?.name || '-',
+                'Jurusan': item.major?.name || '-',
+                'Tanggal Lahir': format(new Date(item.birthDate), 'dd MMMM yyyy', { locale: id }),
+                'Tempat Lahir': item.birthPlace,
+                'Jenis Kelamin': getGenderLabel(item.gender),
+                'Alamat': item.address,
+                'No. Telepon': item.phone,
+                'No. Telepon Ortu': item.parentPhone,
+                'Agama': getReligionLabel(item.religion),
+                'Nama Ibu': item.motherName,
+                'Nama Ayah': item.fatherName,
+                'Nama Wali': item.guardian || '-',
+                'Tahun Diterima': item.admissionYear,
+                'Jalur Masuk': item.track || '-',
+                'Tanggal Dibuat': item.createdAt ? format(new Date(item.createdAt), 'dd MMMM yyyy', { locale: id }) : '-',
+                'Terakhir Diupdate': item.updatedAt ? format(new Date(item.updatedAt), 'dd MMMM yyyy', { locale: id }) : '-'
+            }));
+
+            exportToExcel(formattedData, 'Data Siswa');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
+
     if (loading) return <LoadingSpinner />;
     if (error) return <div className="text-red-500">{error}</div>;
     if (!isAuthorized) return null;
@@ -479,7 +511,7 @@ export default function StudentPage() {
                                         Export PDF
                                     </button>
                                     <button
-                                        onClick={() => console.log("Export Excel")}
+                                        onClick={handleExport}
                                         className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                     >
                                         Export Excel

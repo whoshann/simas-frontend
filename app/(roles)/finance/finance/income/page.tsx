@@ -118,6 +118,7 @@ export default function IncomePage() {
                         onAddClick={handleAddClick}
                         dropdownOpen={dropdownOpen}
                         setDropdownOpen={setDropdownOpen}
+                        incomes={filteredIncomes}
                     />
 
                     <IncomeTable

@@ -12,6 +12,7 @@ import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useUser } from "@/app/hooks/useUser";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 
 export default function StudentAffairsViolationsPage() {
@@ -199,6 +200,27 @@ export default function StudentAffairsViolationsPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
 
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Nama Siswa': item.student.name,
+                'Kelas': item.student.class?.name || '-',
+                'Pelanggaran': item.name,
+                'Kategori': item.violationPoint.name,
+                'Poin': item.violationPoint.points,
+                'Hukuman': item.punishment,
+                'Tanggal': format(new Date(item.date), 'dd MMMM yyyy', { locale: id }),
+                'Tanggal Dibuat': item.createdAt ? format(new Date(item.createdAt), 'dd MMMM yyyy', { locale: id }) : '-',
+                'Terakhir Diupdate': item.updatedAt ? format(new Date(item.updatedAt), 'dd MMMM yyyy', { locale: id }) : '-'
+            }));
+
+            exportToExcel(formattedData, 'Data Pelanggaran Siswa');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
+
     if (violationLoading) {
         return <LoadingSpinner />;
     }
@@ -288,7 +310,7 @@ export default function StudentAffairsViolationsPage() {
                                             Export PDF
                                         </button>
                                         <button
-                                            onClick={() => console.log("Export Excel")}
+                                            onClick={handleExport}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export Excel

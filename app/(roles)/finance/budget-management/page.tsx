@@ -12,6 +12,7 @@ import { budgetManagementApi } from "@/app/api/budget-management";
 import { formatRupiah, formatDate } from "@/app/utils/helper";
 import { useUser } from "@/app/hooks/useUser";
 import { showErrorAlert, showSuccessAlert } from "@/app/utils/sweetAlert";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 interface FormData {
     [key: string]: any;
@@ -147,6 +148,26 @@ export default function BudgetManagementPage() {
         }
     };
 
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Nama': item.user.username,
+                'Role': item.user.role,
+                'Judul': item.title,
+                'Deskripsi': item.description,
+                'Jumlah': formatRupiah(item.total_budget),
+                'Status': BudgetManagementStatusLabel[item.status],
+                'Tanggal': formatDate(item.created_at || ''),
+                
+            }));
+
+            exportToExcel(formattedData, 'Data RAB');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
+
     if (loading) {
         return <LoadingSpinner />;
     }
@@ -231,7 +252,7 @@ export default function BudgetManagementPage() {
                                             Export PDF
                                         </button>
                                         <button
-                                            onClick={() => console.log("Export Excel")}
+                                            onClick={handleExport}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export Excel

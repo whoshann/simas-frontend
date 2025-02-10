@@ -9,6 +9,9 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { usePositions } from '@/app/hooks/usePositionData';
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 import { useUser } from "@/app/hooks/useUser";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 interface FormData {
     [key: string]: any;
@@ -118,12 +121,19 @@ export default function PositionPage() {
         }
     };
 
+    const handleExport = () => {
+        if (positions && positions.length > 0) {
+            const formattedData = positions.map((position, index) => ({
+                'No': index + 1,
+                'Posisi Jabatan': position.position,
+                'Nama Posisi Jabatan': position.name,
+                'Tanggal Dibuat': position.createdAt ? format(new Date(position.createdAt), 'dd MMMM yyyy', { locale: id }) : '-',
+                'Terakhir Diupdate': position.updatedAt ? format(new Date(position.updatedAt), 'dd MMMM yyyy', { locale: id }) : '-'
+            }));
 
-    const handleExport = (type: 'pdf' | 'excel') => {
-        if (type === 'pdf') {
-            console.log("Exporting to PDF...");
+            exportToExcel(formattedData, 'Data Posisi Jabatan');
         } else {
-            console.log("Exporting to Excel...");
+            console.error('Tidak ada data untuk diekspor');
         }
     };
 

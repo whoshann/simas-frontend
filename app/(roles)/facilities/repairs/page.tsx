@@ -150,6 +150,7 @@ export default function RepairsPage() {
                         onAddClick={handleAddClick}
                         dropdownOpen={dropdownOpen}
                         setDropdownOpen={setDropdownOpen}
+                        repairs={filteredRepairs}
                     />
 
                     <RepairsTable

@@ -111,6 +111,7 @@ export default function RoomDataPage() {
                         onAddClick={handleAddClick}
                         dropdownOpen={dropdownOpen}
                         setDropdownOpen={setDropdownOpen}
+                        rooms={filteredRooms}
                     />
 
                     <RoomTable

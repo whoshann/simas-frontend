@@ -11,6 +11,7 @@ import FormModal from '@/app/components/DataTable/FormModal';
 import { NewsInformation } from "@/app/api/news-information/types";
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
 import { useUser } from "@/app/hooks/useUser";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 
 interface FormData {
@@ -198,6 +199,24 @@ export default function StudentAffairsNewsInformationPage() {
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Judul': item.activity,
+                'Deskripsi': item.description,
+                'Catatan': item.note || '-',
+                'Tanggal': formatDate(item.date),
+                'Tanggal Dibuat': item.createdAt ? formatDate(item.createdAt) : '-',
+                'Terakhir Diupdate': item.updatedAt ? formatDate(item.updatedAt) : '-'
+            }));
+
+            exportToExcel(formattedData, 'Data Berita & Informasi');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
+
     if (loading) {
         return <LoadingSpinner />;
     }
@@ -298,7 +317,7 @@ export default function StudentAffairsNewsInformationPage() {
                                             Export PDF
                                         </button>
                                         <button
-                                            onClick={() => console.log("Export Excel")}
+                                            onClick={handleExport}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export Excel

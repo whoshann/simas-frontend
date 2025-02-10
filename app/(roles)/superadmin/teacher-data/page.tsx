@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React, { useState } from "react";
@@ -21,6 +19,7 @@ import { getGenderLabel, getTeacherRoleLabel } from "@/app/utils/enumHelpers";
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useUser } from "@/app/hooks/useUser";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 export default function SuperAdminTeacherDataPage() {
 
@@ -337,6 +336,32 @@ export default function SuperAdminTeacherDataPage() {
         setIsPanelOpen(!isPanelOpen);
     };
 
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Nama Lengkap': item.name,
+                'NIP': item.nip,
+                'Jenis Kelamin': getGenderLabel(item.gender),
+                'Tanggal Lahir': format(new Date(item.birthDate), 'dd MMMM yyyy', { locale: id }),
+                'Tempat Lahir': item.placeOfBirth,
+                'Alamat': item.address,
+                'Nomor Telepon': item.phone,
+                'Pendidikan Terakhir': item.lastEducation,
+                'Jurusan': item.lastEducationMajor,
+                'Mata Pelajaran': item.subject.name,
+                'Posisi Jabatan': item.position.name,
+                'Peran': getTeacherRoleLabel(item.role),
+                'Tanggal Dibuat': item.createdAt ? format(new Date(item.createdAt), 'dd MMMM yyyy', { locale: id }) : '-',
+                'Terakhir Diupdate': item.updatedAt ? format(new Date(item.updatedAt), 'dd MMMM yyyy', { locale: id }) : '-'
+            }));
+
+            exportToExcel(formattedData, 'Data Guru');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
+
     if (loading) {
         return <LoadingSpinner />;
     }
@@ -434,7 +459,7 @@ export default function SuperAdminTeacherDataPage() {
                                             Export PDF
                                         </button>
                                         <button
-                                            onClick={() => console.log("Export Excel")}
+                                            onClick={handleExport}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export Excel

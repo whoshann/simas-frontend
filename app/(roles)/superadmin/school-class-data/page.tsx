@@ -12,6 +12,7 @@ import FormModal from "@/app/components/DataTable/FormModal";
 import { SchoolClass } from "@/app/api/school-class/types";
 import { useUser } from "@/app/hooks/useUser";
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from '@/app/utils/sweetAlert';
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 export default function SuperAdminSchoolClassDataPage() {
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -194,6 +195,35 @@ export default function SuperAdminSchoolClassDataPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
 
+    const handleExport = () => {
+        if (schoolClasses && schoolClasses.length > 0) {
+            const formattedData = schoolClasses.map((item, index) => ({
+                'No': index + 1,
+                'Nama Kelas': item.name,
+                'Kode Kelas': item.code,
+                'Tingkat': item.grade === Grade.X ? "X" : 
+                          item.grade === Grade.XI ? "XI" : "XII",
+                'Jurusan': item.major.name,
+                'Kode Jurusan': item.major.code,
+                'Wali Kelas': item.homeroomTeacher.name,
+                'Tanggal Dibuat': item.createdAt ? new Date(item.createdAt).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                }) : '-',
+                'Terakhir Diupdate': item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                }) : '-'
+            }));
+
+            exportToExcel(formattedData, 'Data Kelas');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
+
     if (!isAuthorized) {
         return null;
     }
@@ -292,7 +322,7 @@ export default function SuperAdminSchoolClassDataPage() {
                                             Export PDF
                                         </button>
                                         <button
-                                            onClick={() => console.log("Export Excel")}
+                                            onClick={handleExport}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export Excel

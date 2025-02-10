@@ -9,6 +9,7 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useAchievements } from "@/app/hooks/useAchievement";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
 import { useUser } from "@/app/hooks/useUser";  
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 export default function StudentAffairsAchievementPage() {
 
@@ -80,6 +81,25 @@ export default function StudentAffairsAchievementPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Nama Siswa': item.student?.name || '-',
+                'Kelas': item.class?.name || '-',
+                'Nama Prestasi': item.achievementName,
+                'Nama Kompetisi': item.competitionName,
+                'Kategori': item.typeOfAchievement === 'Non_Academic' ? 'Non Akademik' : 'Akademik',
+                'Tanggal': formatDate(item.achievementDate),
+                
+            }));
+
+            exportToExcel(formattedData, 'Data Prestasi Siswa');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
 
     if (loading) {
         return <LoadingSpinner />;
@@ -163,7 +183,7 @@ export default function StudentAffairsAchievementPage() {
                                             Export PDF
                                         </button>
                                         <button
-                                            onClick={() => console.log("Export Excel")}
+                                            onClick={handleExport}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export Excel

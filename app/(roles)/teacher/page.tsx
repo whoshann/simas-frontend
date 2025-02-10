@@ -204,7 +204,7 @@ export default function TeacherDashboardPage() {
                 className="custom-calendar"
                 tileClassName={({ date, view }) => {
                   if (view === "month" && date.getDay() === 0) {
-                    return "text-red-500";
+                    return "text-red-500";  
                   }
                   return "hover:bg-[var(--main-color)] hover:text-white";
                 }}

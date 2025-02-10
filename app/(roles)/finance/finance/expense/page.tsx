@@ -101,19 +101,20 @@ export default function ExpensePage() {
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-                <ExpensesHeader 
+            <ExpensesHeader 
                 searchTerm={searchTerm}
                 onSearchChange={(e) => setSearchTerm(e.target.value)}
-                />
+            />
 
             <main className="px-9 pb-6">
-            <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
                     <ExpenseActions
                         entriesPerPage={entriesPerPage}
                         onEntriesChange={(e) => setEntriesPerPage(Number(e.target.value))}
                         onAddClick={handleAddClick}
                         dropdownOpen={dropdownOpen}
                         setDropdownOpen={setDropdownOpen}
+                        expenses={filteredExpenses}
                     />
 
                     <ExpenseTable

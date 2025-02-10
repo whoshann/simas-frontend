@@ -118,6 +118,7 @@ export default function IncomingGoodDataPage() {
                         onAddClick={handleAddClick}
                         dropdownOpen={dropdownOpen}
                         setDropdownOpen={setDropdownOpen}
+                        incomingGoods={filteredIncomingGoods}
                     />
 
                     <IncomingGoodTable

@@ -10,6 +10,7 @@ import FormModal from '@/app/components/DataTable/FormModal';
 import { MonthlyFinance } from "@/app/api/monthly-finances/types";
 import { formatDateDisplay } from "@/app/utils/helper";
 import { showSuccessAlert, showErrorAlert, showConfirmDelete } from "@/app/utils/sweetAlert";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 // Perbaikan fungsi formatRupiah
 const formatRupiah = (angka: string | number) => {
@@ -223,6 +224,32 @@ export default function MonthlyFinancePage() {
         }
     };
 
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Bulan dan Tahun': formatDateDisplay(item.month),
+                'Pemasukan': formatRupiah(item.income),
+                'Pengeluaran': formatRupiah(item.expenses),
+                'Sisa Keuangan': formatRupiah(item.remainingBalance),
+                'Tanggal Dibuat': item.createdAt ? new Date(item.createdAt).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                }) : '-',
+                'Terakhir Diupdate': item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                }) : '-'
+            }));
+
+            exportToExcel(formattedData, 'Data Keuangan Bulanan');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
+
     // Definisikan pageContent
     const pageContent = {
         title: "Keuangan Bulanan",
@@ -343,7 +370,7 @@ export default function MonthlyFinancePage() {
                                             Export PDF
                                         </button>
                                         <button
-                                            onClick={() => console.log("Export Excel")}
+                                            onClick={handleExport}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export Excel

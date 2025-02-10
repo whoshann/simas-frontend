@@ -6,6 +6,7 @@ import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useSchoolPayment } from "@/app/hooks/useSchoolPayment";
 import { formatRupiah } from "@/app/utils/helper";
 import { useUser } from "@/app/hooks/useUser";
+import { exportToExcel, ExportConfigs } from '@/app/utils/exportToExcel';
 
 interface FormData {
     [key: string]: any;
@@ -55,6 +56,25 @@ export default function SppPage() {
     const startIndex = (currentPage - 1) * entriesPerPage;
     const currentEntries = filteredData.slice(startIndex, startIndex + entriesPerPage);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const handleExport = () => {
+        if (filteredData && filteredData.length > 0) {
+            const formattedData = filteredData.map((item, index) => ({
+                'No': index + 1,
+                'Nama Siswa': item.student.name,
+                'Kelas': item.student.class.name,
+                'Jumlah': formatRupiah(item.amount),
+                'Bulan': formatDate(item.month),
+                'Status': item.status,
+                'Tanggal': formatDate(item.date),
+                
+            }));
+
+            exportToExcel(formattedData, 'Data SPP');
+        } else {
+            console.error('Tidak ada data untuk diekspor');
+        }
+    };
 
     if (loading) {
         return <LoadingSpinner />;
@@ -112,7 +132,6 @@ export default function SppPage() {
                         {/* 3 button*/}
 
                         <div className="flex space-x-2 mt-5 sm:mt-0">
-                            {/* Button Import CSV */}
                             <button
                                 onClick={() => console.log("Import CSV")}
                                 className="bg-[var(--second-color)] text-white px-4 py-2 sm:py-3 rounded-lg text-xxs sm:text-xs hover:bg-[#de881f]"
@@ -120,7 +139,6 @@ export default function SppPage() {
                                 Import Dari Excel
                             </button>
 
-                            {/* Dropdown Export */}
                             <div className="relative">
                                 <button
                                     onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -133,8 +151,7 @@ export default function SppPage() {
                                         viewBox="0 0 24 24"
                                         strokeWidth={2}
                                         stroke="currentColor"
-                                        className={`w-4 h-4 ml-2 transform transition-transform ${dropdownOpen ? 'rotate-90' : 'rotate-0'
-                                            }`}
+                                        className={`w-4 h-4 ml-2 transform transition-transform ${dropdownOpen ? 'rotate-90' : 'rotate-0'}`}
                                     >
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                     </svg>
@@ -148,7 +165,7 @@ export default function SppPage() {
                                             Export PDF
                                         </button>
                                         <button
-                                            onClick={() => console.log("Export Excel")}
+                                            onClick={handleExport}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export Excel
@@ -156,7 +173,6 @@ export default function SppPage() {
                                     </div>
                                 )}
                             </div>
-
                         </div>
 
 
