@@ -11,17 +11,18 @@ export const useViolation = () => {
 
   const fetchViolations = async () => {
     try {
-      setLoading(true);
-      const response = await violationApi.getAll();
-      setViolations(response.data);
-      setError(null);
+        setLoading(true);
+        const response = await violationApi.getAll();
+        console.log('API Response:', response); // Tambahkan log untuk debugging
+        setViolations(response.data);
+        setError(null);
     } catch (err: any) {
-      setError(err.message || "Error fetching Dispense");
-      console.error("Error fetching Dispense:", err);
+        setError(err.message || "Error fetching Violations");
+        console.error("Error fetching Violations:", err);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   const createViolation = async (
     data: Omit<

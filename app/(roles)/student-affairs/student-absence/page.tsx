@@ -13,6 +13,7 @@ import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useUser } from "@/app/hooks/useUser";
+import { generateAbsenceReport } from '@/app/utils/pdfTemplates/absenceReport/absenceReport';
 
 
 export default function StudentAffairsAbsencePage() {
@@ -78,10 +79,22 @@ export default function StudentAffairsAbsencePage() {
         return format(new Date(date), 'dd MMMM yyyy', { locale: id });
     };
 
+    const handleExportPDF = () => {
+        try {
+            const doc = generateAbsenceReport(filteredData);
+            doc.save('laporan-absensi-siswa.pdf');
+            setDropdownOpen(false);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            showErrorAlert('Error', 'Gagal menghasilkan PDF');
+        }
+    };
+
 
     // Filter dan pagination
     const filteredData = absence.filter(item =>
         item.Student?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.Student?.class.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.date.includes(searchTerm)
     );
@@ -170,7 +183,7 @@ export default function StudentAffairsAbsencePage() {
                                 {dropdownOpen && (
                                     <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
                                         <button
-                                            onClick={() => console.log("Export PDF")}
+                                            onClick={handleExportPDF}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export PDF
@@ -196,6 +209,7 @@ export default function StudentAffairsAbsencePage() {
                                 <tr>
                                     <th className="py-2 px-4 border-b text-left">No</th>
                                     <th className="py-2 px-4 border-b text-left">Nama</th>
+                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
                                     <th className="py-2 px-4 border-b text-left">Keterangan</th>
                                     <th className="py-2 px-4 border-b text-left">Bukti Surat</th>
                                     <th className="py-2 px-4 border-b text-left">Titik Koordinat</th>
@@ -207,19 +221,20 @@ export default function StudentAffairsAbsencePage() {
                                 {currentEntries.map((item, index) => (
                                     <tr key={item.id} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
                                         <td className="py-2 px-4 border-b">{startIndex + index + 1}</td>
-                                        <td className="py-2 px-4 border-b">{item.Student?.name}</td>
+                                        <td className="py-2 px-4 border-b">{item.Student?.name}</td> 
+                                        <td className="py-2 px-4 border-b">{item.Student?.class.name}</td> 
                                         <td className="py-2 px-4 border-b">
                                             <span className={`inline-block px-3 py-1 rounded-full ${item.status === AbsenceStatus.Present
-                                                    ? 'bg-[#0a97b028] text-[var(--third-color)]'
-                                                    : item.status === AbsenceStatus.Sick
-                                                        ? 'bg-[#e88e1f29] text-[var(--second-color)]'
-                                                        : item.status === AbsenceStatus.Alpha
-                                                            ? 'bg-[#bd000025] text-[var(--fourth-color)]'
-                                                            : item.status === AbsenceStatus.Permission
-                                                                ? 'bg-[#1f509a26] text-[var(--main-color)]'
-                                                                : item.status === AbsenceStatus.Late
-                                                                    ? 'bg-[#0a97b028] text-[var(--third-color)]'
-                                                                    : 'bg-[#0a97b028] text-[var(--third-color)]'
+                                                ? 'bg-[#0a97b028] text-[var(--third-color)]'
+                                                : item.status === AbsenceStatus.Sick
+                                                    ? 'bg-[#e88e1f29] text-[var(--second-color)]'
+                                                    : item.status === AbsenceStatus.Alpha
+                                                        ? 'bg-[#bd000025] text-[var(--fourth-color)]'
+                                                        : item.status === AbsenceStatus.Permission
+                                                            ? 'bg-[#1f509a26] text-[var(--main-color)]'
+                                                            : item.status === AbsenceStatus.Late
+                                                                ? 'bg-[#0a97b028] text-[var(--third-color)]'
+                                                                : 'bg-[#0a97b028] text-[var(--third-color)]'
                                                 }`}>
                                                 {getAbsenceStatusLabel(item.status)}
                                             </span>

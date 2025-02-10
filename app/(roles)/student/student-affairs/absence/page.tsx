@@ -15,6 +15,7 @@ import { useAbsence } from "@/app/hooks/useAbsence";
 import axios from "axios";
 import { Student } from "@/app/api/student/types";
 import { AbsenceStatus } from "@/app/utils/enums";
+import { getAbsenceStatusLabel } from "@/app/utils/enumHelpers";
 import { jwtDecode } from "jwt-decode";
 
 interface CustomJwtPayload {
@@ -47,6 +48,8 @@ export interface Absence {
 
 export default function StudentAbsencePage() {
     const [absence, setAbsence] = useState<Absence[]>([]);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
 
     const fetchAbsence = async (studentId: number) => {
         try {
@@ -128,6 +131,18 @@ export default function StudentAbsencePage() {
         } catch (err) {
             console.error("Error fetching user data:", err);
         }
+    };
+
+    const handleImageClick = (imageUrl: string) => {
+        setSelectedImage(imageUrl);
+        // Ketika modal dibuka, disable scroll pada body
+        document.body.style.overflow = 'hidden';
+    };
+
+    const handleCloseImage = () => {
+        setSelectedImage(null);
+        // Ketika modal ditutup, enable kembali scroll pada body
+        document.body.style.overflow = 'unset';
     };
 
     const months = [
@@ -368,23 +383,26 @@ export default function StudentAbsencePage() {
                                         <td className="py-2 px-4 border-b">{absence.Student.class.name}</td>
                                         <td className="py-2 px-4 border-b">
                                             <span className={`inline-block px-3 py-1 rounded-full ${absence.status === 'Present' ? 'bg-[#0a97b028] text-[var(--third-color)]' : absence.status === 'Sick' ? 'bg-[#e88e1f29] text-[var(--second-color)] ' : absence.status === 'Alpha' ? 'bg-[#bd000025] text-[var(--fourth-color)]' : absence.status === 'Permission' ? 'bg-[#1f509a26] text-[var(--main-color)] ' : ''}`}>
-                                                {absence.status}
+                                                {getAbsenceStatusLabel(absence.status)}
                                             </span>
                                         </td>
                                         <td className="py-2 px-4 border-b">
-                                            <div className="w-16 h-16 overflow-hidden rounded">
-                                                {absence.photo ? (
+                                            {absence.photo ? (
+                                                <div
+                                                    className="w-16 h-16 overflow-hidden rounded cursor-pointer"
+                                                    onClick={() => handleImageClick(`${process.env.NEXT_PUBLIC_API_URL}/uploads/absence/${absence.photo?.split('/').pop()}`)}
+                                                >
                                                     <Image
                                                         src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/absence/${absence.photo.split('/').pop()}`}
                                                         alt="Bukti Surat"
-                                                        className="w-full h-full object-cover"
+                                                        className="w-full h-full object-cover hover:opacity-80 transition-opacity"
                                                         width={256}
                                                         height={256}
                                                     />
-                                                ) : (
-                                                    '-'
-                                                )}
-                                            </div>
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400">-</span>
+                                            )}
                                         </td>
                                         <td className="py-2 px-4 border-b">{formatDate(absence.date)}</td>
                                     </tr>
@@ -434,6 +452,42 @@ export default function StudentAbsencePage() {
                     </div>
                     {/*End Pagination and showing entries */}
 
+                    {/* Image Modal */}
+                    {selectedImage && (
+                        <div
+                            className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto"
+                            onClick={handleCloseImage}
+                        >
+                            <div className="min-h-screen px-4 py-6 flex items-center justify-center">
+                                <div
+                                    className="relative max-w-4xl w-full bg-white rounded-lg shadow-lg overflow-hidden"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    {/* Header dengan tombol close */}
+                                    <div className="absolute top-0 right-0 p-4 z-10">
+                                        <button
+                                            onClick={handleCloseImage}
+                                            className="bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-70 transition-opacity"
+                                        >
+                                            <i className="bx bx-x text-2xl"></i>
+                                        </button>
+                                    </div>
+
+                                    {/* Image container dengan scroll */}
+                                    <div className="max-h-[85vh] overflow-y-auto">
+                                        <Image
+                                            src={selectedImage}
+                                            alt="Bukti Surat"
+                                            className="w-full h-auto object-contain"
+                                            width={1024}
+                                            height={1024}
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                 </div>
             </main>

@@ -8,7 +8,9 @@ import Image from 'next/image';
 import LoadingSpinner from "@/app/components/loading/LoadingSpinner";
 import { useAchievements } from "@/app/hooks/useAchievement";
 import { getUserIdFromToken } from "@/app/utils/tokenHelper";
-import { useUser } from "@/app/hooks/useUser";  
+import { useUser } from "@/app/hooks/useUser";
+import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
+import { generateAchievementReport } from "@/app/utils/pdfTemplates/achievementReport/achievementReport";
 
 export default function StudentAffairsAchievementPage() {
 
@@ -45,15 +47,31 @@ export default function StudentAffairsAchievementPage() {
 
     const handleDelete = async (id: number) => {
         try {
-            // Tambahkan konfirmasi sebelum menghapus
-            if (window.confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+
+            const result = await showConfirmDelete(
+                'Apakah Anda yakin?',
+                'Apakah Anda yakin ingin menghapus data prestasi ini?'
+            );
+
+            if (result) {
                 await deleteAchievement(id);
-                alert('Data posisi berhasil dihapus!');
+                await showSuccessAlert('Berhasil', 'Data prestasi berhasil dihapus!');
                 await fetchAchievements();
             }
         } catch (error: any) {
             console.error("Error deleting position:", error);
-            alert('Gagal menghapus data posisi');
+            await showErrorAlert('Error', 'Gagal menghapus data prestasi');
+        }
+    };
+
+    const handleExportPDF = () => {
+        try {
+            const doc = generateAchievementReport(filteredData);
+            doc.save('laporan-prestasi.pdf');
+            setDropdownOpen(false);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            showErrorAlert('Error', 'Gagal menghasilkan PDF');
         }
     };
 
@@ -157,7 +175,7 @@ export default function StudentAffairsAchievementPage() {
                                 {dropdownOpen && (
                                     <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
                                         <button
-                                            onClick={() => console.log("Export PDF")}
+                                            onClick={handleExportPDF}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export PDF

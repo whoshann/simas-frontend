@@ -68,7 +68,7 @@ export default function GuestDashboard() {
                     next.scrollIntoView({ behavior: 'smooth' });
                 }
             }
-        }, 5000); // Ganti 5000 dengan waktu dalam milidetik sesuai kebutuhan
+        }, 3000); // Ganti 5000 dengan waktu dalam milidetik sesuai kebutuhan
 
         return () => clearInterval(interval);
     }, []);
