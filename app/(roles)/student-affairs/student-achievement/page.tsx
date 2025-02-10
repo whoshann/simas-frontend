@@ -150,7 +150,7 @@ export default function StudentAffairsAchievementPage() {
                             <label className="ml-2">Entri</label>
                         </div>
 
-                        {/* 3 button*/}
+                        {/* 3 button action*/}
 
                         <div className="flex space-x-2 mt-5 sm:mt-0">
                             {/* Dropdown Export */}
