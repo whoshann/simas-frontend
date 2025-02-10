@@ -10,6 +10,7 @@ export interface Procurement {
   quantity: string;
   procurementDate: string;
   documentPath: string;
+  updateMessage: string;
   procurementStatus: ProcurementStatus;
 }
 

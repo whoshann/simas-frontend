@@ -164,7 +164,7 @@ const Sidebar: React.FC = () => {
                 </button>
             </div>
 
-            <aside className={`bg-white w-64 h-screen space-y-6 py-7 px-4 z-1 fixed md:sticky inset-y-0 left-0 transition duration-300 ease-in-out ${isSidebarOpen ? 'block' : 'hidden'}`}>
+            <aside className={`bg-white w-64 h-screen space-y-6 py-7 px-4 z-10 fixed md:sticky inset-y-0 left-0 transition duration-300 ease-in-out ${isSidebarOpen ? 'block' : 'hidden'}`}>
 
                 {/* Sidebar Title */}
                 <div className="flex items-center justify-between px-4">

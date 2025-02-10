@@ -21,6 +21,7 @@ const formatRupiah = (angka: string) => {
     let rupiah = split[0].substr(0, sisa);
     const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
 
+
     if (ribuan) {
         const separator = sisa ? "." : "";
         rupiah += separator + ribuan.join(".");
@@ -45,6 +46,7 @@ export default function FacilitiesBudgetProposalPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(5);
+    const [expandedMessages, setExpandedMessages] = useState<{ [key: number]: boolean }>({});
     const [formData, setFormData] = useState<FormData>({
         userId: 0,
         title: "",
@@ -81,13 +83,6 @@ export default function FacilitiesBudgetProposalPage() {
         initializePage();
     }, []);
 
-    if (loading) {
-        return <LoadingSpinner />;
-    }
-
-    if (!isAuthorized) {
-        return null;
-    }
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -225,6 +220,46 @@ export default function FacilitiesBudgetProposalPage() {
             console.error("Error downloading PDF:", error);
         }
     };
+
+    // Tambahkan fungsi untuk toggle read more
+    const toggleReadMore = (id: number) => {
+        setExpandedMessages(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
+    // Buat komponen MessageWithReadMore
+    const MessageWithReadMore = ({ message, id }: { message: string, id: number }) => {
+        const MAX_LENGTH = 50; // Maksimum karakter yang ditampilkan
+        const isExpanded = expandedMessages[id];
+        const isLongMessage = message.length > MAX_LENGTH;
+
+        return (
+            <div className="text-sm">
+                <p className={`${isExpanded ? '' : 'line-clamp-2'}`}>
+                    {isExpanded ? message : isLongMessage ? `${message.slice(0, MAX_LENGTH)}...` : message}
+                </p>
+                {isLongMessage && (
+                    <button
+                        onClick={() => toggleReadMore(id)}
+                        className="text-[var(--main-color)] hover:text-[var(--main-color)]/80 text-xs mt-1 focus:outline-none"
+                    >
+                        {isExpanded ? 'Tampilkan lebih sedikit' : 'Baca selengkapnya'}
+                    </button>
+                )}
+            </div>
+        );
+    };
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    if (!isAuthorized) {
+        return null;
+    }
+
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden bg-[#F2F2F2]">
@@ -390,7 +425,7 @@ export default function FacilitiesBudgetProposalPage() {
                                             Tanggal Pengajuan
                                         </th>
                                         <th className="py-2 px-4 border-b text-left">Status</th>
-                                        <th className="py-2 px-4 border-b text-left">Pesan</th>
+                                        <th className="py-2 px-4 border-b text-left tracking-wider w-1/4">Pesan</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -472,11 +507,11 @@ export default function FacilitiesBudgetProposalPage() {
                                                     </span>
                                                 )}
                                             </td>
-                                            <td
-                                                className="py-2 px-4 border-b"
-                                                style={{ whiteSpace: "nowrap" }}
-                                            >
-                                                {item.updateMessage || "-"}
+                                            <td className="py-2 px-4 border-b whitespace-normal max-w-xs">
+                                                <MessageWithReadMore
+                                                    message={item.updateMessage || '-'}
+                                                    id={item.id || 0}
+                                                />
                                             </td>
                                         </tr>
                                     ))}
