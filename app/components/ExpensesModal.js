@@ -25,7 +25,7 @@ export default function ExpensesData({ isOpen, onClose, onSubmit, expensesData }
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-10">
             <div className="bg-white rounded-lg shadow-lg relative w-[28rem] max-h-[80vh] overflow-hidden mx-4">
                 <div className="bg-white p-4 sticky top-0 z-10">
                     {/* Menggunakan ikon dari Boxicons */}

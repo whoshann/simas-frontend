@@ -289,17 +289,17 @@ export default function BudgetManagementPage() {
                                         <td className="py-2 px-4 border-b">{budgetManagement.title}</td>
                                         <td className="py-2 px-4 border-b">{budgetManagement.description}</td>
                                         <td className="py-2 px-4 border-b">{formatRupiah(budgetManagement.total_budget)}</td>
-                                        <td className="py-2 px-4 border-b">
+                                        <td className="py-2 px-4 border-b ">
                                             <button
                                                 onClick={() => handleViewPDF(budgetManagement.document_path)}
-                                                className="text-[var(--main-color)] underline mr-2"
+                                                className="text-[var(--main-color)] underline mr-2 text-xs"
                                             >
                                                 Lihat PDF
                                             </button>
                                             {' | '}
                                             <button
                                                 onClick={() => handleDownloadPDF(budgetManagement.document_path)}
-                                                className="text-[var(--third-color)] underline"
+                                                className="text-[var(--third-color)] underline text-xs"
                                             >
                                                 Unduh PDF
                                             </button>

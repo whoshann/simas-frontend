@@ -9,6 +9,7 @@ import { useStudents } from "@/app/hooks/useStudent";
 import { useViolationPoint } from "@/app/hooks/useViolationPointData";
 import FormModal from "@/app/components/DataTable/FormModal";
 import { showConfirmDelete, showSuccessAlert, showErrorAlert } from "@/app/utils/sweetAlert";
+import { generateViolationReport } from '@/app/utils/pdfTemplates/violationReport/violationReport';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useUser } from "@/app/hooks/useUser";
@@ -51,6 +52,7 @@ export default function StudentAffairsViolationsPage() {
                     fetchStudents(),
                     fetchViolationPoints()
                 ]);
+                console.log('Violations data:', violations);
                 setIsAuthorized(true);
             } catch (error) {
                 console.error("Error:", error);
@@ -185,6 +187,19 @@ export default function StudentAffairsViolationsPage() {
         }
     };
 
+    const handleExportPDF = () => {
+        try {
+            // Menggunakan currentEntries (data yang tampil di tabel) bukan filteredData
+            const doc = generateViolationReport(currentEntries);
+            doc.save('laporan-pelanggaran.pdf');
+            setDropdownOpen(false);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            showErrorAlert('Error', 'Gagal menghasilkan PDF');
+        }
+    };
+
+
     // fungsi untuk search
     const filteredData = violations.filter(item =>
         item.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -304,7 +319,7 @@ export default function StudentAffairsViolationsPage() {
                                 {dropdownOpen && (
                                     <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
                                         <button
-                                            onClick={() => console.log("Export PDF")}
+                                            onClick={handleExportPDF}
                                             className="block w-full text-left text-[var(--text-regular-color)] px-4 py-2 hover:bg-gray-100"
                                         >
                                             Export PDF
@@ -327,7 +342,7 @@ export default function StudentAffairsViolationsPage() {
                                 <tr>
                                     <th className="py-2 px-4 border-b text-left">No</th>
                                     <th className="py-2 px-4 border-b text-left">Nama</th>
-                                    {/* <th className="py-2 px-4 border-b text-left">Kelas</th> */}
+                                    <th className="py-2 px-4 border-b text-left">Kelas</th>
                                     <th className="py-2 px-4 border-b text-left">Pelanggaran</th>
                                     <th className="py-2 px-4 border-b text-left">Kategori</th>
                                     <th className="py-2 px-4 border-b text-left">Hukuman</th>
@@ -341,7 +356,7 @@ export default function StudentAffairsViolationsPage() {
                                     <tr key={violations.id} className="hover:bg-gray-100 text-[var(--text-regular-color)]">
                                         <td className="py-2 px-4 border-b">{index + 1}</td>
                                         <td className="py-2 px-4 border-b">{violations.student.name}</td>
-                                        {/* <td className="py-2 px-4 border-b">{violations.classSchool}</td> */}
+                                        <td className="py-2 px-4 border-b">{students.find(student => student.id === violations.studentId)?.class.name || '-'}</td>
                                         <td className="py-2 px-4 border-b">{violations.name}</td>
                                         <td className="py-2 px-4 border-b">
                                             <span className={`inline-block px-3 py-1 rounded-full ${violations.violationPoint.name === 'Ringan'
